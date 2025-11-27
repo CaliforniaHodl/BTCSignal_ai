@@ -1,0 +1,54 @@
+{{ define "main" }}
+<div class="container">
+  <header class="hero-section">
+    <h1 class="site-title">Bitcoin Analysis Bot</h1>
+    <p class="site-description">Automated technical analysis powered by AI</p>
+    <div class="live-ticker" id="btc-ticker">
+      <span class="ticker-label">BTC/USDT</span>
+      <span class="ticker-price" id="btc-price">Loading...</span>
+      <span class="ticker-change" id="btc-change"></span>
+    </div>
+  </header>
+
+  <section class="latest-analysis">
+    <h2>Latest Analysis</h2>
+    <div class="posts-grid">
+      {{ range first 6 (where .Site.RegularPages "Section" "posts") }}
+      <a href="{{ .Permalink }}" class="post-card {{ .Params.direction }}">
+        <div class="post-card-header">
+          <span class="post-date">{{ .Date.Format "Jan 02, 15:04" }}</span>
+          <span class="post-timeframe">{{ .Params.timeframe }}</span>
+        </div>
+        <div class="post-card-body">
+          <span class="direction-badge {{ .Params.direction }}">
+            {{ if eq .Params.direction "up" }}&#x1F4C8;{{ else if eq .Params.direction "down" }}&#x1F4C9;{{ else }}&#x23F8;{{ end }}
+            {{ upper .Params.direction }}
+          </span>
+          <span class="confidence">{{ .Params.confidence }}%</span>
+        </div>
+        <div class="post-card-footer">
+          <span class="price">${{ .Params.price }}</span>
+        </div>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="all-posts">
+    <h2>All Analysis</h2>
+    <div class="posts-list">
+      {{ range (where .Site.RegularPages "Section" "posts") }}
+      <a href="{{ .Permalink }}" class="post-row {{ .Params.direction }}">
+        <span class="post-date">{{ .Date.Format "2006-01-02 15:04" }}</span>
+        <span class="direction-indicator {{ .Params.direction }}">
+          {{ if eq .Params.direction "up" }}&#x1F4C8;{{ else if eq .Params.direction "down" }}&#x1F4C9;{{ else }}&#x23F8;{{ end }}
+        </span>
+        <span class="direction-text">{{ upper .Params.direction }}</span>
+        <span class="confidence">{{ .Params.confidence }}%</span>
+        <span class="price">${{ .Params.price }}</span>
+      </a>
+      {{ end }}
+    </div>
+  </section>
+</div>
+{{ end }}

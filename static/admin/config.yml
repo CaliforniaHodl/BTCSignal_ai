@@ -1,0 +1,85 @@
+backend:
+  name: github
+  repo: GROWDND/{{ .Site.Params.repoName }}
+
+  branch: master # Branch to update (optional; defaults to master)
+
+
+# This line should *not* be indented
+publish_mode: editorial_workflow
+
+# These lines should *not* be indented
+media_folder: "static/images/uploads" # Media files will be stored in the repo under static/images/uploads
+public_folder: "/images/uploads" # The src attribute for uploaded media will begin with /images/uploads
+
+collections:
+  # Blog
+  - label: "Blog" # Used in the UI
+    name: "blogPages" # Used in routes, e.g., /admin/collections/blog
+    folder: "content/resources/blog" # The path to the folder where the documents are stored
+    create: true # Allow users to create new documents in this collection
+    slug: "{{slug}}" # Filename template, e.g., YYYY-MM-DD-title.md
+    fields: # The fields for each document, usually in front matter
+    - {label: "Title", name: "title", widget: "string"}
+    - {label: "PageTitle", name: "PageTitle", widget: "string", required: false}
+    - {label: Description, name: description, widget: string}
+    - {label: Slug, name: slug, widget: string}
+    - {label: SEOImage, name: seoimage, widget: image}
+    - {label: Image, name: image, widget: image}
+    - {label: Alt, name: alt, widget: string}
+    - {label: Tags, name: tags, widget: list}
+    - {label: Priority, name: priority, widget: string,  default: '0.5'}
+    - {label: Popular, name: popular, widget: boolean, required: false}
+    - {label: "Publish Date", name: "date", widget: "datetime"}
+    - {label: "Update  Date", name: "updatedate", widget: "datetime"}
+    - {label: "Page Type", name: "pagetype", widget: string,  default: 'article'}
+    - {label: "Type", name: "type", widget: string,  default: 'resources/blog'}
+    - {label: 'JavaScript', name: 'js', widget: 'list',  default: ['menu.js', 'blog.js']}
+    - {label: 'CSS', name: 'css', widget: 'list', default: ['site.css', 'blog.css']}
+    - {label: "Body", name: "body", widget: "markdown"}
+
+  - label: "Courses" # Used in the UI
+    name: "coursePages" # Used in routes, e.g., /admin/collections/blog
+    folder: "content/course" # The path to the folder where the documents are stored
+    create: true # Allow users to create new documents in this collection
+    slug: "{{slug}}"
+    fields: # The fields for each document, usually in front matter
+     - {label: "Slug", name: "title", widget: "string"}
+     - {label: "Image", name: "image", widget: "string", default: "/images/assets/brand/MandatedReporterTraining-share.png"}
+     - {label: "PageTitle", name: "PageTitle", widget: "string", required: false}
+     - {label: "MetaDescription", name: description, widget: string, required: false}
+     - {label: "CourseName", name: "CourseName", widget: "string", required: false}
+     - {label: "CardName", name: "CardName", widget: "string", required: false}
+     - {label: "CategoryType", name: "CategoryType", widget: "select", options: ["child", "elder", "sexual harassment", "implicit bias"], required: false}
+     - {label: "Spanish", name: "Spanish", widget: "boolean", required: false}
+     - {label: "IsCE", name: "isCE", widget: boolean, required: false}
+     - {label: "State", name: "state", widget: "select", options: [{ label: "National", value: "natl" },{ label: "Alabama", value: "al" },{ label: "Alaska", value: "ak" },{ label: "Arizona", value: "az" },{ label: "Arkansas", value: "ar" },{ label: "California", value: "ca" },{ label: "Colorado", value: "co" },{ label: "Connecticut", value: "ct" },{ label: "Delaware", value: "de" },{ label: "Florida", value: "fl" },{ label: "Georgia", value: "ga" },{ label: "Hawaii", value: "hi" },{ label: "Idaho", value: id  },{ label: "Illinois", value: "il" },{ label: "Indiana", value: "in" },{ label: "Iowa", value: "ia" },{ label: "Kansas", value: "ks" },{ label: "Kentucky", value: "ky" },{ label: "Louisiana", value: "la" },{ label: "Maine", value: "me" },{ label: "Maryland", value: "md" },{ label: "Massachusetts", value: "ma" },{ label: "Michigan", value: "mi" },{ label: "Minnesota", value: "mn" },{ label: "Mississippi", value: "ms" },{ label: "Missouri", value: "mo" },{ label: "Montana", value: "mt" },{ label: "Nebraska", value: "ne" },{ label: "Nevada", value: "nv" },{ label: "New Hampshire", value: "nh" },{ label: "New Jersey", value: "nj" },{ label: "New Mexico", value: "nm" },{ label: "New York", value: "ny" },{ label: "North Carolina", value: "nc" },{ label: "North Dakota", value: "nd" },{ label: "Ohio", value: "oh" },{ label: "Oklahoma", value: "ok" },{ label: "Oregon", value: "or" },{ label: "Pennsylvania", value: "pa" },{ label: "Rhode Island", value: "ri" },{ label: "South Carolina", value: "sc" },{ label: "South Dakota", value: "sd" },{ label: "Tennessee", value: "tn" },{ label: "Texas", value: "tx" },{ label: "Utah", value: "ut" },{ label: "Vermont", value: "vt" },{ label: "Virginia", value: "va" },{ label: "Washington", value: "wa" },{ label: "West Virginia", value: "wv" },{ label: "Wisconsin", value: "wi" },{ label: "Wyoming", value: "wy" }], required: false}
+     - {label: "CourseDuration", name: "CourseDuration", widget: number,  value_type: "float", required: false  }
+     - {label: "HeroTitle", name: "HeroTitle", widget: string, required: false }
+     - {label: "HeroDescription", name: "heroDescription", widget: markdown, required: false }
+     - {label: "TrainingUrl", name: "TrainingUrl", widget: string, required: false}
+     - {label: "WYWLDescription", name: "WYWLDescription", widget: markdown, required: false }
+     - {label: "WYWLList", name: "WYWLList", widget: markdown, required: false}
+     - {label: "WYWLImage", name: "WYWLImage", widget: image, required: false }
+     - {label: "WYWLAlt", name: "WYWLAlt", widget: string, required: false }
+     - {label: "LearningPathPreAssessmentTitle", name: "LearningPathPreAssessmentTitle", widget: string, required: false }
+     - {label: "LearningPathPreAssessmentDescription", name: "LearningPathPreAssessmentDescription", widget: markdown, required: false }
+     - {label: "LearningPathGeneralTitle", name: "LearningPathGeneralTitle", widget: string, required: false }
+     - {label: "LearningPathGeneralDescription", name: "LearningPathGeneralDescription", widget: markdown, required: false }
+     - {label: "LearningPathCourse2Title", name: "LearningPathCourse2Title", widget: string, required: false }
+     - {label: "LearningPathCourse2Description", name: "LearningPathCourse2Description", widget: markdown, required: false }
+     - {label: "LearningPathExamTitle", name: "LearningPathExamTitle", widget: string, required: false }
+     - {label: "LearningPathExamDescription", name: "LearningPathExamDescription", widget: markdown, required: false }
+     - {label: "LearningPathCertificateTitle", name: "LearningPathCertificateTitle", widget: string, required: false }
+     - {label: "LearningPathCertificateDescription", name: "LearningPathCertificateDescription", widget: markdown, required: false }
+     - {label: "Highlight1CreditsTitle", name: "Highlight1CreditsTitle", widget: string, required: false}
+     - {label: "Highlight1CreditsDescription", name: "Highlight1CreditsDescription", widget: markdown, required: false}
+     - {label: "Highlight1CreditsImage", name: "Highlight1CreditsImage", widget: image, required: false}
+     - {label: "Highlight1CreditsAlt", name: "Highlight1CreditsAlt", widget: string, required: false}
+     - {label: "RelatedPosts", name: "RelatedPosts", widget: "select", multiple: true,  options: [{value: "1", label: "CA Boy Scouts"},{value: "2", label: "CA Child Abuse Childcare Providers"},{value: "3", label: "CA Child Abuse Clergy"},{value: "4", label: "CA Child Abuse General"},{value: "5", label: "CA Child Abuse Human Resources"},{value: "6", label: "CA Child Abuse Law Enforcement"},{value: "7", label: "CA Child Abuse Medical Professionals"},{value: "8", label: "CA Child Abuse Mental Health Professionals"},{value: "9", label: "CA Child Abuse Registered Nurses CE"},{value: "10", label: "CA Child Abuse School Personnel"},{value: "11", label: "CA Child Abuse Supervisor"},{value: "12", label: "CA Child Abuse Volunteers"},{value: "13", label: "CA Elder Dependent Adult Abuse Financial Professional CE"},{value: "14", label: "CA Elder Dependent Adult Abuse General"},{value: "15", label: "CA Elder Dependent Adult Abuse Registered Nurses CE"},{value: "16", label: "CA Implicit Bias Registered Nurses CE"},{value: "17", label: "CA Sexual Harassment Non-Supervisory"},{value: "18", label: "CA Sexual Harassment Supervisory"},{value: "19", label: "National Child Abuse General"},{value: "20", label: "National Child Abuse Human Resources"},{value: "21", label: "National Child Abuse Law Enforcement"},{value: "22", label: "National Elder Dependent Adult Abuse"},{value: "23", label: "MA Child Abuse General"},{value: "24", label: "MA Child Abuse School Personnel"},{value: "25", label: "NV Child Abuse General"},{value: "26", label: "National Child Abuse Volunteers"},{value: "27", label: "CA Girl Scouts"},{value: "28", label: "National Girl Scouts"},{value: "29", label: "CA Sports & Recreation Volunteers"},{value: "30", label: "CA Religious Org Volunteers"},{value: "31", label: "National Boy Scouts"},{value: "32", label: "CA Boys and Girls Club Volunteers"},{value: "33", label: "CA Big Brothers Big Sisters Volunteers"},{value: "34", label: "NATL Sports & Recreation Volunteers"},{value: "35", label: "CA Registered Nurses - Advanced Skills"}, {value: "36", label: "PA Child Abuse General (2 Hours)"}, {value: "37", label: "PA Child Abuse General (3 Hours)"}], required: false}
+     - {label: "Priority", name: priority, widget: string,  default: '0.8', required: false}
+     - {label: "private", name: "private", widget: boolean, required: false}
+     - {label: "Type", name: "type", widget: string,  default: 'courses/course', required: false}
+     - {label: 'JavaScript', name: 'js', widget: 'list',  default: ['menu.js', 'course.js'], required: false}
+     - {label: 'CSS', name: 'css', widget: 'list', default: ['site.css', 'inner.css'], required: false}
+

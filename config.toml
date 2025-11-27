@@ -1,0 +1,14 @@
+baseURL = 'https://bitcoin-bot.netlify.app/'
+languageCode = 'en-us'
+title = 'Bitcoin Analysis Bot'
+
+[params]
+CompanyName = 'Bitcoin Analysis Bot'
+repoName = 'bitcoin-twitter-bot'
+description = 'Automated Bitcoin technical analysis and predictions'
+
+[environments.development]
+baseURL = 'http://localhost:1313/'
+
+[environments.production]
+baseURL = 'https://bitcoin-bot.netlify.app/'

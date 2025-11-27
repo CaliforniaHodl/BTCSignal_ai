@@ -1,0 +1,235 @@
+// Layout and common styles
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+#main-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+// Hero Section
+.hero-section {
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-xl);
+
+  .site-title {
+    font-size: 2.5rem;
+    margin: 0 0 var(--spacing-sm);
+    background: linear-gradient(135deg, var(--btc-orange), #fbbf24);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .site-description {
+    color: var(--text-secondary);
+    margin: 0 0 var(--spacing-lg);
+  }
+}
+
+// Live Ticker
+.live-ticker {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  background: var(--bg-card);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+
+  .ticker-label {
+    color: var(--btc-orange);
+    font-weight: 600;
+  }
+
+  .ticker-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .ticker-change {
+    &.positive { color: var(--bullish); }
+    &.negative { color: var(--bearish); }
+  }
+}
+
+// Section Headers
+section h2 {
+  font-size: 1.5rem;
+  margin: 0 0 var(--spacing-lg);
+  color: var(--text-primary);
+}
+
+// Posts Grid (for latest)
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.post-card {
+  display: block;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--btc-orange);
+    transform: translateY(-2px);
+  }
+
+  &.up { border-left: 3px solid var(--bullish); }
+  &.down { border-left: 3px solid var(--bearish); }
+  &.hold { border-left: 3px solid var(--neutral); }
+
+  .post-card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+
+    .post-date {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    .post-timeframe {
+      background: var(--bg-dark);
+      padding: 2px 8px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  .post-card-body {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-sm);
+
+    .direction-badge {
+      font-weight: 700;
+      font-size: 1.125rem;
+
+      &.up { color: var(--bullish); }
+      &.down { color: var(--bearish); }
+      &.hold { color: var(--neutral); }
+    }
+
+    .confidence {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+  }
+
+  .post-card-footer {
+    .price {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// Posts List
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.post-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .post-date {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    min-width: 140px;
+  }
+
+  .direction-indicator {
+    font-size: 1.25rem;
+  }
+
+  .direction-text {
+    font-weight: 600;
+    min-width: 60px;
+
+    &.up { color: var(--bullish); }
+    &.down { color: var(--bearish); }
+    &.hold { color: var(--neutral); }
+  }
+
+  .confidence {
+    color: var(--text-primary);
+    font-weight: 700;
+    min-width: 50px;
+  }
+
+  .price {
+    color: var(--text-secondary);
+    margin-left: auto;
+  }
+}
+
+// Breadcrumb
+.breadcrumb {
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-muted);
+
+  a {
+    color: var(--btc-orange);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Utility classes
+.sr-only {
+  border: 0;
+  clip: rect(0,0,0,0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}

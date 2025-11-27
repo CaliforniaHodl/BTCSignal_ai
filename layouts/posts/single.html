@@ -1,0 +1,70 @@
+{{ define "main" }}
+<div class="container single-post-page">
+  <nav class="breadcrumb">
+    <a href="/">Home</a>
+    <span class="separator">/</span>
+    <a href="/posts/">Analysis</a>
+    <span class="separator">/</span>
+    <span class="current">{{ .Date.Format "Jan 02, 2006 15:04" }}</span>
+  </nav>
+
+  <article class="analysis-article">
+    <header class="article-header">
+      <div class="header-meta">
+        <span class="date">{{ .Date.Format "January 02, 2006" }}</span>
+        <span class="time">{{ .Date.Format "15:04" }} UTC</span>
+        <span class="timeframe-badge">{{ .Params.timeframe }}</span>
+      </div>
+
+      <h1 class="article-title">{{ .Params.symbol }} Analysis</h1>
+
+      <div class="quick-stats">
+        <div class="stat sentiment {{ .Params.sentiment }}">
+          <span class="stat-label">Sentiment</span>
+          <span class="stat-value">
+            {{ if eq .Params.sentiment "bullish" }}📈{{ else if eq .Params.sentiment "bearish" }}📉{{ else }}⏸️{{ end }}
+            {{ upper .Params.sentiment }}
+          </span>
+        </div>
+        <div class="stat confidence">
+          <span class="stat-label">Confidence</span>
+          <span class="stat-value">{{ .Params.confidence }}%</span>
+        </div>
+        <div class="stat price">
+          <span class="stat-label">Price</span>
+          <span class="stat-value">${{ .Params.price }}</span>
+        </div>
+        <div class="stat change {{ if hasPrefix .Params.priceChange "+" }}positive{{ else }}negative{{ end }}">
+          <span class="stat-label">Change</span>
+          <span class="stat-value">{{ .Params.priceChange }}</span>
+        </div>
+      </div>
+
+      {{ if or .Params.targetPrice .Params.stopLoss }}
+      <div class="targets">
+        {{ if .Params.targetPrice }}
+        <div class="target-item target">
+          <span class="target-label">Target</span>
+          <span class="target-value">${{ .Params.targetPrice }}</span>
+        </div>
+        {{ end }}
+        {{ if .Params.stopLoss }}
+        <div class="target-item stop-loss">
+          <span class="target-label">Stop Loss</span>
+          <span class="target-value">${{ .Params.stopLoss }}</span>
+        </div>
+        {{ end }}
+      </div>
+      {{ end }}
+    </header>
+
+    <div class="article-content">
+      {{ .Content }}
+    </div>
+
+    <footer class="article-footer">
+      <a href="/posts/" class="back-link">← Back to all analysis</a>
+    </footer>
+  </article>
+</div>
+{{ end }}

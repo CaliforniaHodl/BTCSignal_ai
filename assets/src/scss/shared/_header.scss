@@ -1,0 +1,15 @@
+.header {
+background-color: red;
+}
+
+
+.mobile-nav{
+    background-color: green;
+}
+
+
+.mobile-nav-active {  
+    .mobile-nav{
+         background-color: blue;
+    }
+}

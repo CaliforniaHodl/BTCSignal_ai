@@ -1,0 +1,17 @@
+
+<div>
+ {{ if or (not (isset .Params "cta")) .Params.cta }}
+      {{ partial "cta" . }}
+  {{ end }}
+
+
+  <footer>
+    <h1>footer</h1>
+  </footer>
+ 
+</div>
+
+
+
+
+

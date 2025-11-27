@@ -1,0 +1,14 @@
+[build]
+  publish = "public"
+  command = "hugo --config hugo.toml --gc --minify"
+  functions = "netlify/functions"
+
+[context.production.environment]
+  HUGO_VERSION = "0.147.4"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Scheduled function - runs every hour
+[functions."analyze-and-tweet"]
+  schedule = "@hourly"

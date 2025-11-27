@@ -1,0 +1,21 @@
+{{ define "main" }}
+<div class="container">
+  <header class="section-header">
+    <h1>{{ .Title }}</h1>
+  </header>
+
+  <div class="posts-list">
+    {{ range .Pages }}
+    <a href="{{ .Permalink }}" class="post-row {{ .Params.direction }}">
+      <span class="post-date">{{ .Date.Format "2006-01-02 15:04" }}</span>
+      <span class="direction-indicator {{ .Params.direction }}">
+        {{ if eq .Params.direction "up" }}&#x1F4C8;{{ else if eq .Params.direction "down" }}&#x1F4C9;{{ else }}&#x23F8;{{ end }}
+      </span>
+      <span class="direction-text">{{ upper .Params.direction }}</span>
+      <span class="confidence">{{ .Params.confidence }}%</span>
+      <span class="price">${{ .Params.price }}</span>
+    </a>
+    {{ end }}
+  </div>
+</div>
+{{ end }}
