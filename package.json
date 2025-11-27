@@ -4,5 +4,8 @@
     "dotenv": "^17.2.3",
     "technicalindicators": "^3.1.0",
     "twitter-api-v2": "^1.28.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
   }
 }

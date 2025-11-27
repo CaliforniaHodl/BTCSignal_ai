@@ -5,6 +5,7 @@ import { PredictionEngine } from './lib/prediction-engine';
 import { TwitterClient } from './lib/twitter-client';
 import { BlogGenerator, AnalysisResult } from './lib/blog-generator';
 import { HistoricalTracker } from './lib/historical-tracker';
+import { DerivativesAnalyzer } from './lib/derivatives-analyzer';
 
 const SYMBOL = 'BTC-USD';
 const TIMEFRAME = '1h';
@@ -65,6 +66,7 @@ export default async (req: Request, context: Context) => {
     const predictionEngine = new PredictionEngine();
     const blogGenerator = new BlogGenerator();
     const historicalTracker = new HistoricalTracker();
+    const derivativesAnalyzer = new DerivativesAnalyzer();
 
     // Fetch market data from Coinbase
     console.log(`Fetching ${SYMBOL} ${TIMEFRAME} data from Coinbase...`);
@@ -142,11 +144,47 @@ export default async (req: Request, context: Context) => {
 
     // Post thread to Twitter (if credentials are set)
     let threadResult = null;
+    let derivativesAlerts: string[] = [];
     if (process.env.TWITTER_API_KEY) {
       try {
         const twitterClient = new TwitterClient();
         threadResult = await twitterClient.postThread(threadArray);
         console.log('Thread posted:', threadResult.length, 'tweets');
+
+        // Fetch derivatives data and post separate alerts if needed
+        console.log('Checking derivatives data for alerts...');
+        try {
+          const derivativesData = await derivativesAnalyzer.getDerivativesData(currentPrice, priceChange24h);
+          const alertStatus = derivativesAnalyzer.shouldAlert(derivativesData);
+
+          // Post squeeze alert as separate tweet (uses police siren emoji)
+          if (alertStatus.squeeze) {
+            const squeezeAlert = derivativesAnalyzer.generateSqueezeAlert(derivativesData, currentPrice);
+            if (squeezeAlert) {
+              console.log('Posting squeeze alert tweet...');
+              await twitterClient.tweet(squeezeAlert);
+              derivativesAlerts.push('squeeze');
+              console.log('Squeeze alert posted!');
+            }
+          }
+
+          // Post options expiry alert as separate tweet (uses bell emoji)
+          if (alertStatus.options) {
+            const optionsAlert = derivativesAnalyzer.generateOptionsAlert(derivativesData, currentPrice);
+            if (optionsAlert) {
+              console.log('Posting options expiry alert tweet...');
+              await twitterClient.tweet(optionsAlert);
+              derivativesAlerts.push('options');
+              console.log('Options expiry alert posted!');
+            }
+          }
+
+          if (derivativesAlerts.length === 0) {
+            console.log('No derivatives alerts triggered');
+          }
+        } catch (derivativesError: any) {
+          console.error('Derivatives analysis error:', derivativesError.message);
+        }
       } catch (twitterError: any) {
         console.error('Twitter error:', twitterError.message);
       }
@@ -185,6 +223,7 @@ export default async (req: Request, context: Context) => {
         losses: historicalCalls.filter(c => c.actualResult === 'loss').length,
         pending: historicalCalls.filter(c => c.actualResult === 'pending').length,
       },
+      derivativesAlerts,
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
