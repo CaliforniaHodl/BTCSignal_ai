@@ -204,7 +204,7 @@ export class HistoricalTracker {
    */
   createCallFromAnalysis(
     timestamp: Date,
-    direction: 'up' | 'down' | 'hold',
+    direction: 'up' | 'down' | 'sideways' | 'mixed',
     confidence: number,
     entryPrice: number,
     targetPrice: number
