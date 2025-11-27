@@ -9,6 +9,6 @@
 [functions]
   node_bundler = "esbuild"
 
-# Scheduled function - runs every hour
+# Scheduled function - runs daily at 9am PST (5pm UTC)
 [functions."analyze-and-tweet"]
-  schedule = "@hourly"
+  schedule = "0 17 * * *"
