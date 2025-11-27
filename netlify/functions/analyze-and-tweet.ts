@@ -6,21 +6,23 @@ import { TwitterClient } from './lib/twitter-client';
 import { BlogGenerator, AnalysisResult } from './lib/blog-generator';
 import { HistoricalTracker } from './lib/historical-tracker';
 
-const SYMBOL = 'BTCUSDT';
-const TIMEFRAME = '4h';
+const SYMBOL = 'BTC-USD';
+const TIMEFRAME = '1h';
 const CANDLE_LIMIT = 100;
-const CANDLE_LIMIT_24H = 6; // 6 x 4h = 24h for 24h high/low
+const CANDLE_LIMIT_24H = 24; // 24 x 1h = 24h for 24h high/low
 
-// Save post to GitHub repository
+// Save post to GitHub repository using OAuth
 async function savePostToGitHub(filename: string, content: string): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
+  const clientId = process.env.GITHUB_CLIENT_ID;
+  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
   const repo = process.env.GITHUB_REPO; // format: "owner/repo"
 
-  if (!token || !repo) {
+  if (!clientId || !clientSecret || !repo) {
     console.log('GitHub credentials not set, skipping post save');
     return false;
   }
 
+  const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   const path = `content/posts/${filename}`;
   const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
@@ -28,7 +30,7 @@ async function savePostToGitHub(filename: string, content: string): Promise<bool
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': authHeader,
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json',
       },
@@ -64,9 +66,9 @@ export default async (req: Request, context: Context) => {
     const blogGenerator = new BlogGenerator();
     const historicalTracker = new HistoricalTracker();
 
-    // Fetch market data
-    console.log(`Fetching ${SYMBOL} ${TIMEFRAME} data...`);
-    const marketData = await dataProvider.fetchBinanceData(SYMBOL, TIMEFRAME, CANDLE_LIMIT);
+    // Fetch market data from Coinbase
+    console.log(`Fetching ${SYMBOL} ${TIMEFRAME} data from Coinbase...`);
+    const marketData = await dataProvider.fetchCoinbaseData(SYMBOL, TIMEFRAME, CANDLE_LIMIT);
 
     // Calculate indicators
     const indicators = technicalAnalyzer.calculateIndicators(marketData.data);
@@ -199,7 +201,7 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Schedule: runs every hour
+// Schedule: runs daily at 9am PST (5pm UTC)
 export const config: Config = {
-  schedule: '@hourly',
+  schedule: '0 17 * * *',
 };

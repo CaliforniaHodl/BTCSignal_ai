@@ -3,20 +3,29 @@ import { HistoricalCall } from './blog-generator';
 const GITHUB_API_BASE = 'https://api.github.com';
 
 export class HistoricalTracker {
-  private token: string;
+  private clientId: string;
+  private clientSecret: string;
   private repo: string;
   private dataPath: string = 'data/historical-calls.json';
 
   constructor() {
-    this.token = process.env.GITHUB_TOKEN || '';
+    this.clientId = process.env.GITHUB_CLIENT_ID || '';
+    this.clientSecret = process.env.GITHUB_CLIENT_SECRET || '';
     this.repo = process.env.GITHUB_REPO || '';
+  }
+
+  /**
+   * Get Basic Auth header using OAuth Client ID and Secret
+   */
+  private getAuthHeader(): string {
+    return 'Basic ' + Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
   }
 
   /**
    * Fetch historical calls from GitHub
    */
   async getHistoricalCalls(): Promise<HistoricalCall[]> {
-    if (!this.token || !this.repo) {
+    if (!this.clientId || !this.clientSecret || !this.repo) {
       console.log('GitHub credentials not set, returning empty history');
       return [];
     }
@@ -25,7 +34,7 @@ export class HistoricalTracker {
       const url = `${GITHUB_API_BASE}/repos/${this.repo}/contents/${this.dataPath}`;
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          'Authorization': this.getAuthHeader(),
           'Accept': 'application/vnd.github.v3+json',
         },
       });
@@ -51,7 +60,7 @@ export class HistoricalTracker {
    * Save historical calls to GitHub
    */
   async saveHistoricalCalls(calls: HistoricalCall[]): Promise<boolean> {
-    if (!this.token || !this.repo) {
+    if (!this.clientId || !this.clientSecret || !this.repo) {
       console.log('GitHub credentials not set, skipping save');
       return false;
     }
@@ -62,7 +71,7 @@ export class HistoricalTracker {
       const getUrl = `${GITHUB_API_BASE}/repos/${this.repo}/contents/${this.dataPath}`;
       const getResponse = await fetch(getUrl, {
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          'Authorization': this.getAuthHeader(),
           'Accept': 'application/vnd.github.v3+json',
         },
       });
@@ -87,7 +96,7 @@ export class HistoricalTracker {
       const putResponse = await fetch(getUrl, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${this.token}`,
+          'Authorization': this.getAuthHeader(),
           'Content-Type': 'application/json',
           'Accept': 'application/vnd.github.v3+json',
         },

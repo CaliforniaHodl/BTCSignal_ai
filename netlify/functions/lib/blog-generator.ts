@@ -197,6 +197,7 @@ export class BlogGenerator {
 
   /**
    * Generate thread tweets (3 tweets to stay within 100 API calls/month)
+   * Social-friendly format with emojis and hashtags
    */
   generateThread(analysis: AnalysisResult, historicalCalls: HistoricalCall[]): ThreadTweets {
     const { currentPrice, priceChange24h, high24h, low24h, indicators } = analysis;
@@ -207,26 +208,38 @@ export class BlogGenerator {
     const price = Math.round(currentPrice).toLocaleString();
     const change24h = priceChange24h >= 0 ? `+${priceChange24h.toFixed(1)}` : priceChange24h.toFixed(1);
 
-    // Tweet 1: TA Overview - 24h summary
+    // Tweet 1: TA Overview - social friendly
     const rsiVal = indicators.rsi !== null ? Math.round(indicators.rsi) : 'N/A';
     const macdTrend = indicators.macd !== null
       ? (indicators.macd.MACD > indicators.macd.signal ? 'bullish' : 'bearish')
       : 'neutral';
-    const taOverview = `$BTC 24h: ${change24h}% | $${price}\nH: $${Math.round(high24h).toLocaleString()} L: $${Math.round(low24h).toLocaleString()}\nRSI: ${rsiVal} | MACD: ${macdTrend}`;
+    const openingLine = priceChange24h >= 10 ? '🔥 Bitcoin exploding!'
+      : priceChange24h >= 5 ? '🚀 Bitcoin ripping higher!'
+      : priceChange24h >= 3 ? '🚀 Bitcoin waking up again!'
+      : priceChange24h >= 1 ? '📈 Bitcoin pushing up'
+      : priceChange24h >= 0 ? '📊 Bitcoin holding steady'
+      : priceChange24h >= -1 ? '📊 Bitcoin consolidating'
+      : priceChange24h >= -3 ? '📉 Bitcoin pulling back'
+      : priceChange24h >= -5 ? '📉 Bitcoin sliding lower'
+      : priceChange24h >= -10 ? '⚠️ Bitcoin dumping hard'
+      : '🩸 Bitcoin in freefall';
+    const taOverview = `${openingLine}\n$BTC ${change24h}% in the last 24h → sitting at $${price}\nH: $${Math.round(high24h).toLocaleString()} | L: $${Math.round(low24h).toLocaleString()}\nRSI ${rsiVal} | MACD showing ${macdTrend} momentum`;
 
-    // Tweet 2: Combined Long + Short setups with full details
+    // Tweet 2: Combined Long + Short setups
     const entry = Math.round(currentPrice).toLocaleString();
     const longTP = Math.round(suggestions.bullish.target).toLocaleString();
     const longSL = Math.round(suggestions.bullish.stopLoss).toLocaleString();
     const shortTP = Math.round(suggestions.bearish.target).toLocaleString();
     const shortSL = Math.round(suggestions.bearish.stopLoss).toLocaleString();
-    const tradeSetups = `Long setup:\nEntry: $${entry}\nTP: $${longTP}\nSL: $${longSL}\nR:R 1:2.5\n\nShort setup:\nEntry: $${entry}\nTP: $${shortTP}\nSL: $${shortSL}\nR:R 1:2.5`;
+    const tradeSetups = `📈 Long setup\nEntry: ${entry}\nTP: ${longTP}\nSL: ${longSL}\nR:R 1:2.5\n\n📉 Short setup\nEntry: ${entry}\nTP: ${shortTP}\nSL: ${shortSL}\nR:R 1:2.5`;
 
-    // Tweet 3: Trading call + 7d outlook combined
+    // Tweet 3: Trading call + 7d outlook + hashtags
     const direction = weekly.refinedBias.toUpperCase();
     const conf = Math.round(weekly.refinedConfidence * 100);
     const move7d = weekly.priceMovement7d >= 0 ? `+${weekly.priceMovement7d.toFixed(1)}` : weekly.priceMovement7d.toFixed(1);
-    const callAndOutlook = `Signal: ${direction} ${conf}%\n30d: ${stats.wins}W-${stats.losses}L (${stats.winRate}%)\n\n7d outlook: ${move7d}%\n${weekly.reasoning}\n\n*Automated analysis. Not financial advice. Trade at your own risk.*`;
+    const buildingData = weekly.daysTracked < 7 ? '\n\nMore signals coming as the data builds 🔍' : '';
+    const record = stats.wins + stats.losses > 0 ? `\n30d record: ${stats.wins}W-${stats.losses}L` : '';
+    const callAndOutlook = `My bot says: ${conf}% ${direction} bias${record}\n7-day outlook → ${move7d}%${buildingData}\n\n#Bitcoin #BTC #TradingSignals #CryptoBot\n\nNot financial advice.`;
 
     return {
       taOverview,
