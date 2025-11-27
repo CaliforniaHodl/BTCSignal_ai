@@ -32,7 +32,7 @@ export interface ThreadTweets {
 
 export interface HistoricalCall {
   date: string;
-  direction: 'up' | 'down' | 'hold';
+  direction: 'up' | 'down' | 'sideways' | 'mixed';
   confidence: number;
   entryPrice: number;
   targetPrice: number;
@@ -41,8 +41,8 @@ export interface HistoricalCall {
 }
 
 export interface WeeklyRefinement {
-  originalBias: 'up' | 'down' | 'hold';
-  refinedBias: 'up' | 'down' | 'hold';
+  originalBias: 'up' | 'down' | 'sideways' | 'mixed';
+  refinedBias: 'up' | 'down' | 'sideways' | 'mixed';
   refinedConfidence: number;
   priceMovement7d: number;
   reasoning: string;
@@ -234,8 +234,8 @@ export class BlogGenerator {
     const tradeSetups = `📈 Long setup\nEntry: ${entry}\nTP: ${longTP}\nSL: ${longSL}\nR:R 1:2.5\n\n📉 Short setup\nEntry: ${entry}\nTP: ${shortTP}\nSL: ${shortSL}\nR:R 1:2.5`;
 
     // Tweet 3: Pattern summary + outlook + record
-    const outlook = weekly.refinedBias === 'up' ? 'bullish' : weekly.refinedBias === 'down' ? 'bearish' : 'mixed signals (conflicted market)';
-    const outlookEmoji = weekly.refinedBias === 'up' ? '🟢' : weekly.refinedBias === 'down' ? '🔴' : '⚪';
+    const outlook = weekly.refinedBias === 'up' ? 'bullish' : weekly.refinedBias === 'down' ? 'bearish' : weekly.refinedBias === 'sideways' ? 'sideways (range-bound)' : 'mixed signals (conflicted market)';
+    const outlookEmoji = weekly.refinedBias === 'up' ? '🟢' : weekly.refinedBias === 'down' ? '🔴' : weekly.refinedBias === 'sideways' ? '➡️' : '⚪';
 
     // Determine 7-day pattern description
     const pattern7d = weekly.priceMovement7d > 3 ? 'an uptrend'

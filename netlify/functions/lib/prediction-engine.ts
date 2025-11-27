@@ -2,7 +2,7 @@ import { OHLCV } from './data-provider';
 import { TechnicalIndicators, Pattern } from './technical-analysis';
 
 export interface Prediction {
-  direction: 'up' | 'down' | 'hold';
+  direction: 'up' | 'down' | 'sideways' | 'mixed';
   confidence: number;
   targetPrice: number | null;
   stopLoss: number | null;
@@ -71,6 +71,14 @@ export class PredictionEngine {
       }
     });
 
+
+    // Detect sideways market (low volatility, price in middle of range)
+    const isLowVolatility = indicators.atr !== null && indicators.atr < currentPrice * 0.015;
+    const isInMiddleOfBB = indicators.bollingerBands !== null &&
+      currentPrice > indicators.bollingerBands.lower * 1.02 &&
+      currentPrice < indicators.bollingerBands.upper * 0.98;
+    const isSideways = isLowVolatility && isInMiddleOfBB;
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -90,11 +98,15 @@ export class PredictionEngine {
     const bullishPercent = totalScore > 0 ? bullishScore / totalScore : 0.5;
     const bearishPercent = totalScore > 0 ? bearishScore / totalScore : 0.5;
 
-    let direction: 'up' | 'down' | 'hold';
+    let direction: 'up' | 'down' | 'sideways' | 'mixed';
     let confidence: number;
 
-    if (Math.abs(bullishPercent - bearishPercent) < 0.15) {
-      direction = 'hold';
+    if (isSideways && Math.abs(bullishPercent - bearishPercent) < 0.2) {
+      direction = 'sideways';
+      confidence = 0.7 + (0.3 * (1 - Math.abs(bullishPercent - bearishPercent)));
+      reasoning.push('= Low volatility, price ranging');
+    } else if (Math.abs(bullishPercent - bearishPercent) < 0.15) {
+      direction = 'mixed';
       confidence = 1 - Math.abs(bullishPercent - bearishPercent);
     } else if (bullishPercent > bearishPercent) {
       direction = 'up';
@@ -108,7 +120,7 @@ export class PredictionEngine {
     let targetPrice: number | null = null;
     let stopLoss: number | null = null;
 
-    if (direction !== 'hold') {
+    if (direction === 'up' || direction === 'down') {
       const atrMultiplier = 2;
       const atr = indicators.atr || currentPrice * 0.02;
       if (direction === 'up') {
