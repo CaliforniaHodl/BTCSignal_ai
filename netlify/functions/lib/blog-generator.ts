@@ -253,8 +253,10 @@ export class BlogGenerator {
       : priceChange24h < -0.5 ? 'a slight dip'
       : 'sideways action';
 
-    const record = stats.wins + stats.losses > 0 ? `\n\n30d record: ${stats.wins}W-${stats.losses}L` : '';
-    const callAndOutlook = `The last 7 days showed ${pattern7d}, the last 24h show ${pattern24h}, with a ${outlookEmoji} ${outlook} outlook${record}\n\n#Bitcoin #BTC #CryptoBot\n\nNot financial advice.`;
+    const confidencePct = (weekly.refinedConfidence * 100).toFixed(0);
+    const biasText = `My bot says ${confidencePct}% ${outlook} bias`;
+    const record = stats.wins + stats.losses > 0 ? `\n30d record: ${stats.wins}W-${stats.losses}L` : '';
+    const callAndOutlook = `The last 7 days showed ${pattern7d}, the last 24h show ${pattern24h}.\n\n${outlookEmoji} ${biasText}${record}\n🔍 More signals come as data builds\n\n#Bitcoin #BTC #CryptoBot\n\nNot financial advice.`;
 
     return {
       taOverview,
