@@ -233,13 +233,28 @@ export class BlogGenerator {
     const shortSL = Math.round(suggestions.bearish.stopLoss).toLocaleString();
     const tradeSetups = `📈 Long setup\nEntry: ${entry}\nTP: ${longTP}\nSL: ${longSL}\nR:R 1:2.5\n\n📉 Short setup\nEntry: ${entry}\nTP: ${shortTP}\nSL: ${shortSL}\nR:R 1:2.5`;
 
-    // Tweet 3: Trading call + 7d outlook + hashtags
-    const direction = weekly.refinedBias.toUpperCase();
-    const conf = Math.round(weekly.refinedConfidence * 100);
-    const move7d = weekly.priceMovement7d >= 0 ? `+${weekly.priceMovement7d.toFixed(1)}` : weekly.priceMovement7d.toFixed(1);
-    const buildingData = weekly.daysTracked < 7 ? '\n\nMore signals coming as the data builds 🔍' : '';
-    const record = stats.wins + stats.losses > 0 ? `\n30d record: ${stats.wins}W-${stats.losses}L` : '';
-    const callAndOutlook = `My bot says: ${conf}% ${direction} bias${record}\n7-day outlook → ${move7d}%${buildingData}\n\n#Bitcoin #BTC #TradingSignals #CryptoBot\n\nNot financial advice.`;
+    // Tweet 3: Pattern summary + outlook + record
+    const outlook = weekly.refinedBias === 'up' ? 'bullish' : weekly.refinedBias === 'down' ? 'bearish' : 'neutral';
+    const outlookEmoji = weekly.refinedBias === 'up' ? '🟢' : weekly.refinedBias === 'down' ? '🔴' : '⚪';
+
+    // Determine 7-day pattern description
+    const pattern7d = weekly.priceMovement7d > 3 ? 'an uptrend'
+      : weekly.priceMovement7d > 1 ? 'a slight uptrend'
+      : weekly.priceMovement7d < -3 ? 'a downtrend'
+      : weekly.priceMovement7d < -1 ? 'a slight downtrend'
+      : 'consolidation';
+
+    // Determine 24h pattern description
+    const pattern24h = priceChange24h > 5 ? 'a strong rally'
+      : priceChange24h > 2 ? 'upward momentum'
+      : priceChange24h > 0.5 ? 'a slight push up'
+      : priceChange24h < -5 ? 'a sharp selloff'
+      : priceChange24h < -2 ? 'downward pressure'
+      : priceChange24h < -0.5 ? 'a slight dip'
+      : 'sideways action';
+
+    const record = stats.wins + stats.losses > 0 ? `\n\n30d record: ${stats.wins}W-${stats.losses}L` : '';
+    const callAndOutlook = `The last 7 days showed ${pattern7d}, the last 24h show ${pattern24h}, with a ${outlookEmoji} ${outlook} outlook${record}\n\n#Bitcoin #BTC #CryptoBot\n\nNot financial advice.`;
 
     return {
       taOverview,
