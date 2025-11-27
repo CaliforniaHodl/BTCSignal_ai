@@ -234,7 +234,7 @@ export class BlogGenerator {
     const tradeSetups = `📈 Long setup\nEntry: ${entry}\nTP: ${longTP}\nSL: ${longSL}\nR:R 1:2.5\n\n📉 Short setup\nEntry: ${entry}\nTP: ${shortTP}\nSL: ${shortSL}\nR:R 1:2.5`;
 
     // Tweet 3: Pattern summary + outlook + record
-    const outlook = weekly.refinedBias === 'up' ? 'bullish' : weekly.refinedBias === 'down' ? 'bearish' : 'neutral';
+    const outlook = weekly.refinedBias === 'up' ? 'bullish' : weekly.refinedBias === 'down' ? 'bearish' : 'mixed signals (conflicted market)';
     const outlookEmoji = weekly.refinedBias === 'up' ? '🟢' : weekly.refinedBias === 'down' ? '🔴' : '⚪';
 
     // Determine 7-day pattern description
