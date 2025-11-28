@@ -130,7 +130,7 @@ export default async (req: Request, context: Context) => {
     const postSaved = await savePostToGitHub(filename, blogMarkdown);
 
     // Add new call to historical tracking
-    if (prediction.direction !== 'hold' && prediction.targetPrice) {
+    if ((prediction.direction === 'up' || prediction.direction === 'down') && prediction.targetPrice) {
       const newCall = historicalTracker.createCallFromAnalysis(
         analysis.timestamp,
         prediction.direction,
