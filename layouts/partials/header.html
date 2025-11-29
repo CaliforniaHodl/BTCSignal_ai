@@ -112,15 +112,13 @@
     function openMenu() {
       isOpen = true;
       toggle.setAttribute('aria-expanded', 'true');
-      menu.style.opacity = '1';
-      menu.style.visibility = 'visible';
+      dropdown.classList.add('is-open');
     }
 
     function closeMenu() {
       isOpen = false;
       toggle.setAttribute('aria-expanded', 'false');
-      menu.style.opacity = '0';
-      menu.style.visibility = 'hidden';
+      dropdown.classList.remove('is-open');
     }
 
     // Toggle on click/Enter/Space

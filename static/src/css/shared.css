@@ -199,7 +199,8 @@ button.dropdown-toggle:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 }
 
-.nav-dropdown:hover .dropdown-menu {
+.nav-dropdown:hover .dropdown-menu,
+.nav-dropdown.is-open .dropdown-menu {
   opacity: 1;
   visibility: visible;
 }

@@ -4,6 +4,17 @@
   const HISTORY_KEY = 'trade-coach-history';
 
   function checkAccess() {
+    // Check admin mode first (bypasses all paywalls)
+    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
+      console.log('%c ADMIN: Trade Coach access bypassed', 'color: #f7931a;');
+      return true;
+    }
+    // Check all-access subscription
+    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
+      console.log('All-access subscription active, unlocking Trade Coach');
+      return true;
+    }
+    // Legacy localStorage check
     return localStorage.getItem(FEATURE_KEY) === 'unlocked';
   }
 
