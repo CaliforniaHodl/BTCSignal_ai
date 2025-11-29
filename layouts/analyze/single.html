@@ -1,0 +1,102 @@
+{{ define "main" }}
+<div class="container analyze-page">
+  <!-- Premium Check -->
+  <div class="analyze-locked" id="analyze-locked">
+    <div class="lock-message">
+      <div class="lock-icon">🔒</div>
+      <h2>Premium Feature</h2>
+      <p>Unlock any analysis post to access AI Chart Analysis</p>
+      <a href="/posts/" class="btn-lightning">View Analysis Posts</a>
+    </div>
+  </div>
+
+  <div class="analyze-content" id="analyze-content" style="display: none;">
+    <header class="analyze-header">
+      <h1>AI Chart Analysis</h1>
+      <p class="subtitle">Upload your TradingView screenshot for instant AI-powered analysis</p>
+    </header>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <div class="upload-box" id="upload-box">
+        <div class="upload-icon">📊</div>
+        <h3>Drop your chart here</h3>
+        <p>or click to select a file</p>
+        <p class="upload-hint">Supports PNG, JPG, WEBP (max 5MB)</p>
+        <input type="file" id="chart-input" accept="image/png,image/jpeg,image/webp" hidden>
+      </div>
+
+      <div class="preview-box" id="preview-box" style="display: none;">
+        <img id="preview-image" src="" alt="Chart preview">
+        <button class="btn-remove" id="remove-btn">Remove</button>
+      </div>
+
+      <button class="btn-analyze" id="analyze-btn" disabled>
+        <span class="btn-text">Analyze Chart</span>
+        <span class="btn-loading" style="display: none;">
+          <span class="spinner"></span> Analyzing...
+        </span>
+      </button>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section" id="results-section" style="display: none;">
+      <h2>Analysis Results</h2>
+
+      <div class="results-grid">
+        <!-- Trend Analysis -->
+        <div class="result-card trend">
+          <div class="result-header">
+            <span class="result-icon">📈</span>
+            <h3>Trend Analysis</h3>
+          </div>
+          <div class="result-content" id="trend-result">-</div>
+        </div>
+
+        <!-- Key Levels -->
+        <div class="result-card levels">
+          <div class="result-header">
+            <span class="result-icon">🎯</span>
+            <h3>Key Levels</h3>
+          </div>
+          <div class="result-content" id="levels-result">-</div>
+        </div>
+
+        <!-- Patterns -->
+        <div class="result-card patterns">
+          <div class="result-header">
+            <span class="result-icon">🔍</span>
+            <h3>Patterns Detected</h3>
+          </div>
+          <div class="result-content" id="patterns-result">-</div>
+        </div>
+
+        <!-- Trade Setup -->
+        <div class="result-card setup">
+          <div class="result-header">
+            <span class="result-icon">💡</span>
+            <h3>Trade Setup</h3>
+          </div>
+          <div class="result-content" id="setup-result">-</div>
+        </div>
+      </div>
+
+      <!-- Full Analysis -->
+      <div class="full-analysis">
+        <h3>Detailed Analysis</h3>
+        <div class="analysis-text" id="full-analysis">-</div>
+      </div>
+
+      <button class="btn-new" id="new-analysis-btn">Analyze Another Chart</button>
+    </section>
+
+    <!-- Error Section -->
+    <div class="error-message" id="error-message" style="display: none;">
+      <span class="error-icon">⚠️</span>
+      <span class="error-text"></span>
+    </div>
+  </div>
+</div>
+
+<script src="{{ "src/js/chart-analyze.js" | relURL }}"></script>
+{{ end }}

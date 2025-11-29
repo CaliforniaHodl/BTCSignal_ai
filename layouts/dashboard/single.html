@@ -37,6 +37,37 @@
           <span class="stat-label">Current Streak</span>
         </div>
       </div>
+
+      <!-- Extended Trade Metrics -->
+      <h3 class="subsection-title">Advanced Metrics</h3>
+      <div class="stats-grid">
+        <div class="stat-card r-multiple">
+          <span class="stat-number" id="avg-r-multiple">-</span>
+          <span class="stat-label">Avg R-Multiple</span>
+        </div>
+        <div class="stat-card drawdown">
+          <span class="stat-number" id="max-drawdown">-</span>
+          <span class="stat-label">Max Drawdown</span>
+        </div>
+        <div class="stat-card bias">
+          <span class="stat-number" id="long-bias">-</span>
+          <span class="stat-label">Directional Bias</span>
+        </div>
+      </div>
+
+      <!-- Calendar Heatmap -->
+      <div class="calendar-section">
+        <h3 class="subsection-title">90-Day Activity</h3>
+        <div class="calendar-heatmap" id="calendar-heatmap">
+          <!-- Populated by JS -->
+        </div>
+        <div class="calendar-legend">
+          <span class="legend-item"><span class="cal-day win"></span> Win</span>
+          <span class="legend-item"><span class="cal-day loss"></span> Loss</span>
+          <span class="legend-item"><span class="cal-day pending"></span> Pending</span>
+          <span class="legend-item"><span class="cal-day"></span> No Trade</span>
+        </div>
+      </div>
     </section>
 
     <!-- Market Sentiment Section -->

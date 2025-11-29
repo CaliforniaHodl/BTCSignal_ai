@@ -401,6 +401,51 @@
     }
   }
 
+  // Render calendar heatmap
+  function renderCalendarHeatmap(posts) {
+    const container = document.getElementById('calendar-heatmap');
+    if (!container) return;
+
+    // Get last 90 days
+    const today = new Date();
+    const days = [];
+    for (let i = 89; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      days.push(date.toISOString().split('T')[0]);
+    }
+
+    // Map posts to dates
+    const postsByDate = {};
+    posts.forEach(post => {
+      if (post.date) {
+        const dateKey = post.date.split('T')[0];
+        const outcome = determineOutcome(post);
+        postsByDate[dateKey] = outcome;
+      }
+    });
+
+    // Render grid
+    const html = days.map(day => {
+      const outcome = postsByDate[day];
+      let className = 'cal-day';
+      let title = day;
+      if (outcome === 'win') {
+        className += ' win';
+        title += ' - Win';
+      } else if (outcome === 'loss') {
+        className += ' loss';
+        title += ' - Loss';
+      } else if (outcome === 'pending') {
+        className += ' pending';
+        title += ' - Pending';
+      }
+      return '<div class="' + className + '" title="' + title + '"></div>';
+    }).join('');
+
+    container.innerHTML = html;
+  }
+
   // Initialize on DOM ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
