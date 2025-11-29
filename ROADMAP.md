@@ -248,8 +248,8 @@
 | Free | $0 | Dashboard, delayed trades (10+ days old), 1 level/day, education hub |
 | Single Post | 21 sats | Individual analysis posts |
 | Hourly | 1,000 sats | 1 hour all-access |
-| Daily | 20,000 sats | 24 hour all-access |
-| Weekly | 100,000 sats | 7 day all-access |
+| Daily | 10,000 sats | 24 hour all-access |
+| Weekly | 25,000 sats | 7 day all-access |
 
 ---
 
