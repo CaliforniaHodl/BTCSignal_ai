@@ -3,16 +3,16 @@
 ## FREE Features (Designed to Hook Users)
 
 ### 1. Market Overview Dashboard
-- [ ] Live BTC price ticker
-- [ ] Fear & Greed index integration
-- [ ] Funding rates display
+- [x] Live BTC price ticker
+- [x] Fear & Greed index integration
+- [x] Funding rates display
 - [ ] Liquidation heatmap thumbnails
 - [ ] Volume profile snapshot
 
 *Simple data → huge perceived value*
 
 ### 2. Automatically Generated Summaries
-- [ ] AI-powered daily summary
+- [x] AI-powered daily summary
   - Market bias: Bullish / Neutral / Bearish
   - Key levels for the day
   - Quick recap of yesterday's movement
@@ -25,33 +25,35 @@
 - [ ] Paywall gate: "Full pattern analysis is premium"
 
 ### 4. Backtest Mini-Snippets
-- [ ] Example teasers:
+- [x] Example teasers:
   - Win rate of "EMA cross on BTC H1" last 6 months
   - RSI divergences accuracy
   - VWAP bounce probability
 - [ ] More robust versions behind paywall
 
 ### 5. BTC Narrative Tracker
-- [ ] Auto-track:
-  - ETF flows
+- [x] Auto-track:
+  - ETF flows (sentiment tracker)
   - Halving countdown
   - Hash rate
-  - Miner earnings
+  - Market cap & BTC dominance
 
 ### 6. Public Trade Log (Delayed)
-- [ ] Show only trades older than 10 days
-- [ ] Paid members get real-time access
+- [x] Show only trades older than 10 days (free posts after first 10)
+- [x] Paid members get real-time access
 
 ### 7. "Key Level of the Day" Widget
-- [ ] One level only, updated daily
+- [x] One level only, updated daily
 - [ ] Embeddable widget
 
 ### 8. Education Hub
-- [ ] What is SFP (Swing Failure Pattern)
-- [ ] What is a liquidity grab
-- [ ] Market structure basics
-- [ ] Order block explanation
-- [ ] Fair value gap guide
+- [x] What is SFP (Swing Failure Pattern)
+- [x] What is a liquidity grab
+- [x] Market structure basics
+- [x] Order block explanation
+- [x] Fair value gap guide
+- [x] RSI divergence guide
+- [x] Support & resistance guide
 
 *SEO juice for your website*
 
@@ -60,18 +62,18 @@
 ## PAID Features (The Real Money-Makers)
 
 ### 1. AI-Driven Trade Ideas (with Reasoning)
-- [ ] Every signal includes:
+- [x] Every signal includes:
   - Direction
   - Entry price
   - Stop loss
   - Target price
   - Why the AI model thinks this setup works
-  - Probability score
+  - Probability score (confidence)
   - Time-to-invalidity
 
 ### 2. Unlimited AI Chart Analysis
-- [ ] User uploads TradingView screenshot
-- [ ] AI returns:
+- [x] User uploads TradingView screenshot
+- [x] AI returns:
   - All key levels
   - Trend direction
   - Hidden liquidity zones
@@ -90,7 +92,7 @@
   - "Most likely price magnet"
 
 ### 4. Full Trade Tracker + Metrics
-- [ ] Users get:
+- [x] Users get (via Premium Dashboard):
   - Win/loss rate
   - Average R multiple
   - Long vs short bias
@@ -134,51 +136,113 @@
 
 ---
 
+## Pro Tools Suite (IMPLEMENTED)
+
+### Alpha Radar
+- [x] BTC dominance tracking
+- [x] Stablecoin supply monitoring
+- [x] Fear & Greed meter
+- [x] Funding rate analysis
+- [x] Whale activity tracking (exchange flows)
+- [x] Liquidity zones visualization
+- [x] Market anomaly detection
+- [x] AI-generated market summary
+
+### Liquidity Hunter
+- [x] Top-side liquidity prediction
+- [x] Bottom-side liquidity prediction
+- [x] Probability scores
+- [x] ETA estimates
+- [x] Visual liquidity map
+- [x] AI reasoning for predictions
+- [x] Accuracy tracking (7d/30d)
+
+### Trade Coach
+- [x] Trade input form (direction, entry, SL, TP, sizing, reasoning)
+- [x] AI-powered trade evaluation
+- [x] Overall score with breakdown (entry, risk, logic, sizing)
+- [x] Strengths identification
+- [x] Improvement suggestions
+- [x] Psychology analysis
+- [x] Alternative entry ideas
+- [x] Key takeaways
+- [x] Trade history tracking
+
+---
+
 ## Implementation Priority
 
-### Phase 1 (Current)
+### Phase 1 (COMPLETE)
 - [x] Basic analysis bot
 - [x] Twitter integration
-- [x] Lightning paywall (21 sats)
+- [x] Lightning paywall (21 sats per post)
 - [x] Premium dashboard (basic)
-- [ ] GitHub auto-commit posts
+- [x] 3D Bitcoin coin animation
+- [x] Live price ticker
+- [x] Hugo static site with responsive design
 
-### Phase 2 (Next)
-- [ ] Fear & Greed index
-- [ ] Funding rates
-- [ ] Enhanced liquidation watchlist
-- [ ] Education hub (3-5 articles)
+### Phase 2 (COMPLETE)
+- [x] Fear & Greed index
+- [x] Funding rates
+- [x] BTC Narrative Tracker (halving, hash rate, market cap, ETF sentiment)
+- [x] Education hub (7 articles)
+- [x] Key Level of the Day widget
+- [x] Backtest snippets (teasers)
+- [x] SEO optimization (meta tags, JSON-LD, keywords)
+- [x] ADA/WCAG accessibility compliance
+- [x] Admin mode for development/testing
 
-### Phase 3 (Growth)
-- [ ] AI chart analysis upload
-- [ ] Full trade tracker
-- [ ] Backtest snippets
-- [ ] Email newsletter
+### Phase 3 (COMPLETE)
+- [x] AI chart analysis upload (Chart AI)
+- [x] Alpha Radar (market intelligence)
+- [x] Liquidity Hunter (sweep predictions)
+- [x] Trade Coach (trade evaluation)
+- [x] Premium access tiers (hourly/daily/weekly)
+- [x] Tamper-resistant access tokens
+- [x] Dark/light theme toggle
 
-### Phase 4 (Scale)
+### Phase 4 (IN PROGRESS)
 - [ ] Interactive liquidation map
 - [ ] Backtester PRO
 - [ ] Alerts system
 - [ ] Mobile app consideration
+- [ ] Email newsletter integration
+- [ ] Stripe subscription option
 
 ---
 
-## Monetization Tiers
+## Monetization Tiers (IMPLEMENTED)
 
 | Tier | Price | Features |
 |------|-------|----------|
-| Free | $0 | Dashboard, delayed trades, 1 level/day, education |
-| Basic | 21 sats/post | Individual analysis posts |
-| Pro | ~$10/mo | Real-time trades, full tracker, backtests |
-| Elite | ~$30/mo | AI chart analysis, alerts, newsletter |
+| Free | $0 | Dashboard, delayed trades (10+ days old), 1 level/day, education hub |
+| Single Post | 21 sats | Individual analysis posts |
+| Hourly | 1,000 sats | 1 hour all-access |
+| Daily | 20,000 sats | 24 hour all-access |
+| Weekly | 100,000 sats | 7 day all-access |
 
 ---
 
-## Tech Stack Considerations
+## Tech Stack (CURRENT)
 
-- **Frontend**: Hugo (current), consider React for interactive features
-- **Backend**: Netlify Functions (current)
-- **Payments**: Lightning (LNbits), consider adding Stripe for subscriptions
-- **Data**: Coinbase API, Binance API, Coinglass for derivatives
-- **AI**: Claude API for analysis, chart interpretation
-- **Charts**: TradingView widgets, Chart.js, D3.js for custom viz
+- **Frontend**: Hugo static site generator
+- **Styling**: Custom CSS with CSS variables, dark/light themes
+- **Backend**: Netlify Functions (TypeScript)
+- **Payments**: Lightning Network via LNbits
+- **Data Sources**:
+  - Coinbase API (spot prices)
+  - Binance API (funding rates, klines)
+  - CoinGecko API (market data, dominance)
+  - Alternative.me (Fear & Greed)
+- **AI**: Claude API for analysis and chart interpretation
+- **Hosting**: Netlify with automatic deploys from GitHub
+- **Version Control**: GitHub
+
+---
+
+## Recent Updates
+
+- **2024-11**: Admin mode for development/testing bypass
+- **2024-11**: ADA/WCAG accessibility compliance
+- **2024-11**: SEO optimization with structured data
+- **2024-11**: Fixed dropdown menu and admin bypass for all Pro Tools
