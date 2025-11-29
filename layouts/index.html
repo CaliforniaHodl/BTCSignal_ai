@@ -14,6 +14,17 @@
       <span class="ticker-price" id="btc-price">Loading...</span>
       <span class="ticker-change" id="btc-change"></span>
     </div>
+
+    <!-- Key Level of the Day Widget -->
+    <div class="key-level-widget" id="key-level-widget">
+      <div class="key-level-header">
+        <span class="key-level-title">Key Level of the Day</span>
+        <span class="key-level-type" id="level-type">--</span>
+      </div>
+      <div class="key-level-price" id="key-level-price">Loading...</div>
+      <div class="key-level-desc" id="key-level-desc">Calculating key level...</div>
+      <div class="key-level-distance" id="key-level-distance"></div>
+    </div>
   </header>
 
   <!-- BTC Narrative Tracker (FREE) -->
@@ -240,6 +251,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="{{ "src/js/bitcoin-coin.js" | relURL }}"></script>
 <script src="{{ "src/js/narrative-tracker.js" | relURL }}"></script>
+<script src="{{ "src/js/key-level.js" | relURL }}"></script>
 
 <!-- Live price ticker -->
 <script>

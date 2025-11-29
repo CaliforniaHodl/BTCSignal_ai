@@ -964,3 +964,77 @@ footer {
   color: var(--text-muted);
   margin: 0.75rem 0 0;
 }
+
+/* ===== Key Level Widget ===== */
+.key-level-widget {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  text-align: center;
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.key-level-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.key-level-title {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.key-level-type {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.key-level-type.support {
+  background: rgba(63, 185, 80, 0.2);
+  color: var(--green);
+}
+
+.key-level-type.resistance {
+  background: rgba(248, 81, 73, 0.2);
+  color: var(--red);
+}
+
+.key-level-price {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.key-level-price.support {
+  color: var(--green);
+}
+
+.key-level-price.resistance {
+  color: var(--red);
+}
+
+.key-level-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.key-level-distance {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.key-level-distance .distance {
+  color: var(--text-primary);
+  font-weight: 600;
+}
