@@ -202,8 +202,8 @@ const BTCSAIAccess = (function() {
   const TIER_PRICES = {
     single: 21,
     hourly: 1000,
-    daily: 20000,
-    weekly: 100000
+    daily: 10000,
+    weekly: 25000
   };
 
   return {
