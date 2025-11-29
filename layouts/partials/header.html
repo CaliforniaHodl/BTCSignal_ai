@@ -11,6 +11,7 @@
         <li><a href="/">Home</a></li>
         <li><a href="/posts/">Analysis</a></li>
         <li><a href="/dashboard/" class="nav-link-premium" id="dashboard-nav" style="display: none;">Dashboard</a></li>
+        <li><a href="/analyze/" class="nav-link-premium" id="analyze-nav" style="display: none;">Chart AI</a></li>
         <li><a href="https://twitter.com/BTCSignal_ai" target="_blank">Twitter</a></li>
       </ul>
     </nav>
@@ -25,7 +26,9 @@
         var posts = JSON.parse(unlocked);
         if (Array.isArray(posts) && posts.length > 0) {
           var dashNav = document.getElementById('dashboard-nav');
+          var analyzeNav = document.getElementById('analyze-nav');
           if (dashNav) dashNav.style.display = 'inline';
+          if (analyzeNav) analyzeNav.style.display = 'inline';
         }
       }
     } catch (e) {}

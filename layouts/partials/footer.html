@@ -1,4 +1,24 @@
 <footer>
+  <!-- Newsletter Signup -->
+  <div class="newsletter-section">
+    <div class="newsletter-content">
+      <div class="newsletter-text">
+        <h3>Get Daily BTC Analysis</h3>
+        <p>Free market updates delivered to your inbox</p>
+      </div>
+      <form class="newsletter-form" id="newsletter-form">
+        <input type="email" id="newsletter-email" placeholder="Enter your email" required>
+        <button type="submit" class="btn-subscribe">
+          <span class="btn-text">Subscribe</span>
+          <span class="btn-loading" style="display: none;">...</span>
+        </button>
+      </form>
+      <p class="newsletter-success" id="newsletter-success" style="display: none;">
+        Thanks for subscribing!
+      </p>
+    </div>
+  </div>
+
   <div class="footer-content">
     <span class="footer-text">&copy; {{ now.Year }} BTC Signal AI - Not financial advice</span>
     <div class="footer-links">
@@ -8,3 +28,43 @@
     </div>
   </div>
 </footer>
+
+<script>
+// Newsletter form handler
+(function() {
+  const form = document.getElementById('newsletter-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('newsletter-email').value;
+    const btnText = form.querySelector('.btn-text');
+    const btnLoading = form.querySelector('.btn-loading');
+    const success = document.getElementById('newsletter-success');
+
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+
+    try {
+      const res = await fetch('/.netlify/functions/newsletter-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok) {
+        form.style.display = 'none';
+        success.style.display = 'block';
+      } else {
+        alert('Signup failed. Please try again.');
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+      }
+    } catch (err) {
+      alert('Error. Please try again.');
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+    }
+  });
+})();
+</script>
