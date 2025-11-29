@@ -1,17 +1,10 @@
-
-<div>
- {{ if or (not (isset .Params "cta")) .Params.cta }}
-      {{ partial "cta" . }}
-  {{ end }}
-
-
-  <footer>
-    <h1>footer</h1>
-  </footer>
- 
-</div>
-
-
-
-
-
+<footer>
+  <div class="footer-content">
+    <span class="footer-text">&copy; {{ now.Year }} BTC Signal AI - Not financial advice</span>
+    <div class="footer-links">
+      <a href="https://twitter.com/BTCSignal_ai" target="_blank">Twitter</a>
+      <a href="/terms/privacy-policy/">Privacy</a>
+      <a href="/terms/terms-of-use/">Terms</a>
+    </div>
+  </div>
+</footer>

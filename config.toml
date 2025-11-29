@@ -1,4 +1,4 @@
-baseURL = 'https://bitcoin-bot.netlify.app/'
+baseURL = 'https://btctradingsignalai.netlify.app/'
 languageCode = 'en-us'
 title = 'Bitcoin Analysis Bot'
 
@@ -11,4 +11,4 @@ description = 'Automated Bitcoin technical analysis and predictions'
 baseURL = 'http://localhost:1313/'
 
 [environments.production]
-baseURL = 'https://bitcoin-bot.netlify.app/'
+baseURL = 'https://btctradingsignalai.netlify.app/'

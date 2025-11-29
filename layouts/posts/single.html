@@ -1,5 +1,14 @@
 {{ define "main" }}
-<div class="container single-post-page">
+{{/* Determine if this post is in the latest 3 (free) or paywalled */}}
+{{ $latestPosts := first 3 (where .Site.RegularPages "Section" "posts") }}
+{{ $isFree := false }}
+{{ range $latestPosts }}
+  {{ if eq $.Permalink .Permalink }}
+    {{ $isFree = true }}
+  {{ end }}
+{{ end }}
+
+<div class="container single-post-page" data-post-id="{{ .File.UniqueID }}" data-is-free="{{ $isFree }}">
   <nav class="breadcrumb">
     <a href="/">Home</a>
     <span class="separator">/</span>
@@ -58,7 +67,30 @@
       {{ end }}
     </header>
 
-    <div class="article-content">
+    {{/* Paywall overlay for non-free posts */}}
+    {{ if not $isFree }}
+    <div class="paywall-overlay" id="paywall-overlay">
+      <div class="paywall-content">
+        <div class="lightning-icon">⚡</div>
+        <h3>Premium Analysis</h3>
+        <p>Unlock this analysis for <strong>21 sats</strong></p>
+        <div id="invoice-container" style="display: none;">
+          <div id="qr-code"></div>
+          <div class="invoice-string">
+            <input type="text" id="invoice-string" readonly>
+            <button id="copy-invoice" class="btn-copy">Copy</button>
+          </div>
+          <p class="waiting-text">Waiting for payment...</p>
+        </div>
+        <button id="unlock-btn" class="btn-lightning">
+          <span>⚡</span> Pay with Lightning
+        </button>
+        <p class="paywall-note">Instant unlock via Bitcoin Lightning Network</p>
+      </div>
+    </div>
+    {{ end }}
+
+    <div class="article-content {{ if not $isFree }}blurred{{ end }}" id="article-content">
       {{ .Content }}
     </div>
 
@@ -67,4 +99,9 @@
     </footer>
   </article>
 </div>
+
+{{ if not $isFree }}
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="{{ "src/js/paywall.js" | relURL }}"></script>
+{{ end }}
 {{ end }}
