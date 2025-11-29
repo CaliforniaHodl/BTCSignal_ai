@@ -1,32 +1,39 @@
-<header class="header">
+<header class="header" role="banner">
   <div class="header-content">
-    <a href="/" class="logo">
-      <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+    <a href="/" class="logo" aria-label="BTC Signal AI - Home">
+      <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-6h2v2h-2zm0-8h2v6h-2z"/>
       </svg>
       <span>BTC Signal AI</span>
     </a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="/">Home</a></li>
-        <li><a href="/posts/">Analysis</a></li>
-        <li><a href="/learn/">Learn</a></li>
-        <li class="nav-dropdown">
-          <a href="#" class="dropdown-toggle">Pro Tools</a>
-          <ul class="dropdown-menu">
-            <li><a href="/alpha-radar/">📡 Alpha Radar</a></li>
-            <li><a href="/liquidity-hunter/">🎯 Liquidity Hunter</a></li>
-            <li><a href="/trade-coach/">🎓 Trade Coach</a></li>
-            <li><a href="/dashboard/">📊 Dashboard</a></li>
-            <li><a href="/analyze/">🤖 Chart AI</a></li>
+    <nav role="navigation" aria-label="Main navigation">
+      <ul class="nav-links" role="menubar">
+        <li role="none"><a href="/" role="menuitem">Home</a></li>
+        <li role="none"><a href="/posts/" role="menuitem">Analysis</a></li>
+        <li role="none"><a href="/learn/" role="menuitem">Learn</a></li>
+        <li class="nav-dropdown" role="none">
+          <button class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="pro-tools-menu" role="menuitem">
+            Pro Tools
+            <span class="sr-only">, submenu</span>
+          </button>
+          <ul class="dropdown-menu" id="pro-tools-menu" role="menu" aria-label="Pro Tools submenu">
+            <li role="none"><a href="/alpha-radar/" role="menuitem"><span aria-hidden="true">📡</span> Alpha Radar</a></li>
+            <li role="none"><a href="/liquidity-hunter/" role="menuitem"><span aria-hidden="true">🎯</span> Liquidity Hunter</a></li>
+            <li role="none"><a href="/trade-coach/" role="menuitem"><span aria-hidden="true">🎓</span> Trade Coach</a></li>
+            <li role="none"><a href="/dashboard/" role="menuitem"><span aria-hidden="true">📊</span> Dashboard</a></li>
+            <li role="none"><a href="/analyze/" role="menuitem"><span aria-hidden="true">🤖</span> Chart AI</a></li>
           </ul>
         </li>
-        <li><a href="/pricing/" class="nav-pricing">Pricing</a></li>
-        <li><a href="https://twitter.com/BTCSignal_ai" target="_blank">Twitter</a></li>
+        <li role="none"><a href="/pricing/" class="nav-pricing" role="menuitem">Pricing</a></li>
+        <li role="none">
+          <a href="https://twitter.com/BTCSignal_ai" target="_blank" rel="noopener noreferrer" role="menuitem">
+            Twitter<span class="sr-only"> (opens in new tab)</span>
+          </a>
+        </li>
       </ul>
-      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
-        <span class="icon icon-moon">🌙</span>
-        <span class="icon icon-sun">☀️</span>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light theme" aria-pressed="false">
+        <span class="icon icon-moon" aria-hidden="true">🌙</span>
+        <span class="icon icon-sun" aria-hidden="true">☀️</span>
       </button>
     </nav>
   </div>
@@ -48,7 +55,7 @@
     } catch (e) {}
   })();
 
-  // Theme toggle
+  // Theme toggle with accessibility
   (function() {
     var toggle = document.getElementById('theme-toggle');
     var html = document.documentElement;
@@ -59,8 +66,10 @@
 
     if (savedTheme) {
       html.setAttribute('data-theme', savedTheme);
+      toggle.setAttribute('aria-pressed', savedTheme === 'light' ? 'true' : 'false');
     } else if (!systemPrefersDark) {
       html.setAttribute('data-theme', 'light');
+      toggle.setAttribute('aria-pressed', 'true');
     }
 
     if (toggle) {
@@ -74,8 +83,98 @@
           html.setAttribute('data-theme', newTheme);
         }
 
+        toggle.setAttribute('aria-pressed', newTheme === 'light' ? 'true' : 'false');
         localStorage.setItem('theme', newTheme);
+
+        // Announce to screen readers
+        var announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.className = 'sr-only';
+        announcement.textContent = 'Theme changed to ' + newTheme + ' mode';
+        document.body.appendChild(announcement);
+        setTimeout(function() { announcement.remove(); }, 1000);
       });
     }
+  })();
+
+  // Accessible dropdown menu with keyboard support
+  (function() {
+    var dropdown = document.querySelector('.nav-dropdown');
+    var toggle = dropdown ? dropdown.querySelector('.dropdown-toggle') : null;
+    var menu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
+
+    if (!toggle || !menu) return;
+
+    var menuItems = menu.querySelectorAll('a[role="menuitem"]');
+    var isOpen = false;
+
+    function openMenu() {
+      isOpen = true;
+      toggle.setAttribute('aria-expanded', 'true');
+      menu.style.opacity = '1';
+      menu.style.visibility = 'visible';
+    }
+
+    function closeMenu() {
+      isOpen = false;
+      toggle.setAttribute('aria-expanded', 'false');
+      menu.style.opacity = '0';
+      menu.style.visibility = 'hidden';
+    }
+
+    // Toggle on click/Enter/Space
+    toggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (isOpen) {
+        closeMenu();
+      } else {
+        openMenu();
+        menuItems[0].focus();
+      }
+    });
+
+    toggle.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowDown' || e.key === 'Down') {
+        e.preventDefault();
+        openMenu();
+        menuItems[0].focus();
+      } else if (e.key === 'Escape' || e.key === 'Esc') {
+        closeMenu();
+        toggle.focus();
+      }
+    });
+
+    // Keyboard navigation within menu
+    menuItems.forEach(function(item, index) {
+      item.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown' || e.key === 'Down') {
+          e.preventDefault();
+          menuItems[(index + 1) % menuItems.length].focus();
+        } else if (e.key === 'ArrowUp' || e.key === 'Up') {
+          e.preventDefault();
+          menuItems[(index - 1 + menuItems.length) % menuItems.length].focus();
+        } else if (e.key === 'Escape' || e.key === 'Esc') {
+          closeMenu();
+          toggle.focus();
+        } else if (e.key === 'Tab') {
+          closeMenu();
+        }
+      });
+    });
+
+    // Close on click outside
+    document.addEventListener('click', function(e) {
+      if (!dropdown.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    // Close on focus outside
+    document.addEventListener('focusin', function(e) {
+      if (!dropdown.contains(e.target)) {
+        closeMenu();
+      }
+    });
   })();
 </script>

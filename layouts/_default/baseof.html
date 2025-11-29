@@ -4,10 +4,14 @@
     {{ partial "head.html" . }}
   </head>
   <body>
+    <!-- Skip Navigation Links for Screen Readers -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#footer" class="skip-link">Skip to footer</a>
+
     <div id="main-container">
       {{ partial "header.html" . }}
 
-      <main class="main-content-area">
+      <main id="main-content" class="main-content-area" role="main" aria-label="Main content">
         {{ block "main" . }}{{ end }}
       </main>
 

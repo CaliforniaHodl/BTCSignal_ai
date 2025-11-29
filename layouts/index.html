@@ -5,18 +5,18 @@
     <p class="site-description">Automated technical analysis powered by AI</p>
 
     <!-- 3D Bitcoin Coin -->
-    <div class="bitcoin-coin-container">
+    <div class="bitcoin-coin-container" role="img" aria-label="Interactive 3D Bitcoin coin animation">
       <div id="bitcoin-coin"></div>
     </div>
 
-    <div class="live-ticker" id="btc-ticker">
+    <div class="live-ticker" id="btc-ticker" role="status" aria-live="polite" aria-label="Live Bitcoin price">
       <span class="ticker-label">BTC/USD</span>
-      <span class="ticker-price" id="btc-price">Loading...</span>
-      <span class="ticker-change" id="btc-change"></span>
+      <span class="ticker-price" id="btc-price" aria-label="Current Bitcoin price">Loading...</span>
+      <span class="ticker-change" id="btc-change" aria-label="24 hour price change"></span>
     </div>
 
     <!-- Key Level of the Day Widget -->
-    <div class="key-level-widget" id="key-level-widget">
+    <div class="key-level-widget" id="key-level-widget" role="region" aria-label="Key level of the day">
       <div class="key-level-header">
         <span class="key-level-title">Key Level of the Day</span>
         <span class="key-level-type" id="level-type">--</span>
@@ -28,15 +28,15 @@
   </header>
 
   <!-- BTC Narrative Tracker (FREE) -->
-  <section class="narrative-section">
-    <h2>Bitcoin Fundamentals</h2>
+  <section class="narrative-section" aria-labelledby="fundamentals-heading">
+    <h2 id="fundamentals-heading">Bitcoin Fundamentals</h2>
     <p class="section-desc">Real-time on-chain and market metrics</p>
-    <div class="narrative-grid">
+    <div class="narrative-grid" role="list">
       <!-- Halving Countdown -->
-      <div class="narrative-card halving">
-        <div class="narrative-icon">⏰</div>
+      <article class="narrative-card halving" role="listitem">
+        <div class="narrative-icon" aria-hidden="true">⏰</div>
         <h3>Next Halving</h3>
-        <div class="countdown" id="halving-countdown">
+        <div class="countdown" id="halving-countdown" aria-label="Time until next Bitcoin halving">
           <div class="countdown-item">
             <span class="countdown-value" id="halving-days">--</span>
             <span class="countdown-label">Days</span>
@@ -51,60 +51,60 @@
           </div>
         </div>
         <p class="narrative-note">Block <span id="halving-block">1,050,000</span> • ~April 2028</p>
-      </div>
+      </article>
 
       <!-- Hash Rate -->
-      <div class="narrative-card hashrate">
-        <div class="narrative-icon">⛏️</div>
+      <article class="narrative-card hashrate" role="listitem">
+        <div class="narrative-icon" aria-hidden="true">⛏️</div>
         <h3>Network Hash Rate</h3>
         <div class="metric-display">
           <span class="metric-value" id="hash-rate">--</span>
           <span class="metric-unit">EH/s</span>
         </div>
         <p class="narrative-note" id="hash-change">Loading...</p>
-      </div>
+      </article>
 
       <!-- Market Cap -->
-      <div class="narrative-card mcap">
-        <div class="narrative-icon">💎</div>
+      <article class="narrative-card mcap" role="listitem">
+        <div class="narrative-icon" aria-hidden="true">💎</div>
         <h3>Market Cap</h3>
         <div class="metric-display">
           <span class="metric-value" id="market-cap">--</span>
           <span class="metric-unit">T</span>
         </div>
         <p class="narrative-note">BTC Dominance: <span id="btc-dominance">--</span>%</p>
-      </div>
+      </article>
 
       <!-- ETF Flows -->
-      <div class="narrative-card etf">
-        <div class="narrative-icon">🏦</div>
+      <article class="narrative-card etf" role="listitem">
+        <div class="narrative-icon" aria-hidden="true">🏦</div>
         <h3>ETF Sentiment</h3>
         <div class="etf-indicator" id="etf-indicator">
           <span class="etf-status">Tracking</span>
         </div>
         <p class="narrative-note">Spot BTC ETF flow tracker</p>
-      </div>
+      </article>
     </div>
   </section>
 
-  <section class="latest-analysis">
-    <h2>Latest Analysis</h2>
-    <div class="posts-grid">
+  <section class="latest-analysis" aria-labelledby="latest-heading">
+    <h2 id="latest-heading">Latest Analysis</h2>
+    <div class="posts-grid" role="list">
       {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
       {{ range $index, $post := first 6 $allPosts }}
       {{ $isLocked := lt $index 10 }}
-      <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
+      <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}" role="listitem" aria-label="Analysis from {{ $post.Date.Format "January 2, 2006" }}: {{ $post.Params.direction }} signal with {{ $post.Params.confidence }} percent confidence at ${{ $post.Params.price }}{{ if $isLocked }}, requires payment{{ end }}">
         <div class="post-card-header">
           <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
           <span class="post-timeframe">{{ $post.Params.timeframe }}</span>
-          {{ if $isLocked }}<span class="lock-badge">⚡ 21 sats</span>{{ end }}
+          {{ if $isLocked }}<span class="lock-badge" aria-hidden="true"><span aria-hidden="true">⚡</span> 21 sats</span>{{ end }}
         </div>
         <div class="post-card-body">
           <span class="direction-badge {{ $post.Params.direction }}">
-            {{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}
+            <span aria-hidden="true">{{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}</span>
             {{ upper $post.Params.direction }}
           </span>
-          <span class="confidence">{{ $post.Params.confidence }}%</span>
+          <span class="confidence">{{ $post.Params.confidence }}%<span class="sr-only"> confidence</span></span>
         </div>
         <div class="post-card-footer">
           <span class="price">${{ $post.Params.price }}</span>
@@ -114,25 +114,25 @@
     </div>
   </section>
 
-  <section class="free-posts">
-    <h2>Free Analysis</h2>
+  <section class="free-posts" aria-labelledby="free-heading">
+    <h2 id="free-heading">Free Analysis</h2>
     <p class="section-desc">Explore our historical analysis - no payment required</p>
-    <div class="posts-grid">
+    <div class="posts-grid" role="list">
       {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
       {{ range $index, $post := after 10 $allPosts }}
       {{ if lt $index 6 }}
-      <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}">
+      <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}" role="listitem" aria-label="Free analysis from {{ $post.Date.Format "January 2, 2006" }}: {{ $post.Params.direction }} signal with {{ $post.Params.confidence }} percent confidence at ${{ $post.Params.price }}">
         <div class="post-card-header">
           <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
           <span class="post-timeframe">{{ $post.Params.timeframe }}</span>
-          <span class="free-badge">✓ Free</span>
+          <span class="free-badge"><span aria-hidden="true">✓</span> Free</span>
         </div>
         <div class="post-card-body">
           <span class="direction-badge {{ $post.Params.direction }}">
-            {{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}
+            <span aria-hidden="true">{{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}</span>
             {{ upper $post.Params.direction }}
           </span>
-          <span class="confidence">{{ $post.Params.confidence }}%</span>
+          <span class="confidence">{{ $post.Params.confidence }}%<span class="sr-only"> confidence</span></span>
         </div>
         <div class="post-card-footer">
           <span class="price">${{ $post.Params.price }}</span>
@@ -145,13 +145,13 @@
 
 
   <!-- Backtest Snippets (Free Teasers) -->
-  <section class="backtest-section">
-    <h2>Strategy Backtests</h2>
+  <section class="backtest-section" aria-labelledby="backtest-heading">
+    <h2 id="backtest-heading">Strategy Backtests</h2>
     <p class="section-desc">See how common strategies performed on BTC</p>
-    <div class="backtest-grid">
-      <div class="backtest-card">
+    <div class="backtest-grid" role="list">
+      <article class="backtest-card" role="listitem">
         <div class="backtest-header">
-          <span class="backtest-icon">📊</span>
+          <span class="backtest-icon" aria-hidden="true">📊</span>
           <h3>EMA Cross (9/21)</h3>
         </div>
         <div class="backtest-stats">
@@ -169,11 +169,11 @@
           </div>
         </div>
         <p class="backtest-period">1H timeframe • Last 6 months</p>
-      </div>
+      </article>
 
-      <div class="backtest-card">
+      <article class="backtest-card" role="listitem">
         <div class="backtest-header">
-          <span class="backtest-icon">📈</span>
+          <span class="backtest-icon" aria-hidden="true">📈</span>
           <h3>RSI Divergence</h3>
         </div>
         <div class="backtest-stats">
@@ -191,11 +191,11 @@
           </div>
         </div>
         <p class="backtest-period">4H timeframe • Last 6 months</p>
-      </div>
+      </article>
 
-      <div class="backtest-card">
+      <article class="backtest-card" role="listitem">
         <div class="backtest-header">
-          <span class="backtest-icon">🎯</span>
+          <span class="backtest-icon" aria-hidden="true">🎯</span>
           <h3>VWAP Bounce</h3>
         </div>
         <div class="backtest-stats">
@@ -213,34 +213,34 @@
           </div>
         </div>
         <p class="backtest-period">1H timeframe • Last 6 months</p>
-      </div>
+      </article>
 
-      <div class="backtest-card premium-teaser">
+      <article class="backtest-card premium-teaser" role="listitem">
         <div class="backtest-header">
-          <span class="backtest-icon">🔒</span>
+          <span class="backtest-icon" aria-hidden="true">🔒</span>
           <h3>Custom Backtests</h3>
         </div>
         <p class="premium-text">Unlock premium to run custom strategy backtests with full reports</p>
         <a href="/posts/" class="btn-unlock">Unlock Premium</a>
-      </div>
+      </article>
     </div>
   </section>
 
-  <section class="all-posts">
-    <h2>All Analysis</h2>
-    <div class="posts-list">
+  <section class="all-posts" aria-labelledby="all-posts-heading">
+    <h2 id="all-posts-heading">All Analysis</h2>
+    <div class="posts-list" role="list">
       {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
       {{ range $index, $post := $allPosts }}
       {{ $isLocked := lt $index 10 }}
-      <a href="{{ $post.Permalink }}" class="post-row {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
+      <a href="{{ $post.Permalink }}" class="post-row {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}" role="listitem" aria-label="Analysis from {{ $post.Date.Format "January 2, 2006" }}: {{ $post.Params.direction }} signal, {{ $post.Params.confidence }} percent confidence, ${{ $post.Params.price }}{{ if $isLocked }}, premium content{{ else }}, free{{ end }}">
         <span class="post-date">{{ $post.Date.Format "2006-01-02 15:04" }}</span>
-        <span class="direction-indicator {{ $post.Params.direction }}">
+        <span class="direction-indicator {{ $post.Params.direction }}" aria-hidden="true">
           {{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}
         </span>
         <span class="direction-text">{{ upper $post.Params.direction }}</span>
         <span class="confidence">{{ $post.Params.confidence }}%</span>
         <span class="price">${{ $post.Params.price }}</span>
-        {{ if $isLocked }}<span class="lock-badge">🔒</span>{{ else }}<span class="free-badge">✓ Free</span>{{ end }}
+        {{ if $isLocked }}<span class="lock-badge" aria-hidden="true">🔒</span>{{ else }}<span class="free-badge"><span aria-hidden="true">✓</span> Free</span>{{ end }}
       </a>
       {{ end }}
     </div>
