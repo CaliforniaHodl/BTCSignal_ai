@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Key Level Widget - BTCSignal.ai</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: transparent;
+    }
+
+    .widget {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 16px;
+      color: #f0f6fc;
+      max-width: 320px;
+      min-width: 280px;
+    }
+
+    .widget-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #30363d;
+    }
+
+    .widget-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .widget-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .widget-badge.support {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .widget-badge.resistance {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+    }
+
+    .widget-level {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .widget-level.support {
+      color: #f87171;
+    }
+
+    .widget-level.resistance {
+      color: #4ade80;
+    }
+
+    .widget-desc {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .widget-stats {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .widget-stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+
+    .widget-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      color: #6b7280;
+    }
+
+    .widget-brand {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #f7931a;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .widget-brand:hover {
+      color: #ffb800;
+    }
+
+    .widget-brand svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #6b7280;
+    }
+
+    .loading-spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #30363d;
+      border-top-color: #f7931a;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Light theme variant */
+    .widget.light {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-color: #e2e8f0;
+      color: #1f2937;
+    }
+
+    .widget.light .widget-stats {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .widget.light .stat-value {
+      color: #1f2937;
+    }
+  </style>
+</head>
+<body>
+  <div class="widget" id="widget">
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <span>Loading key level...</span>
+    </div>
+
+    <div id="content" style="display: none;">
+      <div class="widget-header">
+        <span class="widget-title">Key Level of the Day</span>
+        <span class="widget-badge" id="level-badge">--</span>
+      </div>
+
+      <div class="widget-level" id="level-price">--</div>
+      <p class="widget-desc" id="level-desc">Loading...</p>
+
+      <div class="widget-stats">
+        <div class="widget-stat">
+          <div class="stat-value" id="current-price">--</div>
+          <div class="stat-label">Current</div>
+        </div>
+        <div class="widget-stat">
+          <div class="stat-value" id="distance">--</div>
+          <div class="stat-label">Distance</div>
+        </div>
+        <div class="widget-stat">
+          <div class="stat-value" id="direction">--</div>
+          <div class="stat-label">Direction</div>
+        </div>
+      </div>
+
+      <div class="widget-footer">
+        <span id="updated">Updated just now</span>
+        <a href="https://btcsignal.ai" target="_blank" class="widget-brand">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10" fill="currentColor"/>
+            <text x="12" y="16" text-anchor="middle" font-size="10" fill="#fff" font-weight="bold">B</text>
+          </svg>
+          BTCSignal.ai
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Get URL params for customization
+    const params = new URLSearchParams(window.location.search);
+    const theme = params.get('theme') || 'dark';
+
+    if (theme === 'light') {
+      document.getElementById('widget').classList.add('light');
+    }
+
+    async function loadKeyLevel() {
+      try {
+        const res = await fetch('/.netlify/functions/key-level');
+        const data = await res.json();
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+
+        const badge = document.getElementById('level-badge');
+        badge.textContent = data.type.toUpperCase();
+        badge.className = 'widget-badge ' + data.type;
+
+        const price = document.getElementById('level-price');
+        price.textContent = '$' + data.level.toLocaleString();
+        price.className = 'widget-level ' + data.type;
+
+        document.getElementById('level-desc').textContent = data.description;
+        document.getElementById('current-price').textContent = '$' + data.currentPrice.toLocaleString();
+        document.getElementById('distance').textContent = data.distancePercent + '%';
+        document.getElementById('direction').textContent = data.currentPrice < data.level ? 'Below' : 'Above';
+
+      } catch (e) {
+        document.getElementById('loading').innerHTML = '<span>Unable to load data</span>';
+      }
+    }
+
+    loadKeyLevel();
+    setInterval(loadKeyLevel, 300000); // Refresh every 5 minutes
+  </script>
+</body>
+</html>
