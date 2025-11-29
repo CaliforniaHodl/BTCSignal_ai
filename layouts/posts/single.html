@@ -1,10 +1,10 @@
 {{ define "main" }}
 {{/* Determine if this post is in the latest 3 (free) or paywalled */}}
 {{ $latestPosts := first 10 (where .Site.RegularPages "Section" "posts") }}
-{{ $isFree := false }}
+{{ $isFree := true }}
 {{ range $latestPosts }}
   {{ if eq $.Permalink .Permalink }}
-    {{ $isFree = true }}
+    {{ $isFree = false }}
   {{ end }}
 {{ end }}
 
