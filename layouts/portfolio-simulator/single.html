@@ -1,0 +1,299 @@
+{{ define "main" }}
+<div class="container premium-page portfolio-simulator-page">
+  <!-- Premium Gate -->
+  <div class="premium-gate" id="premium-gate">
+    <div class="gate-content">
+      <div class="gate-icon">📊</div>
+      <h1>Portfolio Simulator</h1>
+      <p class="gate-desc">Test trading strategies with historical BTC data. See how your approach would have performed without risking real capital.</p>
+      <div class="gate-features">
+        <div class="feature-item"><span>📈</span> Equity Curves</div>
+        <div class="feature-item"><span>🎯</span> Strategy Testing</div>
+        <div class="feature-item"><span>📉</span> Drawdown Analysis</div>
+        <div class="feature-item"><span>💰</span> P&L Breakdown</div>
+      </div>
+      <div class="gate-price">
+        <span class="price-amount">⚡ 50 sats</span>
+        <span class="price-period">one-time access</span>
+      </div>
+      <button class="btn-unlock-premium" id="btn-unlock">Unlock Portfolio Simulator</button>
+      <p class="gate-note">Already unlocked? <a href="#" id="check-access">Check access</a></p>
+    </div>
+  </div>
+
+  <!-- Portfolio Simulator Content -->
+  <div class="premium-content" id="premium-content" style="display: none;">
+    <header class="simulator-header">
+      <h1>📊 Portfolio Simulator</h1>
+      <p class="subtitle">Test trading strategies with historical BTC data</p>
+    </header>
+
+    <!-- Strategy Configuration -->
+    <section class="strategy-config">
+      <h2>Configure Your Strategy</h2>
+      <form id="simulator-form" class="simulator-form">
+        <!-- Preset Strategies -->
+        <div class="form-group">
+          <label for="strategy-preset">Strategy Preset</label>
+          <select id="strategy-preset" name="preset">
+            <option value="custom">Custom Strategy</option>
+            <option value="dca-weekly">DCA Weekly Buy</option>
+            <option value="dca-monthly">DCA Monthly Buy</option>
+            <option value="btc-breakout">Breakout Trader (Longs Only)</option>
+            <option value="btc-dips">Buy the Dip (RSI < 30)</option>
+            <option value="ema-cross">EMA Cross (9/21)</option>
+            <option value="signal-follow">Follow BTC Signal AI</option>
+          </select>
+        </div>
+
+        <!-- Time Period -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="start-date">Start Date</label>
+            <input type="date" id="start-date" name="startDate" required>
+          </div>
+          <div class="form-group">
+            <label for="end-date">End Date</label>
+            <input type="date" id="end-date" name="endDate" required>
+          </div>
+        </div>
+
+        <!-- Capital -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="initial-capital">Initial Capital (USD)</label>
+            <input type="number" id="initial-capital" name="initialCapital" value="10000" min="100" step="100" required>
+          </div>
+          <div class="form-group">
+            <label for="position-size">Position Size (%)</label>
+            <input type="number" id="position-size" name="positionSize" value="10" min="1" max="100" step="1" required>
+          </div>
+        </div>
+
+        <!-- Custom Strategy Options (shown when custom selected) -->
+        <div class="custom-strategy-options" id="custom-options">
+          <h3>Custom Strategy Rules</h3>
+
+          <div class="form-group">
+            <label for="entry-condition">Entry Condition</label>
+            <select id="entry-condition" name="entryCondition">
+              <option value="rsi-oversold">RSI Below 30 (Oversold)</option>
+              <option value="rsi-overbought">RSI Above 70 (Short)</option>
+              <option value="ema-cross-up">EMA 9 Crosses Above EMA 21</option>
+              <option value="ema-cross-down">EMA 9 Crosses Below EMA 21</option>
+              <option value="price-above-ema">Price Above EMA 50</option>
+              <option value="price-below-ema">Price Below EMA 50</option>
+              <option value="weekly-buy">Weekly (Every Monday)</option>
+              <option value="monthly-buy">Monthly (1st of Month)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="exit-condition">Exit Condition</label>
+            <select id="exit-condition" name="exitCondition">
+              <option value="take-profit">Take Profit %</option>
+              <option value="stop-loss">Stop Loss %</option>
+              <option value="trailing-stop">Trailing Stop %</option>
+              <option value="rsi-exit">RSI Reversal</option>
+              <option value="ema-exit">EMA Cross Exit</option>
+              <option value="hold">HODL (No Exit)</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="take-profit-pct">Take Profit (%)</label>
+              <input type="number" id="take-profit-pct" name="takeProfitPct" value="10" min="1" max="500" step="1">
+            </div>
+            <div class="form-group">
+              <label for="stop-loss-pct">Stop Loss (%)</label>
+              <input type="number" id="stop-loss-pct" name="stopLossPct" value="5" min="1" max="100" step="1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="allow-shorts" name="allowShorts">
+              Allow Short Positions
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="compound-gains" name="compoundGains" checked>
+              Compound Gains (Reinvest Profits)
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-simulate" id="btn-simulate">
+          <span class="btn-text">Run Simulation</span>
+          <span class="btn-loading" style="display: none;">Simulating...</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- Results Section -->
+    <section class="simulation-results" id="simulation-results" style="display: none;">
+      <h2>Simulation Results</h2>
+
+      <!-- Summary Stats -->
+      <div class="results-summary">
+        <div class="summary-card profit">
+          <span class="summary-label">Total Return</span>
+          <span class="summary-value" id="total-return">--</span>
+          <span class="summary-detail" id="return-pct">--%</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Final Balance</span>
+          <span class="summary-value" id="final-balance">--</span>
+          <span class="summary-detail" id="vs-hodl">vs HODL: --</span>
+        </div>
+        <div class="summary-card">
+          <span class="summary-label">Total Trades</span>
+          <span class="summary-value" id="total-trades">--</span>
+          <span class="summary-detail" id="win-rate">Win Rate: --%</span>
+        </div>
+        <div class="summary-card drawdown">
+          <span class="summary-label">Max Drawdown</span>
+          <span class="summary-value" id="max-drawdown">--</span>
+          <span class="summary-detail" id="drawdown-date">On: --</span>
+        </div>
+      </div>
+
+      <!-- Equity Curve -->
+      <div class="equity-curve-section">
+        <h3>Equity Curve</h3>
+        <div class="chart-container" id="equity-chart">
+          <canvas id="equity-canvas"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item strategy"><span class="dot"></span> Your Strategy</span>
+          <span class="legend-item hodl"><span class="dot"></span> Buy & Hold</span>
+        </div>
+      </div>
+
+      <!-- Detailed Stats -->
+      <div class="detailed-stats">
+        <div class="stat-group">
+          <h3>Performance Metrics</h3>
+          <div class="stat-row">
+            <span class="stat-label">Sharpe Ratio</span>
+            <span class="stat-value" id="sharpe-ratio">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Sortino Ratio</span>
+            <span class="stat-value" id="sortino-ratio">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Profit Factor</span>
+            <span class="stat-value" id="profit-factor">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Avg Trade Duration</span>
+            <span class="stat-value" id="avg-duration">--</span>
+          </div>
+        </div>
+
+        <div class="stat-group">
+          <h3>Trade Analysis</h3>
+          <div class="stat-row">
+            <span class="stat-label">Winning Trades</span>
+            <span class="stat-value positive" id="winning-trades">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Losing Trades</span>
+            <span class="stat-value negative" id="losing-trades">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Avg Win</span>
+            <span class="stat-value positive" id="avg-win">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Avg Loss</span>
+            <span class="stat-value negative" id="avg-loss">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Largest Win</span>
+            <span class="stat-value positive" id="largest-win">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Largest Loss</span>
+            <span class="stat-value negative" id="largest-loss">--</span>
+          </div>
+        </div>
+
+        <div class="stat-group">
+          <h3>Risk Metrics</h3>
+          <div class="stat-row">
+            <span class="stat-label">Max Consecutive Wins</span>
+            <span class="stat-value" id="max-wins">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Max Consecutive Losses</span>
+            <span class="stat-value" id="max-losses">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Recovery Factor</span>
+            <span class="stat-value" id="recovery-factor">--</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Risk/Reward Ratio</span>
+            <span class="stat-value" id="risk-reward">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trade Log -->
+      <div class="trade-log-section">
+        <h3>Trade Log</h3>
+        <div class="trade-log-controls">
+          <button class="btn-toggle-log" id="btn-toggle-log">Show All Trades</button>
+        </div>
+        <div class="trade-log" id="trade-log" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Entry</th>
+                <th>Exit</th>
+                <th>P/L</th>
+                <th>Balance</th>
+              </tr>
+            </thead>
+            <tbody id="trade-log-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- AI Insights -->
+      <div class="ai-insights-section">
+        <h3>AI Strategy Insights</h3>
+        <div class="insights-content" id="ai-insights">
+          <div class="loading-spinner">Generating insights...</div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="results-actions">
+        <button class="btn-new-sim" id="btn-new-sim">New Simulation</button>
+        <button class="btn-export" id="btn-export">Export Results</button>
+      </div>
+    </section>
+
+    <!-- Saved Simulations -->
+    <section class="saved-simulations">
+      <h2>Recent Simulations</h2>
+      <div class="simulations-list" id="simulations-list">
+        <p class="no-simulations">No simulations yet. Run your first strategy above!</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Chart.js for equity curve -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ "src/js/portfolio-simulator.js" | relURL }}"></script>
+{{ end }}
