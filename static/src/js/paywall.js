@@ -6,22 +6,59 @@
   const postId = container.dataset.postId;
   const isFree = container.dataset.isFree === 'true';
 
+  // DOM elements (get these first so unlockContent works)
+  const paywallOverlay = document.getElementById('paywall-overlay');
+  const articleContent = document.getElementById('article-content');
+
+  // Unlock the content - defined early so it can be called from checks below
+  function unlockContent() {
+    if (paywallOverlay) {
+      paywallOverlay.style.display = 'none';
+    }
+    if (articleContent) {
+      articleContent.classList.remove('blurred');
+    }
+  }
+
   // If free post, no paywall needed
   if (isFree) return;
 
-  // Check if already unlocked (stored in localStorage)
+  // Check if admin mode is active (bypasses all paywalls)
+  if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
+    console.log('%c ADMIN: Paywall bypassed for ' + postId, 'color: #f7931a;');
+    unlockContent();
+    return;
+  }
+
+  // Check if user has all-access subscription (hourly/daily/weekly)
+  if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
+    console.log('All-access subscription active, unlocking content');
+    unlockContent();
+    return;
+  }
+
+  // Check if this specific post is unlocked via BTCSAIAccess
+  if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isPostUnlocked(postId)) {
+    console.log('Post already unlocked via BTCSAIAccess');
+    unlockContent();
+    return;
+  }
+
+  // Legacy check - stored in localStorage (for backwards compatibility)
   const unlockedPosts = JSON.parse(localStorage.getItem('unlockedPosts') || '{}');
   if (unlockedPosts[postId]) {
     unlockContent();
     return;
   }
 
+  // If we get here, content is locked - set up payment UI
   const unlockBtn = document.getElementById('unlock-btn');
   const invoiceContainer = document.getElementById('invoice-container');
   const qrCodeDiv = document.getElementById('qr-code');
   const invoiceInput = document.getElementById('invoice-string');
   const copyBtn = document.getElementById('copy-invoice');
-  const paywallOverlay = document.getElementById('paywall-overlay');
+
+  if (!unlockBtn) return; // No paywall UI present
 
   let currentPaymentHash = null;
   let checkInterval = null;
@@ -53,7 +90,7 @@
       qrCodeDiv.innerHTML = '';
       const canvas = document.createElement('canvas');
       qrCodeDiv.appendChild(canvas);
-      
+
       QRCode.toCanvas(canvas, data.payment_request.toUpperCase(), {
         width: 200,
         margin: 2,
@@ -79,12 +116,14 @@
   });
 
   // Copy invoice to clipboard
-  copyBtn.addEventListener('click', () => {
-    invoiceInput.select();
-    navigator.clipboard.writeText(invoiceInput.value);
-    copyBtn.textContent = 'Copied!';
-    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
-  });
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      invoiceInput.select();
+      navigator.clipboard.writeText(invoiceInput.value);
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+    });
+  }
 
   // Poll for payment status
   function startPaymentCheck() {
@@ -104,24 +143,14 @@
         if (data.paid) {
           clearInterval(checkInterval);
           // Save unlock to localStorage
-          unlockedPosts[postId] = Date.now();
-          localStorage.setItem('unlockedPosts', JSON.stringify(unlockedPosts));
+          const posts = JSON.parse(localStorage.getItem('unlockedPosts') || '{}');
+          posts[postId] = Date.now();
+          localStorage.setItem('unlockedPosts', JSON.stringify(posts));
           unlockContent();
         }
       } catch (error) {
         console.error('Payment check error:', error);
       }
     }, 2000); // Check every 2 seconds
-  }
-
-  // Unlock the content
-  function unlockContent() {
-    if (paywallOverlay) {
-      paywallOverlay.style.display = 'none';
-    }
-    const content = document.getElementById('article-content');
-    if (content) {
-      content.classList.remove('blurred');
-    }
   }
 })();
