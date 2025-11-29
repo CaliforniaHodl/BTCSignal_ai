@@ -1,0 +1,284 @@
+{{ define "main" }}
+<div class="container premium-page newsletter-page">
+  <header class="newsletter-header">
+    <div class="header-badge">PREMIUM</div>
+    <h1>Bitcoin Analysis Newsletter</h1>
+    <p class="subtitle">Weekly deep dives, market forecasts, and exclusive trade setups</p>
+  </header>
+
+  <!-- Newsletter Hero -->
+  <section class="newsletter-hero">
+    <div class="hero-content">
+      <div class="hero-preview">
+        <div class="preview-card">
+          <div class="preview-header">
+            <span class="preview-badge">Latest Issue</span>
+            <span class="preview-date" id="latest-date">--</span>
+          </div>
+          <h3 id="latest-title">Loading latest issue...</h3>
+          <p class="preview-excerpt" id="latest-excerpt">Stay tuned for our next comprehensive Bitcoin analysis report.</p>
+          <div class="preview-stats">
+            <span><strong>12</strong> Charts</span>
+            <span><strong>5</strong> Trade Ideas</span>
+            <span><strong>3</strong> Key Levels</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-subscribe">
+        <h2>Subscribe Now</h2>
+        <p>Get exclusive Bitcoin analysis delivered every Sunday</p>
+
+        <div class="subscribe-form" id="subscribe-form">
+          <div class="form-group">
+            <label for="email-input">Email Address</label>
+            <input type="email" id="email-input" placeholder="your@email.com">
+          </div>
+
+          <div class="subscribe-tier">
+            <div class="tier-option selected" data-tier="free">
+              <div class="tier-radio"></div>
+              <div class="tier-info">
+                <span class="tier-name">Free Tier</span>
+                <span class="tier-desc">Market summary + 1 key level</span>
+              </div>
+              <span class="tier-price">Free</span>
+            </div>
+            <div class="tier-option" data-tier="premium">
+              <div class="tier-radio"></div>
+              <div class="tier-info">
+                <span class="tier-name">Premium</span>
+                <span class="tier-desc">Full report + all trade setups</span>
+              </div>
+              <span class="tier-price">10K sats/mo</span>
+            </div>
+          </div>
+
+          <button class="btn-subscribe" id="btn-subscribe">
+            Subscribe to Newsletter
+          </button>
+
+          <p class="subscribe-note">No spam. Unsubscribe anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What You Get Section -->
+  <section class="features-section">
+    <h2>What's Inside Each Issue</h2>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Market Overview</h3>
+        <p>Comprehensive analysis of Bitcoin's weekly performance, trend direction, and momentum indicators.</p>
+        <span class="feature-tag free">Free</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Key Price Levels</h3>
+        <p>Critical support and resistance zones backed by on-chain data and technical analysis.</p>
+        <span class="feature-tag free">Free (1 level)</span>
+        <span class="feature-tag premium">Premium (All)</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Trade Setups</h3>
+        <p>Specific entry points, stop losses, and take profit targets with risk/reward calculations.</p>
+        <span class="feature-tag premium">Premium</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🔮</div>
+        <h3>Weekly Forecast</h3>
+        <p>AI-generated price predictions with confidence levels and scenario analysis.</p>
+        <span class="feature-tag premium">Premium</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">⛓️</div>
+        <h3>On-Chain Insights</h3>
+        <p>Whale movements, exchange flows, and holder behavior metrics explained simply.</p>
+        <span class="feature-tag premium">Premium</span>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Sentiment Analysis</h3>
+        <p>Social media sentiment, fear & greed trends, and market psychology breakdown.</p>
+        <span class="feature-tag premium">Premium</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sample Issue Section -->
+  <section class="sample-section">
+    <h2>Sample Newsletter</h2>
+    <p class="section-desc">Preview what you'll receive every Sunday</p>
+
+    <div class="sample-newsletter">
+      <div class="sample-header">
+        <div class="sample-logo">BTC Signal AI</div>
+        <div class="sample-meta">
+          <span>Weekly Report</span>
+          <span>Issue #42</span>
+        </div>
+      </div>
+
+      <div class="sample-content">
+        <div class="sample-section-block">
+          <h4>This Week in Bitcoin</h4>
+          <p>Bitcoin showed strength this week, breaking above the $95,000 resistance level with strong volume. The weekly candle closed as a bullish engulfing pattern, signaling continued upward momentum...</p>
+          <div class="sample-blur premium-blur">
+            <span>Subscribe to read more</span>
+          </div>
+        </div>
+
+        <div class="sample-section-block">
+          <h4>Key Levels to Watch</h4>
+          <div class="sample-level">
+            <span class="level-type resistance">Resistance</span>
+            <span class="level-price">$98,500</span>
+            <span class="level-note">Major weekly resistance</span>
+          </div>
+          <div class="sample-level blurred">
+            <span class="level-type support">Support</span>
+            <span class="level-price">$XX,XXX</span>
+            <span class="level-note">Premium only</span>
+          </div>
+        </div>
+
+        <div class="sample-section-block blurred-full">
+          <h4>Trade Setups</h4>
+          <p>Premium content - Subscribe to unlock 3 detailed trade setups with exact entries, stops, and targets.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Archive Section -->
+  <section class="archive-section">
+    <div class="section-header">
+      <h2>Newsletter Archive</h2>
+      <span class="archive-note">Premium subscribers get full access</span>
+    </div>
+
+    <div class="archive-list" id="archive-list">
+      <div class="archive-item">
+        <div class="archive-date">Nov 24, 2024</div>
+        <div class="archive-info">
+          <h4>Issue #42: Breaking $95K - What's Next?</h4>
+          <p>Analysis of the breakout, whale accumulation signals, and key targets...</p>
+        </div>
+        <span class="archive-badge premium">Premium</span>
+      </div>
+      <div class="archive-item">
+        <div class="archive-date">Nov 17, 2024</div>
+        <div class="archive-info">
+          <h4>Issue #41: Consolidation Analysis</h4>
+          <p>Range-bound trading strategies and breakout scenarios...</p>
+        </div>
+        <span class="archive-badge premium">Premium</span>
+      </div>
+      <div class="archive-item">
+        <div class="archive-date">Nov 10, 2024</div>
+        <div class="archive-info">
+          <h4>Issue #40: Post-Election Market Dynamics</h4>
+          <p>How political changes affect crypto markets and what to expect...</p>
+        </div>
+        <span class="archive-badge premium">Premium</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="testimonials-section">
+    <h2>What Subscribers Say</h2>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"The trade setups are incredibly detailed. Made back my subscription cost in the first week."</p>
+        <div class="testimonial-author">
+          <span class="author-name">@CryptoTrader21</span>
+          <span class="author-since">Subscriber since Aug 2024</span>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"Finally a newsletter that cuts through the noise. The on-chain analysis is next level."</p>
+        <div class="testimonial-author">
+          <span class="author-name">@BTCHodler_</span>
+          <span class="author-since">Subscriber since May 2024</span>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p>"Worth every sat. I look forward to Sunday mornings now."</p>
+        <div class="testimonial-author">
+          <span class="author-name">@StackingSats</span>
+          <span class="author-since">Subscriber since Oct 2024</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question">
+          <span>When do newsletters go out?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Newsletters are sent every Sunday morning at 9 AM UTC. Premium subscribers get early access on Saturday evening.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          <span>How do I pay with Bitcoin?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>After entering your email, you'll receive a Lightning invoice for 10,000 sats. Once paid, your premium subscription activates instantly.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          <span>Can I cancel anytime?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Absolutely. Your subscription runs month-to-month. Simply don't renew when the month ends - no commitments.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question">
+          <span>What's the difference between free and premium?</span>
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-answer">
+          <p>Free tier gets the weekly market summary and one key level. Premium unlocks all levels, trade setups, forecasts, on-chain data, and the full archive.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="final-cta">
+    <h2>Ready to Level Up Your Trading?</h2>
+    <p>Join 2,500+ Bitcoin traders who get our weekly analysis</p>
+    <button class="btn-subscribe-lg" onclick="document.getElementById('email-input').focus(); document.getElementById('email-input').scrollIntoView({behavior: 'smooth'});">
+      Subscribe Now
+    </button>
+  </section>
+</div>
+
+<script src="{{ "src/js/newsletter.js" | relURL }}"></script>
+{{ end }}

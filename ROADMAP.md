@@ -91,11 +91,14 @@
 *This alone sells subscriptions*
 
 ### 3. Liquidation Map (Interactive)
-- [ ] Real-time zoomable heatmap with:
+- [x] Real-time zoomable heatmap with:
   - High leverage liquidation pockets
-  - Delta changes
+  - Leverage filter (10x, 25x, 50x, 100x)
   - Sweep prediction
   - "Most likely price magnet"
+- [x] Key liquidation zones summary
+- [x] 24H liquidation stats
+- [x] Education section
 
 ### 4. Full Trade Tracker + Metrics
 - [x] Users get (via Premium Dashboard):
@@ -108,21 +111,30 @@
 *Gives your site a "Trading Journal SaaS" vibe*
 
 ### 5. Backtester PRO
-- [ ] AI expands user-specified strategy
-- [ ] Example: "Backtest: 1H RSI < 30 + SFP on liquidity"
-- [ ] Full report includes:
-  - Equity curve
+- [x] AI expands user-specified strategy (natural language parsing)
+- [x] Example strategies (RSI + MACD, Breakout, EMA Cross, S/R Bounce)
+- [x] Full report includes:
+  - Equity curve (Chart.js visualization)
   - Sharpe ratio
   - Trade-by-trade log
   - Max drawdown
-  - Win rate by market condition
+  - Win rate, profit factor
+- [x] Monthly performance grid
+- [x] AI strategy analysis and optimization suggestions
 
 ### 6. Premium Newsletter
-- [ ] Sent daily/weekly:
-  - What happened
-  - Why it matters
-  - What levels matter next
-- [ ] Optional "summary for busy traders"
+- [x] Subscribe page with free/premium tiers
+- [x] Weekly report preview with blurred premium content
+- [x] Features included:
+  - Market overview
+  - Key price levels
+  - Trade setups (premium)
+  - Weekly forecast (premium)
+  - On-chain insights (premium)
+  - Sentiment analysis (premium)
+- [x] Newsletter archive section
+- [x] Testimonials and FAQ
+- [x] Lightning payment integration (demo)
 
 ### 7. Portfolio Simulator
 - [x] Users can simulate:
@@ -137,14 +149,15 @@
 - [x] AI-generated insights
 
 ### 8. Alerts System
-- [ ] Alert types:
-  - Trend shift detected
-  - High liquidation concentration
-  - AI-predicted sweeps
-  - Key level taps
-  - Divergences detected
-- [ ] Delivery: Push, SMS, email
-- [ ] Tiered pricing for alert frequency
+- [x] Alert types:
+  - Price above threshold
+  - Price below threshold
+  - Percentage change (24h)
+- [x] Delivery: Browser notifications, sound alerts
+- [x] Quick alerts for common price targets
+- [x] Key technical levels suggestions
+- [x] Alert history tracking
+- [x] Triggered alerts log
 
 ---
 
@@ -232,13 +245,15 @@
 - [x] Tamper-resistant access tokens
 - [x] Dark/light theme toggle
 
-### Phase 4 (IN PROGRESS)
-- [ ] Interactive liquidation map
-- [ ] Backtester PRO
-- [ ] Alerts system
-- [ ] Mobile app consideration
-- [ ] Email newsletter integration
-- [ ] Stripe subscription option
+### Phase 4 (COMPLETE)
+- [x] Interactive Liquidation Map
+- [x] Backtester PRO (AI strategy parsing)
+- [x] Price Alerts System
+- [x] Premium Newsletter subscription page
+- [x] New Bitcoin + Signal logo
+- [x] Embeddable Key Level widget
+- [ ] Mobile app (future)
+- [ ] Stripe subscription option (future)
 
 ---
 
@@ -273,6 +288,13 @@
 
 ## Recent Updates
 
+- **2024-11-29**: Phase 4 Complete:
+  - Interactive Liquidation Map with heatmap visualization
+  - Backtester PRO with natural language strategy parsing
+  - Price Alerts System with browser notifications
+  - Premium Newsletter subscription page
+  - New Bitcoin + Signal logo design
+  - Embeddable Key Level widget
 - **2024-11**: Pattern Detector - AI-powered chart pattern recognition
 - **2024-11**: Portfolio Simulator - Strategy backtesting with equity curves
 - **2024-11**: Admin mode for development/testing bypass
