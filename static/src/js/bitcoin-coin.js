@@ -86,8 +86,6 @@
   // Interaction variables
   let isDragging = false;
   let previousMousePosition = { x: 0, y: 0 };
-  let velocityY = 0.01; // Auto-spin speed
-  let velocityX = 0;
   let momentum = { x: 0, y: 0 };
 
   // Mouse/Touch handlers
@@ -105,11 +103,9 @@
     const deltaX = pos.clientX - previousMousePosition.x;
     const deltaY = pos.clientY - previousMousePosition.y;
 
-    // Rotate based on drag
-    velocityY = deltaX * 0.01;
-    velocityX = deltaY * 0.01;
-
-    momentum = { x: velocityX, y: velocityY };
+    // Rotate on both axes based on drag direction
+    momentum.y = deltaX * 0.01;
+    momentum.x = deltaY * 0.01;
 
     previousMousePosition = { x: pos.clientX, y: pos.clientY };
   };
@@ -133,17 +129,12 @@
     requestAnimationFrame(animate);
 
     if (!isDragging) {
-      // Apply momentum with decay
+      // Apply momentum with decay - no auto-spin
       momentum.x *= 0.95;
       momentum.y *= 0.95;
-
-      // Add gentle auto-spin when momentum is low
-      if (Math.abs(momentum.y) < 0.005) {
-        momentum.y = 0.008;
-      }
     }
 
-    // Apply rotation
+    // Apply rotation on both axes
     coin.rotation.y += momentum.y;
     coin.rotation.x += momentum.x;
 
