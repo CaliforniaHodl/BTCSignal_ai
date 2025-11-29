@@ -17,11 +17,17 @@
   container.appendChild(renderer.domElement);
 
   // Create Bitcoin logo texture using canvas
-  function createBitcoinTexture() {
+  function createBitcoinTexture(flipped = false) {
     const canvas = document.createElement('canvas');
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext('2d');
+
+    // Flip horizontally for back face
+    if (flipped) {
+      ctx.translate(512, 0);
+      ctx.scale(-1, 1);
+    }
 
     // Draw coin face background (Bitcoin orange)
     ctx.fillStyle = '#f7931a';
@@ -48,7 +54,8 @@
     return new THREE.CanvasTexture(canvas);
   }
 
-  const bitcoinTexture = createBitcoinTexture();
+  const frontTexture = createBitcoinTexture(false);
+  const backTexture = createBitcoinTexture(true);
 
   // Create coin - cylinder with textured top and bottom caps
   const coinGeometry = new THREE.CylinderGeometry(1, 1, 0.15, 64);
@@ -60,14 +67,20 @@
     roughness: 0.3,
   });
 
-  const faceMaterial = new THREE.MeshStandardMaterial({
-    map: bitcoinTexture,
+  const frontMaterial = new THREE.MeshStandardMaterial({
+    map: frontTexture,
+    metalness: 0.6,
+    roughness: 0.3,
+  });
+
+  const backMaterial = new THREE.MeshStandardMaterial({
+    map: backTexture,
     metalness: 0.6,
     roughness: 0.3,
   });
 
   // Apply materials: [side, top, bottom]
-  const coin = new THREE.Mesh(coinGeometry, [sideMaterial, faceMaterial, faceMaterial]);
+  const coin = new THREE.Mesh(coinGeometry, [sideMaterial, frontMaterial, backMaterial]);
   // Position coin upright like a spinning quarter
   coin.rotation.z = Math.PI / 2;
   scene.add(coin);
@@ -87,14 +100,13 @@
   // Interaction variables
   let isDragging = false;
   let previousMousePosition = { x: 0, y: 0 };
-  let momentum = { x: 0, y: 0 };
+  let momentum = { x: 0, y: 0.008 }; // Start with slow auto-rotation
 
   // Mouse/Touch handlers
   const onStart = (e) => {
     isDragging = true;
     const pos = e.touches ? e.touches[0] : e;
     previousMousePosition = { x: pos.clientX, y: pos.clientY };
-    momentum = { x: 0, y: 0 };
   };
 
   const onMove = (e) => {
@@ -131,9 +143,14 @@
     requestAnimationFrame(animate);
 
     if (!isDragging) {
-      // Apply momentum with decay - no auto-spin
+      // Apply momentum with decay
       momentum.x *= 0.95;
       momentum.y *= 0.95;
+      
+      // Slow auto-rotation when momentum is low
+      if (Math.abs(momentum.y) < 0.008) {
+        momentum.y = 0.008;
+      }
     }
 
     // Spin around Y axis (vertical spin like a quarter)

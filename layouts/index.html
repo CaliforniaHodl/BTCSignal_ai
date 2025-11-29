@@ -21,7 +21,7 @@
     <div class="posts-grid">
       {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
       {{ range $index, $post := first 6 $allPosts }}
-      {{ $isLocked := gt $index 2 }}
+      {{ $isLocked := lt $index 10 }}
       <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
         <div class="post-card-header">
           <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
@@ -48,7 +48,7 @@
     <div class="posts-list">
       {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
       {{ range $index, $post := $allPosts }}
-      {{ $isLocked := gt $index 2 }}
+      {{ $isLocked := lt $index 10 }}
       <a href="{{ $post.Permalink }}" class="post-row {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
         <span class="post-date">{{ $post.Date.Format "2006-01-02 15:04" }}</span>
         <span class="direction-indicator {{ $post.Params.direction }}">
