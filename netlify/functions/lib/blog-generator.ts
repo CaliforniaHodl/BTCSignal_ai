@@ -345,6 +345,7 @@ high24h: ${high24h.toFixed(2)}
 low24h: ${low24h.toFixed(2)}
 targetPrice: ${prediction.targetPrice ? prediction.targetPrice.toFixed(2) : 'null'}
 stopLoss: ${prediction.stopLoss ? prediction.stopLoss.toFixed(2) : 'null'}
+predictedPrice24h: ${prediction.predictedPrice24h ? prediction.predictedPrice24h.toFixed(2) : 'null'}
 rsi: ${indicators.rsi !== null ? indicators.rsi.toFixed(1) : 'null'}
 historicalWins: ${stats.wins}
 historicalLosses: ${stats.losses}
@@ -415,6 +416,7 @@ ${patterns.length > 0 ? `**Patterns:** ${patterns.map(p => p.name).join(', ')}` 
 | **Confidence** | ${(weekly.refinedConfidence * 100).toFixed(0)}% |
 | **Bias** | ${refinedSentiment} |
 | **TA Signal** | ${prediction.direction.toUpperCase()} (${(prediction.confidence * 100).toFixed(0)}%) |
+| **24h Price Prediction** | \$${prediction.predictedPrice24h ? prediction.predictedPrice24h.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A'} |
 
 **Signals:**
 ${prediction.reasoning.map(r => `- ${r}`).join('\n')}
