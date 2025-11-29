@@ -6,10 +6,10 @@
 - [x] Live BTC price ticker
 - [x] Fear & Greed index integration
 - [x] Funding rates display
-- [ ] Liquidation heatmap thumbnails
-- [ ] Volume profile snapshot
+- [x] Liquidation heatmap thumbnails
+- [x] Volume profile snapshot
 
-*Simple data → huge perceived value*
+*Simple data → huge perceived value* **COMPLETE**
 
 ### 2. Automatically Generated Summaries
 - [x] AI-powered daily summary
