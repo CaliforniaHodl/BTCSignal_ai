@@ -833,3 +833,134 @@ footer {
     width: 100%;
   }
 }
+
+/* ===== BTC Narrative Tracker ===== */
+.narrative-section {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.narrative-section h2 {
+  margin-bottom: 0.5rem;
+}
+
+.narrative-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.narrative-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.narrative-card:hover {
+  border-color: var(--bitcoin-orange);
+  transform: translateY(-2px);
+}
+
+.narrative-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.narrative-card h3 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+/* Halving Countdown */
+.narrative-card.halving {
+  border-color: rgba(247, 147, 26, 0.3);
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.countdown-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.countdown-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+}
+
+.countdown-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Hash Rate */
+.narrative-card.hashrate {
+  border-color: rgba(63, 185, 80, 0.3);
+}
+
+.metric-display {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.metric-unit {
+  font-size: 1rem;
+  color: var(--text-muted);
+}
+
+.narrative-card.hashrate .metric-value {
+  color: var(--green);
+}
+
+/* Market Cap */
+.narrative-card.mcap {
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.narrative-card.mcap .metric-value {
+  color: #8b5cf6;
+}
+
+/* ETF */
+.narrative-card.etf {
+  border-color: rgba(88, 166, 255, 0.3);
+}
+
+.etf-indicator {
+  padding: 0.5rem 1rem;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.etf-status {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.narrative-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0.75rem 0 0;
+}

@@ -16,6 +16,66 @@
     </div>
   </header>
 
+  <!-- BTC Narrative Tracker (FREE) -->
+  <section class="narrative-section">
+    <h2>Bitcoin Fundamentals</h2>
+    <p class="section-desc">Real-time on-chain and market metrics</p>
+    <div class="narrative-grid">
+      <!-- Halving Countdown -->
+      <div class="narrative-card halving">
+        <div class="narrative-icon">⏰</div>
+        <h3>Next Halving</h3>
+        <div class="countdown" id="halving-countdown">
+          <div class="countdown-item">
+            <span class="countdown-value" id="halving-days">--</span>
+            <span class="countdown-label">Days</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-value" id="halving-hours">--</span>
+            <span class="countdown-label">Hours</span>
+          </div>
+          <div class="countdown-item">
+            <span class="countdown-value" id="halving-mins">--</span>
+            <span class="countdown-label">Mins</span>
+          </div>
+        </div>
+        <p class="narrative-note">Block <span id="halving-block">1,050,000</span> • ~April 2028</p>
+      </div>
+
+      <!-- Hash Rate -->
+      <div class="narrative-card hashrate">
+        <div class="narrative-icon">⛏️</div>
+        <h3>Network Hash Rate</h3>
+        <div class="metric-display">
+          <span class="metric-value" id="hash-rate">--</span>
+          <span class="metric-unit">EH/s</span>
+        </div>
+        <p class="narrative-note" id="hash-change">Loading...</p>
+      </div>
+
+      <!-- Market Cap -->
+      <div class="narrative-card mcap">
+        <div class="narrative-icon">💎</div>
+        <h3>Market Cap</h3>
+        <div class="metric-display">
+          <span class="metric-value" id="market-cap">--</span>
+          <span class="metric-unit">T</span>
+        </div>
+        <p class="narrative-note">BTC Dominance: <span id="btc-dominance">--</span>%</p>
+      </div>
+
+      <!-- ETF Flows -->
+      <div class="narrative-card etf">
+        <div class="narrative-icon">🏦</div>
+        <h3>ETF Sentiment</h3>
+        <div class="etf-indicator" id="etf-indicator">
+          <span class="etf-status">Tracking</span>
+        </div>
+        <p class="narrative-note">Spot BTC ETF flow tracker</p>
+      </div>
+    </div>
+  </section>
+
   <section class="latest-analysis">
     <h2>Latest Analysis</h2>
     <div class="posts-grid">
@@ -179,6 +239,7 @@
 <!-- Three.js for 3D coin -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="{{ "src/js/bitcoin-coin.js" | relURL }}"></script>
+<script src="{{ "src/js/narrative-tracker.js" | relURL }}"></script>
 
 <!-- Live price ticker -->
 <script>
