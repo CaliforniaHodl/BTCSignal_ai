@@ -15,6 +15,10 @@
         <li><a href="/analyze/" class="nav-link-premium" id="analyze-nav" style="display: none;">Chart AI</a></li>
         <li><a href="https://twitter.com/BTCSignal_ai" target="_blank">Twitter</a></li>
       </ul>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <span class="icon icon-moon">🌙</span>
+        <span class="icon icon-sun">☀️</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -33,5 +37,36 @@
         }
       }
     } catch (e) {}
+  })();
+
+  // Theme toggle
+  (function() {
+    var toggle = document.getElementById('theme-toggle');
+    var html = document.documentElement;
+
+    // Check for saved preference or system preference
+    var savedTheme = localStorage.getItem('theme');
+    var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (savedTheme) {
+      html.setAttribute('data-theme', savedTheme);
+    } else if (!systemPrefersDark) {
+      html.setAttribute('data-theme', 'light');
+    }
+
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        var currentTheme = html.getAttribute('data-theme');
+        var newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+        if (newTheme === 'dark') {
+          html.removeAttribute('data-theme');
+        } else {
+          html.setAttribute('data-theme', newTheme);
+        }
+
+        localStorage.setItem('theme', newTheme);
+      });
+    }
   })();
 </script>

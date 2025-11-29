@@ -13,6 +13,22 @@
   --blue: #58a6ff;
 }
 
+/* Light Mode */
+[data-theme="light"] {
+  --bg-dark: #f6f8fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3f4f6;
+  --border-color: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #57606a;
+  --text-muted: #8c959f;
+  --bitcoin-orange: #f7931a;
+  --bitcoin-gold: #e68a00;
+  --green: #1a7f37;
+  --red: #cf222e;
+  --blue: #0969da;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -107,6 +123,11 @@ a:hover {
   color: var(--bitcoin-orange);
 }
 
+nav {
+  display: flex;
+  align-items: center;
+}
+
 .nav-links {
   display: flex;
   gap: 2rem;
@@ -123,6 +144,52 @@ a:hover {
 
 .nav-links a:hover {
   color: var(--bitcoin-orange);
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: 1rem;
+}
+
+.theme-toggle:hover {
+  border-color: var(--bitcoin-orange);
+  transform: scale(1.05);
+}
+
+.theme-toggle .icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .icon {
+  transform: rotate(15deg);
+}
+
+/* Show/hide icons based on theme */
+.theme-toggle .icon-sun {
+  display: none;
+}
+
+.theme-toggle .icon-moon {
+  display: block;
+}
+
+[data-theme="light"] .theme-toggle .icon-sun {
+  display: block;
+}
+
+[data-theme="light"] .theme-toggle .icon-moon {
+  display: none;
 }
 
 /* Hero Section */
