@@ -1,0 +1,218 @@
+{{ define "main" }}
+<div class="container premium-page pattern-detector-page">
+  <header class="detector-header">
+    <h1>AI Pattern Detector</h1>
+    <p class="subtitle">Real-time chart pattern recognition for BTC</p>
+    <div class="timeframe-selector">
+      <button class="tf-btn active" data-tf="15m">15M</button>
+      <button class="tf-btn" data-tf="1h">1H</button>
+      <button class="tf-btn" data-tf="4h">4H</button>
+      <button class="tf-btn" data-tf="1d">1D</button>
+    </div>
+  </header>
+
+  <!-- Live Chart with Pattern Overlay -->
+  <section class="chart-section">
+    <div class="chart-header">
+      <div class="chart-info">
+        <span class="chart-symbol">BTC/USDT</span>
+        <span class="chart-price" id="current-price">Loading...</span>
+        <span class="chart-change" id="price-change"></span>
+      </div>
+      <div class="chart-actions">
+        <button class="btn-refresh" id="btn-refresh">Refresh Analysis</button>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="pattern-chart"></canvas>
+      <div class="chart-loading" id="chart-loading">
+        <div class="spinner"></div>
+        <span>Analyzing patterns...</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Pattern Preview -->
+  <section class="patterns-preview">
+    <h2>Detected Patterns</h2>
+    <p class="section-desc">AI-identified chart patterns on current timeframe</p>
+
+    <div class="pattern-cards" id="pattern-cards">
+      <!-- Free preview pattern -->
+      <div class="pattern-card featured" id="main-pattern">
+        <div class="pattern-badge free">FREE PREVIEW</div>
+        <div class="pattern-header">
+          <span class="pattern-icon" id="pattern-icon">--</span>
+          <div class="pattern-title">
+            <h3 id="pattern-name">Analyzing...</h3>
+            <span class="pattern-timeframe" id="pattern-tf">--</span>
+          </div>
+          <span class="pattern-confidence" id="pattern-confidence">--%</span>
+        </div>
+        <div class="pattern-body">
+          <div class="pattern-levels">
+            <div class="level-item">
+              <span class="level-label">Key Support</span>
+              <span class="level-value support" id="support-level">--</span>
+            </div>
+            <div class="level-item">
+              <span class="level-label">Key Resistance</span>
+              <span class="level-value resistance" id="resistance-level">--</span>
+            </div>
+          </div>
+          <p class="pattern-desc" id="pattern-desc">Loading pattern analysis...</p>
+        </div>
+      </div>
+
+      <!-- Locked patterns -->
+      <div class="pattern-card locked">
+        <div class="pattern-badge premium">PREMIUM</div>
+        <div class="pattern-header">
+          <span class="pattern-icon">📐</span>
+          <div class="pattern-title">
+            <h3>Trendline Analysis</h3>
+            <span class="pattern-timeframe">Multi-TF</span>
+          </div>
+          <span class="lock-icon">🔒</span>
+        </div>
+        <div class="pattern-body blurred">
+          <p>Major ascending/descending trendlines with touch points and projected breakout zones.</p>
+        </div>
+        <div class="pattern-overlay">
+          <span>Unlock for full analysis</span>
+        </div>
+      </div>
+
+      <div class="pattern-card locked">
+        <div class="pattern-badge premium">PREMIUM</div>
+        <div class="pattern-header">
+          <span class="pattern-icon">🎯</span>
+          <div class="pattern-title">
+            <h3>Order Blocks</h3>
+            <span class="pattern-timeframe">4H/1D</span>
+          </div>
+          <span class="lock-icon">🔒</span>
+        </div>
+        <div class="pattern-body blurred">
+          <p>Institutional order blocks with highest probability reaction zones.</p>
+        </div>
+        <div class="pattern-overlay">
+          <span>Unlock for full analysis</span>
+        </div>
+      </div>
+
+      <div class="pattern-card locked">
+        <div class="pattern-badge premium">PREMIUM</div>
+        <div class="pattern-header">
+          <span class="pattern-icon">📊</span>
+          <div class="pattern-title">
+            <h3>Fair Value Gaps</h3>
+            <span class="pattern-timeframe">All TFs</span>
+          </div>
+          <span class="lock-icon">🔒</span>
+        </div>
+        <div class="pattern-body blurred">
+          <p>Unfilled price imbalances likely to be revisited with fill probability scores.</p>
+        </div>
+        <div class="pattern-overlay">
+          <span>Unlock for full analysis</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium Gate -->
+  <section class="premium-upsell" id="premium-gate">
+    <div class="upsell-content">
+      <h2>Unlock Full Pattern Analysis</h2>
+      <p>Get complete access to all detected patterns, trendlines, order blocks, and FVGs</p>
+      <div class="upsell-features">
+        <div class="upsell-feature"><span>✓</span> All chart patterns (triangles, wedges, H&S, etc.)</div>
+        <div class="upsell-feature"><span>✓</span> Auto-drawn trendlines with touch points</div>
+        <div class="upsell-feature"><span>✓</span> Order block identification</div>
+        <div class="upsell-feature"><span>✓</span> Fair value gap mapping</div>
+        <div class="upsell-feature"><span>✓</span> Multi-timeframe confluence</div>
+        <div class="upsell-feature"><span>✓</span> Price target projections</div>
+      </div>
+      <div class="upsell-price">
+        <span class="price-amount">⚡ 50 sats</span>
+        <span class="price-period">one-time access</span>
+      </div>
+      <button class="btn-unlock-premium" id="btn-unlock">Unlock Full Analysis</button>
+    </div>
+  </section>
+
+  <!-- Premium Content (hidden until unlocked) -->
+  <section class="premium-content" id="premium-content" style="display: none;">
+    <h2>Full Pattern Analysis</h2>
+
+    <!-- Additional Patterns -->
+    <div class="full-patterns" id="full-patterns">
+      <!-- Populated by JS -->
+    </div>
+
+    <!-- Trendlines -->
+    <div class="trendlines-section">
+      <h3>Trendlines</h3>
+      <div class="trendlines-grid" id="trendlines-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Order Blocks -->
+    <div class="orderblocks-section">
+      <h3>Order Blocks</h3>
+      <div class="orderblocks-grid" id="orderblocks-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Fair Value Gaps -->
+    <div class="fvg-section">
+      <h3>Fair Value Gaps</h3>
+      <div class="fvg-grid" id="fvg-grid">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- AI Summary -->
+    <div class="pattern-summary">
+      <h3>AI Analysis Summary</h3>
+      <div class="summary-content" id="ai-summary">
+        <div class="loading-spinner">Generating analysis...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pattern Education -->
+  <section class="pattern-education">
+    <h2>Understanding Chart Patterns</h2>
+    <div class="edu-grid">
+      <a href="/learn/market-structure/" class="edu-card">
+        <span class="edu-icon">📈</span>
+        <h3>Market Structure</h3>
+        <p>Learn to identify trends and reversals</p>
+      </a>
+      <a href="/learn/support-resistance/" class="edu-card">
+        <span class="edu-icon">📊</span>
+        <h3>Support & Resistance</h3>
+        <p>Key levels where price reacts</p>
+      </a>
+      <a href="/learn/fair-value-gaps/" class="edu-card">
+        <span class="edu-icon">🎯</span>
+        <h3>Fair Value Gaps</h3>
+        <p>Imbalances that price tends to fill</p>
+      </a>
+      <a href="/learn/order-blocks/" class="edu-card">
+        <span class="edu-icon">🏦</span>
+        <h3>Order Blocks</h3>
+        <p>Institutional buying/selling zones</p>
+      </a>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+<script src="{{ "src/js/pattern-detector.js" | relURL }}"></script>
+{{ end }}

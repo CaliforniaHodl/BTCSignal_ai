@@ -1621,3 +1621,519 @@
     justify-content: space-between;
   }
 }
+
+/* ===== Pattern Detector Specific ===== */
+
+.pattern-detector-page {
+  padding: 2rem 0;
+}
+
+.detector-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.detector-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.detector-header .subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.timeframe-selector {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tf-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.tf-btn:hover {
+  border-color: var(--bitcoin-orange);
+  color: var(--bitcoin-orange);
+}
+
+.tf-btn.active {
+  background: var(--bitcoin-orange);
+  border-color: var(--bitcoin-orange);
+  color: white;
+}
+
+/* Chart Section */
+.chart-section {
+  margin-bottom: 2rem;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.chart-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.chart-symbol {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.chart-price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+}
+
+.chart-change {
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.chart-change.positive {
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--green);
+}
+
+.chart-change.negative {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--red);
+}
+
+.chart-container {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  height: 400px;
+}
+
+.chart-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(13, 17, 23, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  border-radius: 12px;
+  z-index: 10;
+}
+
+.chart-loading .spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--bitcoin-orange);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Patterns Preview */
+.patterns-preview {
+  margin-bottom: 2rem;
+}
+
+.patterns-preview h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.pattern-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pattern-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.pattern-card.featured {
+  border-color: var(--bitcoin-orange);
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .pattern-card.featured {
+    grid-column: span 1;
+  }
+}
+
+.pattern-card.locked {
+  opacity: 0.7;
+}
+
+.pattern-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.pattern-badge.free {
+  background: var(--bitcoin-orange);
+  color: white;
+}
+
+.pattern-badge.premium {
+  background: var(--bg-dark);
+  color: var(--text-muted);
+}
+
+.pattern-header {
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pattern-icon {
+  font-size: 2rem;
+}
+
+.pattern-title {
+  flex: 1;
+}
+
+.pattern-title h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+  color: var(--text-primary);
+}
+
+.pattern-timeframe {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.pattern-confidence {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.lock-icon {
+  font-size: 1.25rem;
+}
+
+.pattern-body {
+  padding: 1.25rem;
+}
+
+.pattern-body.blurred {
+  filter: blur(4px);
+  user-select: none;
+}
+
+.pattern-levels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.level-item {
+  background: var(--bg-dark);
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.level-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.level-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.level-value.support {
+  color: var(--green);
+}
+
+.level-value.resistance {
+  color: var(--red);
+}
+
+.pattern-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.pattern-bias {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.pattern-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(transparent, var(--bg-card));
+  text-align: center;
+}
+
+.pattern-overlay span {
+  background: var(--bitcoin-orange);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Premium Upsell */
+.premium-upsell {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.upsell-content h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.upsell-content > p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.upsell-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.upsell-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.upsell-feature span {
+  color: var(--green);
+}
+
+.upsell-price {
+  background: var(--bg-dark);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+}
+
+/* Full Pattern Analysis */
+.full-patterns,
+.trendlines-section,
+.orderblocks-section,
+.fvg-section,
+.pattern-summary {
+  margin-bottom: 2rem;
+}
+
+.full-patterns h3,
+.trendlines-section h3,
+.orderblocks-section h3,
+.fvg-section h3,
+.pattern-summary h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.trendlines-grid,
+.orderblocks-grid,
+.fvg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.trendline-card,
+.ob-card,
+.fvg-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.trendline-card.ascending,
+.ob-card.bullish,
+.fvg-card.bullish {
+  border-left: 3px solid var(--green);
+}
+
+.trendline-card.descending,
+.ob-card.bearish,
+.fvg-card.bearish {
+  border-left: 3px solid var(--red);
+}
+
+.trendline-header,
+.ob-header,
+.fvg-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.trendline-icon,
+.ob-icon,
+.fvg-icon {
+  font-size: 1.25rem;
+}
+
+.trendline-header h4,
+.ob-header h4,
+.fvg-header h4 {
+  font-size: 0.95rem;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.trendline-stat {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.trendline-stat:last-child {
+  border-bottom: none;
+}
+
+.ob-zone,
+.fvg-zone {
+  background: var(--bg-dark);
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.ob-note,
+.fvg-note {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.no-patterns {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg-card);
+  border-radius: 8px;
+}
+
+/* Pattern Education */
+.pattern-education {
+  margin-top: 3rem;
+}
+
+.pattern-education h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.edu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.edu-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.edu-card:hover {
+  border-color: var(--bitcoin-orange);
+  transform: translateY(-2px);
+}
+
+.edu-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.edu-card h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.edu-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}

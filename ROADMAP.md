@@ -18,11 +18,16 @@
   - Quick recap of yesterday's movement
 
 ### 3. Pattern Auto-Detection Preview
-- [ ] Show first chart labeled with:
+- [x] Show first chart labeled with:
   - Support/resistance
   - Trendlines
   - Triangle / wedge / channel
-- [ ] Paywall gate: "Full pattern analysis is premium"
+- [x] Paywall gate: "Full pattern analysis is premium"
+- [x] Live chart with Chart.js
+- [x] Pattern detection (triangles, wedges, channels, double tops/bottoms)
+- [x] Order block detection
+- [x] Fair value gap detection
+- [x] Multi-timeframe support (15M, 1H, 4H, 1D)
 
 ### 4. Backtest Mini-Snippets
 - [x] Example teasers:
@@ -119,10 +124,16 @@
 - [ ] Optional "summary for busy traders"
 
 ### 7. Portfolio Simulator
-- [ ] Users can simulate:
+- [x] Users can simulate:
   - "If I longed every bullish breakout this month..."
   - "What if I only took trades with 2R+?"
-- [ ] Helps users improve strategy
+- [x] Helps users improve strategy
+- [x] Strategy presets (RSI Oversold Bounce, EMA Crossover, etc.)
+- [x] Custom strategy builder
+- [x] Equity curve visualization with Chart.js
+- [x] Detailed stats (win rate, profit factor, Sharpe ratio, max drawdown)
+- [x] Trade log with entry/exit details
+- [x] AI-generated insights
 
 ### 8. Alerts System
 - [ ] Alert types:
@@ -167,6 +178,25 @@
 - [x] Alternative entry ideas
 - [x] Key takeaways
 - [x] Trade history tracking
+
+### Portfolio Simulator
+- [x] Strategy presets (RSI Oversold, EMA Crossover, MACD Momentum, Support Bounce, Breakout)
+- [x] Custom strategy builder with indicators and conditions
+- [x] Equity curve visualization with Chart.js
+- [x] Detailed performance stats
+- [x] Trade-by-trade log
+- [x] AI-generated insights and recommendations
+
+### Pattern Detector
+- [x] Live BTC chart with real-time data from Binance API
+- [x] Multi-timeframe support (15M, 1H, 4H, 1D)
+- [x] Automatic support/resistance detection
+- [x] Chart pattern recognition (triangles, wedges, channels, double tops/bottoms)
+- [x] Trendline detection with touch points
+- [x] Order block identification
+- [x] Fair value gap (FVG) mapping
+- [x] Free preview with premium paywall
+- [x] AI-generated analysis summary
 
 ---
 
@@ -242,6 +272,8 @@
 
 ## Recent Updates
 
+- **2024-11**: Pattern Detector - AI-powered chart pattern recognition
+- **2024-11**: Portfolio Simulator - Strategy backtesting with equity curves
 - **2024-11**: Admin mode for development/testing bypass
 - **2024-11**: ADA/WCAG accessibility compliance
 - **2024-11**: SEO optimization with structured data
