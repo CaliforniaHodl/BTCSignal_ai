@@ -68,7 +68,8 @@
 
   // Apply materials: [side, top, bottom]
   const coin = new THREE.Mesh(coinGeometry, [sideMaterial, faceMaterial, faceMaterial]);
-  coin.rotation.x = Math.PI / 2; // Face the camera
+  // Position coin upright like a spinning quarter
+  coin.rotation.z = Math.PI / 2;
   scene.add(coin);
 
   // Lighting
@@ -103,9 +104,10 @@
     const deltaX = pos.clientX - previousMousePosition.x;
     const deltaY = pos.clientY - previousMousePosition.y;
 
-    // Rotate on both axes based on drag direction
+    // Spin vertically (like a quarter) based on horizontal drag
+    // and tilt based on vertical drag
     momentum.y = deltaX * 0.01;
-    momentum.x = deltaY * 0.01;
+    momentum.x = deltaY * 0.005;
 
     previousMousePosition = { x: pos.clientX, y: pos.clientY };
   };
@@ -134,8 +136,9 @@
       momentum.y *= 0.95;
     }
 
-    // Apply rotation on both axes
+    // Spin around Y axis (vertical spin like a quarter)
     coin.rotation.y += momentum.y;
+    // Slight tilt on X for more dynamic feel
     coin.rotation.x += momentum.x;
 
     renderer.render(scene, camera);
