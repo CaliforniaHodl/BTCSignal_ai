@@ -4,6 +4,34 @@
 const BTCSAIAccess = (function() {
   const STORAGE_KEY = 'btcsai_access';
   const SINGLE_POSTS_KEY = 'btcsai_unlocked_posts';
+  const ADMIN_KEY = 'btcsai_admin';
+
+  // Admin mode check - bypasses all paywalls for development/testing
+  // To enable: localStorage.setItem('btcsai_admin', 'satoshi2024')
+  // To disable: localStorage.removeItem('btcsai_admin')
+  function isAdmin() {
+    try {
+      return localStorage.getItem(ADMIN_KEY) === 'satoshi2024';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Enable admin mode (call from browser console)
+  function enableAdmin() {
+    localStorage.setItem(ADMIN_KEY, 'satoshi2024');
+    console.log('%c ADMIN MODE ENABLED ', 'background: #f7931a; color: #000; font-size: 16px; font-weight: bold;');
+    console.log('All premium features unlocked for development. Refresh to apply.');
+    return true;
+  }
+
+  // Disable admin mode
+  function disableAdmin() {
+    localStorage.removeItem(ADMIN_KEY);
+    console.log('%c ADMIN MODE DISABLED ', 'background: #f85149; color: #fff; font-size: 16px; font-weight: bold;');
+    console.log('Premium features require payment again. Refresh to apply.');
+    return true;
+  }
 
   // Simple hash function for salt verification
   function simpleHash(str) {
@@ -95,14 +123,20 @@ const BTCSAIAccess = (function() {
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  // Check if user has all-access (hourly, daily, weekly)
+  // Check if user has all-access (hourly, daily, weekly) or is admin
   function hasAllAccess() {
+    // Admin mode bypasses everything
+    if (isAdmin()) return true;
+
     const access = getAccess();
     return access && access.valid && ['hourly', 'daily', 'weekly'].includes(access.tier);
   }
 
   // Check if specific post is unlocked
   function isPostUnlocked(postId) {
+    // Admin mode bypasses everything
+    if (isAdmin()) return true;
+
     // First check all-access
     if (hasAllAccess()) return true;
 
@@ -182,11 +216,21 @@ const BTCSAIAccess = (function() {
     getUnlockedPosts,
     formatRemaining,
     TIER_DURATIONS,
-    TIER_PRICES
+    TIER_PRICES,
+    // Admin functions
+    isAdmin,
+    enableAdmin,
+    disableAdmin
   };
 })();
 
 // Export for use in other scripts
 if (typeof window !== 'undefined') {
   window.BTCSAIAccess = BTCSAIAccess;
+
+  // Log admin status on load (helpful for debugging)
+  if (BTCSAIAccess.isAdmin()) {
+    console.log('%c ADMIN MODE ACTIVE ', 'background: #f7931a; color: #000; font-size: 14px; font-weight: bold;');
+    console.log('Tip: Run BTCSAIAccess.disableAdmin() to disable');
+  }
 }
