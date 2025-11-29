@@ -6,4 +6,5 @@ seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin backtesting, crypto strategy tester, trading strategy backtest, AI trading analysis, custom strategy testing'
 layout: "single"
+priority: 0.8
 ---

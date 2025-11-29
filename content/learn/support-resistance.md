@@ -4,6 +4,7 @@ description: "Master support and resistance levels for better Bitcoin trading en
 date: 2024-11-29
 slug: "support-resistance"
 tags: ["education", "support-resistance", "trading-basics", "key-levels"]
+priority: 0.5
 ---
 
 ## What Are Support & Resistance?

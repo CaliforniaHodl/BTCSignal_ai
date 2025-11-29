@@ -4,6 +4,7 @@ description: "Master the mental game of Bitcoin trading: emotions, biases, and d
 date: 2024-11-29
 slug: "trading-psychology"
 tags: ["education", "psychology", "trading-mindset", "discipline"]
+priority: 0.5
 ---
 
 ## Why Psychology Matters

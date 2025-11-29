@@ -4,6 +4,7 @@ description: "Learn how to use the Crypto Fear & Greed Index for contrarian Bitc
 date: 2024-11-29
 slug: "fear-greed-index"
 tags: ["education", "sentiment", "fear-greed", "contrarian-trading"]
+priority: 0.5
 ---
 
 ## What Is the Fear & Greed Index?

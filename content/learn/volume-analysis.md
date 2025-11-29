@@ -4,6 +4,7 @@ description: "Learn how to read volume to confirm trends and spot reversals in B
 date: 2024-11-29
 slug: "volume-analysis"
 tags: ["education", "volume", "orderflow", "trading-basics"]
+priority: 0.5
 ---
 
 ## Why Volume Matters

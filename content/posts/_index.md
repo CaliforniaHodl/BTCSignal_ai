@@ -5,4 +5,5 @@ description: "Browse our archive of AI-generated Bitcoin analysis. Daily technic
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin analysis, BTC daily analysis, crypto market reports, AI trading analysis'
+priority: 0.8
 ---

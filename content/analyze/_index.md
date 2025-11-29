@@ -7,4 +7,5 @@ image: 'og-image.png'
 keywords: 'Bitcoin chart analysis, AI technical analysis, BTC pattern recognition, crypto chart scanner'
 type: "analyze"
 layout: "single"
+priority: 0.8
 ---

@@ -4,6 +4,7 @@ description: "Learn how to use Fibonacci retracements for Bitcoin support, resis
 date: 2024-11-29
 slug: "fibonacci-retracements"
 tags: ["education", "fibonacci", "retracements", "key-levels"]
+priority: 0.5
 ---
 
 ## What Are Fibonacci Retracements?
