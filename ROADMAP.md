@@ -34,7 +34,8 @@
   - Win rate of "EMA cross on BTC H1" last 6 months
   - RSI divergences accuracy
   - VWAP bounce probability
-- [ ] More robust versions behind paywall
+- [x] Portfolio Simulator link for full backtests
+- [x] Backtester PRO teaser (coming soon)
 
 ### 5. BTC Narrative Tracker
 - [x] Auto-track:
@@ -49,7 +50,7 @@
 
 ### 7. "Key Level of the Day" Widget
 - [x] One level only, updated daily
-- [ ] Embeddable widget
+- [x] Embeddable widget (iframe at /embed/key-level/)
 
 ### 8. Education Hub
 - [x] What is SFP (Swing Failure Pattern)
