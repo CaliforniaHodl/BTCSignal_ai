@@ -1,5 +1,9 @@
 ---
 title: "Alpha Radar"
-description: "AI-powered market intelligence monitoring BTC dominance, whale movements, and liquidity anomalies"
+PageTitle: "Alpha Radar - AI Market Intelligence & Whale Tracking | BTC Signal AI"
+description: "Real-time AI-powered market intelligence. Monitor BTC dominance shifts, whale wallet movements, exchange flows, and liquidity anomalies before they impact price."
+seoimage: 'og-image.png'
+image: 'og-image.png'
+keywords: 'Bitcoin whale tracking, BTC dominance, crypto market intelligence, liquidity anomalies, exchange flows'
 layout: "single"
 ---
