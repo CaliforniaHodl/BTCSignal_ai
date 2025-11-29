@@ -19,3 +19,6 @@ Thumbs.db
 .claude
 # Local Netlify folder
 .netlify
+
+# Security todo (contains sensitive info references)
+Todo_Readme.md

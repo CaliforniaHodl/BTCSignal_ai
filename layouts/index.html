@@ -43,6 +43,35 @@
     </div>
   </section>
 
+  <section class="free-posts">
+    <h2>Free Analysis</h2>
+    <p class="section-desc">Explore our historical analysis - no payment required</p>
+    <div class="posts-grid">
+      {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
+      {{ range $index, $post := after 10 $allPosts }}
+      {{ if lt $index 6 }}
+      <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}">
+        <div class="post-card-header">
+          <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
+          <span class="post-timeframe">{{ $post.Params.timeframe }}</span>
+          <span class="free-badge">✓ Free</span>
+        </div>
+        <div class="post-card-body">
+          <span class="direction-badge {{ $post.Params.direction }}">
+            {{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}
+            {{ upper $post.Params.direction }}
+          </span>
+          <span class="confidence">{{ $post.Params.confidence }}%</span>
+        </div>
+        <div class="post-card-footer">
+          <span class="price">${{ $post.Params.price }}</span>
+        </div>
+      </a>
+      {{ end }}
+      {{ end }}
+    </div>
+  </section>
+
   <section class="all-posts">
     <h2>All Analysis</h2>
     <div class="posts-list">
@@ -57,7 +86,7 @@
         <span class="direction-text">{{ upper $post.Params.direction }}</span>
         <span class="confidence">{{ $post.Params.confidence }}%</span>
         <span class="price">${{ $post.Params.price }}</span>
-        {{ if $isLocked }}<span class="lock-badge">🔒</span>{{ end }}
+        {{ if $isLocked }}<span class="lock-badge">🔒</span>{{ else }}<span class="free-badge">✓ Free</span>{{ end }}
       </a>
       {{ end }}
     </div>

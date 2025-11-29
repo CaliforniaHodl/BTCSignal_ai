@@ -12,18 +12,16 @@ const TIMEFRAME = '1h';
 const CANDLE_LIMIT = 100;
 const CANDLE_LIMIT_24H = 24; // 24 x 1h = 24h for 24h high/low
 
-// Save post to GitHub repository using OAuth
+// Save post to GitHub repository using Personal Access Token
 async function savePostToGitHub(filename: string, content: string): Promise<boolean> {
-  const clientId = process.env.GITHUB_CLIENT_ID;
-  const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+  const token = process.env.GITHUB_TOKEN; // Personal Access Token with repo scope
   const repo = process.env.GITHUB_REPO; // format: "owner/repo"
 
-  if (!clientId || !clientSecret || !repo) {
+  if (!token || !repo) {
     console.log('GitHub credentials not set, skipping post save');
     return false;
   }
 
-  const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   const path = `content/posts/${filename}`;
   const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
@@ -31,14 +29,14 @@ async function savePostToGitHub(filename: string, content: string): Promise<bool
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
-        'Authorization': authHeader,
+        'Authorization': `token ${token}`,
         'Content-Type': 'application/json',
         'Accept': 'application/vnd.github.v3+json',
       },
       body: JSON.stringify({
         message: `Add analysis post: ${filename}`,
         content: Buffer.from(content).toString('base64'),
-        branch: 'main',
+        branch: 'master',
       }),
     });
 

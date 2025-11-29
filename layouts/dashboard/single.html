@@ -1,0 +1,157 @@
+{{ define "main" }}
+<div class="container dashboard-page" id="dashboard-container">
+  <!-- Paywall check - show content only if user has paid -->
+  <div class="dashboard-locked" id="dashboard-locked">
+    <div class="lock-message">
+      <div class="lightning-icon">🔒</div>
+      <h2>Premium Dashboard</h2>
+      <p>Unlock any analysis post to access the premium dashboard</p>
+      <a href="/posts/" class="btn-lightning">View Analysis Posts</a>
+    </div>
+  </div>
+
+  <div class="dashboard-content" id="dashboard-content" style="display: none;">
+    <header class="dashboard-header">
+      <h1>Premium Dashboard</h1>
+      <p class="subtitle">Performance metrics & liquidation watchlist</p>
+    </header>
+
+    <!-- Win/Loss Stats -->
+    <section class="stats-section">
+      <h2>Performance Overview</h2>
+      <div class="stats-grid">
+        <div class="stat-card win">
+          <span class="stat-number" id="win-count">-</span>
+          <span class="stat-label">Winning Calls</span>
+        </div>
+        <div class="stat-card loss">
+          <span class="stat-number" id="loss-count">-</span>
+          <span class="stat-label">Losing Calls</span>
+        </div>
+        <div class="stat-card rate">
+          <span class="stat-number" id="win-rate">-</span>
+          <span class="stat-label">Win Rate</span>
+        </div>
+        <div class="stat-card streak">
+          <span class="stat-number" id="current-streak">-</span>
+          <span class="stat-label">Current Streak</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Market Sentiment Section -->
+    <section class="sentiment-section">
+      <h2>Market Sentiment</h2>
+      <div class="sentiment-grid">
+        <!-- Fear & Greed Index -->
+        <div class="sentiment-card fear-greed">
+          <div class="sentiment-header">
+            <span class="sentiment-icon">😱</span>
+            <h3>Fear & Greed Index</h3>
+          </div>
+          <div class="fng-display">
+            <span class="fng-value" id="fng-value">--</span>
+            <span class="fng-label" id="fng-label">Loading...</span>
+          </div>
+          <div class="fng-bar-container">
+            <div class="fng-bar" id="fng-bar" style="width: 0%"></div>
+          </div>
+          <div class="fng-scale">
+            <span>Extreme Fear</span>
+            <span>Neutral</span>
+            <span>Extreme Greed</span>
+          </div>
+        </div>
+
+        <!-- Funding Rate -->
+        <div class="sentiment-card funding">
+          <div class="sentiment-header">
+            <span class="sentiment-icon">💰</span>
+            <h3>BTC Funding Rate</h3>
+          </div>
+          <div class="funding-display">
+            <span class="metric-value" id="funding-rate">--</span>
+            <span class="funding-label" id="funding-label">Loading...</span>
+          </div>
+          <p class="funding-desc">8h perpetual funding rate on Binance</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts-section">
+      <div class="chart-container">
+        <h3>Win/Loss History</h3>
+        <canvas id="winLossChart"></canvas>
+      </div>
+      <div class="chart-container">
+        <h3>Confidence vs Outcome</h3>
+        <canvas id="confidenceChart"></canvas>
+      </div>
+    </section>
+
+    <!-- Liquidation Watchlist -->
+    <section class="liquidation-section">
+      <h2>Liquidation Watchlist</h2>
+      <p class="section-desc">Key price levels where large liquidations may occur</p>
+      
+      <div class="liquidation-grid">
+        <div class="liquidation-card long">
+          <div class="liq-header">
+            <span class="liq-type">📈 LONG LIQUIDATIONS</span>
+            <span class="liq-risk high">High Risk Zone</span>
+          </div>
+          <div class="liq-levels" id="long-liquidations">
+            <div class="liq-level">
+              <span class="price">Loading...</span>
+              <span class="amount"></span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="liquidation-card short">
+          <div class="liq-header">
+            <span class="liq-type">📉 SHORT LIQUIDATIONS</span>
+            <span class="liq-risk high">High Risk Zone</span>
+          </div>
+          <div class="liq-levels" id="short-liquidations">
+            <div class="liq-level">
+              <span class="price">Loading...</span>
+              <span class="amount"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="current-price-box">
+        <span class="label">Current BTC Price</span>
+        <span class="price" id="current-btc-price">Loading...</span>
+      </div>
+    </section>
+
+    <!-- Recent Calls Table -->
+    <section class="calls-section">
+      <h2>Recent Calls</h2>
+      <div class="calls-table-wrapper">
+        <table class="calls-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Direction</th>
+              <th>Entry Price</th>
+              <th>Confidence</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody id="calls-table-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ "src/js/dashboard.js" | relURL }}"></script>
+{{ end }}
