@@ -252,8 +252,140 @@
 - [x] Premium Newsletter subscription page
 - [x] New Bitcoin + Signal logo
 - [x] Embeddable Key Level widget
-- [ ] Mobile app (future)
-- [ ] Stripe subscription option (future)
+
+### Phase 5: Social & Community (PLANNED)
+*Goal: Build community engagement and viral growth*
+
+**Free Features:**
+- [ ] Public Leaderboard - Top traders ranked by verified P&L
+- [ ] Trade Ideas Feed - Community-submitted setups with upvotes
+- [ ] Weekly Prediction Contest - Free entry, win sats prizes
+- [ ] Comment System - Discuss analysis posts
+- [ ] Share Cards - Beautiful social media images for trades
+
+**Paid Features:**
+- [ ] Copy Trading Signals - Follow top performers
+- [ ] Private Discord/Telegram Integration - Alerts to your server
+- [ ] Referral Program - Earn sats for inviting users
+- [ ] Verified Trader Badge - Prove your track record
+
+### Phase 6: Multi-Asset Expansion (PLANNED)
+*Goal: Capture ETH and altcoin traders*
+
+**Free Features:**
+- [ ] ETH Signal AI - Same analysis for Ethereum
+- [ ] Top 10 Altcoin Dashboard - Quick overview of majors
+- [ ] BTC vs ETH Correlation Tracker
+- [ ] Altcoin Season Indicator
+- [ ] DeFi Yields Snapshot
+
+**Paid Features:**
+- [ ] Full Altcoin Analysis (ETH, SOL, etc.)
+- [ ] Cross-Asset Pattern Detection
+- [ ] Portfolio Correlation Matrix
+- [ ] Multi-Asset Backtester
+- [ ] Altcoin Liquidation Maps
+
+### Phase 7: Advanced Analytics (PLANNED)
+*Goal: Pro-level institutional features*
+
+**Free Features:**
+- [ ] Options Flow Preview - See unusual activity
+- [ ] Whale Watch Feed - Large transactions
+- [ ] Exchange Reserve Tracker
+- [ ] Stablecoin Flow Indicator
+- [ ] Mining Profitability Calculator
+
+**Paid Features:**
+- [ ] Full Options Flow Dashboard
+- [ ] Smart Money Tracker - Follow whale wallets
+- [ ] On-Chain Metrics Deep Dive
+- [ ] Realized Cap / MVRV Analysis
+- [ ] Exchange Netflow Alerts
+- [ ] Miner Selling Pressure Index
+- [ ] Long-Term Holder vs Short-Term Holder Ratio
+
+### Phase 8: AI Trading Assistant (PLANNED)
+*Goal: Conversational AI for trading*
+
+**Free Features:**
+- [ ] Ask AI - Simple questions about BTC
+- [ ] Daily AI Market Brief (text-to-speech)
+- [ ] AI Price Prediction (1 free/day)
+
+**Paid Features:**
+- [ ] Full AI Chat Assistant - "What should I do if BTC breaks $100k?"
+- [ ] Voice Commands - Hands-free analysis
+- [ ] Custom AI Personas - Aggressive vs Conservative advisor
+- [ ] AI Trade Journal Analysis - Upload your trades, get feedback
+- [ ] AI-Generated Trading Plans
+- [ ] Natural Language Alerts - "Alert me when whales are selling"
+
+### Phase 9: Automation & Integration (PLANNED)
+*Goal: Connect to trading infrastructure*
+
+**Free Features:**
+- [ ] TradingView Webhook Receiver (limited)
+- [ ] Public API (rate limited)
+- [ ] Zapier Integration (basic triggers)
+
+**Paid Features:**
+- [ ] Full API Access - Build your own tools
+- [ ] TradingView Strategy Alerts
+- [ ] Exchange API Connection (read-only)
+- [ ] Auto-Journal from Exchange History
+- [ ] Webhook Alerts to Any Endpoint
+- [ ] Google Sheets Integration
+- [ ] Notion Integration
+
+### Phase 10: Premium Ecosystem (PLANNED)
+*Goal: Recurring revenue and retention*
+
+**Subscription Tiers:**
+- [ ] Monthly Plan - 50,000 sats/month (best value)
+- [ ] Annual Plan - 500,000 sats/year (17% off)
+- [ ] Lifetime Access - 2,000,000 sats (one-time)
+- [ ] Stripe/Card Payments Option
+
+**Premium Perks:**
+- [ ] Early Access to New Features
+- [ ] Priority AI Processing
+- [ ] Custom Branding on Exports
+- [ ] 1-on-1 Strategy Review (quarterly)
+- [ ] Premium Discord Role
+- [ ] Ad-Free Experience
+- [ ] White-Label Embeds
+
+**Enterprise Features:**
+- [ ] Team Accounts
+- [ ] Custom Data Feeds
+- [ ] API SLA Guarantee
+- [ ] Dedicated Support
+
+---
+
+## Future Considerations
+
+### Mobile App (Phase 11+)
+- [ ] React Native or PWA
+- [ ] Push Notifications
+- [ ] Widget for Home Screen
+- [ ] Apple Watch / Wear OS alerts
+- [ ] Offline Mode for saved analysis
+
+### Content & SEO Expansion
+- [ ] YouTube Integration - Auto-post analysis videos
+- [ ] Podcast Feed - AI-narrated daily updates
+- [ ] Guest Analysis - Invite traders to contribute
+- [ ] Trading Courses - Monetized education
+- [ ] Affiliate Partnerships - Exchange referrals
+
+### Gamification
+- [ ] Achievement Badges
+- [ ] Streak Rewards - Daily login bonuses
+- [ ] XP System - Level up your account
+- [ ] Trading Challenges - Weekly competitions
+- [ ] NFT Certificates for milestones
 
 ---
 
