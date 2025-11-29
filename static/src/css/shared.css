@@ -1259,3 +1259,347 @@ select:focus-visible {
   color: var(--text-primary);
   font-weight: 600;
 }
+
+/* =====================================================
+   MARKET SENTIMENT SECTION - Homepage Overview
+   ===================================================== */
+
+.market-sentiment-section {
+  margin: 2rem 0;
+}
+
+.market-sentiment-section h2 {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.sentiment-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .sentiment-overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .sentiment-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sentiment-overview-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.sentiment-overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sentiment-overview-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.sentiment-overview-icon {
+  font-size: 1.5rem;
+}
+
+.sentiment-overview-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* Fear & Greed Meter */
+.fng-meter {
+  text-align: center;
+}
+
+.fng-value-large {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.fng-value-large.extreme-fear { color: #ef4444; }
+.fng-value-large.fear { color: #f97316; }
+.fng-value-large.neutral { color: #eab308; }
+.fng-value-large.greed { color: #84cc16; }
+.fng-value-large.extreme-greed { color: #22c55e; }
+
+.fng-label-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.fng-bar-wrapper {
+  margin-top: 0.5rem;
+}
+
+.fng-gradient-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #ef4444, #f97316, #eab308, #84cc16, #22c55e);
+  position: relative;
+}
+
+.fng-indicator {
+  position: absolute;
+  top: -4px;
+  width: 16px;
+  height: 16px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  border: 2px solid var(--bg-card);
+  transform: translateX(-50%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.fng-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Funding Rate Meter */
+.funding-meter {
+  text-align: center;
+}
+
+.funding-value-large {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.funding-value-large.very-positive { color: #22c55e; }
+.funding-value-large.positive { color: #84cc16; }
+.funding-value-large.neutral { color: var(--text-secondary); }
+.funding-value-large.negative { color: #f97316; }
+.funding-value-large.very-negative { color: #ef4444; }
+
+.funding-label-text {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.funding-bar-wrapper {
+  margin-top: 0.5rem;
+}
+
+.funding-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.funding-center-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--text-muted);
+  transform: translateX(-50%);
+}
+
+.funding-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.funding-fill.positive {
+  background: linear-gradient(to right, transparent, #22c55e);
+}
+
+.funding-fill.negative {
+  background: linear-gradient(to left, transparent, #ef4444);
+}
+
+.funding-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.funding-note {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+/* Volume Profile Snapshot */
+.volume-snapshot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.volume-bars {
+  width: 100%;
+}
+
+.vol-bar-container {
+  display: flex;
+  height: 24px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg-dark);
+}
+
+.vol-bar {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.vol-bar.buy {
+  background: linear-gradient(to right, #22c55e, #16a34a);
+}
+
+.vol-bar.sell {
+  background: linear-gradient(to right, #dc2626, #ef4444);
+}
+
+.volume-stats {
+  display: flex;
+  justify-content: space-between;
+}
+
+.volume-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.vol-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.vol-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.vol-value.buy { color: #22c55e; }
+.vol-value.sell { color: #ef4444; }
+
+/* Liquidation Heatmap Thumbnail */
+.liq-heatmap-thumbnail {
+  display: flex;
+  gap: 1rem;
+}
+
+.liq-heatmap-chart {
+  flex: 0 0 40px;
+}
+
+.liq-heatmap-visual {
+  display: flex;
+  flex-direction: column;
+  height: 100px;
+  width: 40px;
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.liq-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.short-zone {
+  background: linear-gradient(to bottom, #22c55e, #16a34a, transparent);
+}
+
+.long-zone {
+  background: linear-gradient(to top, #ef4444, #dc2626, transparent);
+}
+
+.liq-intensity {
+  flex: 1;
+}
+
+.liq-current-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+}
+
+.marker-line {
+  width: 100%;
+  height: 2px;
+  background: var(--bitcoin-orange);
+  box-shadow: 0 0 6px var(--bitcoin-orange);
+}
+
+.liq-levels-mini {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.liq-level-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.liq-level-item.above .liq-arrow { color: #22c55e; }
+.liq-level-item.below .liq-arrow { color: #ef4444; }
+
+.liq-level-item.current {
+  background: var(--bg-dark);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border-left: 3px solid var(--bitcoin-orange);
+}
+
+.liq-current-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.liq-price {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.liq-tag {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
