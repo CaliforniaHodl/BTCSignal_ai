@@ -4,6 +4,7 @@ description: "Master the Swing Failure Pattern - a powerful reversal signal used
 date: 2024-11-25
 slug: "swing-failure-pattern"
 tags: ["education", "sfp", "reversal", "trading-patterns"]
+priority: 0.5
 ---
 
 ## What is a Swing Failure Pattern?

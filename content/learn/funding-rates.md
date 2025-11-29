@@ -4,6 +4,7 @@ description: "Learn how to use Bitcoin perpetual futures funding rates for tradi
 date: 2024-11-29
 slug: "funding-rates"
 tags: ["education", "funding-rates", "perpetual-futures", "derivatives"]
+priority: 0.5
 ---
 
 ## What Are Funding Rates?

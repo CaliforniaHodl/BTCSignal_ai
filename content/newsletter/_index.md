@@ -6,4 +6,5 @@ seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin newsletter, crypto newsletter, BTC analysis newsletter, weekly crypto report, Bitcoin market analysis'
 layout: "single"
+priority: 0.8
 ---

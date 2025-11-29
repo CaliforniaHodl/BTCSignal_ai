@@ -6,4 +6,5 @@ seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin Lightning payments, crypto subscription, BTC trading tools pricing, Lightning Network'
 layout: "single"
+priority: 0.8
 ---

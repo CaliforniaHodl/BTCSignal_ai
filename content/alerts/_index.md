@@ -6,4 +6,5 @@ seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin alerts, BTC price notifications, crypto alerts, price target alerts, Bitcoin price tracker'
 layout: "single"
+priority: 0.8
 ---

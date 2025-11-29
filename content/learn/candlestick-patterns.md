@@ -4,6 +4,7 @@ description: "Learn essential candlestick patterns for Bitcoin trading reversals
 date: 2024-11-29
 slug: "candlestick-patterns"
 tags: ["education", "candlestick-patterns", "price-action", "reversals"]
+priority: 0.5
 ---
 
 ## Understanding Candlesticks

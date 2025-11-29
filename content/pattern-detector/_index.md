@@ -6,4 +6,5 @@ seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin chart patterns, BTC pattern detection, crypto technical analysis, triangle pattern, wedge pattern, support resistance'
 layout: "single"
+priority: 0.8
 ---

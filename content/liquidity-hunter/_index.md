@@ -6,4 +6,5 @@ seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin liquidity zones, BTC stop hunt prediction, crypto liquidity sweep, smart money liquidity'
 layout: "single"
+priority: 0.8
 ---
