@@ -1,11 +1,15 @@
 baseURL = 'https://btctradingsignalai.netlify.app/'
 languageCode = 'en-us'
-title = 'Bitcoin Analysis Bot'
+title = 'BTC Signal AI - AI-Powered Bitcoin Trading Signals & Analysis'
 
 [params]
-CompanyName = 'Bitcoin Analysis Bot'
+CompanyName = 'BTC Signal AI'
 repoName = 'bitcoin-twitter-bot'
-description = 'Automated Bitcoin technical analysis and predictions'
+description = 'AI-powered Bitcoin trading signals, technical analysis, and liquidity predictions. Real-time BTC market intelligence with Claude AI. Pay with Lightning.'
+tagline = 'AI-Powered Bitcoin Analysis'
+twitter = '@BTCSignal_ai'
+author = 'BTC Signal AI'
+keywords = 'Bitcoin, BTC, trading signals, technical analysis, AI trading, cryptocurrency, liquidity, market analysis, Lightning Network'
 
 [environments.development]
 baseURL = 'http://localhost:1313/'

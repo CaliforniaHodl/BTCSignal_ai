@@ -20,21 +20,9 @@
 <meta name="msapplication-TileColor" content="#f7931a">
 <meta name="theme-color" content="#0d1117">
 
-<!-- Open Graph / Social Sharing -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="{{ .Permalink }}">
-<meta property="og:title" content="{{ if .Title }}{{ .Title }} | BTC Signal AI{{ else }}BTC Signal AI - AI-Powered Bitcoin Analysis{{ end }}">
-<meta property="og:description" content="{{ if .Description }}{{ .Description }}{{ else }}AI-powered Bitcoin trading signals, liquidity predictions, and trade coaching. Pay with Lightning.{{ end }}">
-<meta property="og:image" content="{{ "og-image.png" | absURL }}">
+<!-- OG Image dimensions -->
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:site" content="@BTCSignal_ai">
-<meta name="twitter:title" content="{{ if .Title }}{{ .Title }} | BTC Signal AI{{ else }}BTC Signal AI{{ end }}">
-<meta name="twitter:description" content="{{ if .Description }}{{ .Description }}{{ else }}AI-powered Bitcoin trading signals, liquidity predictions, and trade coaching.{{ end }}">
-<meta name="twitter:image" content="{{ "og-image.png" | absURL }}">
 
 <!-- CSS -->
 <link rel="stylesheet" href="{{ "src/css/bootstrap/bootstrap.min.css" | relURL }}">
