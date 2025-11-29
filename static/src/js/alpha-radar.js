@@ -4,6 +4,17 @@
 
   // Check if user has access
   function checkAccess() {
+    // Check admin mode first (bypasses all paywalls)
+    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
+      console.log('%c ADMIN: Alpha Radar access bypassed', 'color: #f7931a;');
+      return true;
+    }
+    // Check all-access subscription
+    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
+      console.log('All-access subscription active, unlocking Alpha Radar');
+      return true;
+    }
+    // Legacy localStorage check
     const access = localStorage.getItem(FEATURE_KEY);
     return access === 'unlocked';
   }

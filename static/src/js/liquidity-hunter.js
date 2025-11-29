@@ -3,6 +3,17 @@
   const FEATURE_KEY = 'liquidity-hunter-access';
 
   function checkAccess() {
+    // Check admin mode first (bypasses all paywalls)
+    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
+      console.log('%c ADMIN: Liquidity Hunter access bypassed', 'color: #f7931a;');
+      return true;
+    }
+    // Check all-access subscription
+    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
+      console.log('All-access subscription active, unlocking Liquidity Hunter');
+      return true;
+    }
+    // Legacy localStorage check
     return localStorage.getItem(FEATURE_KEY) === 'unlocked';
   }
 
