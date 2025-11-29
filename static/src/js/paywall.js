@@ -49,14 +49,17 @@
 
       currentPaymentHash = data.payment_hash;
 
-      // Show QR code
+      // Show QR code - create canvas element first
       qrCodeDiv.innerHTML = '';
-      QRCode.toCanvas(qrCodeDiv, data.payment_request.toUpperCase(), {
+      const canvas = document.createElement('canvas');
+      qrCodeDiv.appendChild(canvas);
+      
+      QRCode.toCanvas(canvas, data.payment_request.toUpperCase(), {
         width: 200,
         margin: 2,
-        color: { dark: '#000', light: '#fff' }
+        color: { dark: '#000000', light: '#ffffff' }
       }, (error) => {
-        if (error) console.error(error);
+        if (error) console.error('QR error:', error);
       });
 
       // Show invoice string
