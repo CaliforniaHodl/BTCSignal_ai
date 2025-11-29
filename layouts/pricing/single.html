@@ -1,0 +1,185 @@
+{{ define "main" }}
+<div class="container pricing-page">
+  <header class="pricing-header">
+    <h1>Unlock Premium Access</h1>
+    <p class="subtitle">Choose the plan that works for you. Pay with Lightning.</p>
+
+    <!-- Current Access Status -->
+    <div class="access-status" id="access-status">
+      <span class="status-icon">🔒</span>
+      <span class="status-text" id="status-text">No active subscription</span>
+    </div>
+  </header>
+
+  <!-- Pricing Tiers -->
+  <section class="pricing-grid">
+    <!-- Single Post -->
+    <div class="pricing-card single">
+      <div class="card-badge">Try It</div>
+      <h2 class="plan-name">Single Post</h2>
+      <div class="plan-price">
+        <span class="price-amount">21</span>
+        <span class="price-unit">sats</span>
+      </div>
+      <p class="plan-desc">Unlock one analysis post</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Access to 1 locked post</li>
+        <li><span class="check">✓</span> Full analysis details</li>
+        <li><span class="check">✓</span> Permanent access to that post</li>
+        <li class="muted"><span class="x">✗</span> Pro Tools access</li>
+      </ul>
+      <button class="btn-purchase" data-tier="single" data-amount="21">
+        Pay 21 sats
+      </button>
+      <p class="plan-note">Best for trying us out</p>
+    </div>
+
+    <!-- Hourly -->
+    <div class="pricing-card hourly">
+      <div class="card-badge">Quick Access</div>
+      <h2 class="plan-name">Hour Pass</h2>
+      <div class="plan-price">
+        <span class="price-amount">1,000</span>
+        <span class="price-unit">sats</span>
+      </div>
+      <p class="plan-desc">All access for 1 hour</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> All locked posts</li>
+        <li><span class="check">✓</span> All Pro Tools</li>
+        <li><span class="check">✓</span> Alpha Radar</li>
+        <li><span class="check">✓</span> Liquidity Hunter</li>
+        <li><span class="check">✓</span> AI Trade Coach</li>
+      </ul>
+      <button class="btn-purchase" data-tier="hourly" data-amount="1000">
+        Pay 1,000 sats
+      </button>
+      <p class="plan-note">~47 sats per post equivalent</p>
+    </div>
+
+    <!-- Daily - Featured -->
+    <div class="pricing-card daily featured">
+      <div class="card-badge popular">Most Popular</div>
+      <div class="discount-badge">20% OFF</div>
+      <h2 class="plan-name">Day Pass</h2>
+      <div class="plan-price">
+        <span class="price-original">24,000</span>
+        <span class="price-amount">20,000</span>
+        <span class="price-unit">sats</span>
+      </div>
+      <p class="plan-desc">All access for 24 hours</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> All locked posts</li>
+        <li><span class="check">✓</span> All Pro Tools</li>
+        <li><span class="check">✓</span> Alpha Radar</li>
+        <li><span class="check">✓</span> Liquidity Hunter</li>
+        <li><span class="check">✓</span> AI Trade Coach</li>
+        <li><span class="check">✓</span> Chart AI Analysis</li>
+      </ul>
+      <button class="btn-purchase primary" data-tier="daily" data-amount="20000">
+        Pay 20,000 sats
+      </button>
+      <p class="plan-note">Best value for active traders</p>
+    </div>
+
+    <!-- Weekly -->
+    <div class="pricing-card weekly">
+      <div class="card-badge">Power User</div>
+      <div class="discount-badge">20% OFF</div>
+      <h2 class="plan-name">Week Pass</h2>
+      <div class="plan-price">
+        <span class="price-original">140,000</span>
+        <span class="price-amount">100,000</span>
+        <span class="price-unit">sats</span>
+      </div>
+      <p class="plan-desc">All access for 7 days</p>
+      <ul class="plan-features">
+        <li><span class="check">✓</span> Everything in Day Pass</li>
+        <li><span class="check">✓</span> Priority support</li>
+        <li><span class="check">✓</span> Full trade history</li>
+        <li><span class="check">✓</span> Export features</li>
+      </ul>
+      <button class="btn-purchase" data-tier="weekly" data-amount="100000">
+        Pay 100,000 sats
+      </button>
+      <p class="plan-note">~14,285 sats/day</p>
+    </div>
+  </section>
+
+  <!-- Payment Modal -->
+  <div class="payment-modal" id="payment-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <h3 id="modal-title">Pay with Lightning</h3>
+      <div class="modal-body">
+        <div class="qr-container" id="qr-container">
+          <div class="loading-spinner">Generating invoice...</div>
+        </div>
+        <div class="invoice-details">
+          <p class="invoice-amount" id="invoice-amount"></p>
+          <p class="invoice-expires" id="invoice-expires"></p>
+        </div>
+        <div class="invoice-actions">
+          <button class="btn-copy" id="btn-copy">Copy Invoice</button>
+          <a class="btn-open-wallet" id="btn-wallet" href="#">Open Wallet</a>
+        </div>
+        <input type="hidden" id="invoice-text">
+      </div>
+      <div class="payment-status" id="payment-status">
+        <span class="status-waiting">Waiting for payment...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <section class="pricing-faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h3>How does Lightning payment work?</h3>
+        <p>Scan the QR code with any Lightning wallet (Phoenix, Muun, Wallet of Satoshi, etc.) or copy the invoice. Payment is instant and confirmed in seconds.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What happens when my pass expires?</h3>
+        <p>You'll still have access to any individual posts you unlocked. Time-based passes give temporary access to all content and Pro Tools.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Can I extend my subscription?</h3>
+        <p>Yes! Purchase another pass anytime. Time is added to your existing access if you still have time remaining.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is my access tied to this device?</h3>
+        <p>Yes, access is stored locally in your browser. Don't clear your browser data or you'll lose access.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Props -->
+  <section class="value-props">
+    <h2>Why Go Premium?</h2>
+    <div class="props-grid">
+      <div class="prop-item">
+        <span class="prop-icon">🤖</span>
+        <h3>AI-Powered Analysis</h3>
+        <p>Claude AI analyzes charts and market data for actionable insights</p>
+      </div>
+      <div class="prop-item">
+        <span class="prop-icon">📡</span>
+        <h3>Alpha Radar</h3>
+        <p>Real-time whale tracking, dominance shifts, and anomaly detection</p>
+      </div>
+      <div class="prop-item">
+        <span class="prop-icon">🎯</span>
+        <h3>Liquidity Hunter</h3>
+        <p>AI predicts where price is heading next with probability scores</p>
+      </div>
+      <div class="prop-item">
+        <span class="prop-icon">🎓</span>
+        <h3>Trade Coach</h3>
+        <p>Get your trades evaluated and improve your strategy</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="{{ "src/js/pricing.js" | relURL }}"></script>
+{{ end }}

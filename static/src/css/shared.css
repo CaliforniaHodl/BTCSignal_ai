@@ -146,6 +146,14 @@ nav {
   color: var(--bitcoin-orange);
 }
 
+.nav-pricing {
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 600;
+}
+
 /* Nav Dropdown */
 .nav-dropdown {
   position: relative;
