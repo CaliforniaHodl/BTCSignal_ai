@@ -1,0 +1,162 @@
+{{ define "main" }}
+<div class="container premium-page alpha-radar-page">
+  <!-- Premium Gate -->
+  <div class="premium-gate" id="premium-gate">
+    <div class="gate-content">
+      <div class="gate-icon">📡</div>
+      <h1>Alpha Radar</h1>
+      <p class="gate-desc">AI-powered market intelligence monitoring whale movements, dominance shifts, and liquidity anomalies in real-time.</p>
+      <div class="gate-features">
+        <div class="feature-item"><span>📊</span> BTC Dominance Tracking</div>
+        <div class="feature-item"><span>🐋</span> Whale Wallet Movements</div>
+        <div class="feature-item"><span>💰</span> Stablecoin Flow Analysis</div>
+        <div class="feature-item"><span>⚠️</span> Anomaly Detection</div>
+      </div>
+      <div class="gate-price">
+        <span class="price-amount">⚡ 50 sats</span>
+        <span class="price-period">one-time access</span>
+      </div>
+      <button class="btn-unlock-premium" id="btn-unlock">Unlock Alpha Radar</button>
+      <p class="gate-note">Already unlocked? <a href="#" id="check-access">Check access</a></p>
+    </div>
+  </div>
+
+  <!-- Alpha Radar Content (Hidden until unlocked) -->
+  <div class="premium-content" id="premium-content" style="display: none;">
+    <header class="radar-header">
+      <h1>📡 Alpha Radar</h1>
+      <p class="subtitle">Real-time market intelligence powered by AI</p>
+      <div class="last-updated">
+        Last scan: <span id="last-scan">Loading...</span>
+        <button class="btn-refresh" id="btn-refresh">↻ Refresh</button>
+      </div>
+    </header>
+
+    <!-- Alert Banner -->
+    <div class="alert-banner" id="alert-banner" style="display: none;">
+      <span class="alert-icon">⚠️</span>
+      <span class="alert-text" id="alert-text"></span>
+    </div>
+
+    <!-- Market Overview -->
+    <section class="radar-section market-overview">
+      <h2>Market Overview</h2>
+      <div class="overview-grid">
+        <div class="overview-card dominance">
+          <div class="card-header">
+            <span class="card-icon">📊</span>
+            <h3>BTC Dominance</h3>
+          </div>
+          <div class="card-value" id="btc-dom">--</div>
+          <div class="card-change" id="btc-dom-change">Loading...</div>
+          <div class="card-signal" id="btc-dom-signal"></div>
+        </div>
+
+        <div class="overview-card stablecoin">
+          <div class="card-header">
+            <span class="card-icon">💵</span>
+            <h3>Stablecoin Supply</h3>
+          </div>
+          <div class="card-value" id="stable-supply">--</div>
+          <div class="card-change" id="stable-change">Loading...</div>
+          <div class="card-signal" id="stable-signal"></div>
+        </div>
+
+        <div class="overview-card fear-greed">
+          <div class="card-header">
+            <span class="card-icon">😱</span>
+            <h3>Fear & Greed</h3>
+          </div>
+          <div class="card-value" id="fear-greed">--</div>
+          <div class="card-label" id="fear-greed-label">Loading...</div>
+          <div class="fear-greed-bar">
+            <div class="fear-greed-fill" id="fear-greed-fill"></div>
+          </div>
+        </div>
+
+        <div class="overview-card funding">
+          <div class="card-header">
+            <span class="card-icon">📈</span>
+            <h3>Funding Rate</h3>
+          </div>
+          <div class="card-value" id="funding-rate">--</div>
+          <div class="card-change" id="funding-bias">Loading...</div>
+          <div class="card-signal" id="funding-signal"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Whale Activity -->
+    <section class="radar-section whale-activity">
+      <h2>🐋 Whale Activity</h2>
+      <div class="whale-grid">
+        <div class="whale-card">
+          <h3>Exchange Inflows (24h)</h3>
+          <div class="whale-metric">
+            <span class="metric-value" id="exchange-inflow">--</span>
+            <span class="metric-unit">BTC</span>
+          </div>
+          <p class="metric-note" id="inflow-signal">Loading...</p>
+        </div>
+        <div class="whale-card">
+          <h3>Exchange Outflows (24h)</h3>
+          <div class="whale-metric">
+            <span class="metric-value" id="exchange-outflow">--</span>
+            <span class="metric-unit">BTC</span>
+          </div>
+          <p class="metric-note" id="outflow-signal">Loading...</p>
+        </div>
+        <div class="whale-card">
+          <h3>Net Flow</h3>
+          <div class="whale-metric">
+            <span class="metric-value" id="net-flow">--</span>
+            <span class="metric-unit">BTC</span>
+          </div>
+          <p class="metric-note" id="netflow-signal">Loading...</p>
+        </div>
+        <div class="whale-card">
+          <h3>Large Txns (>100 BTC)</h3>
+          <div class="whale-metric">
+            <span class="metric-value" id="large-txns">--</span>
+            <span class="metric-unit">in 24h</span>
+          </div>
+          <p class="metric-note" id="txn-signal">Loading...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HTF Liquidity Zones -->
+    <section class="radar-section liquidity-zones">
+      <h2>📍 HTF Liquidity Build-ups</h2>
+      <p class="section-desc">High timeframe zones where liquidity is accumulating</p>
+      <div class="zones-container" id="liquidity-zones">
+        <div class="loading-spinner">Scanning liquidity...</div>
+      </div>
+    </section>
+
+    <!-- Anomaly Detection -->
+    <section class="radar-section anomalies">
+      <h2>⚠️ Detected Anomalies</h2>
+      <p class="section-desc">Unusual market behavior flagged by AI</p>
+      <div class="anomaly-list" id="anomaly-list">
+        <div class="loading-spinner">Scanning for anomalies...</div>
+      </div>
+    </section>
+
+    <!-- AI Summary -->
+    <section class="radar-section ai-summary">
+      <h2>🤖 AI Market Summary</h2>
+      <div class="summary-card">
+        <div class="summary-content" id="ai-summary">
+          <div class="loading-spinner">Generating analysis...</div>
+        </div>
+        <div class="summary-meta">
+          <span class="summary-time" id="summary-time"></span>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="{{ "src/js/alpha-radar.js" | relURL }}"></script>
+{{ end }}

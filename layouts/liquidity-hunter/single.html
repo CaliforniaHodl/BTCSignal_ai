@@ -1,0 +1,147 @@
+{{ define "main" }}
+<div class="container premium-page liquidity-hunter-page">
+  <!-- Premium Gate -->
+  <div class="premium-gate" id="premium-gate">
+    <div class="gate-content">
+      <div class="gate-icon">🎯</div>
+      <h1>Liquidity Hunter</h1>
+      <p class="gate-desc">AI predicts the next liquidity sweep zones with probability scores and ETA windows. Know where price is heading before it happens.</p>
+      <div class="gate-features">
+        <div class="feature-item"><span>📈</span> Top-side Sweep Zones</div>
+        <div class="feature-item"><span>📉</span> Bottom-side Sweep Zones</div>
+        <div class="feature-item"><span>🎲</span> Probability Scores</div>
+        <div class="feature-item"><span>⏰</span> ETA Windows</div>
+      </div>
+      <div class="gate-price">
+        <span class="price-amount">⚡ 50 sats</span>
+        <span class="price-period">one-time access</span>
+      </div>
+      <button class="btn-unlock-premium" id="btn-unlock">Unlock Liquidity Hunter</button>
+      <p class="gate-note">Already unlocked? <a href="#" id="check-access">Check access</a></p>
+    </div>
+  </div>
+
+  <!-- Liquidity Hunter Content -->
+  <div class="premium-content" id="premium-content" style="display: none;">
+    <header class="hunter-header">
+      <h1>🎯 Liquidity Hunter</h1>
+      <p class="subtitle">AI-powered liquidity sweep predictions</p>
+      <div class="last-updated">
+        Last analysis: <span id="last-analysis">Loading...</span>
+        <button class="btn-refresh" id="btn-refresh">↻ Refresh</button>
+      </div>
+    </header>
+
+    <!-- Current Price Context -->
+    <section class="price-context">
+      <div class="current-price-box">
+        <span class="label">BTC/USD</span>
+        <span class="price" id="current-price">Loading...</span>
+      </div>
+      <div class="bias-indicator" id="bias-indicator">
+        <span class="bias-label">AI Bias:</span>
+        <span class="bias-value" id="bias-value">Analyzing...</span>
+      </div>
+    </section>
+
+    <!-- Main Prediction Display -->
+    <section class="prediction-display">
+      <div class="prediction-card topside">
+        <div class="prediction-header">
+          <span class="direction-icon">📈</span>
+          <h2>Top-side Liquidity</h2>
+        </div>
+        <div class="prediction-body">
+          <div class="zone-display">
+            <span class="zone-label">Target Zone</span>
+            <span class="zone-value" id="top-zone">--</span>
+          </div>
+          <div class="probability-meter">
+            <span class="prob-label">Probability</span>
+            <div class="prob-bar">
+              <div class="prob-fill" id="top-prob-fill"></div>
+            </div>
+            <span class="prob-value" id="top-prob">--%</span>
+          </div>
+          <div class="eta-display">
+            <span class="eta-label">ETA Window</span>
+            <span class="eta-value" id="top-eta">--</span>
+          </div>
+          <div class="zone-reasoning" id="top-reasoning">
+            <p>Loading analysis...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="vs-divider">
+        <span>VS</span>
+      </div>
+
+      <div class="prediction-card bottomside">
+        <div class="prediction-header">
+          <span class="direction-icon">📉</span>
+          <h2>Bottom-side Liquidity</h2>
+        </div>
+        <div class="prediction-body">
+          <div class="zone-display">
+            <span class="zone-label">Target Zone</span>
+            <span class="zone-value" id="bottom-zone">--</span>
+          </div>
+          <div class="probability-meter">
+            <span class="prob-label">Probability</span>
+            <div class="prob-bar">
+              <div class="prob-fill" id="bottom-prob-fill"></div>
+            </div>
+            <span class="prob-value" id="bottom-prob">--%</span>
+          </div>
+          <div class="eta-display">
+            <span class="eta-label">ETA Window</span>
+            <span class="eta-value" id="bottom-eta">--</span>
+          </div>
+          <div class="zone-reasoning" id="bottom-reasoning">
+            <p>Loading analysis...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Liquidity Map -->
+    <section class="liquidity-map">
+      <h2>📍 Liquidity Map</h2>
+      <p class="section-desc">Visual representation of key liquidity levels</p>
+      <div class="map-container" id="liquidity-map">
+        <div class="loading-spinner">Generating map...</div>
+      </div>
+    </section>
+
+    <!-- Historical Accuracy -->
+    <section class="accuracy-section">
+      <h2>📊 Prediction Accuracy</h2>
+      <div class="accuracy-grid">
+        <div class="accuracy-card">
+          <span class="accuracy-value" id="accuracy-7d">--</span>
+          <span class="accuracy-label">7-Day Accuracy</span>
+        </div>
+        <div class="accuracy-card">
+          <span class="accuracy-value" id="accuracy-30d">--</span>
+          <span class="accuracy-label">30-Day Accuracy</span>
+        </div>
+        <div class="accuracy-card">
+          <span class="accuracy-value" id="predictions-hit">--</span>
+          <span class="accuracy-label">Predictions Hit</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Notes -->
+    <section class="ai-notes">
+      <h2>🤖 AI Analysis Notes</h2>
+      <div class="notes-content" id="ai-notes">
+        <div class="loading-spinner">Generating notes...</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="{{ "src/js/liquidity-hunter.js" | relURL }}"></script>
+{{ end }}
