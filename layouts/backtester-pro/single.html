@@ -1,0 +1,190 @@
+{{ define "main" }}
+<div class="container premium-page backtester-pro-page">
+  <header class="backtester-header">
+    <h1>Backtester PRO</h1>
+    <p class="subtitle">AI-powered custom strategy testing with detailed analytics</p>
+  </header>
+
+  <!-- Strategy Input Section -->
+  <section class="strategy-input-section">
+    <div class="input-card">
+      <h2>Describe Your Strategy</h2>
+      <p class="input-desc">Tell the AI your trading strategy in plain English. Be specific about entry conditions, exits, timeframes, and risk management.</p>
+
+      <div class="strategy-form">
+        <div class="form-group">
+          <label for="strategy-input">Strategy Description</label>
+          <textarea id="strategy-input" placeholder="Example: Long when RSI crosses above 30 on the 4H chart and price is above the 200 EMA. Exit when RSI reaches 70 or price drops 2% below entry. Use 1% risk per trade with 2:1 reward target."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="timeframe-select">Timeframe</label>
+            <select id="timeframe-select">
+              <option value="15m">15 Minutes</option>
+              <option value="1h" selected>1 Hour</option>
+              <option value="4h">4 Hours</option>
+              <option value="1d">1 Day</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="period-select">Backtest Period</label>
+            <select id="period-select">
+              <option value="30">Last 30 Days</option>
+              <option value="90" selected>Last 90 Days</option>
+              <option value="180">Last 6 Months</option>
+              <option value="365">Last 1 Year</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="capital-input">Starting Capital ($)</label>
+            <input type="number" id="capital-input" value="10000" min="100">
+          </div>
+        </div>
+
+        <div class="example-strategies">
+          <span class="examples-label">Quick Examples:</span>
+          <button class="example-btn" data-strategy="Long when RSI < 30 and MACD crosses above signal line. Close when RSI > 70. Stop loss at 3%.">RSI + MACD</button>
+          <button class="example-btn" data-strategy="Buy when price breaks above the 20-day high. Sell when price breaks below the 10-day low. Trail stop at 2 ATR.">Breakout</button>
+          <button class="example-btn" data-strategy="Long when EMA 9 crosses above EMA 21 and volume is above 20-day average. Exit on opposite cross or 5% drawdown.">EMA Cross</button>
+          <button class="example-btn" data-strategy="Buy at support levels when there's a bullish engulfing candle. Target 2R, stop below the support. Only trade during NY session.">S/R Bounce</button>
+        </div>
+
+        <button class="btn-run-backtest" id="btn-run-backtest">
+          <span class="btn-icon">🚀</span>
+          Run AI Backtest
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <section class="backtest-loading" id="backtest-loading" style="display: none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h3>AI is analyzing your strategy...</h3>
+      <p class="loading-step" id="loading-step">Parsing strategy parameters...</p>
+      <div class="loading-progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results Section -->
+  <section class="backtest-results" id="backtest-results" style="display: none;">
+    <h2>Backtest Results</h2>
+
+    <!-- Summary Stats -->
+    <div class="results-summary">
+      <div class="summary-card performance">
+        <div class="summary-icon">📈</div>
+        <div class="summary-value" id="total-return">--</div>
+        <div class="summary-label">Total Return</div>
+      </div>
+      <div class="summary-card winrate">
+        <div class="summary-icon">🎯</div>
+        <div class="summary-value" id="win-rate">--</div>
+        <div class="summary-label">Win Rate</div>
+      </div>
+      <div class="summary-card trades">
+        <div class="summary-icon">📊</div>
+        <div class="summary-value" id="total-trades">--</div>
+        <div class="summary-label">Total Trades</div>
+      </div>
+      <div class="summary-card sharpe">
+        <div class="summary-icon">⚡</div>
+        <div class="summary-value" id="sharpe-ratio">--</div>
+        <div class="summary-label">Sharpe Ratio</div>
+      </div>
+      <div class="summary-card drawdown">
+        <div class="summary-icon">📉</div>
+        <div class="summary-value" id="max-drawdown">--</div>
+        <div class="summary-label">Max Drawdown</div>
+      </div>
+      <div class="summary-card profit-factor">
+        <div class="summary-icon">💰</div>
+        <div class="summary-value" id="profit-factor">--</div>
+        <div class="summary-label">Profit Factor</div>
+      </div>
+    </div>
+
+    <!-- Equity Curve -->
+    <div class="equity-section">
+      <h3>Equity Curve</h3>
+      <div class="chart-container">
+        <canvas id="equity-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Monthly Performance -->
+    <div class="monthly-section">
+      <h3>Monthly Performance</h3>
+      <div class="monthly-grid" id="monthly-grid">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+
+    <!-- Trade Log -->
+    <div class="trade-log-section">
+      <h3>Trade Log</h3>
+      <div class="trade-log-wrapper">
+        <table class="trade-log-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>P&L</th>
+              <th>R Multiple</th>
+            </tr>
+          </thead>
+          <tbody id="trade-log-body">
+            <!-- Generated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- AI Analysis -->
+    <div class="ai-analysis-section">
+      <h3>AI Strategy Analysis</h3>
+      <div class="ai-analysis-content" id="ai-analysis">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+
+    <!-- Optimization Suggestions -->
+    <div class="optimization-section">
+      <h3>Optimization Suggestions</h3>
+      <div class="optimization-cards" id="optimization-cards">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium Gate -->
+  <section class="premium-gate" id="premium-gate" style="display: none;">
+    <div class="gate-content">
+      <h2>Unlock Backtester PRO</h2>
+      <p>Run unlimited custom strategy backtests with AI analysis</p>
+      <div class="gate-features">
+        <div class="gate-feature"><span>✓</span> Custom strategy parsing</div>
+        <div class="gate-feature"><span>✓</span> Detailed equity curves</div>
+        <div class="gate-feature"><span>✓</span> Trade-by-trade log</div>
+        <div class="gate-feature"><span>✓</span> AI optimization tips</div>
+      </div>
+      <div class="gate-price">
+        <span class="price-amount">100 sats</span>
+        <span class="price-period">per backtest</span>
+      </div>
+      <button class="btn-unlock" id="btn-unlock">Unlock Backtester</button>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ "src/js/backtester-pro.js" | relURL }}"></script>
+{{ end }}
