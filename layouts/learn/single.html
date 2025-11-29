@@ -1,0 +1,42 @@
+{{ define "main" }}
+<article class="container article-page">
+  <header class="article-header">
+    <a href="/learn/" class="back-link">← Back to Learn</a>
+    <h1>{{ .Title }}</h1>
+    <p class="article-description">{{ .Description }}</p>
+    <div class="article-meta">
+      <span class="date">{{ .Date.Format "January 2, 2006" }}</span>
+      <span class="tags">
+        {{ range .Params.tags }}
+        <span class="tag">{{ . }}</span>
+        {{ end }}
+      </span>
+    </div>
+  </header>
+
+  <div class="article-content">
+    {{ .Content }}
+  </div>
+
+  <footer class="article-footer">
+    <div class="share-cta">
+      <h3>Found this helpful?</h3>
+      <p>Share with fellow traders or check out our other educational content.</p>
+      <a href="/learn/" class="btn-secondary">More Articles</a>
+    </div>
+
+    <div class="related-articles">
+      <h3>Related Topics</h3>
+      <div class="related-grid">
+        {{ $currentPage := . }}
+        {{ range first 3 (where (where .Site.RegularPages "Section" "learn") ".Permalink" "ne" .Permalink) }}
+        <a href="{{ .Permalink }}" class="related-card">
+          <h4>{{ .Title }}</h4>
+          <span class="read-more">Read →</span>
+        </a>
+        {{ end }}
+      </div>
+    </div>
+  </footer>
+</article>
+{{ end }}

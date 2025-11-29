@@ -1,0 +1,41 @@
+{{ define "main" }}
+<div class="container learn-page">
+  <header class="learn-header">
+    <h1>Learn Trading</h1>
+    <p class="subtitle">Free educational resources for Bitcoin traders</p>
+  </header>
+
+  <section class="articles-grid">
+    {{ range .Pages.ByDate.Reverse }}
+    <a href="{{ .Permalink }}" class="article-card">
+      <div class="article-icon">
+        {{ if in .Title "Market Structure" }}📊{{ end }}
+        {{ if in .Title "Liquidity" }}💧{{ end }}
+        {{ if in .Title "Fair Value" }}📐{{ end }}
+        {{ if in .Title "Order Block" }}🏛️{{ end }}
+        {{ if in .Title "Swing Failure" }}🔄{{ end }}
+      </div>
+      <h2>{{ .Title }}</h2>
+      <p class="article-desc">{{ .Description }}</p>
+      <div class="article-meta">
+        <span class="read-time">5 min read</span>
+        <span class="article-tags">
+          {{ range first 2 .Params.tags }}
+          <span class="tag">{{ . }}</span>
+          {{ end }}
+        </span>
+      </div>
+    </a>
+    {{ end }}
+  </section>
+
+  <section class="learn-cta">
+    <h2>Ready to Apply Your Knowledge?</h2>
+    <p>See these concepts in action with our AI-powered analysis</p>
+    <div class="cta-buttons">
+      <a href="/posts/" class="btn-primary">View Analysis</a>
+      <a href="/analyze/" class="btn-secondary">AI Chart Analysis</a>
+    </div>
+  </section>
+</div>
+{{ end }}
