@@ -10,8 +10,24 @@
       <ul class="nav-links">
         <li><a href="/">Home</a></li>
         <li><a href="/posts/">Analysis</a></li>
+        <li><a href="/dashboard/" class="nav-link-premium" id="dashboard-nav" style="display: none;">Dashboard</a></li>
         <li><a href="https://twitter.com/BTCSignal_ai" target="_blank">Twitter</a></li>
       </ul>
     </nav>
   </div>
 </header>
+<script>
+  // Show dashboard link if user has unlocked posts
+  (function() {
+    try {
+      var unlocked = localStorage.getItem('unlockedPosts');
+      if (unlocked) {
+        var posts = JSON.parse(unlocked);
+        if (Array.isArray(posts) && posts.length > 0) {
+          var dashNav = document.getElementById('dashboard-nav');
+          if (dashNav) dashNav.style.display = 'inline';
+        }
+      }
+    } catch (e) {}
+  })();
+</script>

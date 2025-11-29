@@ -1,0 +1,478 @@
+/* ===== Free Posts Section ===== */
+.free-posts {
+  padding: 2rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.free-posts h2 {
+  margin-bottom: 0.5rem;
+}
+
+.free-posts .section-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.free-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(63, 185, 80, 0.2);
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--green);
+}
+
+/* ===== Dashboard Styles ===== */
+.dashboard-page {
+  padding: 2rem 0;
+  min-height: 80vh;
+}
+
+.dashboard-locked {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.lock-message {
+  text-align: center;
+  max-width: 400px;
+  padding: 3rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+
+.lock-message .lightning-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.lock-message h2 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.lock-message p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dashboard-header .subtitle {
+  color: var(--text-secondary);
+}
+
+/* Stats Section */
+.stats-section {
+  margin-bottom: 3rem;
+}
+
+.stats-section h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-card.win {
+  border-color: var(--green);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 185, 80, 0.1) 100%);
+}
+
+.stat-card.loss {
+  border-color: var(--red);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(248, 81, 73, 0.1) 100%);
+}
+
+.stat-card.rate {
+  border-color: var(--bitcoin-orange);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.1) 100%);
+}
+
+.stat-card.streak {
+  border-color: var(--blue);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(88, 166, 255, 0.1) 100%);
+}
+
+.stat-number {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-card.win .stat-number { color: var(--green); }
+.stat-card.loss .stat-number { color: var(--red); }
+.stat-card.rate .stat-number { color: var(--bitcoin-orange); }
+.stat-card.streak .stat-number { color: var(--blue); }
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Charts Section */
+.charts-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.chart-container h3 {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Liquidation Section */
+.liquidation-section {
+  margin-bottom: 3rem;
+}
+
+.liquidation-section h2 {
+  margin-bottom: 0.5rem;
+}
+
+.section-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.liquidation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.liquidation-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.liquidation-card.long {
+  border-color: rgba(248, 81, 73, 0.3);
+}
+
+.liquidation-card.short {
+  border-color: rgba(63, 185, 80, 0.3);
+}
+
+.liq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: var(--bg-dark);
+}
+
+.liq-type {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.liquidation-card.long .liq-type { color: var(--red); }
+.liquidation-card.short .liq-type { color: var(--green); }
+
+.liq-risk {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.liq-risk.high {
+  background: rgba(248, 81, 73, 0.2);
+  color: var(--red);
+}
+
+.liq-levels {
+  padding: 1rem;
+}
+
+.liq-level {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.liq-level:last-child {
+  border-bottom: none;
+}
+
+.liq-level .price {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.liq-level .leverage {
+  background: var(--bg-dark);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.liq-level .distance {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.current-price-box {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.1) 100%);
+  border: 1px solid var(--bitcoin-orange);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.current-price-box .label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.current-price-box .price {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+}
+
+/* Calls Table */
+.calls-section {
+  margin-bottom: 3rem;
+}
+
+.calls-section h2 {
+  margin-bottom: 1.5rem;
+}
+
+.calls-table-wrapper {
+  overflow-x: auto;
+}
+
+.calls-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.calls-table thead {
+  background: var(--bg-dark);
+}
+
+.calls-table th {
+  padding: 1rem;
+  text-align: left;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.calls-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.calls-table tr:last-child td {
+  border-bottom: none;
+}
+
+.calls-table tr.win {
+  background: rgba(63, 185, 80, 0.05);
+}
+
+.calls-table tr.loss {
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.result-win { color: var(--green); }
+.result-loss { color: var(--red); }
+.result-pending { color: var(--text-muted); }
+
+/* Premium Nav Link */
+.nav-link-premium {
+  color: var(--bitcoin-orange) !important;
+  position: relative;
+}
+
+.nav-link-premium::before {
+  content: "⚡";
+  margin-right: 0.25rem;
+}
+
+/* ===== Sentiment Section ===== */
+.sentiment-section {
+  margin-bottom: 3rem;
+}
+
+.sentiment-section h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.25rem;
+}
+
+.sentiment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.sentiment-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.sentiment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sentiment-icon {
+  font-size: 1.5rem;
+}
+
+.sentiment-header h3 {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Fear & Greed Styles */
+.sentiment-card.fear-greed {
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.fng-display {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.fng-value {
+  display: block;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.fng-label {
+  display: block;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.fng-bar-container {
+  background: var(--bg-dark);
+  border-radius: 8px;
+  height: 12px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.fng-bar {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.5s ease, background 0.5s ease;
+  background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #22c55e 100%);
+}
+
+.fng-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Funding Rate Styles */
+.sentiment-card.funding {
+  border-color: rgba(88, 166, 255, 0.3);
+}
+
+.funding-display {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.funding-display .metric-value {
+  display: block;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.funding-display .metric-value.positive {
+  color: var(--green);
+}
+
+.funding-display .metric-value.negative {
+  color: var(--red);
+}
+
+.funding-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.funding-desc {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+}
