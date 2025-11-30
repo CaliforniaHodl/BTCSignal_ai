@@ -1,0 +1,291 @@
+{{ define "main" }}
+<div class="container terms-page">
+
+  {{ if eq .File.Dir "terms/privacy-policy/" }}
+  <!-- Privacy Policy Content -->
+  <header class="terms-header">
+    <h1>Privacy Policy</h1>
+    <p class="last-updated">Last updated: {{ now.Format "January 2, 2006" }}</p>
+  </header>
+
+  <div class="terms-content">
+    <section class="terms-section">
+      <h2>The Short Version</h2>
+      <div class="highlight-box privacy">
+        <p><strong>We collect almost nothing.</strong> No accounts, no emails required, no tracking pixels, no selling data. We built BTC Signal AI to be as privacy-respecting as possible.</p>
+      </div>
+    </section>
+
+    <section class="terms-section">
+      <h2>1. Information We Don't Collect</h2>
+      <p>Unlike most websites, here's what we <strong>don't</strong> do:</p>
+      <ul>
+        <li>We don't require account creation</li>
+        <li>We don't ask for your name, email, or personal details to access content</li>
+        <li>We don't use tracking pixels or advertising cookies</li>
+        <li>We don't sell or share data with third parties</li>
+        <li>We don't store your Lightning wallet addresses</li>
+        <li>We don't track which specific content you view</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>2. Information That May Be Collected</h2>
+
+      <h3>Browser Local Storage</h3>
+      <p>We use your browser's local storage to remember:</p>
+      <ul>
+        <li>Which posts you've unlocked (so you don't have to pay again)</li>
+        <li>Your access pass expiration (hourly, daily, weekly)</li>
+        <li>Your theme preference (dark/light mode)</li>
+      </ul>
+      <p>This data stays on your device and is never sent to our servers. Clearing your browser data will reset this information.</p>
+
+      <h3>Newsletter Subscription (Optional)</h3>
+      <p>If you voluntarily subscribe to our newsletter, we collect your email address. This is:</p>
+      <ul>
+        <li>Stored securely with our email service provider</li>
+        <li>Used only to send you market updates</li>
+        <li>Never sold or shared with third parties</li>
+        <li>Easy to unsubscribe at any time</li>
+      </ul>
+
+      <h3>Server Logs</h3>
+      <p>Our hosting provider (Netlify) may collect standard server logs including:</p>
+      <ul>
+        <li>IP addresses</li>
+        <li>Browser type</li>
+        <li>Pages visited</li>
+        <li>Timestamps</li>
+      </ul>
+      <p>These logs are used for security and performance monitoring only and are automatically deleted after a short retention period.</p>
+
+      <h3>Lightning Payments</h3>
+      <p>When you make a Lightning payment:</p>
+      <ul>
+        <li>We receive a payment confirmation from our payment processor</li>
+        <li>We do not see your wallet address or identity</li>
+        <li>Payment records are minimal and used only to verify access</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>3. Cookies</h2>
+      <p>We use minimal, functional cookies only:</p>
+      <ul>
+        <li><strong>Essential cookies:</strong> Required for basic site functionality</li>
+        <li><strong>No advertising cookies:</strong> We don't show ads</li>
+        <li><strong>No third-party tracking:</strong> No Google Analytics, Facebook Pixel, etc.</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>4. Third-Party Services</h2>
+      <p>Our site interacts with the following external services:</p>
+      <ul>
+        <li><strong>Binance API:</strong> For real-time price data (no user data sent)</li>
+        <li><strong>CoinGecko API:</strong> For market data (no user data sent)</li>
+        <li><strong>Alternative.me API:</strong> For Fear & Greed Index (no user data sent)</li>
+        <li><strong>Netlify:</strong> Our hosting provider (<a href="https://www.netlify.com/privacy/" target="_blank" rel="noopener">their privacy policy</a>)</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>5. Data Security</h2>
+      <p>We protect your information by:</p>
+      <ul>
+        <li>Using HTTPS encryption for all connections</li>
+        <li>Not storing sensitive personal data in the first place</li>
+        <li>Using Lightning Network for payments (inherently private)</li>
+        <li>Keeping our codebase simple and auditable</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>6. Your Rights</h2>
+      <p>You have the right to:</p>
+      <ul>
+        <li>Clear your local storage at any time (removes all local data)</li>
+        <li>Unsubscribe from our newsletter if subscribed</li>
+        <li>Contact us with any privacy concerns</li>
+        <li>Request information about what data we have (spoiler: probably none)</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>7. Children's Privacy</h2>
+      <p>BTC Signal AI is not intended for users under 18 years of age. We do not knowingly collect information from children.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>8. Changes to This Policy</h2>
+      <p>We may update this privacy policy from time to time. Changes will be posted on this page with an updated revision date.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>9. Contact Us</h2>
+      <p>Questions about this privacy policy? Reach out:</p>
+      <ul>
+        <li>Twitter: <a href="https://twitter.com/BTCSignal_ai" target="_blank" rel="noopener">@BTCSignal_ai</a></li>
+      </ul>
+    </section>
+  </div>
+
+  {{ else if eq .File.Dir "terms/terms-of-use/" }}
+  <!-- Terms of Use Content -->
+  <header class="terms-header">
+    <h1>Terms of Use</h1>
+    <p class="last-updated">Last updated: {{ now.Format "January 2, 2006" }}</p>
+  </header>
+
+  <div class="terms-content">
+    <section class="terms-section">
+      <h2>The Important Part</h2>
+      <div class="highlight-box warning">
+        <p><strong>BTC Signal AI is an information service only.</strong> We do not provide financial advice, we do not trade on your behalf, and we do not guarantee any returns. Cryptocurrency trading is risky—you can lose money. By using this site, you accept full responsibility for your own trading decisions.</p>
+      </div>
+    </section>
+
+    <section class="terms-section">
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing or using BTC Signal AI ("the Service"), you agree to be bound by these Terms of Use. If you do not agree to these terms, do not use the Service.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>2. Description of Service</h2>
+      <p>BTC Signal AI provides:</p>
+      <ul>
+        <li>AI-generated Bitcoin market analysis</li>
+        <li>Trading signals with direction, confidence, and price targets</li>
+        <li>Market data dashboards and tools</li>
+        <li>Educational content about cryptocurrency trading</li>
+      </ul>
+      <p>The Service is provided on a pay-per-use basis via Lightning Network micropayments.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>3. What We Are NOT</h2>
+      <p>To be absolutely clear:</p>
+      <ul>
+        <li><strong>We are NOT financial advisors.</strong> Our content is for informational purposes only and does not constitute financial, investment, or trading advice.</li>
+        <li><strong>We are NOT a trading platform.</strong> We do not execute trades, hold funds, or have access to your exchange accounts.</li>
+        <li><strong>We are NOT guaranteeing profits.</strong> Past performance of our signals does not guarantee future results.</li>
+        <li><strong>We do NOT trade for you.</strong> All trading decisions are yours and yours alone.</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>4. Risk Disclosure</h2>
+      <div class="highlight-box danger">
+        <p><strong>Trading cryptocurrency involves substantial risk of loss.</strong> The cryptocurrency market is highly volatile. You should only trade with money you can afford to lose entirely. Never invest your emergency fund, retirement savings, or money needed for essential expenses.</p>
+      </div>
+      <p>By using our Service, you acknowledge that:</p>
+      <ul>
+        <li>You understand the risks of cryptocurrency trading</li>
+        <li>You are solely responsible for your trading decisions</li>
+        <li>Losses are possible and potentially significant</li>
+        <li>Our signals are one data point among many you should consider</li>
+        <li>You will conduct your own research before trading</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>5. No Guarantees</h2>
+      <p>We make no guarantees regarding:</p>
+      <ul>
+        <li>The accuracy of our AI-generated analysis</li>
+        <li>The profitability of any signal or recommendation</li>
+        <li>The availability or uptime of the Service</li>
+        <li>The timeliness of market data</li>
+      </ul>
+      <p>The Service is provided "as is" without warranties of any kind.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>6. Payment Terms</h2>
+      <p>Payments are made via Bitcoin Lightning Network:</p>
+      <ul>
+        <li><strong>Single Post:</strong> Unlocks one analysis permanently</li>
+        <li><strong>Time-Based Passes:</strong> Unlock all content for the specified duration</li>
+        <li><strong>No Refunds:</strong> Due to the instant nature of Lightning payments and immediate content delivery, all sales are final</li>
+        <li><strong>Access Storage:</strong> Your access is stored in your browser's local storage. Clearing browser data will reset your access.</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>7. Acceptable Use</h2>
+      <p>You agree NOT to:</p>
+      <ul>
+        <li>Redistribute, resell, or share paid content</li>
+        <li>Scrape, copy, or automatically collect our content</li>
+        <li>Attempt to circumvent our payment system</li>
+        <li>Use the Service for any illegal purpose</li>
+        <li>Interfere with the operation of the Service</li>
+        <li>Misrepresent our signals as your own analysis</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>8. Intellectual Property</h2>
+      <p>All content on BTC Signal AI, including but not limited to text, analysis, graphics, logos, and software, is the property of BTC Signal AI and is protected by copyright and other intellectual property laws.</p>
+      <p>You may not reproduce, distribute, or create derivative works from our content without explicit permission.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>9. Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law:</p>
+      <ul>
+        <li>BTC Signal AI shall not be liable for any trading losses you incur</li>
+        <li>We are not responsible for decisions made based on our content</li>
+        <li>Our total liability is limited to the amount you paid for the Service</li>
+        <li>We are not liable for any indirect, incidental, or consequential damages</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>10. Indemnification</h2>
+      <p>You agree to indemnify and hold harmless BTC Signal AI and its operators from any claims, damages, or expenses arising from your use of the Service or violation of these terms.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>11. Service Modifications</h2>
+      <p>We reserve the right to:</p>
+      <ul>
+        <li>Modify or discontinue the Service at any time</li>
+        <li>Change pricing with reasonable notice</li>
+        <li>Update these terms as needed</li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>12. Governing Law</h2>
+      <p>These terms shall be governed by and construed in accordance with applicable laws. Any disputes shall be resolved through good-faith negotiation first.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>13. Severability</h2>
+      <p>If any provision of these terms is found to be unenforceable, the remaining provisions will continue in full force and effect.</p>
+    </section>
+
+    <section class="terms-section">
+      <h2>14. Contact</h2>
+      <p>Questions about these terms? Contact us:</p>
+      <ul>
+        <li>Twitter: <a href="https://twitter.com/BTCSignal_ai" target="_blank" rel="noopener">@BTCSignal_ai</a></li>
+      </ul>
+    </section>
+
+    <section class="terms-section">
+      <h2>15. Acknowledgment</h2>
+      <p>By using BTC Signal AI, you acknowledge that you have read, understood, and agree to be bound by these Terms of Use.</p>
+    </section>
+  </div>
+
+  {{ end }}
+
+  <div class="terms-footer">
+    <a href="/" class="btn-back">Back to Home</a>
+  </div>
+
+</div>
+{{ end }}
