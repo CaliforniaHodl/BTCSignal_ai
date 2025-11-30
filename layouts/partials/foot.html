@@ -6,3 +6,19 @@
 
 <script defer src="{{ "src/js/bootstrap/popper.min.js" | relURL }}"></script>
 <script defer src="{{ "src/js/bootstrap/bootstrap.min.js" | relURL }}"></script>
+
+<!-- Page View Tracking (anonymous, count only) -->
+<script>
+(function() {
+  // Only track once per page load, skip bots
+  if (navigator.webdriver) return;
+
+  var page = window.location.pathname;
+
+  fetch('/.netlify/functions/track-view', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ page: page })
+  }).catch(function() {}); // Silent fail
+})();
+</script>
