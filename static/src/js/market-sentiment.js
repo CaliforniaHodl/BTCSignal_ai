@@ -70,24 +70,24 @@
 
   async function fetchFundingRate() {
     try {
-      const res = await fetch('https://api.alternative.me/fng/?limit=1');
+      // Real funding rate from Bybit (free, globally accessible)
+      const res = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
       const data = await res.json();
-      if (data && data.data && data.data[0]) {
-        const fngValue = parseInt(data.data[0].value);
-        const simulatedRate = ((fngValue - 50) / 50) * 0.05;
-        const rateStr = simulatedRate.toFixed(4) + '%';
+      if (data && data.result && data.result.list && data.result.list[0]) {
+        const fundingRate = parseFloat(data.result.list[0].fundingRate) * 100;
+        const rateStr = fundingRate.toFixed(4) + '%';
         elements.fundingValue.textContent = rateStr;
         let label;
-        if (simulatedRate > 0.02) {
+        if (fundingRate > 0.02) {
           label = 'Very Bullish';
           elements.fundingValue.className = 'funding-value-large very-positive';
-        } else if (simulatedRate > 0.005) {
+        } else if (fundingRate > 0.005) {
           label = 'Bullish';
           elements.fundingValue.className = 'funding-value-large positive';
-        } else if (simulatedRate > -0.005) {
+        } else if (fundingRate > -0.005) {
           label = 'Neutral';
           elements.fundingValue.className = 'funding-value-large neutral';
-        } else if (simulatedRate > -0.02) {
+        } else if (fundingRate > -0.02) {
           label = 'Bearish';
           elements.fundingValue.className = 'funding-value-large negative';
         } else {
@@ -98,8 +98,8 @@
         if (elements.heroFundingValue) {
           elements.heroFundingValue.textContent = rateStr;
           let heroColorClass = 'funding-quick-value';
-          if (simulatedRate > 0.005) heroColorClass += ' positive';
-          else if (simulatedRate < -0.005) heroColorClass += ' negative';
+          if (fundingRate > 0.005) heroColorClass += ' positive';
+          else if (fundingRate < -0.005) heroColorClass += ' negative';
           else heroColorClass += ' neutral';
           elements.heroFundingValue.className = heroColorClass;
         }
@@ -107,9 +107,9 @@
           elements.heroFundingLabel.textContent = label;
         }
         const maxRate = 0.05;
-        const normalizedRate = Math.max(-maxRate, Math.min(maxRate, simulatedRate));
+        const normalizedRate = Math.max(-maxRate, Math.min(maxRate, fundingRate));
         const percentage = (normalizedRate / maxRate) * 50;
-        if (simulatedRate >= 0) {
+        if (fundingRate >= 0) {
           elements.fundingFill.style.left = '50%';
           elements.fundingFill.style.width = percentage + '%';
           elements.fundingFill.className = 'funding-fill positive';

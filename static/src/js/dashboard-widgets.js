@@ -75,19 +75,15 @@
     }
   }
 
-  // Fetch Funding Rate from CoinGecko (using public API with CORS support)
+  // Fetch Funding Rate from Bybit (free, globally accessible)
   async function fetchFundingRate() {
     try {
-      // Use the mark price endpoint which includes funding rate and has better CORS
-      const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+      // Real funding rate from Bybit API
+      const res = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
       const data = await res.json();
 
-      if (data) {
-        // Estimate funding based on price premium (simplified)
-        const priceChange = parseFloat(data.priceChangePercent);
-        // Typical funding correlates with short-term price action
-        const estimatedRate = (priceChange / 100) * 0.01; // Rough estimate
-        const rate = estimatedRate * 100;
+      if (data && data.result && data.result.list && data.result.list[0]) {
+        const rate = parseFloat(data.result.list[0].fundingRate) * 100;
 
         elements.fundingValue.textContent = rate.toFixed(4) + '%';
 

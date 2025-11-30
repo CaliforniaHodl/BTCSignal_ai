@@ -109,14 +109,14 @@
     }
   }
 
-  // Load Funding Rates from CoinGecko
+  // Load Funding Rates from Bybit (free, globally accessible)
   async function loadFundingRates() {
     try {
-      const res = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
+      const res = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
       const data = await res.json();
 
-      if (data && data.length > 0) {
-        const rate = parseFloat(data[0].fundingRate) * 100;
+      if (data && data.result && data.result.list && data.result.list[0]) {
+        const rate = parseFloat(data.result.list[0].fundingRate) * 100;
         const fundingEl = document.getElementById('funding-rate');
         const fundingLabel = document.getElementById('funding-label');
 

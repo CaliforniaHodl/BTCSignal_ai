@@ -124,10 +124,10 @@
       document.getElementById('fear-greed-fill').className = 'fear-greed-fill ' +
         (fgValue < 25 ? 'extreme-fear' : fgValue < 45 ? 'fear' : fgValue < 55 ? 'neutral' : fgValue < 75 ? 'greed' : 'extreme-greed');
 
-      // Funding Rate from CoinGecko
-      const fundingRes = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
+      // Funding Rate from Bybit (free, globally accessible)
+      const fundingRes = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
       const fundingData = await fundingRes.json();
-      const fundingRate = (parseFloat(fundingData[0].fundingRate) * 100).toFixed(4);
+      const fundingRate = (parseFloat(fundingData.result.list[0].fundingRate) * 100).toFixed(4);
 
       document.getElementById('funding-rate').textContent = fundingRate + '%';
       document.getElementById('funding-bias').textContent = fundingRate > 0.01 ? 'Longs paying shorts' : fundingRate < -0.01 ? 'Shorts paying longs' : 'Neutral';
