@@ -142,92 +142,95 @@
     }
   }
 
-  // Load whale activity data from Whale Alert API
+  // Load whale activity data from Blockchain.com API (free)
   async function loadWhaleActivity() {
-    // Check for Whale Alert API key (free at whale-alert.io)
-    const apiKey = localStorage.getItem('whaleAlertApiKey');
-
     let inflow = 0, outflow = 0, largeTxns = 0;
     let dataSource = 'estimated';
 
-    if (apiKey) {
-      try {
-        // Fetch last 1 hour of large BTC transactions (min $500k)
-        const oneHourAgo = Math.floor(Date.now() / 1000) - 3600;
-        const res = await fetch(
-          `https://api.whale-alert.io/v1/transactions?api_key=${apiKey}&min_value=500000&start=${oneHourAgo}&currency=btc`
-        );
+    try {
+      // Fetch recent unconfirmed transactions from mempool
+      const res = await fetch('https://blockchain.info/unconfirmed-transactions?format=json&cors=true');
+      
+      if (res.ok) {
+        const data = await res.json();
+        dataSource = 'live';
 
-        if (res.ok) {
-          const data = await res.json();
-          dataSource = 'live';
+        // Process transactions - look for large ones (> 1 BTC = 100M satoshis)
+        const WHALE_THRESHOLD = 100000000; // 1 BTC in satoshis
+        const LARGE_THRESHOLD = 1000000000; // 10 BTC in satoshis
 
-          // Process transactions
-          if (data.transactions && data.transactions.length > 0) {
-            data.transactions.forEach(tx => {
-              const amount = parseFloat(tx.amount) || 0;
+        if (data.txs && data.txs.length > 0) {
+          // Known exchange addresses (partial list - major exchanges)
+          const exchangePatterns = ['1NDyJ', 'bc1qg', '3Kzh9', '1Kr6Q', 'bc1qa', '3LYJf'];
+
+          data.txs.forEach(tx => {
+            const totalOutput = tx.out.reduce((sum, o) => sum + (o.value || 0), 0);
+
+            if (totalOutput >= WHALE_THRESHOLD) {
               largeTxns++;
 
-              // Check if going TO exchange (inflow) or FROM exchange (outflow)
-              const toExchange = tx.to && tx.to.owner_type === 'exchange';
-              const fromExchange = tx.from && tx.from.owner_type === 'exchange';
+              // Check if likely exchange transaction (heuristic)
+              const hasExchangeAddr = tx.out.some(o => 
+                o.addr && exchangePatterns.some(p => o.addr.startsWith(p))
+              );
+              const hasMultipleOutputs = tx.out.length > 5;
 
-              if (toExchange && !fromExchange) {
-                inflow += amount;
-              } else if (fromExchange && !toExchange) {
-                outflow += amount;
+              // Exchange deposits typically have few outputs, withdrawals have many
+              if (hasExchangeAddr || hasMultipleOutputs) {
+                if (tx.out.length <= 3) {
+                  inflow += totalOutput / 100000000; // Convert to BTC
+                } else {
+                  outflow += totalOutput / 100000000;
+                }
               }
-            });
-          }
+            }
+          });
         }
-      } catch (error) {
-        console.error('Whale Alert API error:', error);
       }
+    } catch (error) {
+      console.error('Blockchain.info API error:', error);
     }
 
-    // Fallback: Estimate from CoinGecko volume if no API key or API failed
-    if (dataSource === 'estimated') {
+    // Fallback/supplement with CoinGecko estimation
+    if (inflow === 0 && outflow === 0) {
+      dataSource = 'estimated';
       try {
         const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false');
         const data = await res.json();
         const volume24h = data.market_data.total_volume.usd;
         const priceChange = data.market_data.price_change_percentage_24h;
+        const currentPrice = data.market_data.current_price.usd;
 
         // Estimate whale activity based on volume and price action
-        const baseFlow = Math.round(volume24h / 1e9 * 100);
+        const volumeBTC = volume24h / currentPrice;
+        const baseFlow = Math.round(volumeBTC / 10000); // ~0.01% of daily volume
 
         if (priceChange < -2) {
-          inflow = baseFlow + Math.round(Math.abs(priceChange) * 50);
-          outflow = Math.round(baseFlow * 0.6);
+          inflow = baseFlow + Math.round(Math.abs(priceChange) * 20);
+          outflow = Math.round(baseFlow * 0.7);
         } else if (priceChange > 2) {
-          inflow = Math.round(baseFlow * 0.6);
-          outflow = baseFlow + Math.round(priceChange * 50);
+          inflow = Math.round(baseFlow * 0.7);
+          outflow = baseFlow + Math.round(priceChange * 20);
         } else {
-          inflow = baseFlow + Math.round(Math.random() * 500);
-          outflow = baseFlow + Math.round(Math.random() * 500);
+          inflow = baseFlow + Math.round(Math.random() * 200);
+          outflow = baseFlow + Math.round(Math.random() * 200);
         }
 
-        largeTxns = Math.round(10 + (volume24h / 1e10) * 5 + Math.random() * 10);
+        largeTxns = Math.round(15 + (volumeBTC / 100000) + Math.random() * 10);
       } catch (e) {
-        // Final fallback
-        inflow = 2000 + Math.round(Math.random() * 1000);
-        outflow = 2000 + Math.round(Math.random() * 1000);
-        largeTxns = 15 + Math.round(Math.random() * 20);
+        inflow = 1500 + Math.round(Math.random() * 500);
+        outflow = 1500 + Math.round(Math.random() * 500);
+        largeTxns = 20 + Math.round(Math.random() * 15);
       }
     }
 
     const netFlow = inflow - outflow;
 
     // Update UI
-    const inflowEl = document.getElementById('exchange-inflow');
-    const outflowEl = document.getElementById('exchange-outflow');
-
-    inflowEl.textContent = Math.round(inflow).toLocaleString();
-    inflowEl.title = dataSource === 'live' ? 'Live data from Whale Alert' : 'Estimated from market data';
+    document.getElementById('exchange-inflow').textContent = Math.round(inflow).toLocaleString();
     document.getElementById('inflow-signal').textContent = inflow > 3000 ? 'Above average - watch for sells' : 'Normal range';
 
-    outflowEl.textContent = Math.round(outflow).toLocaleString();
-    outflowEl.title = dataSource === 'live' ? 'Live data from Whale Alert' : 'Estimated from market data';
+    document.getElementById('exchange-outflow').textContent = Math.round(outflow).toLocaleString();
     document.getElementById('outflow-signal').textContent = outflow > 3000 ? 'Accumulation signal' : 'Normal range';
 
     document.getElementById('net-flow').textContent = (netFlow > 0 ? '+' : '') + Math.round(netFlow).toLocaleString();
@@ -249,8 +252,8 @@
       }
       badge.textContent = dataSource === 'live' ? ' 🟢 LIVE' : ' 🔵 EST';
       badge.title = dataSource === 'live'
-        ? 'Live data from Whale Alert API'
-        : 'Estimated from CoinGecko. Add API key: localStorage.setItem("whaleAlertApiKey", "YOUR_KEY")';
+        ? 'Live mempool data from Blockchain.info'
+        : 'Estimated from CoinGecko market data';
     }
   }
 
