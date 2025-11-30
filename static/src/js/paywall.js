@@ -8,15 +8,15 @@
 
   // DOM elements (get these first so unlockContent works)
   const paywallOverlay = document.getElementById('paywall-overlay');
-  const articleContent = document.getElementById('article-content');
 
-  // Unlock the content - defined early so it can be called from checks below
+  // Unlock the content - adds 'unlocked' class which CSS uses to swap fake/real content
   function unlockContent() {
+    // Add unlocked class to container - CSS handles showing real content, hiding fake
+    container.classList.add('unlocked');
+
+    // Also explicitly hide overlay (redundant with CSS but ensures it's hidden)
     if (paywallOverlay) {
       paywallOverlay.style.display = 'none';
-    }
-    if (articleContent) {
-      articleContent.classList.remove('blurred');
     }
   }
 

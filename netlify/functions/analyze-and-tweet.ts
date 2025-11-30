@@ -76,8 +76,26 @@ export default async (req: Request, context: Context) => {
     // Identify patterns
     const patterns = technicalAnalyzer.identifyPatterns(marketData.data, indicators);
 
-    // Generate prediction
-    const prediction = predictionEngine.predict(marketData.data, indicators, patterns);
+    // Fetch derivatives data BEFORE prediction so we can use it in signal scoring
+    console.log('Fetching derivatives data...');
+    let derivativesData = null;
+    try {
+      // We need current price for derivatives analysis
+      const currentPriceForDerivatives = marketData.data[marketData.data.length - 1].close;
+      const startPriceForDerivatives = marketData.data[0].close;
+      const priceChange24hForDerivatives = ((currentPriceForDerivatives - startPriceForDerivatives) / startPriceForDerivatives) * 100;
+      derivativesData = await derivativesAnalyzer.getDerivativesData(currentPriceForDerivatives, priceChange24hForDerivatives);
+      console.log('Derivatives data fetched:', {
+        fundingRate: derivativesData.fundingRate?.fundingRate,
+        openInterest: derivativesData.openInterest?.openInterestValue,
+        squeezeType: derivativesData.squeezeAlert.type,
+      });
+    } catch (derivativesError: any) {
+      console.error('Failed to fetch derivatives data:', derivativesError.message);
+    }
+
+    // Generate prediction (now includes derivatives data)
+    const prediction = predictionEngine.predict(marketData.data, indicators, patterns, derivativesData || undefined);
 
     // Calculate price metrics
     const currentPrice = marketData.data[marketData.data.length - 1].close;
@@ -112,6 +130,7 @@ export default async (req: Request, context: Context) => {
       indicators,
       patterns,
       timestamp: new Date(),
+      derivativesData,
     };
 
     // Generate thread tweets
@@ -119,35 +138,21 @@ export default async (req: Request, context: Context) => {
     const threadArray = blogGenerator.getThreadArray(thread);
     console.log('Generated thread with', threadArray.length, 'tweets');
 
-    // Generate markdown blog post with thread format
-    const blogMarkdown = blogGenerator.generateMarkdown(analysis, historicalCalls);
-    const filename = blogGenerator.generateFilename(analysis);
-    console.log('Generated blog post:', filename);
-
-    // Save post to GitHub (triggers Netlify rebuild)
-    const postSaved = await savePostToGitHub(filename, blogMarkdown);
-
-    // Add new call to historical tracking
-    if ((prediction.direction === 'up' || prediction.direction === 'down') && prediction.targetPrice) {
-      const newCall = historicalTracker.createCallFromAnalysis(
-        analysis.timestamp,
-        prediction.direction,
-        prediction.confidence,
-        currentPrice,
-        prediction.targetPrice
-      );
-      await historicalTracker.addCall(newCall);
-      console.log('Added new call to historical tracking');
-    }
-
-    // Post thread to Twitter (if credentials are set)
+    // Post thread to Twitter FIRST (so we can include tweet URL in blog post)
     let threadResult = null;
+    let firstTweetId: string | null = null;
     let derivativesAlerts: string[] = [];
     if (process.env.TWITTER_API_KEY) {
       try {
         const twitterClient = new TwitterClient();
         threadResult = await twitterClient.postThread(threadArray);
         console.log('Thread posted:', threadResult.length, 'tweets');
+
+        // Capture first tweet ID for blog post link
+        if (threadResult.length > 0) {
+          firstTweetId = threadResult[0].id;
+          console.log('First tweet ID:', firstTweetId);
+        }
 
         // Fetch derivatives data and post separate alerts if needed
         console.log('Checking derivatives data for alerts...');
@@ -188,6 +193,27 @@ export default async (req: Request, context: Context) => {
       }
     } else {
       console.log('Twitter credentials not set, skipping thread');
+    }
+
+    // Generate markdown blog post with tweet URL (if available)
+    const blogMarkdown = blogGenerator.generateMarkdown(analysis, historicalCalls, firstTweetId);
+    const filename = blogGenerator.generateFilename(analysis);
+    console.log('Generated blog post:', filename);
+
+    // Save post to GitHub (triggers Netlify rebuild)
+    const postSaved = await savePostToGitHub(filename, blogMarkdown);
+
+    // Add new call to historical tracking
+    if ((prediction.direction === 'up' || prediction.direction === 'down') && prediction.targetPrice) {
+      const newCall = historicalTracker.createCallFromAnalysis(
+        analysis.timestamp,
+        prediction.direction,
+        prediction.confidence,
+        currentPrice,
+        prediction.targetPrice
+      );
+      await historicalTracker.addCall(newCall);
+      console.log('Added new call to historical tracking');
     }
 
     // Return result
