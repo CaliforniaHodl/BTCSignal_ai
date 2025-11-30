@@ -1,0 +1,189 @@
+// Terms & Privacy Pages Styles
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.terms-page {
+  padding: 32px 0;
+  max-width: 800px;
+  margin: 0 auto;
+
+  @media (max-width: 767px) {
+    padding: 24px 0;
+  }
+}
+
+.terms-header {
+  text-align: center;
+  margin-bottom: 48px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
+
+  h1 {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+
+    @media (max-width: 767px) {
+      font-size: 1.5rem;
+    }
+  }
+
+  .last-updated {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+}
+
+.terms-content {
+  .terms-section {
+    margin-bottom: 40px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      color: var(--text-primary);
+      margin: 0 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--bitcoin-orange);
+      display: inline-block;
+
+      @media (max-width: 767px) {
+        font-size: 1.125rem;
+      }
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin: 24px 0 12px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin: 0 0 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      strong {
+        color: var(--text-primary);
+      }
+
+      a {
+        color: var(--bitcoin-orange);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    ul, ol {
+      color: var(--text-secondary);
+      margin: 0 0 16px;
+      padding-left: 24px;
+      line-height: 1.8;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      li {
+        margin-bottom: 8px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        strong {
+          color: var(--text-primary);
+        }
+
+        a {
+          color: var(--bitcoin-orange);
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Highlight Boxes
+.highlight-box {
+  padding: 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+
+  p {
+    margin: 0;
+
+    strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+  }
+
+  &.privacy {
+    background: linear-gradient(135deg, rgba(63, 185, 80, 0.1) 0%, var(--bg-card) 100%);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+    border-left: 4px solid var(--green);
+
+    strong {
+      color: var(--green);
+    }
+  }
+
+  &.warning {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--bg-card) 100%);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+    border-left: 4px solid var(--bitcoin-orange);
+
+    strong {
+      color: var(--bitcoin-orange);
+    }
+  }
+
+  &.danger {
+    background: linear-gradient(135deg, rgba(248, 81, 73, 0.1) 0%, var(--bg-card) 100%);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+    border-left: 4px solid var(--red);
+
+    strong {
+      color: var(--red);
+    }
+  }
+}
+
+// Footer
+.terms-footer {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+
+  .btn-back {
+    display: inline-block;
+    padding: 12px 24px;
+    color: var(--bitcoin-orange);
+    border: 1px solid var(--bitcoin-orange);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(247, 147, 26, 0.1);
+    }
+  }
+}
