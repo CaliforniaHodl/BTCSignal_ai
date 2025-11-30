@@ -7,4 +7,5 @@ image: 'og-image.png'
 keywords: 'Bitcoin liquidation map, BTC liquidation heatmap, crypto liquidations, leverage trading, liquidation levels, price magnet'
 layout: "single"
 priority: 0.8
+css: ['premium-features.scss']
 ---

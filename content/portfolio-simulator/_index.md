@@ -7,4 +7,5 @@ image: 'og-image.png'
 keywords: 'Bitcoin portfolio simulator, BTC strategy backtester, crypto trading simulator, what if trading scenarios'
 layout: "single"
 priority: 0.8
+css: ['premium-features.scss']
 ---
