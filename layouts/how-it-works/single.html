@@ -1,0 +1,284 @@
+{{ define "main" }}
+<div class="container how-it-works-page">
+
+  <!-- Hero Section -->
+  <header class="hiw-hero">
+    <h1>How BTC Signal AI Works</h1>
+    <p class="hero-subtitle">A transparent look at our signal generation process</p>
+  </header>
+
+  <!-- Process Overview -->
+  <section class="hiw-section overview-section">
+    <h2>The Signal Generation Process</h2>
+    <p class="section-intro">Every signal we publish follows the same rigorous 4-step process. No human bias, no emotional trading—just data-driven analysis.</p>
+
+    <div class="process-timeline">
+      <div class="process-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Data Collection</h3>
+          <p>We gather real-time data from multiple trusted sources every hour.</p>
+          <div class="step-details">
+            <span class="detail-tag">&#128200; Price Data</span>
+            <span class="detail-tag">&#128202; Volume</span>
+            <span class="detail-tag">&#128201; Indicators</span>
+            <span class="detail-tag">&#128176; On-Chain</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>AI Analysis</h3>
+          <p>Claude AI processes all data points through our custom-engineered prompts.</p>
+          <div class="step-details">
+            <span class="detail-tag">&#129302; Claude AI</span>
+            <span class="detail-tag">&#128161; Pattern Recognition</span>
+            <span class="detail-tag">&#127919; Multi-Factor</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Signal Generation</h3>
+          <p>The AI outputs a structured analysis with direction, confidence, and targets.</p>
+          <div class="step-details">
+            <span class="detail-tag">&#9650; Direction</span>
+            <span class="detail-tag">&#127919; Confidence</span>
+            <span class="detail-tag">&#127937; Targets</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Publication</h3>
+          <p>Signals are timestamped and published for transparent tracking.</p>
+          <div class="step-details">
+            <span class="detail-tag">&#128337; Timestamped</span>
+            <span class="detail-tag">&#128202; Tracked</span>
+            <span class="detail-tag">&#9989; Verifiable</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Sources -->
+  <section class="hiw-section sources-section">
+    <h2>Our Data Sources</h2>
+    <p class="section-intro">We only use trusted, publicly verifiable data sources. You can verify any data point yourself.</p>
+
+    <div class="sources-grid">
+      <div class="source-card">
+        <div class="source-logo">&#128178;</div>
+        <h3>Binance</h3>
+        <p>Real-time BTC price, 24h volume, price changes, and historical candlestick data.</p>
+        <span class="source-type">Price & Volume</span>
+      </div>
+
+      <div class="source-card">
+        <div class="source-logo">&#129689;</div>
+        <h3>CoinGecko</h3>
+        <p>Bitcoin dominance, market cap rankings, and broader market context.</p>
+        <span class="source-type">Market Data</span>
+      </div>
+
+      <div class="source-card">
+        <div class="source-logo">&#128200;</div>
+        <h3>Alternative.me</h3>
+        <p>Fear & Greed Index—a composite measure of market sentiment.</p>
+        <span class="source-type">Sentiment</span>
+      </div>
+
+      <div class="source-card">
+        <div class="source-logo">&#9939;</div>
+        <h3>Blockchain.info</h3>
+        <p>Network hashrate, difficulty adjustments, and on-chain metrics.</p>
+        <span class="source-type">On-Chain</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Analysis Deep Dive -->
+  <section class="hiw-section analysis-section">
+    <h2>What the AI Analyzes</h2>
+    <p class="section-intro">Our AI doesn't just look at price. It evaluates multiple factors to form a comprehensive market view.</p>
+
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <div class="analysis-icon">&#128200;</div>
+        <h3>Technical Indicators</h3>
+        <ul>
+          <li><strong>RSI (14)</strong> — Overbought/oversold conditions</li>
+          <li><strong>MACD</strong> — Momentum and trend direction</li>
+          <li><strong>Bollinger Bands</strong> — Volatility and price extremes</li>
+          <li><strong>Moving Averages</strong> — Short and long-term trends</li>
+        </ul>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-icon">&#128202;</div>
+        <h3>Market Structure</h3>
+        <ul>
+          <li><strong>Support/Resistance</strong> — Key price levels</li>
+          <li><strong>Chart Patterns</strong> — Formations and breakouts</li>
+          <li><strong>Volume Profile</strong> — Where money is flowing</li>
+          <li><strong>Price Action</strong> — Recent candle behavior</li>
+        </ul>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-icon">&#128176;</div>
+        <h3>Sentiment & Flow</h3>
+        <ul>
+          <li><strong>Fear & Greed</strong> — Market emotion index</li>
+          <li><strong>Funding Rates</strong> — Derivatives market bias</li>
+          <li><strong>Long/Short Ratio</strong> — Trader positioning</li>
+          <li><strong>Buy/Sell Ratio</strong> — Order flow analysis</li>
+        </ul>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-icon">&#9939;</div>
+        <h3>On-Chain Metrics</h3>
+        <ul>
+          <li><strong>Hashrate</strong> — Network security and miner activity</li>
+          <li><strong>Difficulty</strong> — Mining competition</li>
+          <li><strong>BTC Dominance</strong> — Bitcoin vs altcoins</li>
+          <li><strong>Exchange Flows</strong> — Deposit/withdrawal trends</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Signal Anatomy -->
+  <section class="hiw-section anatomy-section">
+    <h2>Anatomy of a Signal</h2>
+    <p class="section-intro">Here's what you get with each analysis we publish.</p>
+
+    <div class="signal-example">
+      <div class="signal-header">
+        <span class="signal-label">Example Signal</span>
+        <span class="signal-time">Published: Nov 29, 2024 • 12:00 UTC</span>
+      </div>
+
+      <div class="signal-body">
+        <div class="signal-component">
+          <div class="component-label">Direction</div>
+          <div class="component-value bullish">
+            <span class="direction-arrow">&#9650;</span>
+            <span>BULLISH</span>
+          </div>
+          <p class="component-desc">AI's assessment of short-term price direction (12-24 hours)</p>
+        </div>
+
+        <div class="signal-component">
+          <div class="component-label">Confidence</div>
+          <div class="component-value">
+            <div class="confidence-bar">
+              <div class="confidence-fill" style="width: 75%"></div>
+            </div>
+            <span class="confidence-text">75%</span>
+          </div>
+          <p class="component-desc">How strongly the indicators align (0-100%)</p>
+        </div>
+
+        <div class="signal-component">
+          <div class="component-label">Target Price</div>
+          <div class="component-value">$98,500</div>
+          <p class="component-desc">Expected price if signal plays out correctly</p>
+        </div>
+
+        <div class="signal-component">
+          <div class="component-label">Stop Loss</div>
+          <div class="component-value warning">$93,000</div>
+          <p class="component-desc">Suggested invalidation level for risk management</p>
+        </div>
+
+        <div class="signal-component full-width">
+          <div class="component-label">Analysis Summary</div>
+          <div class="component-value analysis-text">
+            "BTC showing strength above $95K with RSI at 58 (neutral-bullish), positive MACD crossover on 4H, and Fear & Greed at 72 (Greed). Funding rates slightly positive suggesting room for upside. Key resistance at $98K, support at $93K."
+          </div>
+          <p class="component-desc">Human-readable explanation of the AI's reasoning</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Don't Do -->
+  <section class="hiw-section dont-section">
+    <h2>What We Don't Do</h2>
+    <div class="dont-grid">
+      <div class="dont-card">
+        <span class="dont-icon">&#10060;</span>
+        <h3>No Trade Execution</h3>
+        <p>We never access your exchange accounts or execute trades. All trading decisions are yours.</p>
+      </div>
+
+      <div class="dont-card">
+        <span class="dont-icon">&#10060;</span>
+        <h3>No Cherry-Picking</h3>
+        <p>Every signal is timestamped and tracked. We show all results—wins and losses alike.</p>
+      </div>
+
+      <div class="dont-card">
+        <span class="dont-icon">&#10060;</span>
+        <h3>No Hidden Agendas</h3>
+        <p>Our AI has no bags to pump, no tokens to shill. Pure data-driven analysis.</p>
+      </div>
+
+      <div class="dont-card">
+        <span class="dont-icon">&#10060;</span>
+        <h3>No Guaranteed Returns</h3>
+        <p>Trading is risky. We provide information, not promises. Past signals don't guarantee future results.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Accuracy & Transparency -->
+  <section class="hiw-section transparency-section">
+    <h2>Our Commitment to Transparency</h2>
+
+    <div class="transparency-content">
+      <div class="transparency-block">
+        <h3>&#128202; Every Signal is Tracked</h3>
+        <p>We timestamp every prediction and track whether it hit the target, stopped out, or expired. View our full track record on the <a href="/dashboard/">Dashboard</a>.</p>
+      </div>
+
+      <div class="transparency-block">
+        <h3>&#128269; Verifiable Data Sources</h3>
+        <p>All our data comes from public APIs. You can verify any data point we reference using the same sources.</p>
+      </div>
+
+      <div class="transparency-block">
+        <h3>&#128221; Published Methodology</h3>
+        <p>This page explains exactly how we generate signals. No black boxes, no secret sauce—just systematic analysis.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Teaser -->
+  <section class="hiw-section faq-teaser">
+    <h2>Still Have Questions?</h2>
+    <p>Check out our comprehensive FAQ for answers about payments, data accuracy, and more.</p>
+    <a href="/faq/" class="btn-secondary">View FAQ</a>
+  </section>
+
+  <!-- CTA -->
+  <section class="hiw-cta">
+    <h2>Ready to See It in Action?</h2>
+    <p>View our latest AI-generated analysis or explore the premium dashboard.</p>
+    <div class="cta-buttons">
+      <a href="/posts/" class="btn-primary">View Latest Analysis</a>
+      <a href="/pricing/" class="btn-secondary">See Pricing</a>
+    </div>
+  </section>
+
+</div>
+{{ end }}
