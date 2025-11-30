@@ -5,20 +5,135 @@
     <div class="lock-message">
       <div class="lightning-icon">🔒</div>
       <h2>Premium Dashboard</h2>
-      <p>Unlock any analysis post to access the premium dashboard</p>
-      <a href="/posts/" class="btn-lightning">View Analysis Posts</a>
+      <p>Get access to advanced trading tools and real-time market data</p>
+      <a href="/pricing/" class="btn-lightning">View Pricing</a>
     </div>
   </div>
 
   <div class="dashboard-content" id="dashboard-content" style="display: none;">
     <header class="dashboard-header">
-      <h1>Premium Dashboard</h1>
-      <p class="subtitle">Performance metrics & liquidation watchlist</p>
+      <h1>Pro Trading Dashboard</h1>
+      <p class="subtitle">Real-time market intelligence & performance analytics</p>
     </header>
 
-    <!-- Win/Loss Stats -->
+    <!-- Market Sentiment Grid - Market Sentiment Style Widgets (3x more) -->
+    <section class="dashboard-widgets">
+      <h2>Market Intelligence</h2>
+      <p class="section-desc">Real-time sentiment indicators and market metrics</p>
+      <div class="dashboard-grid">
+        <!-- Fear & Greed Widget -->
+        <div class="widget-card widget-fng">
+          <div class="widget-header">
+            <span class="widget-icon">😱</span>
+            <h3>Fear & Greed Index</h3>
+          </div>
+          <div class="widget-value" id="dash-fng-value">--</div>
+          <div class="widget-label" id="dash-fng-label">Loading...</div>
+          <div class="widget-chart">
+            <div class="fng-gradient-bar">
+              <div class="fng-indicator" id="dash-fng-indicator" style="left: 50%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Funding Rate Widget -->
+        <div class="widget-card widget-funding">
+          <div class="widget-header">
+            <span class="widget-icon">💰</span>
+            <h3>BTC Funding Rate</h3>
+          </div>
+          <div class="widget-value" id="dash-funding-value">--</div>
+          <div class="widget-label" id="dash-funding-label">Loading...</div>
+          <div class="widget-sublabel">8h perpetual rate</div>
+        </div>
+
+        <!-- Open Interest Widget -->
+        <div class="widget-card widget-volume">
+          <div class="widget-header">
+            <span class="widget-icon">📊</span>
+            <h3>Open Interest</h3>
+          </div>
+          <div class="widget-value" id="dash-oi-value">--</div>
+          <div class="widget-label" id="dash-oi-change">Loading...</div>
+          <div class="widget-sublabel">Total leveraged positions</div>
+        </div>
+
+        <!-- Buy/Sell Volume Widget -->
+        <div class="widget-card widget-signals">
+          <div class="widget-header">
+            <span class="widget-icon">⚖️</span>
+            <h3>Buy/Sell Ratio</h3>
+          </div>
+          <div class="widget-value" id="dash-ratio-value">--</div>
+          <div class="widget-label" id="dash-ratio-label">Loading...</div>
+          <div class="widget-chart">
+            <div class="vol-bar-container" id="dash-vol-bars">
+              <div class="vol-bar buy" style="width: 50%"></div>
+              <div class="vol-bar sell" style="width: 50%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Long/Short Ratio Widget -->
+        <div class="widget-card widget-performance">
+          <div class="widget-header">
+            <span class="widget-icon">📈</span>
+            <h3>Long/Short Ratio</h3>
+          </div>
+          <div class="widget-value" id="dash-ls-value">--</div>
+          <div class="widget-label" id="dash-ls-label">Loading...</div>
+          <div class="widget-sublabel">Top traders positioning</div>
+        </div>
+
+        <!-- Liquidations 24h Widget -->
+        <div class="widget-card widget-liquidation">
+          <div class="widget-header">
+            <span class="widget-icon">🔥</span>
+            <h3>24h Liquidations</h3>
+          </div>
+          <div class="widget-value" id="dash-liq-value">--</div>
+          <div class="widget-label" id="dash-liq-label">Loading...</div>
+          <div class="widget-sublabel">Long vs Short breakdown</div>
+        </div>
+
+        <!-- RSI Widget -->
+        <div class="widget-card widget-patterns">
+          <div class="widget-header">
+            <span class="widget-icon">📉</span>
+            <h3>RSI (14)</h3>
+          </div>
+          <div class="widget-value" id="dash-rsi-value">--</div>
+          <div class="widget-label" id="dash-rsi-label">Loading...</div>
+          <div class="widget-sublabel">4H timeframe</div>
+        </div>
+
+        <!-- Volatility Widget -->
+        <div class="widget-card widget-alerts">
+          <div class="widget-header">
+            <span class="widget-icon">⚡</span>
+            <h3>Volatility Index</h3>
+          </div>
+          <div class="widget-value" id="dash-vol-value">--</div>
+          <div class="widget-label" id="dash-vol-label">Loading...</div>
+          <div class="widget-sublabel">24h price range %</div>
+        </div>
+
+        <!-- Dominance Widget -->
+        <div class="widget-card widget-calendar">
+          <div class="widget-header">
+            <span class="widget-icon">👑</span>
+            <h3>BTC Dominance</h3>
+          </div>
+          <div class="widget-value" id="dash-dom-value">--</div>
+          <div class="widget-label" id="dash-dom-label">Loading...</div>
+          <div class="widget-sublabel">Market share</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Stats -->
     <section class="stats-section">
-      <h2>Performance Overview</h2>
+      <h2>Signal Performance</h2>
       <div class="stats-grid">
         <div class="stat-card win">
           <span class="stat-number" id="win-count">-</span>
@@ -70,45 +185,6 @@
       </div>
     </section>
 
-    <!-- Market Sentiment Section -->
-    <section class="sentiment-section">
-      <h2>Market Sentiment</h2>
-      <div class="sentiment-grid">
-        <!-- Fear & Greed Index -->
-        <div class="sentiment-card fear-greed">
-          <div class="sentiment-header">
-            <span class="sentiment-icon">😱</span>
-            <h3>Fear & Greed Index</h3>
-          </div>
-          <div class="fng-display">
-            <span class="fng-value" id="fng-value">--</span>
-            <span class="fng-label" id="fng-label">Loading...</span>
-          </div>
-          <div class="fng-bar-container">
-            <div class="fng-bar" id="fng-bar" style="width: 0%"></div>
-          </div>
-          <div class="fng-scale">
-            <span>Extreme Fear</span>
-            <span>Neutral</span>
-            <span>Extreme Greed</span>
-          </div>
-        </div>
-
-        <!-- Funding Rate -->
-        <div class="sentiment-card funding">
-          <div class="sentiment-header">
-            <span class="sentiment-icon">💰</span>
-            <h3>BTC Funding Rate</h3>
-          </div>
-          <div class="funding-display">
-            <span class="metric-value" id="funding-rate">--</span>
-            <span class="funding-label" id="funding-label">Loading...</span>
-          </div>
-          <p class="funding-desc">8h perpetual funding rate on Binance</p>
-        </div>
-      </div>
-    </section>
-
     <!-- Charts -->
     <section class="charts-section">
       <div class="chart-container">
@@ -125,7 +201,7 @@
     <section class="liquidation-section">
       <h2>Liquidation Watchlist</h2>
       <p class="section-desc">Key price levels where large liquidations may occur</p>
-      
+
       <div class="liquidation-grid">
         <div class="liquidation-card long">
           <div class="liq-header">
@@ -139,7 +215,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="liquidation-card short">
           <div class="liq-header">
             <span class="liq-type">📉 SHORT LIQUIDATIONS</span>
@@ -185,4 +261,5 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="{{ "src/js/dashboard.js" | relURL }}"></script>
+<script src="{{ "src/js/dashboard-widgets.js" | relURL }}"></script>
 {{ end }}

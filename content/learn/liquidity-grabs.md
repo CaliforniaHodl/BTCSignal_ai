@@ -4,6 +4,8 @@ description: "Understanding liquidity grabs and stop hunts in Bitcoin trading - 
 date: 2024-11-28
 slug: "liquidity-grabs"
 tags: ["education", "liquidity", "smart-money"]
+icon: "💧"
+category: "fundamentals"
 priority: 0.5
 ---
 

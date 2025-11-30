@@ -9,16 +9,36 @@
     {{ range .Pages.ByDate.Reverse }}
     <a href="{{ .Permalink }}" class="article-card">
       <div class="article-icon">
-        {{ if in .Title "Market Structure" }}📊{{ end }}
-        {{ if in .Title "Liquidity" }}💧{{ end }}
-        {{ if in .Title "Fair Value" }}📐{{ end }}
-        {{ if in .Title "Order Block" }}🏛️{{ end }}
-        {{ if in .Title "Swing Failure" }}🔄{{ end }}
+        {{/* Use frontmatter icon if available, otherwise match by title */}}
+        {{ if .Params.icon }}
+          {{ .Params.icon }}
+        {{ else if in .Title "Market Structure" }}📊
+        {{ else if in .Title "Liquidity Grab" }}💧
+        {{ else if in .Title "Fair Value" }}📐
+        {{ else if in .Title "Order Block" }}🏛️
+        {{ else if in .Title "Swing Failure" }}🔄
+        {{ else if in .Title "RSI" }}📈
+        {{ else if in .Title "MACD" }}📉
+        {{ else if in .Title "Bollinger" }}📏
+        {{ else if in .Title "EMA" }}〰️
+        {{ else if in .Title "SMA" }}〰️
+        {{ else if in .Title "Candlestick" }}🕯️
+        {{ else if in .Title "Support" }}🛡️
+        {{ else if in .Title "Resistance" }}🛡️
+        {{ else if in .Title "Fibonacci" }}🔢
+        {{ else if in .Title "Volume" }}📊
+        {{ else if in .Title "Risk" }}⚠️
+        {{ else if in .Title "Psychology" }}🧠
+        {{ else if in .Title "Fear" }}😱
+        {{ else if in .Title "Greed" }}😱
+        {{ else if in .Title "Funding" }}💰
+        {{ else }}📚
+        {{ end }}
       </div>
       <h2>{{ .Title }}</h2>
       <p class="article-desc">{{ .Description }}</p>
       <div class="article-meta">
-        <span class="read-time">5 min read</span>
+        <span class="read-time">{{ .ReadingTime }} min read</span>
         <span class="article-tags">
           {{ range first 2 .Params.tags }}
           <span class="tag">{{ . }}</span>

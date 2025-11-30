@@ -2,10 +2,17 @@
 <article class="container article-page">
   <header class="article-header">
     <a href="/learn/" class="back-link">← Back to Learn</a>
+
+    {{/* Display icon if available */}}
+    {{ if .Params.icon }}
+    <div class="article-icon-large">{{ .Params.icon }}</div>
+    {{ end }}
+
     <h1>{{ .Title }}</h1>
     <p class="article-description">{{ .Description }}</p>
     <div class="article-meta">
       <span class="date">{{ .Date.Format "January 2, 2006" }}</span>
+      <span class="read-time">{{ .ReadingTime }} min read</span>
       <span class="tags">
         {{ range .Params.tags }}
         <span class="tag">{{ . }}</span>
@@ -29,10 +36,29 @@
       <h3>Related Topics</h3>
       <div class="related-grid">
         {{ $currentPage := . }}
-        {{ range first 3 (where (where .Site.RegularPages "Section" "learn") ".Permalink" "ne" .Permalink) }}
-        <a href="{{ .Permalink }}" class="related-card">
+        {{ $currentCategory := .Params.category | default "general" }}
+
+        {{/* First try to get related posts from same category */}}
+        {{ $sameCategoryPosts := where (where .Site.RegularPages "Section" "learn") ".Params.category" $currentCategory }}
+        {{ $sameCategoryPosts = where $sameCategoryPosts ".Permalink" "ne" .Permalink }}
+
+        {{/* If not enough same category, add from other categories */}}
+        {{ $otherPosts := where (where .Site.RegularPages "Section" "learn") ".Permalink" "ne" .Permalink }}
+
+        {{ $relatedPosts := $sameCategoryPosts }}
+        {{ if lt (len $relatedPosts) 3 }}
+          {{ $relatedPosts = $otherPosts }}
+        {{ end }}
+
+        {{ range first 3 $relatedPosts }}
+        <a href="{{ .Permalink }}" class="related-card" data-category="{{ .Params.category | default "general" }}">
+          <div class="related-card-header">
+            <span class="related-icon">{{ .Params.icon | default "📚" }}</span>
+            <span class="related-category">{{ .Params.category | default "general" | title }}</span>
+          </div>
           <h4>{{ .Title }}</h4>
-          <span class="read-more">Read →</span>
+          <p class="related-desc">{{ .Description | truncate 80 }}</p>
+          <span class="read-more">Read Article →</span>
         </a>
         {{ end }}
       </div>

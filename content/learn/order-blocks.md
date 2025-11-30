@@ -4,6 +4,8 @@ description: "Learn how to identify and trade Order Blocks - institutional entry
 date: 2024-11-26
 slug: "order-blocks"
 tags: ["education", "order-blocks", "smart-money", "institutional"]
+icon: "🏛️"
+category: "fundamentals"
 priority: 0.5
 ---
 

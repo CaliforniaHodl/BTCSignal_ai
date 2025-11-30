@@ -4,28 +4,107 @@
     <h1 class="site-title">Bitcoin Analysis Bot</h1>
     <p class="site-description">Automated technical analysis powered by AI</p>
 
-    <!-- 3D Bitcoin Coin -->
-    <div class="bitcoin-coin-container" role="img" aria-label="Interactive 3D Bitcoin coin animation">
-      <div id="bitcoin-coin"></div>
-    </div>
-
     <div class="live-ticker" id="btc-ticker" role="status" aria-live="polite" aria-label="Live Bitcoin price">
       <span class="ticker-label">BTC/USD</span>
       <span class="ticker-price" id="btc-price" aria-label="Current Bitcoin price">Loading...</span>
       <span class="ticker-change" id="btc-change" aria-label="24 hour price change"></span>
     </div>
-
-    <!-- Key Level of the Day Widget -->
-    <div class="key-level-widget" id="key-level-widget" role="region" aria-label="Key level of the day">
-      <div class="key-level-header">
-        <span class="key-level-title">Key Level of the Day</span>
-        <span class="key-level-type" id="level-type">--</span>
-      </div>
-      <div class="key-level-price" id="key-level-price">Loading...</div>
-      <div class="key-level-desc" id="key-level-desc">Calculating key level...</div>
-      <div class="key-level-distance" id="key-level-distance"></div>
-    </div>
   </header>
+
+  <!-- Quick Stats Bar -->
+  <section class="quick-stats-bar" aria-label="Quick market statistics">
+    <div class="quick-stat">
+      <span class="quick-stat-label">24h High</span>
+      <span class="quick-stat-value" id="stat-high">--</span>
+    </div>
+    <div class="quick-stat">
+      <span class="quick-stat-label">24h Low</span>
+      <span class="quick-stat-value" id="stat-low">--</span>
+    </div>
+    <div class="quick-stat">
+      <span class="quick-stat-label">24h Volume</span>
+      <span class="quick-stat-value" id="stat-volume">--</span>
+    </div>
+    <div class="quick-stat">
+      <span class="quick-stat-label">Market Cap</span>
+      <span class="quick-stat-value" id="stat-mcap">--</span>
+    </div>
+  </section>
+
+  <!-- Hero Feature Cards - Above the Fold -->
+  <section class="hero-features" aria-labelledby="features-heading">
+    <h2 id="features-heading" class="sr-only">Key Features</h2>
+    <div class="hero-features-grid">
+      <!-- AI Signal Card -->
+      <article class="hero-feature-card signal-card">
+        <div class="hero-feature-icon">🤖</div>
+        <div class="hero-feature-content">
+          <h3>Latest AI Signal</h3>
+          {{ $latestPost := index (where .Site.RegularPages "Section" "posts") 0 }}
+          {{ if $latestPost }}
+          <div class="signal-display">
+            <span class="signal-direction {{ $latestPost.Params.direction }}">
+              {{ if eq $latestPost.Params.direction "up" }}📈 BULLISH{{ else if eq $latestPost.Params.direction "down" }}📉 BEARISH{{ else }}➡️ NEUTRAL{{ end }}
+            </span>
+            <span class="signal-confidence">{{ $latestPost.Params.confidence }}% Confidence</span>
+          </div>
+          <p class="signal-time">{{ $latestPost.Date.Format "Jan 02, 15:04 UTC" }}</p>
+          <a href="{{ $latestPost.Permalink }}" class="hero-feature-link">View Analysis →</a>
+          {{ else }}
+          <p class="signal-pending">Generating first signal...</p>
+          {{ end }}
+        </div>
+      </article>
+
+      <!-- Key Level Card -->
+      <article class="hero-feature-card level-card">
+        <div class="hero-feature-icon">🎯</div>
+        <div class="hero-feature-content">
+          <h3>Key Level of the Day</h3>
+          <div class="key-level-display">
+            <span class="key-level-value" id="hero-key-level">Loading...</span>
+            <span class="key-level-badge" id="hero-level-type">--</span>
+          </div>
+          <p class="key-level-note" id="hero-level-desc">Calculating...</p>
+          <a href="/embed/key-level/" class="hero-feature-link">Embed Widget →</a>
+        </div>
+      </article>
+
+      <!-- Funding Rate Quick Card -->
+      <article class="hero-feature-card funding-card">
+        <div class="hero-feature-icon">💰</div>
+        <div class="hero-feature-content">
+          <h3>BTC Funding Rate</h3>
+          <div class="funding-quick-display">
+            <span class="funding-quick-value" id="hero-funding-value">--</span>
+            <span class="funding-quick-label" id="hero-funding-label">Loading...</span>
+          </div>
+          <p class="funding-quick-note">8hr perpetual rate</p>
+        </div>
+      </article>
+
+      <!-- Pro Tools CTA Card -->
+      <article class="hero-feature-card cta-card">
+        <div class="hero-feature-icon">⚡</div>
+        <div class="hero-feature-content">
+          <h3>Pro Trading Tools</h3>
+          <ul class="pro-tools-list">
+            <li>📊 Pattern Detector</li>
+            <li>🔥 Liquidation Hunter</li>
+            <li>🧠 AI Trade Coach</li>
+          </ul>
+          <a href="/pro-tools/dashboard/" class="hero-feature-link highlight">Explore Tools →</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- 3D Bitcoin Coin - Moved below features -->
+  <div class="bitcoin-coin-section">
+    <div class="bitcoin-coin-container" role="img" aria-label="Interactive 3D Bitcoin coin animation">
+      <div id="bitcoin-coin"></div>
+    </div>
+  </div>
 
   <!-- Market Sentiment Overview (FREE) -->
   <section class="market-sentiment-section" aria-labelledby="sentiment-heading">

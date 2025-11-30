@@ -4,6 +4,8 @@ description: "Learn how to identify and trade RSI divergences for Bitcoin revers
 date: 2024-11-29
 slug: "rsi-divergence"
 tags: ["education", "rsi", "divergence", "indicators"]
+icon: "📈"
+category: "technical"
 priority: 0.5
 ---
 

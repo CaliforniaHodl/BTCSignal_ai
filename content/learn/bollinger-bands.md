@@ -4,6 +4,8 @@ description: "Learn how to use Bollinger Bands for Bitcoin volatility trading"
 date: 2024-11-29
 slug: "bollinger-bands"
 tags: ["education", "bollinger-bands", "indicators", "volatility"]
+icon: "📏"
+category: "technical"
 priority: 0.5
 ---
 
