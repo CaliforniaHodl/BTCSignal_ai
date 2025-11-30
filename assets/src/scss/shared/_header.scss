@@ -261,17 +261,232 @@ nav {
   }
 }
 
-// Mobile menu toggle (if needed)
+// Mobile menu toggle
 .mobile-menu-toggle {
   display: none;
+  width: 44px;
+  height: 44px;
   padding: $spacing-sm;
   background: transparent;
-  border: none;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
   color: var(--text-primary);
   cursor: pointer;
-  font-size: $font-xl;
+  flex-shrink: 0;
 
   @include mobile {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    background: var(--bg-dark);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--bitcoin-orange);
+    outline-offset: 2px;
+  }
+}
+
+// Hamburger icon
+.hamburger-icon {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--text-primary);
+  position: relative;
+  transition: background $transition-fast;
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--text-primary);
+    transition: transform $transition-fast, top $transition-fast;
+  }
+
+  &::before {
+    top: -6px;
+  }
+
+  &::after {
+    top: 6px;
+  }
+
+  // Animate to X when menu is open
+  .mobile-nav-active & {
+    background: transparent;
+
+    &::before {
+      top: 0;
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      top: 0;
+      transform: rotate(-45deg);
+    }
+  }
+}
+
+// =====================================================
+// MOBILE MENU - Fullscreen slide-in menu
+// =====================================================
+
+// Utility class for scroll lock
+.no-scroll { overflow: hidden !important; }
+
+#mobile-header {
+  display: block;
+  position: relative;
+  z-index: 9999;
+
+  @media (min-width: 992px) {
+    display: none;
+  }
+
+  &.menu-open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-card);
+    z-index: 99999;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+
+    #mobile-nav {
+      display: flex !important;
+    }
+  }
+
+  .mobile-header-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-md $spacing-lg;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-card);
+    position: relative;
+    z-index: 100000;
+  }
+
+  .mobile-logo {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: $font-bold;
+    font-size: $font-lg;
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .mobile-menu-toggle {
+    background: transparent;
+    border: none;
+    padding: $spacing-sm;
+    cursor: pointer;
+
+    svg {
+      fill: var(--text-primary);
+      display: block;
+    }
+  }
+
+  #mobile-nav {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    overflow-y: auto;
+  }
+
+  .mobile-nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    > li {
+      border-bottom: 1px solid var(--border-color);
+
+      > a, > button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: $spacing-lg;
+        color: var(--text-primary);
+        text-decoration: none;
+        font-size: $font-base;
+        font-weight: $font-medium;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+
+        &:hover {
+          background: var(--bg-dark);
+          color: var(--bitcoin-orange);
+        }
+      }
+
+      &.nav-pricing a {
+        color: var(--bitcoin-orange);
+        font-weight: $font-semibold;
+      }
+    }
+  }
+
+  // Mobile dropdown
+  .mobile-dropdown-toggle {
+    svg {
+      fill: var(--text-secondary);
+      transition: transform $transition-base;
+    }
+
+    &.active svg {
+      transform: rotate(180deg);
+    }
+  }
+
+  .mobile-dropdown-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-dark);
+
+    li a {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      padding: $spacing-md $spacing-lg;
+      padding-left: $spacing-xl;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: $font-sm;
+      border-bottom: 1px solid var(--border-color);
+
+      &:hover {
+        color: var(--text-primary);
+        background: var(--bg-card);
+      }
+
+      span {
+        font-size: $font-base;
+      }
+    }
   }
 }

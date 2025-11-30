@@ -257,40 +257,142 @@
     elements.liqHeatmap.innerHTML = heatmapHTML;
   }
 
-  // Fetch quick stats for the stats bar
+  // Fetch quick stats using CoinGecko (Binance blocked in US)
   async function fetchQuickStats() {
     try {
-      // Get 24hr ticker for high/low/volume
-      const tickerRes = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
-      const ticker = await tickerRes.json();
+      const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false');
+      const data = await res.json();
 
-      // Format numbers
-      const high24h = parseFloat(ticker.highPrice);
-      const low24h = parseFloat(ticker.lowPrice);
-      const volume24h = parseFloat(ticker.quoteVolume);
+      if (data && data.market_data) {
+        const md = data.market_data;
 
-      if (elements.statHigh) {
-        elements.statHigh.textContent = '$' + high24h.toLocaleString(undefined, {maximumFractionDigits: 0});
-      }
-      if (elements.statLow) {
-        elements.statLow.textContent = '$' + low24h.toLocaleString(undefined, {maximumFractionDigits: 0});
-      }
-      if (elements.statVolume) {
-        // Format volume in billions/millions
-        if (volume24h >= 1e9) {
-          elements.statVolume.textContent = '$' + (volume24h / 1e9).toFixed(1) + 'B';
-        } else {
-          elements.statVolume.textContent = '$' + (volume24h / 1e6).toFixed(0) + 'M';
+        if (elements.statHigh) {
+          elements.statHigh.textContent = '
+
+  // Initialize all data fetching
+  function init() {
+    fetchFearGreed();
+    fetchFundingRate();
+    fetchVolumeProfile();
+    fetchLiquidationZones();
+    fetchQuickStats();
+  }
+
+  // Run on load
+  init();
+
+  // Refresh data periodically
+  setInterval(fetchFearGreed, 300000); // 5 minutes
+  setInterval(fetchFundingRate, 60000); // 1 minute
+  setInterval(fetchVolumeProfile, 30000); // 30 seconds
+  setInterval(fetchLiquidationZones, 30000); // 30 seconds
+  setInterval(fetchQuickStats, 30000); // 30 seconds
+
+})();
+ + md.high_24h.usd.toLocaleString(undefined, {maximumFractionDigits: 0});
         }
-      }
+        if (elements.statLow) {
+          elements.statLow.textContent = '
 
-      // Fetch market cap from CoinGecko
-      const mcapRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
-      const mcapData = await mcapRes.json();
+  // Initialize all data fetching
+  function init() {
+    fetchFearGreed();
+    fetchFundingRate();
+    fetchVolumeProfile();
+    fetchLiquidationZones();
+    fetchQuickStats();
+  }
 
-      if (elements.statMcap && mcapData.bitcoin) {
-        const mcap = mcapData.bitcoin.usd_market_cap;
-        elements.statMcap.textContent = '$' + (mcap / 1e12).toFixed(2) + 'T';
+  // Run on load
+  init();
+
+  // Refresh data periodically
+  setInterval(fetchFearGreed, 300000); // 5 minutes
+  setInterval(fetchFundingRate, 60000); // 1 minute
+  setInterval(fetchVolumeProfile, 30000); // 30 seconds
+  setInterval(fetchLiquidationZones, 30000); // 30 seconds
+  setInterval(fetchQuickStats, 30000); // 30 seconds
+
+})();
+ + md.low_24h.usd.toLocaleString(undefined, {maximumFractionDigits: 0});
+        }
+        if (elements.statVolume) {
+          const vol = md.total_volume.usd;
+          if (vol >= 1e9) {
+            elements.statVolume.textContent = '
+
+  // Initialize all data fetching
+  function init() {
+    fetchFearGreed();
+    fetchFundingRate();
+    fetchVolumeProfile();
+    fetchLiquidationZones();
+    fetchQuickStats();
+  }
+
+  // Run on load
+  init();
+
+  // Refresh data periodically
+  setInterval(fetchFearGreed, 300000); // 5 minutes
+  setInterval(fetchFundingRate, 60000); // 1 minute
+  setInterval(fetchVolumeProfile, 30000); // 30 seconds
+  setInterval(fetchLiquidationZones, 30000); // 30 seconds
+  setInterval(fetchQuickStats, 30000); // 30 seconds
+
+})();
+ + (vol / 1e9).toFixed(1) + 'B';
+          } else {
+            elements.statVolume.textContent = '
+
+  // Initialize all data fetching
+  function init() {
+    fetchFearGreed();
+    fetchFundingRate();
+    fetchVolumeProfile();
+    fetchLiquidationZones();
+    fetchQuickStats();
+  }
+
+  // Run on load
+  init();
+
+  // Refresh data periodically
+  setInterval(fetchFearGreed, 300000); // 5 minutes
+  setInterval(fetchFundingRate, 60000); // 1 minute
+  setInterval(fetchVolumeProfile, 30000); // 30 seconds
+  setInterval(fetchLiquidationZones, 30000); // 30 seconds
+  setInterval(fetchQuickStats, 30000); // 30 seconds
+
+})();
+ + (vol / 1e6).toFixed(0) + 'M';
+          }
+        }
+        if (elements.statMcap) {
+          elements.statMcap.textContent = '
+
+  // Initialize all data fetching
+  function init() {
+    fetchFearGreed();
+    fetchFundingRate();
+    fetchVolumeProfile();
+    fetchLiquidationZones();
+    fetchQuickStats();
+  }
+
+  // Run on load
+  init();
+
+  // Refresh data periodically
+  setInterval(fetchFearGreed, 300000); // 5 minutes
+  setInterval(fetchFundingRate, 60000); // 1 minute
+  setInterval(fetchVolumeProfile, 30000); // 30 seconds
+  setInterval(fetchLiquidationZones, 30000); // 30 seconds
+  setInterval(fetchQuickStats, 30000); // 30 seconds
+
+})();
+ + (md.market_cap.usd / 1e12).toFixed(2) + 'T';
+        }
       }
 
     } catch (e) {
