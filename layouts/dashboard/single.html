@@ -185,6 +185,72 @@
       </div>
     </section>
 
+    <!-- On-Chain & Macro Metrics -->
+    <section class="onchain-section">
+      <h2>On-Chain & Macro Analysis</h2>
+      <p class="section-desc">Network fundamentals and cross-market correlations</p>
+
+      <div class="onchain-grid">
+        <!-- Hashrate vs Price Widget -->
+        <div class="onchain-card">
+          <div class="onchain-header">
+            <span class="onchain-icon">⛏️</span>
+            <h3>Hashrate vs Price</h3>
+          </div>
+          <div class="onchain-metrics">
+            <div class="metric-row">
+              <span class="metric-label">Network Hashrate</span>
+              <span class="metric-value" id="dash-hashrate-value">--</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">30d Change</span>
+              <span class="metric-value" id="dash-hashrate-change">--</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">Hash/Price Ratio</span>
+              <span class="metric-value" id="dash-hash-price-ratio">--</span>
+            </div>
+          </div>
+          <div class="onchain-signal" id="dash-hashrate-signal">
+            <span class="signal-badge neutral">Loading...</span>
+          </div>
+          <div class="onchain-chart">
+            <canvas id="hashrateChart" height="120"></canvas>
+          </div>
+          <p class="onchain-note">Rising hashrate with stable price = bullish divergence</p>
+        </div>
+
+        <!-- BTC vs S&P500 Correlation Widget -->
+        <div class="onchain-card">
+          <div class="onchain-header">
+            <span class="onchain-icon">📊</span>
+            <h3>BTC vs S&P 500</h3>
+          </div>
+          <div class="onchain-metrics">
+            <div class="metric-row">
+              <span class="metric-label">30d Correlation</span>
+              <span class="metric-value" id="dash-correlation-value">--</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">BTC 30d Return</span>
+              <span class="metric-value" id="dash-btc-return">--</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-label">S&P 30d Return</span>
+              <span class="metric-value" id="dash-sp500-return">--</span>
+            </div>
+          </div>
+          <div class="onchain-signal" id="dash-correlation-signal">
+            <span class="signal-badge neutral">Loading...</span>
+          </div>
+          <div class="onchain-chart">
+            <canvas id="correlationChart" height="120"></canvas>
+          </div>
+          <p class="onchain-note">Low correlation = BTC acting as uncorrelated asset</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Charts -->
     <section class="charts-section">
       <div class="chart-container">

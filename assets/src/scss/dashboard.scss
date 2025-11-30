@@ -684,3 +684,151 @@
     margin-right: $spacing-xs;
   }
 }
+
+// =====================================================
+// ON-CHAIN & MACRO ANALYSIS SECTION
+// =====================================================
+
+.onchain-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.onchain-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onchain-card {
+  @include card;
+  padding: $spacing-lg;
+
+  &:first-child {
+    border-color: rgba($bitcoin-orange, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.05) 100%);
+  }
+
+  &:last-child {
+    border-color: rgba($blue, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($blue, 0.05) 100%);
+  }
+}
+
+.onchain-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-lg;
+    font-weight: $font-semibold;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+.onchain-icon {
+  font-size: $font-2xl;
+}
+
+.onchain-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+}
+
+.metric-label {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.metric-value {
+  font-size: $font-base;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+
+  &.neutral {
+    color: var(--text-secondary);
+  }
+}
+
+.onchain-signal {
+  margin-bottom: $spacing-md;
+  text-align: center;
+}
+
+.signal-badge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-full;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+
+  &.bullish {
+    background: rgba($green, 0.15);
+    color: var(--green);
+    border: 1px solid rgba($green, 0.3);
+  }
+
+  &.bearish {
+    background: rgba($red, 0.15);
+    color: var(--red);
+    border: 1px solid rgba($red, 0.3);
+  }
+
+  &.neutral {
+    background: rgba(156, 163, 175, 0.15);
+    color: var(--text-secondary);
+    border: 1px solid rgba(156, 163, 175, 0.3);
+  }
+}
+
+.onchain-chart {
+  height: 150px;
+  margin-bottom: $spacing-sm;
+
+  canvas {
+    max-height: 150px;
+  }
+}
+
+.onchain-note {
+  font-size: $font-xs;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+  font-style: italic;
+}
