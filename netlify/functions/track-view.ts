@@ -1,4 +1,3 @@
-import { getStore } from "@netlify/blobs";
 import type { Context } from '@netlify/functions';
 
 // Simple page view counter using Netlify Blobs
@@ -17,12 +16,14 @@ export default async (req: Request, context: Context) => {
     return new Response(null, { status: 204, headers });
   }
 
-  const store = getStore("page-views");
+  // Get the blob store from context
+  const store = context.blobs("page-views");
 
   // GET = return current stats
   if (req.method === 'GET') {
     try {
-      const stats = await store.get("counts", { type: "json" }) || {};
+      const data = await store.get("counts");
+      const stats = data ? JSON.parse(data) : {};
       return new Response(JSON.stringify(stats), { status: 200, headers });
     } catch (error) {
       return new Response(JSON.stringify({}), { status: 200, headers });
@@ -47,7 +48,8 @@ export default async (req: Request, context: Context) => {
       // Get current stats
       let stats: Record<string, number> = {};
       try {
-        stats = await store.get("counts", { type: "json" }) || {};
+        const data = await store.get("counts");
+        stats = data ? JSON.parse(data) : {};
       } catch (e) {
         stats = {};
       }
@@ -56,7 +58,7 @@ export default async (req: Request, context: Context) => {
       stats[pageName] = (stats[pageName] || 0) + 1;
 
       // Save
-      await store.setJSON("counts", stats);
+      await store.set("counts", JSON.stringify(stats));
 
       return new Response(JSON.stringify({ success: true, page: pageName }), {
         status: 200,
@@ -84,4 +86,3 @@ function sanitizePageName(page: string): string {
   name = name.replace(/\//g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
   return name || 'unknown';
 }
-
