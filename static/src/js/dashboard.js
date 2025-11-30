@@ -2,16 +2,47 @@
 (function() {
   const GITHUB_POSTS_URL = 'https://api.github.com/repos/CaliforniaHodl/BTCSignal_ai/contents/content/posts';
 
-  // Check if user has any unlocked posts
-  function hasUnlockedPosts() {
-    const unlocked = localStorage.getItem('unlockedPosts');
-    if (!unlocked) return false;
-    try {
-      const posts = JSON.parse(unlocked);
-      return Array.isArray(posts) && posts.length > 0;
-    } catch {
-      return false;
+  // Check if user has access using BTCSAIAccess system
+  function hasAccess() {
+    // First check if BTCSAIAccess is available and user is admin
+    if (typeof BTCSAIAccess !== 'undefined') {
+      if (BTCSAIAccess.isAdmin()) {
+        console.log('Dashboard: Admin access granted');
+        return true;
+      }
+      if (BTCSAIAccess.hasAllAccess()) {
+        console.log('Dashboard: Premium access granted');
+        return true;
+      }
     }
+
+    // Fallback: check legacy unlockedPosts
+    const unlocked = localStorage.getItem('unlockedPosts');
+    if (unlocked) {
+      try {
+        const posts = JSON.parse(unlocked);
+        if (Array.isArray(posts) && posts.length > 0) {
+          return true;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    // Also check btcsai_unlocked_posts
+    const btcsaiPosts = localStorage.getItem('btcsai_unlocked_posts');
+    if (btcsaiPosts) {
+      try {
+        const posts = JSON.parse(btcsaiPosts);
+        if (Array.isArray(posts) && posts.length > 0) {
+          return true;
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    return false;
   }
 
   // Initialize dashboard
@@ -21,7 +52,7 @@
 
     if (!lockedDiv || !contentDiv) return;
 
-    if (hasUnlockedPosts()) {
+    if (hasAccess()) {
       lockedDiv.style.display = 'none';
       contentDiv.style.display = 'block';
       loadDashboardData();
