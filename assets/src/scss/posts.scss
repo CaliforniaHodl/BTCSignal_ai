@@ -164,6 +164,23 @@
   text-decoration: none;
 }
 
+// Lock Button
+.lock-btn {
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-sm;
+  text-decoration: none;
+  color: var(--bitcoin-orange);
+  border: 1px solid var(--bitcoin-orange);
+  border-radius: $radius-md;
+  font-weight: $font-semibold;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba($bitcoin-orange, 0.1);
+  }
+}
+
 // Empty State
 .empty-state {
   text-align: center;
