@@ -1,0 +1,158 @@
+// =====================================================
+// DEV BANNER - Shows simulation/placeholder status
+// =====================================================
+
+.dev-banner {
+  background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(247, 147, 26, 0.05));
+  border: 1px solid rgba(247, 147, 26, 0.3);
+  border-left: 4px solid var(--bitcoin-orange);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.dev-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.dev-banner-icon {
+  font-size: 1.25rem;
+}
+
+.dev-banner-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--bitcoin-orange);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dev-banner-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(247, 147, 26, 0.15);
+  border: 1px solid rgba(247, 147, 26, 0.3);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  color: var(--bitcoin-orange);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(247, 147, 26, 0.25);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--bitcoin-orange);
+    outline-offset: 2px;
+  }
+
+  svg {
+    transition: transform 0.2s;
+  }
+
+  .expanded & {
+    svg {
+      transform: rotate(180deg);
+    }
+    .toggle-text::before {
+      content: "Hide ";
+    }
+  }
+}
+
+.dev-banner-content {
+  display: none;
+  padding: 0 1rem 1rem;
+  border-top: 1px solid rgba(247, 147, 26, 0.2);
+  margin-top: 0;
+
+  .expanded & {
+    display: block;
+  }
+}
+
+.dev-banner-desc {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.dev-todo-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: none;
+
+  li {
+    position: relative;
+    padding: 0.35rem 0;
+    padding-left: 1.5rem;
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    line-height: 1.4;
+
+    &::before {
+      content: "☐";
+      position: absolute;
+      left: 0;
+      color: var(--bitcoin-orange);
+    }
+
+    code {
+      background: var(--bg-dark);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+// Status variations
+.dev-banner-simulation {
+  border-left-color: #58a6ff;
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(88, 166, 255, 0.05));
+  border-color: rgba(88, 166, 255, 0.3);
+
+  .dev-banner-title {
+    color: #58a6ff;
+  }
+
+  .dev-banner-toggle {
+    background: rgba(88, 166, 255, 0.15);
+    border-color: rgba(88, 166, 255, 0.3);
+    color: #58a6ff;
+
+    &:hover {
+      background: rgba(88, 166, 255, 0.25);
+    }
+  }
+
+  .dev-todo-list li::before {
+    color: #58a6ff;
+  }
+}
+
+.dev-banner-placeholder {
+  border-left-color: #f0883e;
+  background: linear-gradient(135deg, rgba(240, 136, 62, 0.1), rgba(240, 136, 62, 0.05));
+
+  .dev-banner-title {
+    color: #f0883e;
+  }
+}
+
+.dev-banner-partial {
+  border-left-color: #d29922;
+  background: linear-gradient(135deg, rgba(210, 153, 34, 0.1), rgba(210, 153, 34, 0.05));
+
+  .dev-banner-title {
+    color: #d29922;
+  }
+}

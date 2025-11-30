@@ -23,6 +23,17 @@
 
   <!-- Trade Coach Content -->
   <div class="premium-content" id="premium-content" style="display: none;">
+{{ partial "dev-banner.html" (dict 
+      "status" "partial" 
+      "todos" (slice 
+        "Integrate <code>LNbits</code> API for real Lightning payments"
+        "Add AI model integration for contextual trade analysis"
+        "Store user trade history for personalized recommendations"
+        "Include current market volatility in analysis context"
+        "Add backtesting results for similar setups"
+      )
+    ) }}
+
     <header class="coach-header">
       <h1>🎓 AI Trade Coach</h1>
       <p class="subtitle">Get expert feedback on your trading decisions</p>

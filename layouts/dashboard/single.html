@@ -11,6 +11,15 @@
   </div>
 
   <div class="dashboard-content" id="dashboard-content" style="display: none;">
+{{ partial "dev-banner.html" (dict 
+      "status" "partial" 
+      "todos" (slice 
+        "Integrate <code>Alpha Vantage</code> or <code>Finnhub</code> API for S&P 500 data"
+        "Fetch real funding rates from <code>Binance Futures API</code>"
+        "Add multiple exchange data aggregation"
+      )
+    ) }}
+
     <header class="dashboard-header">
       <h1>Pro Trading Dashboard</h1>
       <p class="subtitle">Real-time market intelligence & performance analytics</p>

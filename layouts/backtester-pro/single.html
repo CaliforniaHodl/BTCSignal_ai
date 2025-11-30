@@ -1,5 +1,14 @@
 {{ define "main" }}
 <div class="container premium-page backtester-pro-page">
+  {{ partial "dev-banner.html" (dict
+    "status" "placeholder"
+    "todos" (slice
+      "Integrate <code>LNbits</code> API for per-backtest Lightning payments"
+      "Add more sophisticated strategy parsing"
+      "Implement slippage and fee simulation"
+      "Add strategy performance metrics export"
+    )
+  ) }}
   <header class="backtester-header">
     <h1>Backtester PRO</h1>
     <p class="subtitle">AI-powered custom strategy testing with detailed analytics</p>

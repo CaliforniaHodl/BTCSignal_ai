@@ -23,6 +23,15 @@
 
   <!-- Portfolio Simulator Content -->
   <div class="premium-content" id="premium-content" style="display: none;">
+{{ partial "dev-banner.html" (dict 
+      "status" "placeholder" 
+      "todos" (slice 
+        "Integrate <code>LNbits</code> API for real Lightning payments"
+        "Add historical price data caching"
+        "Implement Monte Carlo simulation for risk analysis"
+      )
+    ) }}
+
     <header class="simulator-header">
       <h1>📊 Portfolio Simulator</h1>
       <p class="subtitle">Test trading strategies with historical BTC data</p>

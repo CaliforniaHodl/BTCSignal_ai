@@ -1,0 +1,35 @@
+{{/* Development Status Banner - Shows simulation/placeholder status and TODOs */}}
+{{/* Usage: {{ partial "dev-banner.html" (dict "status" "simulation" "todos" (slice "TODO 1" "TODO 2")) }} */}}
+
+{{ $status := .status | default "demo" }}
+{{ $todos := .todos | default (slice) }}
+{{ $title := .title | default "Development Status" }}
+
+<div class="dev-banner dev-banner-{{ $status }}" role="alert">
+  <div class="dev-banner-header">
+    <span class="dev-banner-icon" aria-hidden="true">
+      {{ if eq $status "simulation" }}🔬{{ else if eq $status "placeholder" }}🚧{{ else if eq $status "partial" }}⚠️{{ else }}🛠️{{ end }}
+    </span>
+    <span class="dev-banner-title">
+      {{ if eq $status "simulation" }}Simulated Data
+      {{ else if eq $status "placeholder" }}Placeholder Feature
+      {{ else if eq $status "partial" }}Partially Implemented
+      {{ else }}{{ $title }}{{ end }}
+    </span>
+    <button class="dev-banner-toggle" aria-expanded="false" aria-controls="dev-todos-{{ $status }}" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'false'); this.closest('.dev-banner').classList.toggle('expanded')">
+      <span class="toggle-text">Show TODOs</span>
+      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+    </button>
+  </div>
+
+  {{ if $todos }}
+  <div class="dev-banner-content" id="dev-todos-{{ $status }}">
+    <p class="dev-banner-desc">This feature uses simulated/demo data. TODOs to make it production-ready:</p>
+    <ul class="dev-todo-list">
+      {{ range $todos }}
+      <li>{{ . | safeHTML }}</li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+</div>

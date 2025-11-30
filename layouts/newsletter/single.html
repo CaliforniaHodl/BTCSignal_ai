@@ -1,5 +1,14 @@
 {{ define "main" }}
 <div class="container premium-page newsletter-page">
+  {{ partial "dev-banner.html" (dict
+    "status" "placeholder"
+    "todos" (slice
+      "Integrate <code>LNbits</code> API for Lightning subscription payments"
+      "Generate real Lightning invoices with LNURL"
+      "Implement subscription management backend"
+      "Add email delivery service integration"
+    )
+  ) }}
   <header class="newsletter-header">
     <div class="header-badge">PREMIUM</div>
     <h1>Bitcoin Analysis Newsletter</h1>

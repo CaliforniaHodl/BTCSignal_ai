@@ -24,6 +24,17 @@
   <!-- Alpha Radar Content (Hidden until unlocked) -->
   <div class="premium-content" id="premium-content" style="display: none;">
     <header class="radar-header">
+{{ partial "dev-banner.html" (dict 
+      "status" "simulation" 
+      "todos" (slice 
+        "Integrate <code>LNbits</code> or <code>BTCPay Server</code> API for real Lightning payments"
+        "Integrate <code>Glassnode</code> or <code>CryptoQuant</code> API for whale activity data"
+        "Implement anomaly detection algorithm (statistical deviation monitoring)"
+        "Add <code>Whale Alert API</code> for large transaction tracking"
+        "Set up WebSocket for real-time data updates"
+      )
+    ) }}
+
       <h1>📡 Alpha Radar</h1>
       <p class="subtitle">Real-time market intelligence powered by AI</p>
       <div class="last-updated">

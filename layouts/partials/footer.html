@@ -60,12 +60,12 @@
         form.style.display = 'none';
         success.style.display = 'block';
       } else {
-        alert('Signup failed. Please try again.');
+        Toast.error('Signup failed. Please try again.');
         btnText.style.display = 'inline';
         btnLoading.style.display = 'none';
       }
     } catch (err) {
-      alert('Error. Please try again.');
+      Toast.error('An error occurred. Please try again.');
       btnText.style.display = 'inline';
       btnLoading.style.display = 'none';
     }
