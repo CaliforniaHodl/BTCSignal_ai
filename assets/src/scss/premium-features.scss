@@ -4508,3 +4508,15 @@
     padding: 2rem 1rem;
   }
 }
+
+/* Data Source Badge - Shows live vs estimated data */
+.data-source-badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  cursor: help;
+}
