@@ -19,15 +19,17 @@
         </tr>
       </thead>
       <tbody>
-        {{ range .Pages.ByDate.Reverse }}
-        <tr class="post-row {{ .Params.direction }}">
-          <td class="col-date">{{ .Date.Format "Jan 02, 2006" }}</td>
-          <td class="col-time">{{ .Date.Format "15:04" }} UTC</td>
+        {{ $pages := .Pages.ByDate.Reverse }}
+        {{ range $index, $post := $pages }}
+        {{ $isLocked := lt $index 10 }}
+        <tr class="post-row {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
+          <td class="col-date">{{ $post.Date.Format "Jan 02, 2006" }}</td>
+          <td class="col-time">{{ $post.Date.Format "15:04" }} UTC</td>
           <td class="col-sentiment">
-            <span class="sentiment-badge {{ .Params.direction }}">
-              {{ if eq .Params.direction "up" }}
+            <span class="sentiment-badge {{ $post.Params.direction }}">
+              {{ if eq $post.Params.direction "up" }}
                 <span class="emoji">📈</span> BULLISH
-              {{ else if eq .Params.direction "down" }}
+              {{ else if eq $post.Params.direction "down" }}
                 <span class="emoji">📉</span> BEARISH
               {{ else }}
                 <span class="emoji">⏸️</span> NEUTRAL
@@ -36,18 +38,22 @@
           </td>
           <td class="col-confidence">
             <div class="confidence-wrapper">
-              <span class="confidence-value">{{ .Params.confidence }}%</span>
+              <span class="confidence-value">{{ $post.Params.confidence }}%</span>
               <div class="confidence-bar">
-                <div class="confidence-fill" style="width: {{ .Params.confidence }}%"></div>
+                <div class="confidence-fill" style="width: {{ $post.Params.confidence }}%"></div>
               </div>
             </div>
           </td>
-          <td class="col-price">${{ lang.FormatNumber 2 .Params.price }}</td>
-          <td class="col-change {{ if hasPrefix .Params.priceChange "+" }}positive{{ else }}negative{{ end }}">
-            {{ .Params.priceChange | default "--" }}
+          <td class="col-price">${{ printf "%.2f" $post.Params.price }}</td>
+          <td class="col-change {{ if $post.Params.priceChange }}{{ if hasPrefix $post.Params.priceChange "+" }}positive{{ else }}negative{{ end }}{{ end }}">
+            {{ $post.Params.priceChange | default "--" }}
           </td>
           <td class="col-action">
-            <a href="{{ .Permalink }}" class="view-btn">View</a>
+            {{ if $isLocked }}
+            <a href="{{ $post.Permalink }}" class="lock-btn">🔒 Unlock</a>
+            {{ else }}
+            <a href="{{ $post.Permalink }}" class="view-btn">View</a>
+            {{ end }}
           </td>
         </tr>
         {{ end }}
