@@ -49,6 +49,22 @@
 
 .btn-primary {
     @include btn-base;
+    background: linear-gradient(135deg, $bitcoin-orange, $bitcoin-gold);
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all $transition-base;
+
+    &:hover {
+        filter: brightness(1.1);
+        transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+        outline: 3px solid rgba($bitcoin-orange, 0.5);
+        outline-offset: 2px;
+    }
 }
 
 // Lightning button - used for payment/unlock CTAs

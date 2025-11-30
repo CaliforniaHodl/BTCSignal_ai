@@ -867,8 +867,9 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  outline: none;
   border-color: var(--bitcoin-orange);
+  outline: 3px solid rgba(247, 147, 26, 0.3);
+  outline-offset: 1px;
 }
 
 .form-group textarea {
@@ -2680,8 +2681,9 @@
 }
 
 .form-group textarea:focus {
-  outline: none;
   border-color: var(--bitcoin-orange);
+  outline: 3px solid rgba(247, 147, 26, 0.3);
+  outline-offset: 1px;
 }
 
 .form-group textarea::placeholder {
@@ -2706,8 +2708,9 @@
 
 .form-group select:focus,
 .form-group input[type="number"]:focus {
-  outline: none;
   border-color: var(--bitcoin-orange);
+  outline: 3px solid rgba(247, 147, 26, 0.3);
+  outline-offset: 1px;
 }
 
 /* Example Strategies */
@@ -3277,8 +3280,9 @@
 
 .alert-form select:focus,
 .alert-form input:focus {
-  outline: none;
   border-color: var(--bitcoin-orange);
+  outline: 3px solid rgba(247, 147, 26, 0.3);
+  outline-offset: 1px;
 }
 
 .input-wrapper {
@@ -3309,7 +3313,7 @@
 }
 
 .input-wrapper input:focus {
-  outline: none;
+  outline: none; /* Parent .input-wrapper:focus-within handles focus state */
 }
 
 /* Notification Options */
@@ -3929,8 +3933,9 @@
 }
 
 .subscribe-form input:focus {
-  outline: none;
   border-color: var(--bitcoin-orange);
+  outline: 3px solid rgba(247, 147, 26, 0.3);
+  outline-offset: 1px;
 }
 
 /* Tier Selection */

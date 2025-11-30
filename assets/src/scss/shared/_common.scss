@@ -53,7 +53,7 @@ main {
   border: 1px solid var(--border-color);
 
   .ticker-label {
-    color: var(--btc-orange);
+    color: var(--bitcoin-orange);
     font-weight: 600;
   }
 
@@ -94,7 +94,7 @@ section h2 {
 
   &:hover {
     background: var(--bg-card-hover);
-    border-color: var(--btc-orange);
+    border-color: var(--bitcoin-orange);
     transform: translateY(-2px);
   }
 
@@ -240,7 +240,7 @@ section h2 {
   color: var(--text-muted);
 
   a {
-    color: var(--btc-orange);
+    color: var(--bitcoin-orange);
     text-decoration: none;
 
     &:hover {
