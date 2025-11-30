@@ -213,7 +213,6 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(subscription));
 
     // In production, this would also POST to a backend
-    console.log('Subscription saved:', subscription);
   }
 
   // Check existing subscription

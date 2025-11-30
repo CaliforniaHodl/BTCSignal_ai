@@ -8,12 +8,10 @@
   function checkAccess() {
     // Check admin mode first (bypasses all paywalls)
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      console.log('%c ADMIN: Pattern Detector access bypassed', 'color: #f7931a;');
       return true;
     }
     // Check all-access subscription
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      console.log('All-access subscription active, unlocking Pattern Detector');
       return true;
     }
     // Legacy localStorage check
@@ -35,7 +33,12 @@
   const unlockBtn = document.getElementById('btn-unlock');
   if (unlockBtn) {
     unlockBtn.addEventListener('click', function() {
-      const confirmed = confirm('This will cost 50 sats via Lightning. Continue?');
+      // Payment confirmation handled by Toast.confirm
+      Toast.confirm('This will cost 50 sats via Lightning. Continue?', function() {
+        unlockFeature();
+      });
+      return;
+      const confirmed = true;
       if (confirmed) {
         localStorage.setItem(FEATURE_KEY, 'unlocked');
         updateAccessUI();

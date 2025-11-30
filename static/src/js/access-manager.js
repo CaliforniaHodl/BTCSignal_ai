@@ -20,16 +20,12 @@ const BTCSAIAccess = (function() {
   // Enable admin mode (call from browser console)
   function enableAdmin() {
     localStorage.setItem(ADMIN_KEY, 'satoshi2024');
-    console.log('%c ADMIN MODE ENABLED ', 'background: #f7931a; color: #000; font-size: 16px; font-weight: bold;');
-    console.log('All premium features unlocked for development. Refresh to apply.');
     return true;
   }
 
   // Disable admin mode
   function disableAdmin() {
     localStorage.removeItem(ADMIN_KEY);
-    console.log('%c ADMIN MODE DISABLED ', 'background: #f85149; color: #fff; font-size: 16px; font-weight: bold;');
-    console.log('Premium features require payment again. Refresh to apply.');
     return true;
   }
 
@@ -230,7 +226,5 @@ if (typeof window !== 'undefined') {
 
   // Log admin status on load (helpful for debugging)
   if (BTCSAIAccess.isAdmin()) {
-    console.log('%c ADMIN MODE ACTIVE ', 'background: #f7931a; color: #000; font-size: 14px; font-weight: bold;');
-    console.log('Tip: Run BTCSAIAccess.disableAdmin() to disable');
   }
 }

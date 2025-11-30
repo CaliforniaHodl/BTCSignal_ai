@@ -7,11 +7,9 @@
     // First check if BTCSAIAccess is available and user is admin
     if (typeof BTCSAIAccess !== 'undefined') {
       if (BTCSAIAccess.isAdmin()) {
-        console.log('Dashboard: Admin access granted');
         return true;
       }
       if (BTCSAIAccess.hasAllAccess()) {
-        console.log('Dashboard: Premium access granted');
         return true;
       }
     }

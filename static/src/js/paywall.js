@@ -25,21 +25,18 @@
 
   // Check if admin mode is active (bypasses all paywalls)
   if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-    console.log('%c ADMIN: Paywall bypassed for ' + postId, 'color: #f7931a;');
     unlockContent();
     return;
   }
 
   // Check if user has all-access subscription (hourly/daily/weekly)
   if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-    console.log('All-access subscription active, unlocking content');
     unlockContent();
     return;
   }
 
   // Check if this specific post is unlocked via BTCSAIAccess
   if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isPostUnlocked(postId)) {
-    console.log('Post already unlocked via BTCSAIAccess');
     unlockContent();
     return;
   }
@@ -111,7 +108,7 @@
       console.error('Paywall error:', error);
       unlockBtn.disabled = false;
       unlockBtn.innerHTML = '<span>⚡</span> Pay with Lightning';
-      alert('Error: ' + error.message);
+      Toast.error('Error: ' + error.message);
     }
   });
 

@@ -631,7 +631,6 @@
           sp500Data = sp500Json.chart.result[0].indicators.quote[0].close;
         }
       } catch (spErr) {
-        console.log('Dashboard: S&P 500 data unavailable, using estimate');
       }
 
       if (btcData) {

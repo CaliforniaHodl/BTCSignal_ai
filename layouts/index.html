@@ -37,7 +37,7 @@
     <div class="hero-features-grid">
       <!-- AI Signal Card -->
       <article class="hero-feature-card signal-card">
-        <div class="hero-feature-icon">🤖</div>
+        <div class="hero-feature-icon" aria-hidden="true">🤖</div>
         <div class="hero-feature-content">
           <h3>Latest AI Signal</h3>
           {{ $latestPost := index (where .Site.RegularPages "Section" "posts") 0 }}
@@ -58,7 +58,7 @@
 
       <!-- Key Level Card -->
       <article class="hero-feature-card level-card">
-        <div class="hero-feature-icon">🎯</div>
+        <div class="hero-feature-icon" aria-hidden="true">🎯</div>
         <div class="hero-feature-content">
           <h3>Key Level of the Day</h3>
           <div class="key-level-display">
@@ -72,7 +72,7 @@
 
       <!-- Funding Rate Quick Card -->
       <article class="hero-feature-card funding-card">
-        <div class="hero-feature-icon">💰</div>
+        <div class="hero-feature-icon" aria-hidden="true">💰</div>
         <div class="hero-feature-content">
           <h3>BTC Funding Rate</h3>
           <div class="funding-quick-display">
@@ -85,13 +85,13 @@
 
       <!-- Pro Tools CTA Card -->
       <article class="hero-feature-card cta-card">
-        <div class="hero-feature-icon">⚡</div>
+        <div class="hero-feature-icon" aria-hidden="true">⚡</div>
         <div class="hero-feature-content">
           <h3>Pro Trading Tools</h3>
           <ul class="pro-tools-list">
-            <li>📊 Pattern Detector</li>
-            <li>🔥 Liquidation Hunter</li>
-            <li>🧠 AI Trade Coach</li>
+            <li><span aria-hidden="true">📊</span> Pattern Detector</li>
+            <li><span aria-hidden="true">🔥</span> Liquidation Hunter</li>
+            <li><span aria-hidden="true">🧠</span> AI Trade Coach</li>
           </ul>
           <a href="/pro-tools/dashboard/" class="hero-feature-link highlight">Explore Tools →</a>
         </div>

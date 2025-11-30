@@ -6,12 +6,10 @@
   function checkAccess() {
     // Check admin mode first (bypasses all paywalls)
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      console.log('%c ADMIN: Alpha Radar access bypassed', 'color: #f7931a;');
       return true;
     }
     // Check all-access subscription
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      console.log('All-access subscription active, unlocking Alpha Radar');
       return true;
     }
     // Legacy localStorage check
@@ -41,7 +39,13 @@
   if (unlockBtn) {
     unlockBtn.addEventListener('click', async function() {
       // For now, simulate payment - integrate with LNbits
-      const confirmed = confirm('This will cost 50 sats via Lightning. Continue?');
+      // Payment confirmation handled by Toast.confirm
+      Toast.confirm('This will cost 50 sats via Lightning. Continue?', function() {
+        // Simulated payment success
+        unlockFeature();
+      });
+      return; // Exit early, callback handles the rest
+      const confirmed = true; // Placeholder for callback flow
       if (confirmed) {
         // TODO: Integrate actual Lightning payment
         localStorage.setItem(FEATURE_KEY, 'unlocked');
@@ -58,7 +62,7 @@
       if (checkAccess()) {
         updateUI();
       } else {
-        alert('No active access found. Please unlock to continue.');
+        Toast.warning('No active access found. Please unlock to continue.');
       }
     });
   }

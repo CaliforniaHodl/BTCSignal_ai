@@ -9,7 +9,6 @@
   // Check access
   function checkAccess() {
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      console.log('%c ADMIN: Backtester PRO access bypassed', 'color: #f7931a;');
       return true;
     }
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
@@ -828,7 +827,7 @@
   async function handleBacktest() {
     const strategyText = strategyInput.value.trim();
     if (!strategyText) {
-      alert('Please describe your trading strategy');
+      Toast.warning('Please describe your trading strategy');
       return;
     }
 
@@ -846,7 +845,6 @@
     try {
       // Parse strategy
       const strategy = parseStrategy(strategyText);
-      console.log('Parsed strategy:', strategy);
 
       // Get settings
       const timeframe = timeframeSelect.value;
@@ -877,7 +875,7 @@
       console.error('Backtest error:', error);
       clearInterval(loadingInterval);
       loadingSection.style.display = 'none';
-      alert('Failed to run backtest. Please try again.');
+      Toast.error('Failed to run backtest. Please try again.');
     }
   }
 
@@ -887,7 +885,7 @@
   // Unlock button
   document.getElementById('btn-unlock')?.addEventListener('click', function() {
     // In production, this would trigger payment
-    alert('Backtester PRO requires 100 sats per backtest. Payment integration coming soon!');
+    Toast.info('Backtester PRO requires 100 sats per backtest. Payment integration coming soon!');
   });
 
   // Initialize

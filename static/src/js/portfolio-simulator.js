@@ -8,12 +8,10 @@
   function checkAccess() {
     // Check admin mode first (bypasses all paywalls)
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      console.log('%c ADMIN: Portfolio Simulator access bypassed', 'color: #f7931a;');
       return true;
     }
     // Check all-access subscription
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      console.log('All-access subscription active, unlocking Portfolio Simulator');
       return true;
     }
     // Legacy localStorage check
@@ -40,7 +38,12 @@
   const unlockBtn = document.getElementById('btn-unlock');
   if (unlockBtn) {
     unlockBtn.addEventListener('click', function() {
-      const confirmed = confirm('This will cost 50 sats via Lightning. Continue?');
+      // Payment confirmation handled by Toast.confirm
+      Toast.confirm('This will cost 50 sats via Lightning. Continue?', function() {
+        unlockFeature();
+      });
+      return;
+      const confirmed = true;
       if (confirmed) {
         localStorage.setItem(FEATURE_KEY, 'unlocked');
         updateUI();
@@ -56,7 +59,7 @@
       if (checkAccess()) {
         updateUI();
       } else {
-        alert('No active access found. Please unlock to continue.');
+        Toast.warning('No active access found. Please unlock to continue.');
       }
     });
   }
@@ -214,7 +217,7 @@
     priceData = await fetchPriceData(config.startDate, config.endDate);
 
     if (priceData.length === 0) {
-      alert('Failed to fetch price data. Please try again.');
+      Toast.error('Failed to fetch price data. Please try again.');
       btnText.style.display = 'inline';
       btnLoading.style.display = 'none';
       return;

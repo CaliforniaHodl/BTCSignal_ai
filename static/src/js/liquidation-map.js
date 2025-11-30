@@ -9,7 +9,6 @@
   // Check access
   function checkAccess() {
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      console.log('%c ADMIN: Liquidation Map access bypassed', 'color: #f7931a;');
       return true;
     }
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
