@@ -120,7 +120,7 @@
       document.getElementById('fear-greed-fill').className = 'fear-greed-fill ' +
         (fgValue < 25 ? 'extreme-fear' : fgValue < 45 ? 'fear' : fgValue < 55 ? 'neutral' : fgValue < 75 ? 'greed' : 'extreme-greed');
 
-      // Funding Rate from Binance
+      // Funding Rate from CoinGecko
       const fundingRes = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
       const fundingData = await fundingRes.json();
       const fundingRate = (parseFloat(fundingData[0].fundingRate) * 100).toFixed(4);

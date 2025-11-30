@@ -125,7 +125,7 @@ Not all exchanges have the same funding:
 
 | Exchange | Funding Frequency | Typical Range |
 |----------|-------------------|---------------|
-| Binance | 8h | -0.5% to 0.5% |
+| CoinGecko | 8h | -0.5% to 0.5% |
 | Bybit | 8h | -0.5% to 0.5% |
 | dYdX | 1h | -0.5% to 0.5% |
 | BitMEX | 8h | -0.375% to 0.375% |
@@ -151,7 +151,7 @@ Watch for:
 
 ### Funding + Spot Premium
 
-Spot premium = Coinbase/Kraken price vs Binance price
+Spot premium = Coinbase/Kraken price vs CoinGecko price
 
 | Funding | Spot Premium | Signal |
 |---------|--------------|--------|

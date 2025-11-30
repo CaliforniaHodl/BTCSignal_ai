@@ -111,7 +111,7 @@
     }
   }
 
-  // Load Funding Rates from Binance
+  // Load Funding Rates from CoinGecko
   async function loadFundingRates() {
     try {
       const res = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');

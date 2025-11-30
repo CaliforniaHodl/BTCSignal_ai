@@ -202,7 +202,7 @@
 - [x] AI-generated insights and recommendations
 
 ### Pattern Detector
-- [x] Live BTC chart with real-time data from Binance API
+- [x] Live BTC chart with real-time data from CoinGecko API
 - [x] Multi-timeframe support (15M, 1H, 4H, 1D)
 - [x] Automatic support/resistance detection
 - [x] Chart pattern recognition (triangles, wedges, channels, double tops/bottoms)
@@ -432,7 +432,7 @@
 - **Payments**: Lightning Network via LNbits
 - **Data Sources**:
   - Coinbase API (spot prices)
-  - Binance API (funding rates, klines)
+  - CoinGecko API (funding rates, klines)
   - CoinGecko API (market data, dominance)
   - Alternative.me (Fear & Greed)
 - **AI**: Claude API for analysis and chart interpretation

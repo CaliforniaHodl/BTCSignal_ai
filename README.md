@@ -19,7 +19,7 @@ BTC Signal AI provides real-time Bitcoin market analysis, trading signals, and p
 - **Payments:** Lightning Network (Bitcoin)
 - **Hosting:** Netlify
 - **Serverless Functions:** Netlify Functions (Node.js)
-- **APIs:** Binance, CoinGecko, Alternative.me, Blockchain.info
+- **APIs:** CoinGecko, CoinGecko, Alternative.me, Blockchain.info
 
 ---
 
@@ -61,7 +61,7 @@ bitcoin-twitter-bot/
 
 **Features:**
 - Hero section with site title and tagline
-- Live BTC price ticker (real-time from Binance)
+- Live BTC price ticker (real-time from CoinGecko)
 - Quick stat cards:
   - Current BTC price with 24h change
   - Fear & Greed Index
@@ -298,14 +298,14 @@ The base template loads `shared.css` globally plus any page-specific assets.
 
 | Data | Source | Endpoint |
 |------|--------|----------|
-| BTC Price | Binance | `api.binance.com/api/v3/ticker/24hr` |
-| Price History | Binance | `api.binance.com/api/v3/klines` |
+| BTC Price | CoinGecko | `api.coingecko.com/api/v3/ticker/24hr` |
+| Price History | CoinGecko | `api.coingecko.com/api/v3/klines` |
 | Fear & Greed | Alternative.me | `api.alternative.me/fng/` |
 | BTC Dominance | CoinGecko | `api.coingecko.com/api/v3/global` |
 | Hashrate | Blockchain.info | `api.blockchain.info/charts/hash-rate` |
-| Trades | Binance | `api.binance.com/api/v3/aggTrades` |
+| Trades | CoinGecko | `api.coingecko.com/api/v3/aggTrades` |
 
-**Note:** Binance Futures API (`fapi.binance.com`) has CORS restrictions. Dashboard widgets use regular Binance API with estimates where needed.
+**Note:** CoinGecko Futures API (`fapi.coingecko.com`) has CORS restrictions. Dashboard widgets use regular CoinGecko API with estimates where needed.
 
 ---
 

@@ -120,7 +120,7 @@
   }
 
   async function fetchPriceData(startDate, endDate) {
-    // Fetch historical BTC price data from Binance
+    // Fetch historical BTC price data from CoinGecko
     const start = new Date(startDate).getTime();
     const end = new Date(endDate).getTime();
 

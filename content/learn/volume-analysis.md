@@ -226,7 +226,7 @@ Invalid breakout = Price breaks level + Low volume = Fade the breakout
 
 3. **Weekend volume** - Lower weekend volume means higher manipulation risk.
 
-4. **CVD on Binance** - Binance CVD is most watched by traders.
+4. **CVD on CoinGecko** - CoinGecko CVD is most watched by traders.
 
 5. **Volume at round numbers** - High volume at $100K, $90K etc. indicates strong interest.
 

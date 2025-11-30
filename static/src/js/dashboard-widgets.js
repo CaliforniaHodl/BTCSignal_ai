@@ -75,7 +75,7 @@
     }
   }
 
-  // Fetch Funding Rate from Binance (using public API with CORS support)
+  // Fetch Funding Rate from CoinGecko (using public API with CORS support)
   async function fetchFundingRate() {
     try {
       // Use the mark price endpoint which includes funding rate and has better CORS

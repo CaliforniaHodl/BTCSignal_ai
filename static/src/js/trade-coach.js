@@ -242,11 +242,15 @@
       else logicScore = 60;
     }
 
-    if (hasPositionSize) {
-      if (trade.positionSize <= 2) sizingScore = 90;
-      else if (trade.positionSize <= 5) sizingScore = 80;
-      else if (trade.positionSize <= 10) sizingScore = 60;
-      else sizingScore = 35;
+    // Sizing score based on dollar risk
+    if (hasPositionSize && dollarRisk > 0) {
+      if (dollarRisk <= 100) sizingScore = 90;
+      else if (dollarRisk <= 500) sizingScore = 80;
+      else if (dollarRisk <= 1000) sizingScore = 70;
+      else if (dollarRisk <= 2500) sizingScore = 60;
+      else sizingScore = 40;
+    } else if (hasPositionSize) {
+      sizingScore = 70;
     }
 
     const overallScore = Math.round((entryScore + riskScore + logicScore + sizingScore) / 4);
@@ -283,16 +287,1946 @@
       }
     }
 
+    // Position sizing feedback (dollar-based)
     if (hasPositionSize && dollarRisk > 0) {
-      if (trade.positionSize > 10) {
-        improvements.push('Position size of ' + trade.positionSize + '% is aggressive. If stopped out, you lose $' + dollarRisk.toFixed(0) + ' (as % of position). Professional traders risk 1-2% per trade.');
-      } else if (trade.positionSize > 5) {
-        improvements.push('At ' + trade.positionSize + '% position, a stop-out costs ~$' + dollarRisk.toFixed(0) + '. Consider 2-5% for better capital preservation.');
-      } else {
-        strengths.push('Conservative ' + trade.positionSize + '% position. If stopped, you lose ~$' + dollarRisk.toFixed(0) + ' - this is responsible risk management.');
+      if (dollarRisk > 2500) {
+        improvements.push('Risking 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
       }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (dollarRisk > 2500) {
+      takeaways.push('Consider reducing position size - 
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' on this trade is aggressive. Consider if this aligns with your risk tolerance.');
+      } else if (dollarRisk > 1000) {
+        improvements.push('Dollar risk of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' is moderate. Make sure this fits within your overall risk management plan.');
+      } else if (dollarRisk > 500) {
+        strengths.push('Reasonable risk of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' on a 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + trade.positionSize.toLocaleString() + ' position.');
+      } else {
+        strengths.push('Conservative risk of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' on a 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + trade.positionSize.toLocaleString() + ' position - good capital preservation.');
+      }
+    } else if (hasPositionSize && !hasStopLoss) {
+      improvements.push('Position size of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + trade.positionSize.toLocaleString() + ' entered, but without a stop loss your risk is undefined.');
     } else if (!hasPositionSize) {
-      improvements.push('No position size specified. Always calculate your risk in dollars before entering.');
+      improvements.push('No position size specified. Always know your dollar risk before entering.');
+    }
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' at risk is significant');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' on this trade is aggressive. Consider if this aligns with your risk tolerance.');
+      } else if (dollarRisk > 1000) {
+        improvements.push('Dollar risk of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' is moderate. Make sure this fits within your overall risk management plan.');
+      } else if (dollarRisk > 500) {
+        strengths.push('Reasonable risk of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' on a 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + trade.positionSize.toLocaleString() + ' position.');
+      } else {
+        strengths.push('Conservative risk of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + dollarRisk.toFixed(0) + ' on a 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + trade.positionSize.toLocaleString() + ' position - good capital preservation.');
+      }
+    } else if (hasPositionSize && !hasStopLoss) {
+      improvements.push('Position size of 
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
+
+    let psychology = '';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
+    } else if (!hasReasoning) {
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
+    } else {
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
+    }
+
+    let alternatives = '';
+    if (trade.direction === 'long') {
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
+    } else {
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
+    }
+
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
+
+    return {
+      overallScore,
+      entryScore,
+      riskScore,
+      logicScore,
+      sizingScore,
+      strengths,
+      improvements,
+      psychology,
+      alternatives,
+      takeaways
+    };
+  }
+
+
+  function saveToHistory(trade, analysis) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.unshift({
+      trade,
+      analysis,
+      timestamp: new Date().toISOString()
+    });
+    history = history.slice(0, 10);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    loadHistory();
+  }
+
+  function loadHistory() {
+    const container = document.getElementById('analyses-list');
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+
+    if (history.length === 0) {
+      container.innerHTML = '<p class="no-analyses">No analyses yet. Submit a trade above to get started!</p>';
+      return;
+    }
+
+    container.innerHTML = history.map((item, index) => {
+      const date = new Date(item.timestamp).toLocaleDateString();
+      const score = item.analysis.overallScore;
+      const scoreClass = score >= 70 ? 'good' : score >= 50 ? 'okay' : 'poor';
+
+      return `
+        <div class="history-item">
+          <div class="history-info">
+            <span class="history-direction ${item.trade.direction}">${item.trade.direction.toUpperCase()}</span>
+            <span class="history-entry">$${item.trade.entryPrice.toLocaleString()}</span>
+            <span class="history-date">${date}</span>
+          </div>
+          <div class="history-score ${scoreClass}">${score}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateUI();
+})();
+
+ + trade.positionSize.toLocaleString() + ' entered, but without a stop loss your risk is undefined.');
+    } else if (!hasPositionSize) {
+      improvements.push('No position size specified. Always know your dollar risk before entering.');
     }
 
     if (!hasReasoning) {
