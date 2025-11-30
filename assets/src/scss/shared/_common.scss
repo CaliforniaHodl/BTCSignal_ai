@@ -126,13 +126,13 @@ section h2 {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: linear-gradient(135deg, var(--bitcoin-orange), var(--bitcoin-gold));
-    color: #fff;
+    background: transparent;
+    color: var(--bitcoin-orange);
     padding: 4px 10px;
     border-radius: var(--radius-sm);
+    border: 1px solid var(--bitcoin-orange);
     font-size: 0.75rem;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(247, 147, 26, 0.3);
   }
 
   .post-card-body {
