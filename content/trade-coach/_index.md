@@ -7,4 +7,5 @@ image: 'og-image.png'
 keywords: 'Bitcoin trade analysis, BTC trading coach, crypto trade review, trading psychology, trade scoring'
 layout: "single"
 priority: 0.8
+css: ['premium-features.scss']
 ---
