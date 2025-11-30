@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{/* Determine if this post is in the latest 3 (free) or paywalled */}}
+{{/* Determine if this post is in the latest 10 (paywalled) */}}
 {{ $latestPosts := first 10 (where .Site.RegularPages "Section" "posts") }}
 {{ $isFree := true }}
 {{ range $latestPosts }}
@@ -9,6 +9,14 @@
 {{ end }}
 
 <div class="container single-post-page" data-post-id="{{ .File.UniqueID }}" data-is-free="{{ $isFree }}">
+
+  <!-- Quant-Style Header Banner -->
+  <div class="quant-banner">
+    <span class="quant-icon">📊</span>
+    <span class="quant-text">Signals based on quant-style factor analysis — not predictions or hype.</span>
+    <a href="/how-it-works/" class="quant-link">Learn more</a>
+  </div>
+
   <nav class="breadcrumb">
     <a href="/">Home</a>
     <span class="separator">/</span>
@@ -19,17 +27,26 @@
 
   <article class="analysis-article">
     <header class="article-header">
+      <!-- Data Freshness Stamp -->
+      <div class="data-freshness">
+        <span class="freshness-icon">🕐</span>
+        <span class="freshness-text">Data snapshot: {{ .Date.Format "Jan 02, 2006 15:04" }} UTC</span>
+        <span class="freshness-note">• Exchange: Binance • Latency: ~15s</span>
+      </div>
+
       <div class="header-meta">
         <span class="date">{{ .Date.Format "January 02, 2006" }}</span>
         <span class="time">{{ .Date.Format "15:04" }} UTC</span>
-        <span class="timeframe-badge">{{ .Params.timeframe }}</span>
+        <span class="timeframe-badge">{{ .Params.timeframe }} Timeframe</span>
       </div>
 
-      <h1 class="article-title">{{ .Params.symbol }} Analysis</h1>
+      <h1 class="article-title">{{ .Params.symbol }} Factor Analysis</h1>
 
+      {{ if $isFree }}
+      {{/* FREE: Show actual stats */}}
       <div class="quick-stats">
         <div class="stat sentiment {{ .Params.sentiment }}">
-          <span class="stat-label">Sentiment</span>
+          <span class="stat-label">Signal</span>
           <span class="stat-value">
             {{ if eq .Params.sentiment "bullish" }}📈{{ else if eq .Params.sentiment "bearish" }}📉{{ else }}⏸️{{ end }}
             {{ upper .Params.sentiment }}
@@ -38,13 +55,16 @@
         <div class="stat confidence">
           <span class="stat-label">Confidence</span>
           <span class="stat-value">{{ .Params.confidence }}%</span>
+          <div class="confidence-bar-mini">
+            <div class="confidence-fill-mini" style="width: {{ .Params.confidence }}%"></div>
+          </div>
         </div>
         <div class="stat price">
-          <span class="stat-label">Price</span>
-          <span class="stat-value">${{ .Params.price }}</span>
+          <span class="stat-label">Price at Signal</span>
+          <span class="stat-value">${{ lang.FormatNumber 2 .Params.price }}</span>
         </div>
         <div class="stat change {{ if hasPrefix .Params.priceChange "+" }}positive{{ else }}negative{{ end }}">
-          <span class="stat-label">Change</span>
+          <span class="stat-label">24h Change</span>
           <span class="stat-value">{{ .Params.priceChange }}</span>
         </div>
       </div>
@@ -54,15 +74,79 @@
         {{ if .Params.targetPrice }}
         <div class="target-item target">
           <span class="target-label">Target</span>
-          <span class="target-value">${{ .Params.targetPrice }}</span>
+          <span class="target-value">${{ lang.FormatNumber 2 .Params.targetPrice }}</span>
         </div>
         {{ end }}
         {{ if .Params.stopLoss }}
         <div class="target-item stop-loss">
           <span class="target-label">Stop Loss</span>
-          <span class="target-value">${{ .Params.stopLoss }}</span>
+          <span class="target-value">${{ lang.FormatNumber 2 .Params.stopLoss }}</span>
         </div>
         {{ end }}
+        {{ if and .Params.targetPrice .Params.stopLoss }}
+        {{ $riskReward := div (sub .Params.targetPrice .Params.price) (sub .Params.price .Params.stopLoss) }}
+        <div class="target-item risk-reward">
+          <span class="target-label">Risk:Reward</span>
+          <span class="target-value">1:{{ lang.FormatNumber 1 $riskReward }}</span>
+        </div>
+        {{ end }}
+        <div class="target-item block-height">
+          <span class="target-label">Block Height</span>
+          <span class="target-value" id="block-height">Loading...</span>
+        </div>
+        <div class="target-item sats-per-dollar">
+          <span class="target-label">Sats per $1</span>
+          {{ $satsPerDollar := div 100000000.0 .Params.price }}
+          <span class="target-value">{{ lang.FormatNumber 0 $satsPerDollar }} sats</span>
+        </div>
+      </div>
+      {{ end }}
+
+      {{ else }}
+      {{/* PAYWALLED: Show blurred placeholder stats */}}
+      <div class="quick-stats blurred-stats">
+        <div class="stat sentiment">
+          <span class="stat-label">Signal</span>
+          <span class="stat-value">📊 LOCKED</span>
+        </div>
+        <div class="stat confidence">
+          <span class="stat-label">Confidence</span>
+          <span class="stat-value">??%</span>
+          <div class="confidence-bar-mini">
+            <div class="confidence-fill-mini" style="width: 50%"></div>
+          </div>
+        </div>
+        <div class="stat price">
+          <span class="stat-label">Price at Signal</span>
+          <span class="stat-value">$??,???.??</span>
+        </div>
+        <div class="stat change">
+          <span class="stat-label">24h Change</span>
+          <span class="stat-value">?.??%</span>
+        </div>
+      </div>
+
+      <div class="targets blurred-stats">
+        <div class="target-item">
+          <span class="target-label">Target</span>
+          <span class="target-value">$??,???.??</span>
+        </div>
+        <div class="target-item">
+          <span class="target-label">Stop Loss</span>
+          <span class="target-value">$??,???.??</span>
+        </div>
+        <div class="target-item">
+          <span class="target-label">Risk:Reward</span>
+          <span class="target-value">1:?.?</span>
+        </div>
+        <div class="target-item">
+          <span class="target-label">Block Height</span>
+          <span class="target-value">???,???</span>
+        </div>
+        <div class="target-item">
+          <span class="target-label">Sats per $1</span>
+          <span class="target-value">?,??? sats</span>
+        </div>
       </div>
       {{ end }}
     </header>
@@ -73,7 +157,7 @@
       <div class="paywall-content">
         <div class="lightning-icon">⚡</div>
         <h3>Premium Analysis</h3>
-        <p>Unlock this analysis for <strong>21 sats</strong></p>
+        <p>Unlock full factor breakdown for <strong>21 sats</strong></p>
         <div id="invoice-container" style="display: none;">
           <div id="qr-code"></div>
           <div class="invoice-string">
@@ -90,11 +174,374 @@
     </div>
     {{ end }}
 
-    <div class="article-content {{ if not $isFree }}blurred{{ end }}" id="article-content">
-      {{ .Content }}
+    {{ if not $isFree }}
+    {{/* PAYWALLED: Show blurred skeleton content */}}
+    <div class="article-content paywalled" id="article-content">
+
+      <!-- Blurred skeleton that looks like real content -->
+      <section class="signal-explainer">
+        <h2>📊 Why This Signal?</h2>
+        <p class="explainer-intro">Our AI analyzed multiple factors and weighted them to produce this signal. Here's the breakdown:</p>
+
+        <div class="factor-grid">
+          <div class="factor-card neutral">
+            <div class="factor-header">
+              <span class="factor-name">RSI (14)</span>
+              <span class="factor-value">55.0</span>
+            </div>
+            <div class="factor-bar">
+              <div class="factor-marker" style="left: 55%"></div>
+              <div class="factor-zones">
+                <span class="zone oversold">Oversold</span>
+                <span class="zone neutral">Neutral</span>
+                <span class="zone overbought">Overbought</span>
+              </div>
+            </div>
+            <div class="factor-explanation">
+              <span class="signal-tag neutral">○ Neutral</span>
+              <p>RSI at 55.0 is in the neutral zone. No strong momentum signal either direction.</p>
+            </div>
+          </div>
+
+          <div class="factor-card">
+            <div class="factor-header">
+              <span class="factor-name">24h Volume</span>
+              <span class="factor-value">$1,234,567,890</span>
+            </div>
+            <div class="factor-explanation">
+              <span class="signal-tag neutral">○ Normal</span>
+              <p>Volume near average levels. Neither confirming nor denying the current trend.</p>
+            </div>
+          </div>
+
+          <div class="factor-card neutral">
+            <div class="factor-header">
+              <span class="factor-name">Trend Structure</span>
+              <span class="factor-value">Sideways</span>
+            </div>
+            <div class="factor-explanation">
+              <span class="signal-tag neutral">○ Ranging</span>
+              <p>No clear trend. Price chopping between support and resistance. Wait for breakout confirmation.</p>
+            </div>
+          </div>
+
+          <div class="factor-card">
+            <div class="factor-header">
+              <span class="factor-name">Fear & Greed Index</span>
+              <span class="factor-value">50</span>
+            </div>
+            <div class="factor-explanation">
+              <span class="signal-tag neutral">○ Neutral</span>
+              <p>Sentiment at 50 (Neutral). No strong crowd bias either direction.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="detailed-analysis">
+        <h2>📈 Full Technical Breakdown</h2>
+        <h3>24h Technical Overview</h3>
+        <p>Current Price: $95,000.00 | 24h Change: +2.50% | 24h High: $96,000.00 | 24h Low: $93,000.00</p>
+        <table>
+          <tr><td>Indicator</td><td>Value</td></tr>
+          <tr><td>RSI (14)</td><td>55.0</td></tr>
+          <tr><td>MACD</td><td>250.00 (Signal: 200.00)</td></tr>
+          <tr><td>EMA (20)</td><td>$94,000.00</td></tr>
+          <tr><td>SMA (50)</td><td>$92,000.00</td></tr>
+        </table>
+        <h3>Trading Setup</h3>
+        <p>Entry: $95,000.00 | Target: $98,000.00 | Stop Loss: $93,000.00 | Risk:Reward 1:2.0</p>
+      </section>
+
+      <section class="raw-inputs-section">
+        <h2>🔍 Signal Audit — Raw Inputs</h2>
+        <p class="audit-intro">Transparency matters. Here are the exact values our AI used to generate this signal:</p>
+        <div class="audit-grid">
+          <div class="audit-card">
+            <h4>Price Data</h4>
+            <table class="audit-table">
+              <tr><td>Price</td><td>$95,000.00</td></tr>
+              <tr><td>24h Change</td><td>+2.50%</td></tr>
+              <tr><td>24h High</td><td>$96,000.00</td></tr>
+              <tr><td>24h Low</td><td>$93,000.00</td></tr>
+            </table>
+          </div>
+          <div class="audit-card">
+            <h4>Technical Indicators</h4>
+            <table class="audit-table">
+              <tr><td>RSI (14)</td><td>55.0</td></tr>
+              <tr><td>MACD</td><td>250.00</td></tr>
+              <tr><td>EMA (20)</td><td>$94,000.00</td></tr>
+              <tr><td>SMA (50)</td><td>$92,000.00</td></tr>
+            </table>
+          </div>
+          <div class="audit-card">
+            <h4>Signal Output</h4>
+            <table class="audit-table">
+              <tr><td>Direction</td><td>UP</td></tr>
+              <tr><td>Confidence</td><td>65%</td></tr>
+              <tr><td>Sentiment</td><td>bullish</td></tr>
+              <tr><td>Target</td><td>$98,000.00</td></tr>
+              <tr><td>Stop Loss</td><td>$93,000.00</td></tr>
+            </table>
+          </div>
+          <div class="audit-card">
+            <h4>Track Record</h4>
+            <table class="audit-table">
+              <tr><td>Historical Wins</td><td>5</td></tr>
+              <tr><td>Historical Losses</td><td>2</td></tr>
+              <tr><td>Win Rate</td><td>71%</td></tr>
+              <tr><td>Days Tracked</td><td>14</td></tr>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="backtest-section">
+        <h2>📉 Historical Performance</h2>
+        <div class="backtest-summary">
+          <div class="backtest-stat">
+            <span class="backtest-label">Sample Size</span>
+            <span class="backtest-value">7 signals</span>
+          </div>
+          <div class="backtest-stat">
+            <span class="backtest-label">Win Rate</span>
+            <span class="backtest-value">71%</span>
+          </div>
+          <div class="backtest-stat">
+            <span class="backtest-label">Tracking Since</span>
+            <span class="backtest-value">Nov 2025</span>
+          </div>
+        </div>
+        <p class="backtest-note">
+          <strong>Note:</strong> Sample size is currently small. Historical performance does not guarantee future results.
+          <a href="/dashboard/">View full track record on Dashboard →</a>
+        </p>
+      </section>
+
     </div>
 
+    {{ else }}
+    {{/* FREE/UNLOCKED: Show actual content */}}
+    <div class="article-content" id="article-content">
+
+      <!-- Why This Signal Section -->
+      <section class="signal-explainer">
+        <h2>📊 Why This Signal?</h2>
+        <p class="explainer-intro">Our AI analyzed multiple factors and weighted them to produce this {{ .Params.sentiment }} signal. Here's the breakdown:</p>
+
+        <div class="factor-grid">
+          <!-- RSI Factor -->
+          {{ if .Params.rsi }}
+          <div class="factor-card {{ if lt .Params.rsi 30 }}bullish{{ else if gt .Params.rsi 70 }}bearish{{ else }}neutral{{ end }}">
+            <div class="factor-header">
+              <span class="factor-name">RSI (14)</span>
+              <span class="factor-value">{{ lang.FormatNumber 1 .Params.rsi }}</span>
+            </div>
+            <div class="factor-bar">
+              <div class="factor-marker" style="left: {{ .Params.rsi }}%"></div>
+              <div class="factor-zones">
+                <span class="zone oversold">Oversold</span>
+                <span class="zone neutral">Neutral</span>
+                <span class="zone overbought">Overbought</span>
+              </div>
+            </div>
+            <div class="factor-explanation">
+              {{ if lt .Params.rsi 30 }}
+              <span class="signal-tag bullish">+ Bullish</span>
+              <p>RSI below 30 indicates oversold conditions. Historically, this suggests selling pressure is exhausted and a bounce is likely.</p>
+              {{ else if gt .Params.rsi 70 }}
+              <span class="signal-tag bearish">- Bearish</span>
+              <p>RSI above 70 indicates overbought conditions. This often precedes a pullback as buyers become exhausted.</p>
+              {{ else if lt .Params.rsi 45 }}
+              <span class="signal-tag neutral">○ Weak</span>
+              <p>RSI in lower-neutral zone ({{ lang.FormatNumber 1 .Params.rsi }}). Momentum is weak but not oversold yet.</p>
+              {{ else if gt .Params.rsi 55 }}
+              <span class="signal-tag bullish">+ Bullish</span>
+              <p>RSI at {{ lang.FormatNumber 1 .Params.rsi }} shows healthy bullish momentum without being overbought.</p>
+              {{ else }}
+              <span class="signal-tag neutral">○ Neutral</span>
+              <p>RSI at {{ lang.FormatNumber 1 .Params.rsi }} is in the neutral zone. No strong momentum signal either direction.</p>
+              {{ end }}
+            </div>
+          </div>
+          {{ end }}
+
+          <!-- Volume Factor -->
+          <div class="factor-card">
+            <div class="factor-header">
+              <span class="factor-name">24h Volume</span>
+              <span class="factor-value">{{ if .Params.volume24h }}${{ lang.FormatNumber 0 .Params.volume24h }}{{ else }}—{{ end }}</span>
+            </div>
+            <div class="factor-explanation">
+              {{ if .Params.volumeChange }}
+                {{ if gt .Params.volumeChange 20.0 }}
+                <span class="signal-tag bullish">+ High Volume</span>
+                <p>Volume {{ lang.FormatNumber 0 .Params.volumeChange }}% above average. Strong conviction behind current price action.</p>
+                {{ else if lt .Params.volumeChange -20.0 }}
+                <span class="signal-tag bearish">- Low Volume</span>
+                <p>Volume {{ lang.FormatNumber 0 (math.Abs .Params.volumeChange) }}% below average. Weak conviction — moves may not sustain.</p>
+                {{ else }}
+                <span class="signal-tag neutral">○ Normal</span>
+                <p>Volume near average levels. Neither confirming nor denying the current trend.</p>
+                {{ end }}
+              {{ else }}
+              <span class="signal-tag neutral">○ Monitoring</span>
+              <p>Volume confirms price action validity. High volume = strong conviction, low volume = weak moves.</p>
+              {{ end }}
+            </div>
+          </div>
+
+          <!-- Trend Factor -->
+          <div class="factor-card {{ .Params.sentiment }}">
+            <div class="factor-header">
+              <span class="factor-name">Trend Structure</span>
+              <span class="factor-value">{{ if eq .Params.sentiment "bullish" }}Uptrend{{ else if eq .Params.sentiment "bearish" }}Downtrend{{ else }}Sideways{{ end }}</span>
+            </div>
+            <div class="factor-explanation">
+              {{ if eq .Params.sentiment "bullish" }}
+              <span class="signal-tag bullish">+ Bullish</span>
+              <p>Price trading above key moving averages (EMA20 > SMA50). This structure favors long positions.</p>
+              {{ else if eq .Params.sentiment "bearish" }}
+              <span class="signal-tag bearish">- Bearish</span>
+              <p>Price below key moving averages or death cross forming. Structure favors shorts or staying flat.</p>
+              {{ else }}
+              <span class="signal-tag neutral">○ Ranging</span>
+              <p>No clear trend. Price chopping between support and resistance. Wait for breakout confirmation.</p>
+              {{ end }}
+            </div>
+          </div>
+
+          <!-- Fear & Greed Factor -->
+          <div class="factor-card">
+            <div class="factor-header">
+              <span class="factor-name">Fear & Greed Index</span>
+              <span class="factor-value">{{ if .Params.fearGreed }}{{ .Params.fearGreed }}{{ else }}—{{ end }}</span>
+            </div>
+            <div class="factor-explanation">
+              {{ if .Params.fearGreed }}
+                {{ if lt .Params.fearGreed 25 }}
+                <span class="signal-tag bullish">+ Extreme Fear</span>
+                <p>Market sentiment at {{ .Params.fearGreed }} (Extreme Fear). Historically a contrarian buy signal — "be greedy when others are fearful."</p>
+                {{ else if lt .Params.fearGreed 45 }}
+                <span class="signal-tag neutral">○ Fear</span>
+                <p>Sentiment at {{ .Params.fearGreed }} (Fear). Market is risk-averse but not at extreme levels.</p>
+                {{ else if gt .Params.fearGreed 75 }}
+                <span class="signal-tag bearish">- Extreme Greed</span>
+                <p>Sentiment at {{ .Params.fearGreed }} (Extreme Greed). Historically precedes corrections — "be fearful when others are greedy."</p>
+                {{ else if gt .Params.fearGreed 55 }}
+                <span class="signal-tag neutral">○ Greed</span>
+                <p>Sentiment at {{ .Params.fearGreed }} (Greed). Optimistic but watch for overextension.</p>
+                {{ else }}
+                <span class="signal-tag neutral">○ Neutral</span>
+                <p>Sentiment at {{ .Params.fearGreed }} (Neutral). No strong crowd bias either direction.</p>
+                {{ end }}
+              {{ else }}
+              <span class="signal-tag neutral">○ Sentiment</span>
+              <p>Fear & Greed measures crowd psychology. Extreme readings often signal reversals.</p>
+              {{ end }}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Original Analysis Content -->
+      <section class="detailed-analysis">
+        <h2>📈 Full Technical Breakdown</h2>
+        {{ .Content }}
+      </section>
+
+      <!-- Raw Inputs Audit Section -->
+      <section class="raw-inputs-section">
+        <h2>🔍 Signal Audit — Raw Inputs</h2>
+        <p class="audit-intro">Transparency matters. Here are the exact values our AI used to generate this signal:</p>
+
+        <div class="audit-grid">
+          <div class="audit-card">
+            <h4>Price Data</h4>
+            <table class="audit-table">
+              <tr><td>Price</td><td>${{ lang.FormatNumber 2 .Params.price }}</td></tr>
+              <tr><td>24h Change</td><td>{{ .Params.priceChange }}</td></tr>
+              {{ if .Params.high24h }}<tr><td>24h High</td><td>${{ lang.FormatNumber 2 .Params.high24h }}</td></tr>{{ end }}
+              {{ if .Params.low24h }}<tr><td>24h Low</td><td>${{ lang.FormatNumber 2 .Params.low24h }}</td></tr>{{ end }}
+            </table>
+          </div>
+
+          <div class="audit-card">
+            <h4>Technical Indicators</h4>
+            <table class="audit-table">
+              {{ if .Params.rsi }}<tr><td>RSI (14)</td><td>{{ lang.FormatNumber 1 .Params.rsi }}</td></tr>{{ end }}
+              {{ if .Params.macd }}<tr><td>MACD</td><td>{{ .Params.macd }}</td></tr>{{ end }}
+              {{ if .Params.ema20 }}<tr><td>EMA (20)</td><td>${{ lang.FormatNumber 2 .Params.ema20 }}</td></tr>{{ end }}
+              {{ if .Params.sma50 }}<tr><td>SMA (50)</td><td>${{ lang.FormatNumber 2 .Params.sma50 }}</td></tr>{{ end }}
+            </table>
+          </div>
+
+          <div class="audit-card">
+            <h4>Signal Output</h4>
+            <table class="audit-table">
+              <tr><td>Direction</td><td>{{ upper .Params.direction }}</td></tr>
+              <tr><td>Confidence</td><td>{{ .Params.confidence }}%</td></tr>
+              <tr><td>Sentiment</td><td>{{ .Params.sentiment }}</td></tr>
+              {{ if .Params.targetPrice }}<tr><td>Target</td><td>${{ lang.FormatNumber 2 .Params.targetPrice }}</td></tr>{{ end }}
+              {{ if .Params.stopLoss }}<tr><td>Stop Loss</td><td>${{ lang.FormatNumber 2 .Params.stopLoss }}</td></tr>{{ end }}
+            </table>
+          </div>
+
+          <div class="audit-card">
+            <h4>Track Record</h4>
+            <table class="audit-table">
+              <tr><td>Historical Wins</td><td>{{ default 0 .Params.historicalWins }}</td></tr>
+              <tr><td>Historical Losses</td><td>{{ default 0 .Params.historicalLosses }}</td></tr>
+              <tr><td>Win Rate</td><td>{{ default 0 .Params.historicalWinRate }}%</td></tr>
+              <tr><td>Days Tracked</td><td>{{ default 0 .Params.daysTracked }}</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="audit-footer">
+          <p class="audit-timestamp">
+            <span class="timestamp-icon">⏱️</span>
+            Snapshot taken: {{ .Date.Format "2006-01-02T15:04:05Z07:00" }}
+          </p>
+          <p class="audit-source">
+            <span class="source-icon">📡</span>
+            Data sources: Binance API, Alternative.me (Fear & Greed)
+          </p>
+        </div>
+      </section>
+
+      <!-- Backtest Summary -->
+      <section class="backtest-section">
+        <h2>📉 Historical Performance</h2>
+        <div class="backtest-summary">
+          <div class="backtest-stat">
+            <span class="backtest-label">Sample Size</span>
+            <span class="backtest-value">{{ add (default 0 .Params.historicalWins) (default 0 .Params.historicalLosses) }} signals</span>
+          </div>
+          <div class="backtest-stat">
+            <span class="backtest-label">Win Rate</span>
+            <span class="backtest-value">{{ default 0 .Params.historicalWinRate }}%</span>
+          </div>
+          <div class="backtest-stat">
+            <span class="backtest-label">Tracking Since</span>
+            <span class="backtest-value">{{ if .Params.trackingSince }}{{ .Params.trackingSince }}{{ else }}Nov 2025{{ end }}</span>
+          </div>
+        </div>
+        <p class="backtest-note">
+          <strong>Note:</strong> Sample size is currently small. Historical performance does not guarantee future results.
+          <a href="/dashboard/">View full track record on Dashboard →</a>
+        </p>
+      </section>
+
+    </div>
+    {{ end }}
+
     <footer class="article-footer">
+      <div class="footer-disclaimer">
+        <p><strong>⚠️ Not Financial Advice</strong></p>
+        <p>This analysis is for informational purposes only. We do not trade for you or manage any funds. All trading decisions are your own responsibility. <a href="/faq/">Learn more</a></p>
+      </div>
       <a href="/posts/" class="back-link">← Back to all analysis</a>
     </footer>
   </article>
@@ -104,4 +551,20 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script src="{{ "src/js/paywall.js" | relURL }}"></script>
 {{ end }}
+
+<script>
+// Fetch block height from mempool.space
+(function() {
+  fetch('https://mempool.space/api/blocks/tip/height')
+    .then(res => res.text())
+    .then(height => {
+      const el = document.getElementById('block-height');
+      if (el) el.textContent = parseInt(height).toLocaleString();
+    })
+    .catch(() => {
+      const el = document.getElementById('block-height');
+      if (el) el.textContent = '—';
+    });
+})();
+</script>
 {{ end }}
