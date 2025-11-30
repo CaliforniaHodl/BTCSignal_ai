@@ -282,15 +282,17 @@
       <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}" role="listitem" aria-label="Analysis from {{ $post.Date.Format "January 2, 2006" }}: {{ $post.Params.direction }} signal with {{ $post.Params.confidence }} percent confidence at ${{ $post.Params.price }}{{ if $isLocked }}, requires payment{{ end }}">
         <div class="post-card-header">
           <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
-          <span class="post-timeframe">{{ $post.Params.timeframe }}</span>
-          {{ if $isLocked }}<span class="lock-badge" aria-hidden="true"><span aria-hidden="true">⚡</span> 21 sats</span>{{ end }}
+          {{ if $isLocked }}<span class="lock-badge" aria-hidden="true">🔒 <span aria-hidden="true">⚡</span> 21 sats</span>{{ end }}
         </div>
         <div class="post-card-body">
           <span class="direction-badge {{ $post.Params.direction }}">
             <span aria-hidden="true">{{ if eq $post.Params.direction "up" }}📈{{ else if eq $post.Params.direction "down" }}📉{{ else }}➡️{{ end }}</span>
             {{ upper $post.Params.direction }}
           </span>
-          <span class="confidence">{{ $post.Params.confidence }}%<span class="sr-only"> confidence</span></span>
+          <span class="confidence">
+            <span class="confidence-label">Confidence</span>
+            <span class="confidence-value">{{ $post.Params.confidence }}%</span>
+          </span>
         </div>
         <div class="post-card-footer">
           <span class="price">${{ $post.Params.price }}</span>
