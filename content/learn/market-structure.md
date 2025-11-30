@@ -4,6 +4,8 @@ description: "Learn how to identify bullish and bearish market structure in Bitc
 date: 2024-11-29
 slug: "market-structure"
 tags: ["education", "market-structure", "trading-basics"]
+icon: "📊"
+category: "fundamentals"
 priority: 0.5
 ---
 

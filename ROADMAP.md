@@ -253,6 +253,29 @@
 - [x] New Bitcoin + Signal logo
 - [x] Embeddable Key Level widget
 
+### Phase 5.5: Get MVP Working (IN PROGRESS)
+*Goal: Polish existing features for launch-ready state*
+
+**Home Page (`/`)**
+- [ ] Add more content above the fold - page feels empty until Market Sentiment section
+- [ ] Market Sentiment placement is fine, but needs more engaging content before it
+
+**Analysis History (`/posts/`)**
+- [ ] Fix empty table - Time, Sentiment, Confidence, Price, Change columns showing no data
+
+**Learn Hub (`/learn/`)**
+- [ ] Add emojis to posts that are missing them (some have emojis, some don't)
+
+**Learn Posts (`/learn/:post`)**
+- [ ] Redesign related posts cards - improve card design
+- [ ] Match related posts card background with the current post theme
+
+**Pro Tools Dashboard (`/pro-tools/dashboard/`)**
+- [ ] Redesign to match Market Sentiment widget style from home page
+- [ ] Add 3x more widgets (expand from current layout)
+
+---
+
 ### Phase 5: Social & Community (PLANNED)
 *Goal: Build community engagement and viral growth*
 

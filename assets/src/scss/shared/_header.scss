@@ -1,15 +1,277 @@
+// =====================================================
+// HEADER STYLES - Site Navigation
+// =====================================================
+
 .header {
-background-color: red;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
 }
 
-
-.mobile-nav{
-    background-color: green;
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-sm $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
 }
 
+// Logo
+.logo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: $font-bold;
+  font-size: $font-lg;
+  transition: color $transition-base;
 
-.mobile-nav-active {  
-    .mobile-nav{
-         background-color: blue;
+  &:hover {
+    color: var(--bitcoin-orange);
+  }
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+
+// Navigation
+nav {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin: 0;
+  }
+
+  > li > a,
+  > li > button {
+    display: inline-block;
+    padding: $spacing-sm $spacing-md;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: $font-medium;
+    font-size: $font-sm;
+    border-radius: $radius-md;
+    transition: all $transition-base;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--text-primary);
+      background: var(--bg-dark);
     }
+  }
+}
+
+// Pricing link highlight
+.nav-pricing {
+  color: var(--bitcoin-orange) !important;
+  font-weight: $font-semibold !important;
+
+  &:hover {
+    background: rgba($bitcoin-orange, 0.1) !important;
+  }
+}
+
+// Dropdown
+.nav-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+
+  &::after {
+    content: "";
+    border: 4px solid transparent;
+    border-top-color: currentColor;
+    margin-top: 2px;
+  }
+
+  &[aria-expanded="true"]::after {
+    transform: rotate(180deg);
+    margin-top: -2px;
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  box-shadow: $shadow-lg;
+  padding: $spacing-sm 0;
+  list-style: none;
+  margin: $spacing-xs 0 0;
+  display: block; // Override Bootstrap's display:none
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-fast;
+  z-index: 1001;
+
+  .nav-dropdown.is-open & {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  a {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: $font-sm;
+    transition: all $transition-base;
+
+    &:hover {
+      background: var(--bg-dark);
+      color: var(--text-primary);
+    }
+
+    span[aria-hidden] {
+      font-size: $font-base;
+    }
+  }
+}
+
+// Theme Toggle
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  padding: 0;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    background: var(--bg-card-hover);
+  }
+
+  .icon {
+    font-size: $font-lg;
+  }
+
+  .icon-sun {
+    display: none;
+  }
+
+  [data-theme="light"] & {
+    .icon-moon {
+      display: none;
+    }
+    .icon-sun {
+      display: inline;
+    }
+  }
+}
+
+// Mobile Navigation
+@include mobile {
+  .header-content {
+    flex-wrap: wrap;
+    padding: $spacing-sm $spacing-md;
+  }
+
+  .nav-links {
+    display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    padding-top: $spacing-md;
+    border-top: 1px solid var(--border-color);
+    margin-top: $spacing-sm;
+
+    .mobile-nav-active & {
+      display: flex;
+    }
+
+    > li > a,
+    > li > button {
+      width: 100%;
+      text-align: left;
+      padding: $spacing-md;
+      border-radius: 0;
+    }
+  }
+
+  .nav-dropdown {
+    width: 100%;
+  }
+
+  .dropdown-menu {
+    position: static;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    background: var(--bg-dark);
+    border-radius: 0;
+    margin: 0;
+    opacity: 1;
+    visibility: visible;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+    transition: max-height $transition-base;
+
+    .nav-dropdown.is-open & {
+      max-height: 500px;
+      padding: $spacing-sm 0;
+    }
+
+    a {
+      padding-left: $spacing-xl;
+    }
+  }
+}
+
+// Mobile menu toggle (if needed)
+.mobile-menu-toggle {
+  display: none;
+  padding: $spacing-sm;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: $font-xl;
+
+  @include mobile {
+    display: block;
+  }
 }

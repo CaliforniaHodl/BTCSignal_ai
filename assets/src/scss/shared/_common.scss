@@ -33,10 +33,7 @@ main {
   .site-title {
     font-size: 2.5rem;
     margin: 0 0 var(--spacing-sm);
-    background: linear-gradient(135deg, var(--btc-orange), #fbbf24);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--text-primary);
   }
 
   .site-description {
@@ -232,4 +229,25 @@ section h2 {
   padding: 0;
   position: absolute;
   width: 1px;
+}
+
+// Skip link - hidden until focused (accessibility)
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--bitcoin-orange);
+  color: #fff;
+  padding: $spacing-sm $spacing-md;
+  z-index: 10000;
+  text-decoration: none;
+  font-weight: $font-semibold;
+  border-radius: 0 0 $radius-md 0;
+  transition: top $transition-fast;
+
+  &:focus {
+    top: 0;
+    outline: 2px solid var(--text-primary);
+    outline-offset: 2px;
+  }
 }

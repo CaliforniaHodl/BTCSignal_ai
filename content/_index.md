@@ -8,5 +8,5 @@ keywords: 'Bitcoin trading signals, BTC analysis, AI trading, cryptocurrency sig
 priority: 1.0
 cta: false
 js: ['menu.js']
-css: ['index.css']
+css: ['index.scss']
 ---

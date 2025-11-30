@@ -19,7 +19,15 @@
     liqHeatmap: document.getElementById('home-liq-heatmap'),
     liqAbove: document.getElementById('home-liq-above'),
     liqCurrent: document.getElementById('home-liq-current'),
-    liqBelow: document.getElementById('home-liq-below')
+    liqBelow: document.getElementById('home-liq-below'),
+    // Hero card elements
+    heroFundingValue: document.getElementById('hero-funding-value'),
+    heroFundingLabel: document.getElementById('hero-funding-label'),
+    // Quick stats bar elements
+    statHigh: document.getElementById('stat-high'),
+    statLow: document.getElementById('stat-low'),
+    statVolume: document.getElementById('stat-volume'),
+    statMcap: document.getElementById('stat-mcap')
   };
 
   // Check if elements exist (only run on homepage)
@@ -42,18 +50,21 @@
         // Position indicator (0-100 maps to 0-100%)
         elements.fngIndicator.style.left = value + '%';
 
-        // Color based on value
+        // Determine color class based on value
+        let colorClass;
         if (value <= 25) {
-          elements.fngValue.className = 'fng-value-large extreme-fear';
+          colorClass = 'extreme-fear';
         } else if (value <= 45) {
-          elements.fngValue.className = 'fng-value-large fear';
+          colorClass = 'fear';
         } else if (value <= 55) {
-          elements.fngValue.className = 'fng-value-large neutral';
+          colorClass = 'neutral';
         } else if (value <= 75) {
-          elements.fngValue.className = 'fng-value-large greed';
+          colorClass = 'greed';
         } else {
-          elements.fngValue.className = 'fng-value-large extreme-greed';
+          colorClass = 'extreme-greed';
         }
+
+        elements.fngValue.className = 'fng-value-large ' + colorClass;
       }
     } catch (e) {
       console.error('Failed to fetch Fear & Greed:', e);
@@ -95,6 +106,19 @@
         }
 
         elements.fundingLabel.textContent = label;
+
+        // Update hero funding card
+        if (elements.heroFundingValue) {
+          elements.heroFundingValue.textContent = rateStr;
+          let heroColorClass = 'funding-quick-value';
+          if (rate > 0.01) heroColorClass += ' positive';
+          else if (rate < -0.01) heroColorClass += ' negative';
+          else heroColorClass += ' neutral';
+          elements.heroFundingValue.className = heroColorClass;
+        }
+        if (elements.heroFundingLabel) {
+          elements.heroFundingLabel.textContent = label;
+        }
 
         // Position the fill bar (center at 50%, scale to max 0.1%)
         const maxRate = 0.1;
@@ -233,12 +257,54 @@
     elements.liqHeatmap.innerHTML = heatmapHTML;
   }
 
+  // Fetch quick stats for the stats bar
+  async function fetchQuickStats() {
+    try {
+      // Get 24hr ticker for high/low/volume
+      const tickerRes = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+      const ticker = await tickerRes.json();
+
+      // Format numbers
+      const high24h = parseFloat(ticker.highPrice);
+      const low24h = parseFloat(ticker.lowPrice);
+      const volume24h = parseFloat(ticker.quoteVolume);
+
+      if (elements.statHigh) {
+        elements.statHigh.textContent = '$' + high24h.toLocaleString(undefined, {maximumFractionDigits: 0});
+      }
+      if (elements.statLow) {
+        elements.statLow.textContent = '$' + low24h.toLocaleString(undefined, {maximumFractionDigits: 0});
+      }
+      if (elements.statVolume) {
+        // Format volume in billions/millions
+        if (volume24h >= 1e9) {
+          elements.statVolume.textContent = '$' + (volume24h / 1e9).toFixed(1) + 'B';
+        } else {
+          elements.statVolume.textContent = '$' + (volume24h / 1e6).toFixed(0) + 'M';
+        }
+      }
+
+      // Fetch market cap from CoinGecko
+      const mcapRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_market_cap=true');
+      const mcapData = await mcapRes.json();
+
+      if (elements.statMcap && mcapData.bitcoin) {
+        const mcap = mcapData.bitcoin.usd_market_cap;
+        elements.statMcap.textContent = '$' + (mcap / 1e12).toFixed(2) + 'T';
+      }
+
+    } catch (e) {
+      console.error('Failed to fetch quick stats:', e);
+    }
+  }
+
   // Initialize all data fetching
   function init() {
     fetchFearGreed();
     fetchFundingRate();
     fetchVolumeProfile();
     fetchLiquidationZones();
+    fetchQuickStats();
   }
 
   // Run on load
@@ -249,5 +315,6 @@
   setInterval(fetchFundingRate, 60000); // 1 minute
   setInterval(fetchVolumeProfile, 30000); // 30 seconds
   setInterval(fetchLiquidationZones, 30000); // 30 seconds
+  setInterval(fetchQuickStats, 30000); // 30 seconds
 
 })();

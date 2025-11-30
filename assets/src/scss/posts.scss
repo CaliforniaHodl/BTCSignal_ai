@@ -1,0 +1,192 @@
+// =====================================================
+// POSTS PAGE STYLES - Analysis History
+// =====================================================
+
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.posts-page {
+  @include section-padding;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    font-size: $font-3xl;
+    @include gradient-text;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.page-description {
+  color: var(--text-secondary);
+  font-size: $font-base;
+}
+
+// Posts Table
+.posts-table-container {
+  overflow-x: auto;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+}
+
+.posts-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+
+  thead {
+    background: var(--bg-dark);
+  }
+
+  th {
+    padding: $spacing-md;
+    text-align: left;
+    font-weight: $font-semibold;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: $spacing-md;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+  }
+
+  tbody {
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover {
+      background: var(--bg-card-hover);
+    }
+  }
+
+  .post-row {
+    &.up {
+      border-left: 3px solid var(--green);
+    }
+
+    &.down {
+      border-left: 3px solid var(--red);
+    }
+
+    &.sideways,
+    &.mixed {
+      border-left: 3px solid var(--text-muted);
+    }
+  }
+}
+
+// Sentiment Badge
+.sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+
+  &.up {
+    background: $bullish-bg;
+    color: var(--green);
+  }
+
+  &.down {
+    background: $bearish-bg;
+    color: var(--red);
+  }
+
+  &.sideways,
+  &.mixed {
+    background: rgba(156, 163, 175, 0.15);
+    color: var(--text-secondary);
+  }
+
+  .emoji {
+    font-size: $font-base;
+  }
+}
+
+// Confidence Bar
+.confidence-wrapper {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.confidence-value {
+  font-weight: $font-semibold;
+  min-width: 45px;
+}
+
+.confidence-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-dark);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.confidence-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bitcoin-orange), var(--bitcoin-gold));
+  border-radius: 3px;
+  transition: width $transition-slow;
+}
+
+// Price Change
+.col-change {
+  &.positive {
+    color: var(--green);
+    font-weight: $font-medium;
+  }
+
+  &.negative {
+    color: var(--red);
+    font-weight: $font-medium;
+  }
+}
+
+// View Button
+.view-btn {
+  @include gradient-button;
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-sm;
+  text-decoration: none;
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: var(--text-secondary);
+}
+
+// Responsive
+@include mobile {
+  .posts-table {
+    th,
+    td {
+      padding: $spacing-sm;
+      font-size: $font-sm;
+    }
+  }
+
+  .col-change,
+  .col-time {
+    display: none;
+  }
+
+  .confidence-bar {
+    display: none;
+  }
+}

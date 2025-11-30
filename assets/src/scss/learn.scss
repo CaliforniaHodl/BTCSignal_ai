@@ -1,0 +1,405 @@
+// =====================================================
+// LEARN PAGE STYLES - Education Hub
+// =====================================================
+
+@import 'shared/variables';
+@import 'shared/mixins';
+
+// List Page
+.learn-page {
+  @include section-padding;
+}
+
+.learn-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+
+  h1 {
+    font-size: $font-4xl;
+    @include gradient-text;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: $font-lg;
+  }
+}
+
+// Articles Grid
+.articles-grid {
+  @include grid-auto-fit(300px, $spacing-lg);
+  margin-bottom: $spacing-2xl;
+}
+
+.article-card {
+  @include card;
+  padding: $spacing-lg;
+  text-decoration: none;
+  @include flex-column;
+  @include card-hover;
+}
+
+.article-icon {
+  font-size: $font-4xl;
+  margin-bottom: $spacing-md;
+}
+
+.article-card h2 {
+  font-size: $font-xl;
+  color: var(--text-primary);
+  margin-bottom: $spacing-sm;
+}
+
+.article-desc {
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  line-height: 1.5;
+  flex-grow: 1;
+  margin-bottom: $spacing-md;
+}
+
+.article-meta {
+  @include flex-between;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.read-time {
+  color: var(--text-muted);
+  font-size: $font-sm;
+}
+
+.article-tags {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.tag {
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+}
+
+// Learn CTA
+.learn-cta {
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.1) 100%);
+  border: 1px solid var(--bitcoin-orange);
+  border-radius: $radius-xl;
+  padding: $spacing-2xl;
+  text-align: center;
+
+  h2 {
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.cta-buttons {
+  @include flex-center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  @include gradient-button;
+  padding: $spacing-md $spacing-lg;
+}
+
+.btn-secondary {
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-md;
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  font-weight: $font-semibold;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    color: var(--bitcoin-orange);
+  }
+}
+
+// Single Article Page
+.article-page {
+  @include section-padding;
+  max-width: 800px;
+}
+
+.back-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: $font-sm;
+  display: inline-block;
+  margin-bottom: $spacing-md;
+
+  &:hover {
+    color: var(--bitcoin-orange);
+  }
+}
+
+.article-header {
+  margin-bottom: $spacing-xl;
+  padding-bottom: $spacing-xl;
+  border-bottom: 1px solid var(--border-color);
+
+  h1 {
+    font-size: $font-3xl;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.article-description {
+  color: var(--text-secondary);
+  font-size: $font-lg;
+  margin-bottom: $spacing-md;
+}
+
+.article-header .article-meta {
+  display: flex;
+  gap: $spacing-md;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.article-header .date {
+  color: var(--text-muted);
+  font-size: $font-sm;
+}
+
+.article-header .tags {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+// Article Content
+.article-content {
+  line-height: 1.8;
+
+  h2 {
+    font-size: $font-2xl;
+    margin: $spacing-2xl 0 $spacing-md;
+    padding-top: $spacing-md;
+    border-top: 1px solid var(--border-color);
+  }
+
+  h3 {
+    font-size: $font-xl;
+    margin: $spacing-xl 0 $spacing-sm;
+    color: var(--bitcoin-orange);
+  }
+
+  p {
+    margin-bottom: $spacing-lg;
+    color: var(--text-primary);
+  }
+
+  ul, ol {
+    margin-bottom: $spacing-lg;
+    padding-left: $spacing-lg;
+  }
+
+  li {
+    margin-bottom: $spacing-sm;
+    color: var(--text-primary);
+  }
+
+  code {
+    background: var(--bg-dark);
+    padding: 2px $spacing-sm;
+    border-radius: $radius-sm;
+    font-size: 0.9em;
+    color: var(--bitcoin-orange);
+  }
+
+  pre {
+    background: var(--bg-dark);
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    overflow-x: auto;
+    margin-bottom: $spacing-lg;
+    border: 1px solid var(--border-color);
+
+    code {
+      background: none;
+      padding: 0;
+      color: var(--text-secondary);
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: $spacing-lg;
+  }
+
+  th, td {
+    padding: $spacing-sm;
+    text-align: left;
+    border: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-dark);
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+  }
+
+  td {
+    background: var(--bg-card);
+  }
+
+  blockquote {
+    border-left: 4px solid var(--bitcoin-orange);
+    padding-left: $spacing-md;
+    margin: $spacing-lg 0;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-weight: $font-semibold;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: $spacing-xl 0;
+  }
+}
+
+// Article Footer
+.article-footer {
+  margin-top: $spacing-2xl;
+  padding-top: $spacing-xl;
+  border-top: 1px solid var(--border-color);
+}
+
+.share-cta {
+  @include card;
+  padding: $spacing-lg;
+  text-align: center;
+  margin-bottom: $spacing-xl;
+
+  h3 {
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-md;
+  }
+}
+
+// Related Articles
+.related-articles {
+  h3 {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.related-grid {
+  @include grid-auto-fit(200px, $spacing-md);
+}
+
+// Article Icon (single page)
+.article-icon-large {
+  font-size: 3rem;
+  margin-bottom: $spacing-md;
+}
+
+.related-card {
+  @include card;
+  padding: $spacing-md;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  // Themed background based on category
+  &[data-category="technical"] {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($blue, 0.15) 100%);
+    border-color: rgba($blue, 0.4);
+
+    .related-category { color: var(--blue); }
+  }
+
+  &[data-category="risk"] {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($red, 0.15) 100%);
+    border-color: rgba($red, 0.4);
+
+    .related-category { color: var(--red); }
+  }
+
+  &[data-category="psychology"] {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($purple, 0.15) 100%);
+    border-color: rgba($purple, 0.4);
+
+    .related-category { color: $purple; }
+  }
+
+  &[data-category="fundamentals"] {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($green, 0.15) 100%);
+    border-color: rgba($green, 0.4);
+
+    .related-category { color: var(--green); }
+  }
+
+  &[data-category="general"] {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.1) 100%);
+    border-color: rgba($bitcoin-orange, 0.3);
+
+    .related-category { color: var(--bitcoin-orange); }
+  }
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+.related-card-header {
+  @include flex-between;
+  margin-bottom: $spacing-xs;
+}
+
+.related-icon {
+  font-size: $font-2xl;
+}
+
+.related-category {
+  font-size: $font-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.related-card h4 {
+  font-size: $font-base;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.related-desc {
+  font-size: $font-sm;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.read-more {
+  color: var(--bitcoin-orange);
+  font-size: $font-sm;
+  font-weight: $font-medium;
+  margin-top: auto;
+}

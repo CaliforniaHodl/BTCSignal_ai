@@ -20,14 +20,14 @@
       </thead>
       <tbody>
         {{ range .Pages.ByDate.Reverse }}
-        <tr class="post-row {{ .Params.sentiment }}">
+        <tr class="post-row {{ .Params.direction }}">
           <td class="col-date">{{ .Date.Format "Jan 02, 2006" }}</td>
           <td class="col-time">{{ .Date.Format "15:04" }} UTC</td>
           <td class="col-sentiment">
-            <span class="sentiment-badge {{ .Params.sentiment }}">
-              {{ if eq .Params.sentiment "bullish" }}
+            <span class="sentiment-badge {{ .Params.direction }}">
+              {{ if eq .Params.direction "up" }}
                 <span class="emoji">📈</span> BULLISH
-              {{ else if eq .Params.sentiment "bearish" }}
+              {{ else if eq .Params.direction "down" }}
                 <span class="emoji">📉</span> BEARISH
               {{ else }}
                 <span class="emoji">⏸️</span> NEUTRAL
@@ -42,9 +42,9 @@
               </div>
             </div>
           </td>
-          <td class="col-price">${{ .Params.price }}</td>
+          <td class="col-price">${{ lang.FormatNumber 2 .Params.price }}</td>
           <td class="col-change {{ if hasPrefix .Params.priceChange "+" }}positive{{ else }}negative{{ end }}">
-            {{ .Params.priceChange }}
+            {{ .Params.priceChange | default "--" }}
           </td>
           <td class="col-action">
             <a href="{{ .Permalink }}" class="view-btn">View</a>

@@ -4,6 +4,8 @@ description: "Learn moving average crossover strategies for Bitcoin trend follow
 date: 2024-11-29
 slug: "ema-sma-crossover"
 tags: ["education", "moving-averages", "ema", "sma", "trend-following"]
+icon: "〰️"
+category: "technical"
 priority: 0.5
 ---
 

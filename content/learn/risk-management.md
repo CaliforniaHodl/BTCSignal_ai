@@ -4,6 +4,8 @@ description: "Learn position sizing, stop losses, and risk management for Bitcoi
 date: 2024-11-29
 slug: "risk-management"
 tags: ["education", "risk-management", "position-sizing", "trading-psychology"]
+icon: "⚠️"
+category: "risk"
 priority: 0.5
 ---
 

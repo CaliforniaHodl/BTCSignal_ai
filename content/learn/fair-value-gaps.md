@@ -4,6 +4,8 @@ description: "Learn how to identify and trade Fair Value Gaps in Bitcoin - imbal
 date: 2024-11-27
 slug: "fair-value-gaps"
 tags: ["education", "fvg", "smart-money", "imbalance"]
+icon: "📐"
+category: "fundamentals"
 priority: 0.5
 ---
 

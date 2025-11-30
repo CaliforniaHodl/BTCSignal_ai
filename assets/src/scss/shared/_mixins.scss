@@ -1,0 +1,162 @@
+// =====================================================
+// MIXINS - Reusable style patterns
+// =====================================================
+
+// Responsive breakpoints
+@mixin mobile {
+  @media (max-width: #{$breakpoint-md - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$breakpoint-md}) and (max-width: #{$breakpoint-lg - 1px}) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-lg}) {
+    @content;
+  }
+}
+
+@mixin tablet-up {
+  @media (min-width: #{$breakpoint-md}) {
+    @content;
+  }
+}
+
+// Card styles
+@mixin card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  transition: all $transition-base;
+}
+
+@mixin card-hover {
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    transform: translateY(-2px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Gradient text
+@mixin gradient-text {
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Gradient button
+@mixin gradient-button {
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: #000;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: scale(1.02);
+    box-shadow: $shadow-glow;
+  }
+}
+
+// Focus styles for accessibility
+@mixin focus-visible {
+  &:focus-visible {
+    outline: 3px solid var(--bitcoin-orange);
+    outline-offset: 2px;
+  }
+}
+
+// Flexbox helpers
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin flex-column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Grid helpers
+@mixin grid($columns: 1, $gap: $spacing-md) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+@mixin grid-auto-fit($min-width: 280px, $gap: $spacing-lg) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  gap: $gap;
+}
+
+// Truncate text
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Screen reader only
+@mixin sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+}
+
+// Badge styles
+@mixin badge($bg-color, $text-color) {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  background: $bg-color;
+  color: $text-color;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+  font-weight: $font-semibold;
+}
+
+// Sentiment colors mixin
+@mixin sentiment-colors {
+  &.up, &.bullish {
+    color: var(--green);
+  }
+  &.down, &.bearish {
+    color: var(--red);
+  }
+  &.sideways, &.mixed, &.neutral {
+    color: var(--text-secondary);
+  }
+}
+
+// Section padding
+@mixin section-padding {
+  padding: $spacing-xl 0;
+
+  @include mobile {
+    padding: $spacing-lg 0;
+  }
+}

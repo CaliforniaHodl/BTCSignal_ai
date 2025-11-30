@@ -7,4 +7,5 @@ image: 'og-image.png'
 keywords: 'Bitcoin dashboard, BTC trading metrics, liquidation watchlist, crypto performance tracker'
 layout: "single"
 priority: 0.8
+css: ['dashboard.scss']
 ---

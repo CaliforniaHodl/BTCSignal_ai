@@ -12,6 +12,11 @@ async function loadKeyLevel() {
     const levelDistanceEl = document.getElementById('key-level-distance');
     const widgetEl = document.getElementById('key-level-widget');
 
+    // Hero card elements
+    const heroKeyLevel = document.getElementById('hero-key-level');
+    const heroLevelType = document.getElementById('hero-level-type');
+    const heroLevelDesc = document.getElementById('hero-level-desc');
+
     if (levelTypeEl) {
       levelTypeEl.textContent = data.type.toUpperCase();
       levelTypeEl.className = 'key-level-type ' + data.type;
@@ -34,11 +39,29 @@ async function loadKeyLevel() {
       widgetEl.classList.add('loaded');
     }
 
+    // Update hero card elements
+    if (heroKeyLevel) {
+      heroKeyLevel.textContent = '$' + data.level.toLocaleString();
+    }
+
+    if (heroLevelType) {
+      heroLevelType.textContent = data.type.toUpperCase();
+      heroLevelType.className = 'key-level-badge ' + data.type;
+    }
+
+    if (heroLevelDesc) {
+      heroLevelDesc.textContent = data.distancePercent + '% from current price';
+    }
+
   } catch (e) {
     console.error('Key level error:', e);
     const levelDescEl = document.getElementById('key-level-desc');
     if (levelDescEl) {
       levelDescEl.textContent = 'Unable to load key level';
+    }
+    const heroLevelDesc = document.getElementById('hero-level-desc');
+    if (heroLevelDesc) {
+      heroLevelDesc.textContent = 'Unable to load';
     }
   }
 }

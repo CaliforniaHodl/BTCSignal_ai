@@ -1,4 +1,12 @@
+// =====================================================
+// SHARED STYLES - Base styles loaded on every page
+// =====================================================
+
+// Core dependencies (order matters!)
 @import 'variables';
+@import 'mixins';
+
+// Components
 @import 'typography';
 @import 'buttons';
 @import 'links';

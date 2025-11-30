@@ -4,6 +4,8 @@ description: "Master the MACD indicator for Bitcoin trend trading and momentum a
 date: 2024-11-29
 slug: "macd-trading"
 tags: ["education", "macd", "indicators", "momentum"]
+icon: "📉"
+category: "technical"
 priority: 0.5
 ---
 

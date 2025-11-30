@@ -26,16 +26,21 @@
 
 <!-- CSS -->
 <link rel="stylesheet" href="{{ "src/css/bootstrap/bootstrap.min.css" | relURL }}">
+
+{{/* Load shared CSS - loaded on every page */}}
 <link rel="stylesheet" href="{{ "src/css/shared.css" | relURL }}">
-<link rel="stylesheet" href="{{ "src/css/dashboard.css" | relURL }}">
-<link rel="stylesheet" href="{{ "src/css/analyze.css" | relURL }}">
-<link rel="stylesheet" href="{{ "src/css/learn.css" | relURL }}">
-<link rel="stylesheet" href="{{ "src/css/premium-features.css" | relURL }}">
-<link rel="stylesheet" href="{{ "src/css/pricing.css" | relURL }}">
-<script src="{{ "src/js/access-manager.js" | relURL }}"></script>
+
+{{/* Load page-specific CSS from frontmatter */}}
 {{ range .Params.css }}
-  <link rel="stylesheet" href="{{ "src/css/" | relURL }}{{ . }}">
+  {{ $cssFile := . }}
+  {{/* Convert .scss extension to .css for compiled files */}}
+  {{ if strings.HasSuffix $cssFile ".scss" }}
+    {{ $cssFile = replace $cssFile ".scss" ".css" }}
+  {{ end }}
+  <link rel="stylesheet" href="{{ "src/css/" | relURL }}{{ $cssFile }}">
 {{ end }}
+
+<script src="{{ "src/js/access-manager.js" | relURL }}"></script>
 
 <!-- canonical -->
 {{ if not .Params.canonical }}

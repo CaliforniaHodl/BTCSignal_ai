@@ -7,4 +7,5 @@ image: 'og-image.png'
 keywords: 'learn Bitcoin trading, BTC trading education, crypto trading course, market structure, smart money concepts, RSI, MACD, Bollinger Bands, risk management, trading psychology'
 type: "learn"
 layout: "list"
+css: ['learn.scss']
 ---
