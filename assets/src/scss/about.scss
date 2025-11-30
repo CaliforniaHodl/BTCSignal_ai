@@ -1,0 +1,425 @@
+// About Page Styles
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.about-page {
+  padding: 32px 0;
+  max-width: 900px;
+  margin: 0 auto;
+
+  @media (max-width: 767px) {
+    padding: 24px 0;
+  }
+}
+
+// Hero Section
+.about-hero {
+  text-align: center;
+  margin-bottom: 48px;
+
+  h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+
+    @media (max-width: 767px) {
+      font-size: 1.75rem;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin: 0;
+
+    @media (max-width: 767px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Section Base Styles
+.about-section {
+  margin-bottom: 48px;
+
+  h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--bitcoin-orange);
+    display: inline-block;
+
+    @media (max-width: 767px) {
+      font-size: 1.25rem;
+    }
+  }
+
+  .section-icon {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 16px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.lead {
+      font-size: 1.125rem;
+      color: var(--text-primary);
+    }
+  }
+}
+
+// Mission Section
+.mission-section {
+  text-align: center;
+  padding: 32px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.1) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+
+// Dual Section (What We Are / What We're Not)
+.dual-section {
+  .dual-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+
+    @media (max-width: 767px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .dual-card {
+    @include card;
+    padding: 24px;
+
+    h3 {
+      font-size: 1.125rem;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .card-icon {
+        font-size: 1.25rem;
+      }
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        color: var(--text-secondary);
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-color);
+        line-height: 1.6;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        strong {
+          color: var(--text-primary);
+        }
+      }
+    }
+
+    &.what-we-are {
+      border-left: 4px solid var(--green);
+
+      h3 {
+        color: var(--green);
+      }
+    }
+
+    &.what-we-not {
+      border-left: 4px solid var(--red);
+
+      h3 {
+        color: var(--red);
+      }
+    }
+  }
+}
+
+// Story Section
+.story-section {
+  .story-content {
+    @include card;
+    padding: 32px;
+
+    p {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Approach Section
+.approach-section {
+  .approach-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+
+    @media (max-width: 767px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .approach-card {
+    @include card;
+    padding: 24px;
+    text-align: center;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      border-color: rgba(247, 147, 26, 0.3);
+    }
+
+    .approach-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 0.875rem;
+      margin: 0;
+    }
+  }
+}
+
+// Technology Section
+.tech-section {
+  .tech-content {
+    @include card;
+    padding: 32px;
+  }
+
+  .tech-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    h4 {
+      font-size: 1rem;
+      color: var(--bitcoin-orange);
+      margin: 0 0 8px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.9375rem;
+
+      strong {
+        color: var(--text-primary);
+      }
+    }
+  }
+}
+
+// Transparency Section
+.transparency-section {
+  .transparency-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+
+    @media (max-width: 767px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .transparency-item {
+    @include card;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    .transparency-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    h4 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin: 0 0 8px;
+    }
+
+    p {
+      font-size: 0.875rem;
+      margin: 0;
+
+      a {
+        color: var(--bitcoin-orange);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// Disclaimer Section
+.disclaimer-section {
+  .disclaimer-box {
+    @include card;
+    padding: 32px;
+    border-left: 4px solid var(--red);
+    background: linear-gradient(135deg, rgba(248, 81, 73, 0.05) 0%, var(--bg-card) 100%);
+
+    p {
+      margin-bottom: 16px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      strong {
+        color: var(--red);
+      }
+    }
+  }
+}
+
+// Contact Section
+.contact-section {
+  text-align: center;
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+
+  .contact-link {
+    @include card;
+    padding: 16px 24px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--bitcoin-orange);
+    }
+
+    .contact-icon {
+      font-size: 1.5rem;
+    }
+
+    &.twitter:hover {
+      border-color: var(--blue);
+    }
+  }
+}
+
+// CTA Section
+.about-cta {
+  text-align: center;
+  padding: 48px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.15) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+
+  h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 16px 32px;
+      font-size: 1rem;
+      text-decoration: none;
+
+      &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+      }
+    }
+
+    .btn-secondary {
+      padding: 16px 32px;
+      font-size: 1rem;
+      text-decoration: none;
+      color: var(--bitcoin-orange);
+      border: 1px solid var(--bitcoin-orange);
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(247, 147, 26, 0.1);
+      }
+    }
+  }
+
+  @media (max-width: 767px) {
+    padding: 32px 24px;
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+}

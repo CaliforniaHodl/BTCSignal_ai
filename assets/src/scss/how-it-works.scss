@@ -1,0 +1,537 @@
+// How It Works Page Styles
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.how-it-works-page {
+  padding: 32px 0;
+  max-width: 1000px;
+  margin: 0 auto;
+
+  @media (max-width: 767px) {
+    padding: 24px 0;
+  }
+}
+
+// Hero Section
+.hiw-hero {
+  text-align: center;
+  margin-bottom: 48px;
+
+  h1 {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+
+    @media (max-width: 767px) {
+      font-size: 1.75rem;
+    }
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin: 0;
+
+    @media (max-width: 767px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Section Base
+.hiw-section {
+  margin-bottom: 64px;
+
+  h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+
+    @media (max-width: 767px) {
+      font-size: 1.25rem;
+    }
+  }
+
+  .section-intro {
+    color: var(--text-secondary);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    max-width: 700px;
+  }
+}
+
+// Process Timeline
+.overview-section {
+  text-align: center;
+
+  .section-intro {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.process-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.process-step {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  text-align: left;
+
+  @media (max-width: 767px) {
+    gap: 16px;
+  }
+
+  .step-number {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+    color: #000;
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    @media (max-width: 767px) {
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+  }
+
+  .step-content {
+    @include card;
+    padding: 24px;
+    flex: 1;
+
+    h3 {
+      font-size: 1.125rem;
+      color: var(--text-primary);
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin: 0 0 16px;
+      line-height: 1.6;
+    }
+
+    .step-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .detail-tag {
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+// Sources Grid
+.sources-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.source-card {
+  @include card;
+  padding: 24px;
+  text-align: center;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(247, 147, 26, 0.3);
+  }
+
+  .source-logo {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+
+  .source-type {
+    display: inline-block;
+    background: rgba(247, 147, 26, 0.15);
+    color: var(--bitcoin-orange);
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+}
+
+// Analysis Grid
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analysis-card {
+  @include card;
+  padding: 24px;
+
+  .analysis-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin: 0 0 16px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      color: var(--text-secondary);
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.9375rem;
+
+      &:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+
+      strong {
+        color: var(--text-primary);
+      }
+    }
+  }
+}
+
+// Signal Example
+.anatomy-section {
+  .signal-example {
+    @include card;
+    overflow: hidden;
+  }
+
+  .signal-header {
+    background: var(--bg-surface);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .signal-label {
+      font-weight: 600;
+      color: var(--bitcoin-orange);
+    }
+
+    .signal-time {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  }
+
+  .signal-body {
+    padding: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+
+    @media (max-width: 767px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .signal-component {
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .component-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .component-value {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+
+      &.bullish {
+        color: var(--green);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      &.warning {
+        color: var(--red);
+      }
+
+      &.analysis-text {
+        font-size: 0.9375rem;
+        font-weight: 400;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      .direction-arrow {
+        font-size: 1.5rem;
+      }
+    }
+
+    .component-desc {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    // Confidence Bar
+    .confidence-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-surface);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 8px;
+
+      .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--green) 0%, var(--bitcoin-orange) 100%);
+        border-radius: 4px;
+      }
+    }
+
+    .confidence-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--green);
+    }
+  }
+}
+
+// What We Don't Do
+.dont-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+
+  @media (max-width: 767px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dont-card {
+  @include card;
+  padding: 24px;
+  border-left: 4px solid var(--red);
+
+  .dont-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  h3 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+// Transparency Section
+.transparency-section {
+  .transparency-content {
+    @include card;
+    padding: 32px;
+  }
+
+  .transparency-block {
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border-color);
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    h3 {
+      font-size: 1rem;
+      color: var(--text-primary);
+      margin: 0 0 8px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      margin: 0;
+
+      a {
+        color: var(--bitcoin-orange);
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+// FAQ Teaser
+.faq-teaser {
+  text-align: center;
+  padding: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+
+  h2 {
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    color: var(--bitcoin-orange);
+    border: 1px solid var(--bitcoin-orange);
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba(247, 147, 26, 0.1);
+    }
+  }
+}
+
+// CTA Section
+.hiw-cta {
+  text-align: center;
+  padding: 48px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.15) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+
+  h2 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin: 0 0 8px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 0 0 24px;
+  }
+
+  .cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 16px 32px;
+      font-size: 1rem;
+      text-decoration: none;
+
+      &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+      }
+    }
+
+    .btn-secondary {
+      padding: 16px 32px;
+      font-size: 1rem;
+      text-decoration: none;
+      color: var(--bitcoin-orange);
+      border: 1px solid var(--bitcoin-orange);
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: rgba(247, 147, 26, 0.1);
+      }
+    }
+  }
+
+  @media (max-width: 767px) {
+    padding: 32px 24px;
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+}
