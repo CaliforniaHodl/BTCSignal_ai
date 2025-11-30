@@ -301,6 +301,27 @@
     border-left: 4px solid var(--text-muted);
   }
 
+  // Derivatives factor cards get a special indicator
+  &.derivatives {
+    position: relative;
+
+    &::before {
+      content: '⚡';
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 0.875rem;
+      opacity: 0.6;
+    }
+
+    .factor-name::after {
+      content: ' (Derivatives)';
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+  }
+
   .factor-header {
     display: flex;
     justify-content: space-between;
@@ -508,6 +529,16 @@
     margin: 0 0 12px;
     text-transform: uppercase;
     letter-spacing: 0.03em;
+  }
+
+  &.derivatives-audit {
+    h4 {
+      color: var(--purple);
+
+      &::before {
+        content: '⚡ ';
+      }
+    }
   }
 }
 
@@ -799,4 +830,34 @@
   user-select: none;
   pointer-events: none;
   opacity: 0.6;
+}
+
+// Hidden until paid (real content - hidden by default for paywalled posts)
+.hidden-until-paid {
+  display: none !important;
+}
+
+// After unlock via JS, .unlocked is added to .single-post-page
+.single-post-page.unlocked {
+  .fake-content {
+    display: none !important;
+  }
+
+  .hidden-until-paid {
+    display: block !important;
+  }
+
+  // For grid containers like quick-stats and targets
+  .quick-stats.hidden-until-paid {
+    display: grid !important;
+  }
+
+  .targets.hidden-until-paid {
+    display: grid !important;
+  }
+
+  // Hide paywall overlay
+  .paywall-overlay {
+    display: none !important;
+  }
 }

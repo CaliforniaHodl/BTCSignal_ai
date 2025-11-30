@@ -1,5 +1,6 @@
 import { Prediction } from './prediction-engine';
 import { TechnicalIndicators, Pattern } from './technical-analysis';
+import { DerivativesData } from './derivatives-analyzer';
 
 export interface AnalysisResult {
   symbol: string;
@@ -13,6 +14,7 @@ export interface AnalysisResult {
   indicators: TechnicalIndicators;
   patterns: Pattern[];
   timestamp: Date;
+  derivativesData?: DerivativesData | null;
 }
 
 export interface TradingSuggestion {
@@ -313,9 +315,10 @@ export class BlogGenerator {
 
   /**
    * Generate Markdown blog post with thread format
+   * @param firstTweetId - Optional tweet ID to link to live tweet thread
    */
-  generateMarkdown(analysis: AnalysisResult, historicalCalls: HistoricalCall[] = []): string {
-    const { symbol, timeframe, currentPrice, priceChange, priceChange24h, high24h, low24h, prediction, indicators, patterns, timestamp } = analysis;
+  generateMarkdown(analysis: AnalysisResult, historicalCalls: HistoricalCall[] = [], firstTweetId?: string | null): string {
+    const { symbol, timeframe, currentPrice, priceChange, priceChange24h, high24h, low24h, prediction, indicators, patterns, timestamp, derivativesData } = analysis;
 
     const suggestions = this.generateTradingSuggestions(analysis);
     const thread = this.generateThread(analysis, historicalCalls);
@@ -329,6 +332,9 @@ export class BlogGenerator {
 
     const dateStr = timestamp.toISOString().split('T')[0];
     const timeStr = timestamp.toISOString().split('T')[1].substring(0, 5);
+
+    // Extract derivatives factors from prediction
+    const df = prediction.derivativesFactors;
 
     let md = `---
 title: "${symbol} ${refinedEmoji} ${weekly.refinedBias.toUpperCase()} ${(weekly.refinedConfidence * 100).toFixed(0)}%"
@@ -352,6 +358,12 @@ historicalLosses: ${stats.losses}
 historicalWinRate: ${stats.winRate}
 priceMovement7d: ${weekly.priceMovement7d.toFixed(2)}
 daysTracked: ${weekly.daysTracked}
+fundingRate: ${df?.fundingRate !== null && df?.fundingRate !== undefined ? (df.fundingRate * 100).toFixed(4) : 'null'}
+fundingSignal: "${df?.fundingSignal || 'neutral'}"
+openInterest: ${df?.openInterest !== null && df?.openInterest !== undefined ? (df.openInterest / 1_000_000_000).toFixed(2) : 'null'}
+squeezeRisk: "${df?.squeezeRisk || 'none'}"
+squeezeProbability: "${df?.squeezeProbability || 'low'}"
+tweetId: "${firstTweetId || ''}"
 ---
 
 ## ${symbol} Analysis Thread
@@ -447,7 +459,7 @@ ${prediction.reasoning.map(r => `- ${r}`).join('\n')}
 
 ---
 
-### Thread Tweets
+### Thread Tweets${firstTweetId ? ` — [See Live Tweet →](https://x.com/BTCSignalAI/status/${firstTweetId})` : ''}
 
 \`\`\`
 Tweet 1 (TA Overview):

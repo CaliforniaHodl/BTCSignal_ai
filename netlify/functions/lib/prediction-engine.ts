@@ -1,5 +1,6 @@
 import { OHLCV } from './data-provider';
 import { TechnicalIndicators, Pattern } from './technical-analysis';
+import { DerivativesData } from './derivatives-analyzer';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -8,16 +9,26 @@ export interface Prediction {
   stopLoss: number | null;
   predictedPrice24h: number | null;
   reasoning: string[];
+  // Derivatives factors included in signal
+  derivativesFactors?: {
+    fundingRate: number | null;
+    fundingSignal: 'bullish' | 'bearish' | 'neutral';
+    openInterest: number | null;
+    openInterestChange: 'rising' | 'falling' | 'stable' | null;
+    squeezeRisk: 'long' | 'short' | 'none';
+    squeezeProbability: 'high' | 'medium' | 'low';
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators and patterns
+   * Predict next market move based on indicators, patterns, and derivatives data
    */
   predict(
     data: OHLCV[],
     indicators: TechnicalIndicators,
-    patterns: Pattern[]
+    patterns: Pattern[],
+    derivativesData?: DerivativesData
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -105,6 +116,73 @@ export class PredictionEngine {
       currentPrice < indicators.bollingerBands.upper * 0.98;
     const isSideways = isLowVolatility && isInMiddleOfBB;
 
+    // ===== DERIVATIVES ANALYSIS =====
+    let derivativesFactors: Prediction['derivativesFactors'] = undefined;
+
+    if (derivativesData) {
+      const { fundingRate, openInterest, squeezeAlert } = derivativesData;
+
+      // Initialize derivatives factors
+      derivativesFactors = {
+        fundingRate: fundingRate?.fundingRate ?? null,
+        fundingSignal: 'neutral',
+        openInterest: openInterest?.openInterestValue ?? null,
+        openInterestChange: null,
+        squeezeRisk: squeezeAlert.type === 'long_squeeze' ? 'long' : squeezeAlert.type === 'short_squeeze' ? 'short' : 'none',
+        squeezeProbability: squeezeAlert.probability,
+      };
+
+      // Analyze Funding Rate
+      // High positive funding = longs paying shorts = crowded long = contrarian bearish
+      // High negative funding = shorts paying longs = crowded short = contrarian bullish
+      if (fundingRate) {
+        const rate = fundingRate.fundingRate;
+        const ratePercent = rate * 100;
+
+        if (rate > 0.01) {
+          // Very high positive funding (>0.01% per 8h = 0.03%/day)
+          signals.push({ signal: 'bearish', weight: 0.6, reason: `Extreme funding (${ratePercent.toFixed(3)}%) - overleveraged longs` });
+          derivativesFactors.fundingSignal = 'bearish';
+        } else if (rate > 0.005) {
+          // Elevated positive funding
+          signals.push({ signal: 'bearish', weight: 0.3, reason: `High funding (${ratePercent.toFixed(3)}%) - crowded long` });
+          derivativesFactors.fundingSignal = 'bearish';
+        } else if (rate < -0.01) {
+          // Very negative funding
+          signals.push({ signal: 'bullish', weight: 0.6, reason: `Negative funding (${ratePercent.toFixed(3)}%) - overleveraged shorts` });
+          derivativesFactors.fundingSignal = 'bullish';
+        } else if (rate < -0.005) {
+          // Moderately negative funding
+          signals.push({ signal: 'bullish', weight: 0.3, reason: `Low funding (${ratePercent.toFixed(3)}%) - crowded short` });
+          derivativesFactors.fundingSignal = 'bullish';
+        }
+      }
+
+      // Analyze Open Interest
+      // High OI + directional move = conviction (amplify signal)
+      // High OI + no move = potential for big move either way
+      if (openInterest) {
+        const oiBillions = openInterest.openInterestValue / 1_000_000_000;
+
+        if (oiBillions > 25) {
+          // Very high OI - increased conviction on directional signals
+          signals.push({ signal: 'neutral', weight: 0.2, reason: `High OI ($${oiBillions.toFixed(1)}B) - elevated leverage` });
+        }
+      }
+
+      // Analyze Squeeze Risk
+      // If squeeze conditions detected, amplify the counter-signal
+      if (squeezeAlert.type !== 'none' && squeezeAlert.probability !== 'low') {
+        const weight = squeezeAlert.probability === 'high' ? 0.7 : 0.4;
+
+        if (squeezeAlert.type === 'long_squeeze') {
+          signals.push({ signal: 'bearish', weight, reason: `Long squeeze risk (${squeezeAlert.probability})` });
+        } else if (squeezeAlert.type === 'short_squeeze') {
+          signals.push({ signal: 'bullish', weight, reason: `Short squeeze risk (${squeezeAlert.probability})` });
+        }
+      }
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -180,6 +258,7 @@ export class PredictionEngine {
       stopLoss,
       predictedPrice24h,
       reasoning,
+      derivativesFactors,
     };
   }
 }

@@ -42,9 +42,8 @@
 
       <h1 class="article-title">{{ .Params.symbol }} Factor Analysis</h1>
 
-      {{ if $isFree }}
-      {{/* FREE: Show actual stats */}}
-      <div class="quick-stats">
+      {{/* REAL STATS - Always rendered, hidden if paywalled until unlocked */}}
+      <div class="quick-stats real-content{{ if not $isFree }} hidden-until-paid{{ end }}" id="real-stats">
         <div class="stat sentiment {{ .Params.sentiment }}">
           <span class="stat-label">Signal</span>
           <span class="stat-value">
@@ -70,7 +69,7 @@
       </div>
 
       {{ if or .Params.targetPrice .Params.stopLoss }}
-      <div class="targets">
+      <div class="targets real-content{{ if not $isFree }} hidden-until-paid{{ end }}" id="real-targets">
         {{ if .Params.targetPrice }}
         <div class="target-item target">
           <span class="target-label">Target</span>
@@ -102,9 +101,9 @@
       </div>
       {{ end }}
 
-      {{ else }}
-      {{/* PAYWALLED: Show blurred placeholder stats */}}
-      <div class="quick-stats blurred-stats">
+      {{ if not $isFree }}
+      {{/* FAKE STATS - Only for paywalled posts, hidden after payment */}}
+      <div class="quick-stats blurred-stats fake-content" id="fake-stats">
         <div class="stat sentiment">
           <span class="stat-label">Signal</span>
           <span class="stat-value">📊 LOCKED</span>
@@ -126,7 +125,7 @@
         </div>
       </div>
 
-      <div class="targets blurred-stats">
+      <div class="targets blurred-stats fake-content" id="fake-targets">
         <div class="target-item">
           <span class="target-label">Target</span>
           <span class="target-value">$??,???.??</span>
@@ -175,8 +174,8 @@
     {{ end }}
 
     {{ if not $isFree }}
-    {{/* PAYWALLED: Show blurred skeleton content */}}
-    <div class="article-content paywalled" id="article-content">
+    {{/* FAKE CONTENT - Shown while paywalled, hidden after unlock */}}
+    <div class="article-content paywalled fake-content" id="fake-article-content">
 
       <!-- Blurred skeleton that looks like real content -->
       <section class="signal-explainer">
@@ -320,10 +319,10 @@
       </section>
 
     </div>
+    {{ end }}
 
-    {{ else }}
-    {{/* FREE/UNLOCKED: Show actual content */}}
-    <div class="article-content" id="article-content">
+    {{/* REAL CONTENT - Always rendered, hidden if paywalled until unlocked */}}
+    <div class="article-content real-content{{ if not $isFree }} hidden-until-paid{{ end }}" id="real-article-content">
 
       <!-- Why This Signal Section -->
       <section class="signal-explainer">
@@ -442,6 +441,81 @@
               {{ end }}
             </div>
           </div>
+
+          <!-- Funding Rate Factor (Derivatives) -->
+          <div class="factor-card derivatives {{ .Params.fundingSignal }}">
+            <div class="factor-header">
+              <span class="factor-name">Funding Rate</span>
+              <span class="factor-value">{{ if .Params.fundingRate }}{{ lang.FormatNumber 4 .Params.fundingRate }}%{{ else }}—{{ end }}</span>
+            </div>
+            <div class="factor-explanation">
+              {{ if .Params.fundingRate }}
+                {{ if gt .Params.fundingRate 0.01 }}
+                <span class="signal-tag bearish">- Overleveraged Longs</span>
+                <p>Extreme positive funding ({{ lang.FormatNumber 4 .Params.fundingRate }}%). Longs paying shorts aggressively — crowded trade, potential for long squeeze.</p>
+                {{ else if gt .Params.fundingRate 0.005 }}
+                <span class="signal-tag bearish">- Crowded Long</span>
+                <p>Elevated funding ({{ lang.FormatNumber 4 .Params.fundingRate }}%). More traders are long than short. Contrarian bearish signal.</p>
+                {{ else if lt .Params.fundingRate -0.01 }}
+                <span class="signal-tag bullish">+ Overleveraged Shorts</span>
+                <p>Extreme negative funding ({{ lang.FormatNumber 4 .Params.fundingRate }}%). Shorts paying longs — crowded trade, potential for short squeeze.</p>
+                {{ else if lt .Params.fundingRate -0.005 }}
+                <span class="signal-tag bullish">+ Crowded Short</span>
+                <p>Negative funding ({{ lang.FormatNumber 4 .Params.fundingRate }}%). More traders are short. Contrarian bullish signal.</p>
+                {{ else }}
+                <span class="signal-tag neutral">○ Neutral</span>
+                <p>Funding at {{ lang.FormatNumber 4 .Params.fundingRate }}% is balanced. No extreme positioning in derivatives market.</p>
+                {{ end }}
+              {{ else }}
+              <span class="signal-tag neutral">○ Derivatives</span>
+              <p>Funding rate shows who's paying whom in perpetual futures. Extreme values signal crowded trades.</p>
+              {{ end }}
+            </div>
+          </div>
+
+          <!-- Open Interest Factor (Derivatives) -->
+          <div class="factor-card derivatives">
+            <div class="factor-header">
+              <span class="factor-name">Open Interest</span>
+              <span class="factor-value">{{ if .Params.openInterest }}${{ lang.FormatNumber 1 .Params.openInterest }}B{{ else }}—{{ end }}</span>
+            </div>
+            <div class="factor-explanation">
+              {{ if .Params.openInterest }}
+                {{ if gt .Params.openInterest 25.0 }}
+                <span class="signal-tag neutral">⚠️ High Leverage</span>
+                <p>Open interest at ${{ lang.FormatNumber 1 .Params.openInterest }}B is elevated. High leverage in the system increases volatility and liquidation cascade risk.</p>
+                {{ else if gt .Params.openInterest 18.0 }}
+                <span class="signal-tag neutral">○ Elevated</span>
+                <p>Open interest at ${{ lang.FormatNumber 1 .Params.openInterest }}B. Moderate leverage — watch for liquidation clusters.</p>
+                {{ else }}
+                <span class="signal-tag bullish">+ Low Leverage</span>
+                <p>Open interest at ${{ lang.FormatNumber 1 .Params.openInterest }}B is relatively low. Less systemic risk from cascading liquidations.</p>
+                {{ end }}
+              {{ else }}
+              <span class="signal-tag neutral">○ Leverage</span>
+              <p>Open interest measures total outstanding derivative contracts. High OI = high leverage = higher volatility risk.</p>
+              {{ end }}
+            </div>
+          </div>
+
+          <!-- Squeeze Risk Factor (Derivatives) -->
+          {{ if and .Params.squeezeRisk (ne .Params.squeezeRisk "none") }}
+          <div class="factor-card derivatives {{ if eq .Params.squeezeRisk "short" }}bullish{{ else }}bearish{{ end }}">
+            <div class="factor-header">
+              <span class="factor-name">Squeeze Alert</span>
+              <span class="factor-value">{{ upper .Params.squeezeRisk }} SQUEEZE</span>
+            </div>
+            <div class="factor-explanation">
+              {{ if eq .Params.squeezeRisk "short" }}
+              <span class="signal-tag bullish">+ Short Squeeze Risk</span>
+              <p>Conditions favor a short squeeze ({{ .Params.squeezeProbability }} probability). Shorts may be forced to cover, accelerating upward price movement.</p>
+              {{ else }}
+              <span class="signal-tag bearish">- Long Squeeze Risk</span>
+              <p>Conditions favor a long squeeze ({{ .Params.squeezeProbability }} probability). Longs may be liquidated, accelerating downward price movement.</p>
+              {{ end }}
+            </div>
+          </div>
+          {{ end }}
         </div>
       </section>
 
@@ -497,6 +571,17 @@
               <tr><td>Days Tracked</td><td>{{ default 0 .Params.daysTracked }}</td></tr>
             </table>
           </div>
+
+          <div class="audit-card derivatives-audit">
+            <h4>Derivatives Data</h4>
+            <table class="audit-table">
+              <tr><td>Funding Rate</td><td>{{ if .Params.fundingRate }}{{ lang.FormatNumber 4 .Params.fundingRate }}%{{ else }}—{{ end }}</td></tr>
+              <tr><td>Funding Signal</td><td>{{ default "neutral" .Params.fundingSignal }}</td></tr>
+              <tr><td>Open Interest</td><td>{{ if .Params.openInterest }}${{ lang.FormatNumber 2 .Params.openInterest }}B{{ else }}—{{ end }}</td></tr>
+              <tr><td>Squeeze Risk</td><td>{{ default "none" .Params.squeezeRisk }}</td></tr>
+              <tr><td>Squeeze Prob.</td><td>{{ default "low" .Params.squeezeProbability }}</td></tr>
+            </table>
+          </div>
         </div>
 
         <div class="audit-footer">
@@ -535,7 +620,6 @@
       </section>
 
     </div>
-    {{ end }}
 
     <footer class="article-footer">
       <div class="footer-disclaimer">
