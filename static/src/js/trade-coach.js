@@ -4,24 +4,20 @@
   const HISTORY_KEY = 'trade-coach-history';
 
   function checkAccess() {
-    // Check admin mode first (bypasses all paywalls)
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
       console.log('%c ADMIN: Trade Coach access bypassed', 'color: #f7931a;');
       return true;
     }
-    // Check all-access subscription
     if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
       console.log('All-access subscription active, unlocking Trade Coach');
       return true;
     }
-    // Legacy localStorage check
     return localStorage.getItem(FEATURE_KEY) === 'unlocked';
   }
 
   function updateUI() {
     const gate = document.getElementById('premium-gate');
     const content = document.getElementById('premium-content');
-
     if (checkAccess()) {
       if (gate) gate.style.display = 'none';
       if (content) {
@@ -34,7 +30,6 @@
     }
   }
 
-  // Unlock button
   const unlockBtn = document.getElementById('btn-unlock');
   if (unlockBtn) {
     unlockBtn.addEventListener('click', function() {
@@ -46,7 +41,6 @@
     });
   }
 
-  // Check access link
   const checkAccessLink = document.getElementById('check-access');
   if (checkAccessLink) {
     checkAccessLink.addEventListener('click', function(e) {
@@ -59,7 +53,6 @@
     });
   }
 
-  // Trade form submission
   const tradeForm = document.getElementById('trade-form');
   if (tradeForm) {
     tradeForm.addEventListener('submit', async function(e) {
@@ -68,7 +61,6 @@
     });
   }
 
-  // New trade button
   const newTradeBtn = document.getElementById('btn-new-trade');
   if (newTradeBtn) {
     newTradeBtn.addEventListener('click', function() {
@@ -78,14 +70,11 @@
     });
   }
 
-  // Analyze trade
   async function analyzeTrade() {
     const btnText = document.querySelector('.btn-text');
     const btnLoading = document.querySelector('.btn-loading');
-
     btnText.style.display = 'none';
     btnLoading.style.display = 'inline';
-
     const tradeData = {
       direction: document.getElementById('trade-direction').value,
       timeframe: document.getElementById('trade-timeframe').value,
@@ -97,52 +86,38 @@
       reasoning: document.getElementById('trade-reasoning').value,
       notes: document.getElementById('trade-notes').value
     };
-
     try {
       const res = await fetch('/.netlify/functions/trade-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(tradeData)
       });
-
       const analysis = await res.json();
       displayAnalysis(analysis, tradeData);
       saveToHistory(tradeData, analysis);
-
     } catch (error) {
-      // Fallback analysis
       const analysis = generateFallbackAnalysis(tradeData);
       displayAnalysis(analysis, tradeData);
       saveToHistory(tradeData, analysis);
     }
-
     btnText.style.display = 'inline';
     btnLoading.style.display = 'none';
   }
 
-  // Display analysis results
   function displayAnalysis(analysis, tradeData) {
     document.querySelector('.trade-input-section').style.display = 'none';
     document.getElementById('analysis-results').style.display = 'block';
-
-    // Overall score
     const score = analysis.overallScore;
     document.getElementById('trade-score').textContent = score;
-
-    // Animate score circle
     const scoreCircle = document.getElementById('score-circle');
     const circumference = 2 * Math.PI * 45;
     scoreCircle.style.strokeDasharray = circumference;
     scoreCircle.style.strokeDashoffset = circumference - (score / 100 * circumference);
     scoreCircle.style.stroke = score >= 70 ? '#3fb950' : score >= 50 ? '#f7931a' : '#f85149';
-
-    // Breakdown scores
     document.getElementById('entry-score').style.width = analysis.entryScore + '%';
     document.getElementById('risk-score').style.width = analysis.riskScore + '%';
     document.getElementById('logic-score').style.width = analysis.logicScore + '%';
     document.getElementById('sizing-score').style.width = analysis.sizingScore + '%';
-
-    // Feedback content
     document.getElementById('strengths-content').innerHTML = formatList(analysis.strengths);
     document.getElementById('improvements-content').innerHTML = formatList(analysis.improvements);
     document.getElementById('psychology-content').innerHTML = '<p>' + analysis.psychology + '</p>';
@@ -150,91 +125,248 @@
     document.getElementById('takeaways-content').innerHTML = formatList(analysis.takeaways);
   }
 
-  // Format list items
   function formatList(items) {
     if (!items || items.length === 0) return '<p>None identified</p>';
     return '<ul>' + items.map(item => '<li>' + item + '</li>').join('') + '</ul>';
   }
 
-  // Generate fallback analysis
+
   function generateFallbackAnalysis(trade) {
+    const strengths = [];
+    const improvements = [];
     const hasStopLoss = trade.stopLoss && trade.stopLoss > 0;
     const hasTakeProfit = trade.takeProfit && trade.takeProfit > 0;
-    const hasReasoning = trade.reasoning && trade.reasoning.length > 20;
-    const goodSizing = trade.positionSize && trade.positionSize <= 5;
+    const hasReasoning = trade.reasoning && trade.reasoning.trim().length > 0;
+    const hasPositionSize = trade.positionSize && trade.positionSize > 0;
 
-    let riskReward = 0;
-    if (hasStopLoss && hasTakeProfit) {
+    let stopDistancePercent = 0;
+    if (hasStopLoss) {
       if (trade.direction === 'long') {
-        riskReward = (trade.takeProfit - trade.entryPrice) / (trade.entryPrice - trade.stopLoss);
+        stopDistancePercent = ((trade.entryPrice - trade.stopLoss) / trade.entryPrice) * 100;
       } else {
-        riskReward = (trade.entryPrice - trade.takeProfit) / (trade.stopLoss - trade.entryPrice);
+        stopDistancePercent = ((trade.stopLoss - trade.entryPrice) / trade.entryPrice) * 100;
       }
     }
 
-    const entryScore = hasReasoning ? 70 : 50;
-    const riskScore = hasStopLoss ? (riskReward >= 2 ? 85 : riskReward >= 1.5 ? 70 : 55) : 30;
-    const logicScore = hasReasoning ? (trade.reasoning.length > 100 ? 80 : 65) : 40;
-    const sizingScore = goodSizing ? 85 : (trade.positionSize ? (trade.positionSize <= 10 ? 65 : 40) : 50);
-
-    const overallScore = Math.round((entryScore + riskScore + logicScore + sizingScore) / 4);
-
-    const strengths = [];
-    const improvements = [];
-
-    if (hasStopLoss) {
-      strengths.push('Good risk management with defined stop loss');
-    } else {
-      improvements.push('Always define a stop loss before entering a trade');
-    }
-
+    let tpDistancePercent = 0;
     if (hasTakeProfit) {
-      strengths.push('Clear profit target defined');
-    } else {
-      improvements.push('Set a take profit level to lock in gains');
+      if (trade.direction === 'long') {
+        tpDistancePercent = ((trade.takeProfit - trade.entryPrice) / trade.entryPrice) * 100;
+      } else {
+        tpDistancePercent = ((trade.entryPrice - trade.takeProfit) / trade.entryPrice) * 100;
+      }
     }
 
-    if (riskReward >= 2) {
-      strengths.push('Excellent risk-to-reward ratio of ' + riskReward.toFixed(1) + ':1');
-    } else if (riskReward > 0 && riskReward < 1.5) {
-      improvements.push('Consider trades with at least 2:1 risk-reward ratio');
+    let riskReward = 0;
+    if (stopDistancePercent > 0 && tpDistancePercent > 0) {
+      riskReward = tpDistancePercent / stopDistancePercent;
+    }
+
+    let stopLossValid = false;
+    if (hasStopLoss) {
+      if (trade.direction === 'long' && trade.stopLoss < trade.entryPrice) {
+        stopLossValid = true;
+      } else if (trade.direction === 'short' && trade.stopLoss > trade.entryPrice) {
+        stopLossValid = true;
+      }
+    }
+
+    let takeProfitValid = false;
+    if (hasTakeProfit) {
+      if (trade.direction === 'long' && trade.takeProfit > trade.entryPrice) {
+        takeProfitValid = true;
+      } else if (trade.direction === 'short' && trade.takeProfit < trade.entryPrice) {
+        takeProfitValid = true;
+      }
+    }
+
+    const volatilityByTimeframe = {
+      '1m': { typical: 0.1, wide: 0.3, tight: 0.05 },
+      '5m': { typical: 0.25, wide: 0.5, tight: 0.1 },
+      '15m': { typical: 0.4, wide: 0.8, tight: 0.2 },
+      '1h': { typical: 0.8, wide: 1.5, tight: 0.4 },
+      '4h': { typical: 1.5, wide: 3, tight: 0.7 },
+      '1d': { typical: 3, wide: 6, tight: 1.5 }
+    };
+    const tfVolatility = volatilityByTimeframe[trade.timeframe] || volatilityByTimeframe['1h'];
+
+    let dollarRisk = 0;
+    if (hasPositionSize && stopDistancePercent > 0) {
+      dollarRisk = trade.positionSize * (stopDistancePercent / 100);
+    }
+
+    let entryScore = 50;
+    let riskScore = 30;
+    let logicScore = 40;
+    let sizingScore = 50;
+
+    if (hasReasoning) {
+      const reasoningLength = trade.reasoning.trim().length;
+      if (reasoningLength > 200) entryScore = 80;
+      else if (reasoningLength > 100) entryScore = 70;
+      else if (reasoningLength > 50) entryScore = 60;
+      else entryScore = 55;
+    }
+
+    if (hasStopLoss && stopLossValid) {
+      if (stopDistancePercent >= tfVolatility.tight && stopDistancePercent <= tfVolatility.wide) {
+        riskScore = 85;
+      } else if (stopDistancePercent < tfVolatility.tight) {
+        riskScore = 55;
+      } else if (stopDistancePercent > tfVolatility.wide) {
+        riskScore = 60;
+      } else {
+        riskScore = 70;
+      }
+      if (riskReward >= 3) riskScore = Math.min(95, riskScore + 10);
+      else if (riskReward >= 2) riskScore = Math.min(90, riskScore + 5);
+    } else if (hasStopLoss && !stopLossValid) {
+      riskScore = 20;
     }
 
     if (hasReasoning) {
-      strengths.push('Trade thesis documented - this helps with review and learning');
-    } else {
-      improvements.push('Document your reasoning for each trade to identify patterns in your decision-making');
+      const reasoning = trade.reasoning.toLowerCase();
+      const redFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'everyone', 'twitter', 'cant lose', 'guaranteed', 'yolo', 'moon', 'ape'];
+      const greenFlags = ['support', 'resistance', 'trend', 'structure', 'volume', 'liquidity', 'invalidat', 'confluence', 'ema', 'sma', 'rsi', 'macd', 'vwap', 'fib', 'level', 'breakout', 'retest'];
+
+      let redCount = 0;
+      let greenCount = 0;
+      redFlags.forEach(flag => { if (reasoning.includes(flag)) redCount++; });
+      greenFlags.forEach(flag => { if (reasoning.includes(flag)) greenCount++; });
+
+      if (greenCount >= 3 && redCount === 0) logicScore = 90;
+      else if (greenCount >= 2 && redCount === 0) logicScore = 80;
+      else if (greenCount >= 1 && redCount === 0) logicScore = 70;
+      else if (redCount >= 2) logicScore = 35;
+      else if (redCount === 1) logicScore = 50;
+      else logicScore = 60;
     }
 
-    if (goodSizing) {
-      strengths.push('Conservative position sizing protects capital');
-    } else if (trade.positionSize > 10) {
-      improvements.push('Consider reducing position size to 1-5% to manage risk better');
+    if (hasPositionSize) {
+      if (trade.positionSize <= 2) sizingScore = 90;
+      else if (trade.positionSize <= 5) sizingScore = 80;
+      else if (trade.positionSize <= 10) sizingScore = 60;
+      else sizingScore = 35;
     }
+
+    const overallScore = Math.round((entryScore + riskScore + logicScore + sizingScore) / 4);
+
+
+    if (!hasStopLoss) {
+      improvements.push('No stop loss defined. This is the #1 account killer - always know your exit before entry.');
+    } else if (!stopLossValid) {
+      improvements.push('Stop loss is on the WRONG side of entry. For a ' + trade.direction + ', your stop should be ' + (trade.direction === 'long' ? 'BELOW' : 'ABOVE') + ' $' + trade.entryPrice.toLocaleString() + '.');
+    } else {
+      if (stopDistancePercent < tfVolatility.tight) {
+        improvements.push('Stop at $' + trade.stopLoss.toLocaleString() + ' is only ' + stopDistancePercent.toFixed(2) + '% from entry. For ' + trade.timeframe + ' timeframe, this is very tight - normal volatility could stop you out. Consider ' + tfVolatility.typical.toFixed(1) + '-' + tfVolatility.wide.toFixed(1) + '% for this timeframe.');
+      } else if (stopDistancePercent > tfVolatility.wide) {
+        improvements.push('Stop at $' + trade.stopLoss.toLocaleString() + ' is ' + stopDistancePercent.toFixed(2) + '% away - quite wide for ' + trade.timeframe + '. You might be risking more than necessary. Typical range: ' + tfVolatility.typical.toFixed(1) + '-' + tfVolatility.wide.toFixed(1) + '%.');
+      } else {
+        strengths.push('Stop at $' + trade.stopLoss.toLocaleString() + ' (' + stopDistancePercent.toFixed(2) + '% risk) is appropriate for ' + trade.timeframe + ' timeframe volatility.');
+      }
+    }
+
+    if (!hasTakeProfit) {
+      improvements.push('No take profit set. Without a target, greed often turns winners into losers.');
+    } else if (!takeProfitValid) {
+      improvements.push('Take profit is on the WRONG side. For a ' + trade.direction + ', TP should be ' + (trade.direction === 'long' ? 'ABOVE' : 'BELOW') + ' entry.');
+    } else if (riskReward > 0) {
+      const breakEvenWinRate = (100 / (riskReward + 1)).toFixed(0);
+      if (riskReward >= 3) {
+        strengths.push('Excellent ' + riskReward.toFixed(1) + ':1 R:R. You only need to win ' + breakEvenWinRate + '% of trades like this to be profitable.');
+      } else if (riskReward >= 2) {
+        strengths.push('Solid ' + riskReward.toFixed(1) + ':1 R:R. Break-even win rate: ' + breakEvenWinRate + '%. This is sustainable.');
+      } else if (riskReward >= 1.5) {
+        strengths.push('R:R of ' + riskReward.toFixed(1) + ':1 is acceptable (break-even: ' + breakEvenWinRate + '%), but aim for 2:1+ when possible.');
+      } else {
+        improvements.push('R:R of only ' + riskReward.toFixed(1) + ':1 means you need ' + breakEvenWinRate + '% win rate just to break even. Look for setups with better reward.');
+      }
+    }
+
+    if (hasPositionSize && dollarRisk > 0) {
+      if (trade.positionSize > 10) {
+        improvements.push('Position size of ' + trade.positionSize + '% is aggressive. If stopped out, you lose $' + dollarRisk.toFixed(0) + ' (as % of position). Professional traders risk 1-2% per trade.');
+      } else if (trade.positionSize > 5) {
+        improvements.push('At ' + trade.positionSize + '% position, a stop-out costs ~$' + dollarRisk.toFixed(0) + '. Consider 2-5% for better capital preservation.');
+      } else {
+        strengths.push('Conservative ' + trade.positionSize + '% position. If stopped, you lose ~$' + dollarRisk.toFixed(0) + ' - this is responsible risk management.');
+      }
+    } else if (!hasPositionSize) {
+      improvements.push('No position size specified. Always calculate your risk in dollars before entering.');
+    }
+
+    if (!hasReasoning) {
+      improvements.push('No trade reasoning provided. Document WHY youre taking this trade - its the only way to learn from outcomes.');
+    } else {
+      const reasoning = trade.reasoning.toLowerCase();
+      const hasRedFlags = ['feeling', 'gut', 'should go', 'has to', 'revenge', 'make back', 'cant lose', 'yolo', 'moon', 'ape'].some(flag => reasoning.includes(flag));
+      const hasTechnical = ['support', 'resistance', 'trend', 'structure', 'volume', 'ema', 'breakout', 'level'].some(flag => reasoning.includes(flag));
+
+      if (hasRedFlags) {
+        improvements.push('Your reasoning contains emotional language. Words like "feeling", "has to", "cant lose" suggest this may not be a purely technical decision.');
+      }
+      if (hasTechnical) {
+        strengths.push('Reasoning includes technical analysis concepts - this is the foundation of consistent trading.');
+      }
+      if (trade.reasoning.trim().length < 50) {
+        improvements.push('Reasoning is brief (' + trade.reasoning.trim().length + ' chars). More detail helps you review what worked/failed later.');
+      }
+    }
+
 
     let psychology = '';
-    if (trade.direction === 'long' && trade.timeframe === '1m') {
-      psychology = 'Scalping longs can lead to FOMO-driven entries. Ensure you had a clear setup and werent chasing green candles. Consider if a higher timeframe would give you more conviction.';
-    } else if (trade.direction === 'short' && !hasStopLoss) {
-      psychology = 'Shorting without a stop loss is extremely risky - unlimited loss potential. This suggests possible overconfidence or revenge trading. Always define your invalidation.';
+    const reasoning = (trade.reasoning || '').toLowerCase();
+
+    if (reasoning.includes('revenge') || reasoning.includes('make back') || reasoning.includes('recover')) {
+      psychology = 'WARNING: Language suggests revenge trading. Taking trades to "make back" losses leads to larger losses. Step away, reset emotionally, then return with a fresh setup.';
+    } else if (reasoning.includes('everyone') || reasoning.includes('twitter') || reasoning.includes('they said')) {
+      psychology = 'Following crowd sentiment is dangerous. By the time "everyone" sees a trade, smart money is often exiting. What does YOUR analysis say?';
+    } else if (!hasStopLoss && trade.direction === 'short') {
+      psychology = 'Shorting without a stop is extremely dangerous - losses are theoretically unlimited. This setup suggests overconfidence. No trade idea is certain.';
+    } else if (trade.timeframe === '1m' || trade.timeframe === '5m') {
+      psychology = 'Scalping on ' + trade.timeframe + ' requires intense focus and quick decisions. Ensure youre not overtrading - quality setups on higher timeframes often have better win rates and less stress.';
     } else if (!hasReasoning) {
-      psychology = 'Trading without a documented thesis often indicates impulsive or emotional trading. Before your next trade, write down 3 reasons why youre taking it.';
+      psychology = 'Trading without a written thesis typically indicates impulsive entry. Before your next trade, write down: 1) Why now? 2) What invalidates this? 3) Where do I take profit?';
+    } else if (logicScore >= 80) {
+      psychology = 'Your documented approach shows discipline. Win or lose, stick to this process. Consistency in methodology beats inconsistent brilliance.';
     } else {
-      psychology = 'Your trade appears methodical with documented reasoning. Continue this disciplined approach. Remember: consistency in process matters more than individual outcomes.';
+      psychology = 'Remember: the goal isnt to be right, its to manage risk well enough that being wrong doesnt hurt you. This trade ' + (riskScore >= 70 ? 'has solid risk parameters.' : 'could use tighter risk management.');
     }
 
     let alternatives = '';
     if (trade.direction === 'long') {
-      alternatives = 'Consider waiting for a pullback to a key support level for better entry. Look for confluence with EMAs or order blocks. A limit order at support gives better risk-reward than market orders at current price.';
+      const suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 - tfVolatility.typical / 100);
+      alternatives = 'For better R:R on longs: Consider a limit order at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (pullback to ~' + tfVolatility.typical.toFixed(1) + '% below current) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Look for confluence with EMAs, previous support, or volume profile POC.';
     } else {
-      alternatives = 'For shorts, consider entering on a failed breakout or rejection from resistance. Wait for a lower high to form on your timeframe for confirmation of bearish structure.';
+      const suggestedEntry = trade.entryPrice * (1 + tfVolatility.typical / 100);
+      const suggestedStop = suggestedEntry * (1 + tfVolatility.typical / 100);
+      alternatives = 'For shorts: Better entries often come from failed breakouts. Consider limit at $' + suggestedEntry.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' (rejection from ~' + tfVolatility.typical.toFixed(1) + '% above) with stop at $' + suggestedStop.toLocaleString(undefined, {maximumFractionDigits: 0}) + '. Wait for lower highs to confirm bearish structure.';
     }
 
-    const takeaways = [
-      hasStopLoss ? 'Your risk management is on track' : 'Priority: Always set a stop loss',
-      riskReward >= 1.5 ? 'Good R:R thinking' : 'Aim for minimum 2:1 reward-to-risk',
-      'Review this trade in 24h to see how your thesis played out'
-    ];
+    const takeaways = [];
+
+    if (!stopLossValid && hasStopLoss) {
+      takeaways.push('CRITICAL: Fix your stop loss direction before trading');
+    } else if (!hasStopLoss) {
+      takeaways.push('Priority #1: Never enter without a stop loss');
+    }
+
+    if (riskReward < 1.5 && riskReward > 0) {
+      takeaways.push('Seek setups with 2:1+ R:R - your current ' + riskReward.toFixed(1) + ':1 requires high win rate');
+    } else if (riskReward >= 2) {
+      takeaways.push('Your ' + riskReward.toFixed(1) + ':1 R:R is solid - maintain this standard');
+    }
+
+    if (trade.positionSize > 5) {
+      takeaways.push('Reduce position size to 2-5% to survive losing streaks');
+    }
+
+    if (takeaways.length === 0) {
+      takeaways.push('Trade setup is reasonable - focus on execution discipline');
+    }
+
+    takeaways.push('Review this trade in 24-48 hours regardless of outcome');
 
     return {
       overallScore,
@@ -250,7 +382,7 @@
     };
   }
 
-  // Save to history
+
   function saveToHistory(trade, analysis) {
     let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
     history.unshift({
@@ -258,12 +390,11 @@
       analysis,
       timestamp: new Date().toISOString()
     });
-    history = history.slice(0, 10); // Keep last 10
+    history = history.slice(0, 10);
     localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     loadHistory();
   }
 
-  // Load history
   function loadHistory() {
     const container = document.getElementById('analyses-list');
     const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
@@ -291,6 +422,6 @@
     }).join('');
   }
 
-  // Initialize
   updateUI();
 })();
+
