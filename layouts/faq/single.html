@@ -1,0 +1,211 @@
+{{ define "main" }}
+<div class="container faq-page">
+  <header class="faq-header">
+    <h1>Frequently Asked Questions</h1>
+    <p class="subtitle">Everything you need to know about BTC Signal AI</p>
+  </header>
+
+  <!-- Important Notice -->
+  <div class="faq-notice">
+    <div class="notice-icon">&#9888;</div>
+    <div class="notice-content">
+      <h3>Important Disclaimer</h3>
+      <p><strong>We do not trade for you.</strong> BTC Signal AI is an information service only. We provide data, analysis, and signals to help inform your own trading decisions. You are solely responsible for your trades and investments.</p>
+    </div>
+  </div>
+
+  <!-- FAQ Sections -->
+  <div class="faq-sections">
+
+    <!-- About Our Service -->
+    <section class="faq-section">
+      <h2>About Our Service</h2>
+
+      <div class="faq-item">
+        <h3>What is BTC Signal AI?</h3>
+        <p>BTC Signal AI is an automated Bitcoin analysis service powered by Claude AI. We analyze real-time market data, technical indicators, and on-chain metrics to generate trading signals and market insights. Our goal is to provide affordable, data-driven analysis to help you make more informed trading decisions.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Do you trade on my behalf?</h3>
+        <p><strong>No, absolutely not.</strong> We are strictly an information and analysis service. We do not:</p>
+        <ul>
+          <li>Execute trades for you</li>
+          <li>Manage your funds or portfolio</li>
+          <li>Have access to your exchange accounts</li>
+          <li>Provide personalized financial advice</li>
+        </ul>
+        <p>All trading decisions are yours alone. We simply provide data and analysis to assist your research.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What makes BTC Signal AI different?</h3>
+        <p>We focus on making quality Bitcoin analysis accessible at a low cost. Instead of expensive monthly subscriptions, we offer flexible Lightning Network payments starting at just 21 sats per analysis. Our AI-powered approach removes emotional bias and provides consistent, data-driven insights 24/7.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Is this financial advice?</h3>
+        <p><strong>No.</strong> Nothing on this website constitutes financial, investment, or trading advice. Our analysis is for informational and educational purposes only. Always do your own research (DYOR) and consider consulting a licensed financial advisor before making investment decisions.</p>
+      </div>
+    </section>
+
+    <!-- Data & Methodology -->
+    <section class="faq-section">
+      <h2>Data & Methodology</h2>
+
+      <div class="faq-item">
+        <h3>Where does your data come from?</h3>
+        <p>We aggregate data from multiple reliable sources:</p>
+        <ul>
+          <li><strong>Price Data:</strong> Binance, Coinbase (real-time spot prices)</li>
+          <li><strong>Market Sentiment:</strong> Alternative.me Fear & Greed Index</li>
+          <li><strong>On-Chain Data:</strong> Blockchain.info (hashrate, network metrics)</li>
+          <li><strong>Trading Metrics:</strong> Binance API (volume, order book data)</li>
+          <li><strong>Market Cap:</strong> CoinGecko (dominance, global metrics)</li>
+        </ul>
+        <p>All data is fetched in real-time from public APIs to ensure accuracy.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How does the AI generate signals?</h3>
+        <p>Our analysis uses Claude AI to process multiple data points:</p>
+        <ol>
+          <li><strong>Technical Analysis:</strong> RSI, MACD, Bollinger Bands, moving averages, and chart patterns</li>
+          <li><strong>Market Sentiment:</strong> Fear & Greed Index, funding rates, long/short ratios</li>
+          <li><strong>On-Chain Metrics:</strong> Hashrate trends, network activity</li>
+          <li><strong>Volume Analysis:</strong> Buy/sell pressure, liquidity zones</li>
+        </ol>
+        <p>The AI weighs these factors to generate a directional bias (bullish/bearish/neutral) with a confidence score.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How often is analysis updated?</h3>
+        <p>We publish new analysis posts regularly throughout the day. Dashboard widgets update in real-time (every 30 seconds to 5 minutes depending on the metric). Market conditions are monitored 24/7.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What timeframe do your signals cover?</h3>
+        <p>Our primary analysis focuses on the 4-hour (4H) timeframe, which balances short-term trading opportunities with noise reduction. However, we also consider daily and weekly trends for context. Each analysis post specifies the relevant timeframe.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How accurate are your signals?</h3>
+        <p>We track and publish our historical performance transparently on the Dashboard. Like any analysis method, our signals are not 100% accurate. Past performance does not guarantee future results. We provide confidence scores with each signal to indicate the strength of the analysis.</p>
+      </div>
+    </section>
+
+    <!-- Payments & Access -->
+    <section class="faq-section">
+      <h2>Payments & Access</h2>
+
+      <div class="faq-item">
+        <h3>Why Lightning Network payments?</h3>
+        <p>We chose Bitcoin's Lightning Network because it allows:</p>
+        <ul>
+          <li><strong>Micropayments:</strong> Pay as little as 21 sats (~$0.02) per analysis</li>
+          <li><strong>Instant:</strong> Access unlocked immediately upon payment</li>
+          <li><strong>Low fees:</strong> Near-zero transaction costs</li>
+          <li><strong>Privacy:</strong> No account or personal info required</li>
+          <li><strong>Global:</strong> Works anywhere in the world</li>
+        </ul>
+      </div>
+
+      <div class="faq-item">
+        <h3>What payment options do you offer?</h3>
+        <p>We offer flexible tiers to match your needs:</p>
+        <ul>
+          <li><strong>Single Post:</strong> 21 sats - Unlock one analysis permanently</li>
+          <li><strong>Hourly Pass:</strong> 1,000 sats - 1 hour unlimited access</li>
+          <li><strong>Daily Pass:</strong> 10,000 sats - 24 hours unlimited access</li>
+          <li><strong>Weekly Pass:</strong> 25,000 sats - 7 days unlimited access</li>
+        </ul>
+      </div>
+
+      <div class="faq-item">
+        <h3>How do I pay?</h3>
+        <p>Simply click any "Unlock" or purchase button, and a Lightning invoice QR code will appear. Scan it with any Lightning-enabled wallet (Phoenix, Muun, Wallet of Satoshi, BlueWallet, etc.) to complete payment instantly.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Do I need to create an account?</h3>
+        <p>No account required. Your access is stored locally in your browser. This means maximum privacy but also means clearing your browser data will reset your access status.</p>
+      </div>
+    </section>
+
+    <!-- Risk & Responsibility -->
+    <section class="faq-section">
+      <h2>Risk & Responsibility</h2>
+
+      <div class="faq-item">
+        <h3>What are the risks of trading Bitcoin?</h3>
+        <p>Bitcoin and cryptocurrency trading involves substantial risk:</p>
+        <ul>
+          <li>Prices can be extremely volatile</li>
+          <li>You can lose some or all of your investment</li>
+          <li>Leverage trading amplifies both gains AND losses</li>
+          <li>Markets operate 24/7 and can move while you sleep</li>
+          <li>Past performance does not predict future results</li>
+        </ul>
+        <p><strong>Never trade with money you cannot afford to lose.</strong></p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Should I follow your signals blindly?</h3>
+        <p><strong>No.</strong> Our signals should be one input among many in your decision-making process. Always:</p>
+        <ul>
+          <li>Do your own research</li>
+          <li>Understand the trade before entering</li>
+          <li>Use proper risk management (stop losses, position sizing)</li>
+          <li>Consider your personal financial situation</li>
+          <li>Never risk more than you can afford to lose</li>
+        </ul>
+      </div>
+
+      <div class="faq-item">
+        <h3>Who is responsible for my trading losses?</h3>
+        <p><strong>You are.</strong> BTC Signal AI provides information only. We are not liable for any trading losses, missed opportunities, or financial damages resulting from the use of our service. By using this site, you acknowledge that all trading decisions and their outcomes are your sole responsibility.</p>
+      </div>
+    </section>
+
+    <!-- Technical & Support -->
+    <section class="faq-section">
+      <h2>Technical & Support</h2>
+
+      <div class="faq-item">
+        <h3>The data isn't loading. What should I do?</h3>
+        <p>Try these steps:</p>
+        <ol>
+          <li>Refresh the page</li>
+          <li>Check your internet connection</li>
+          <li>Disable any ad blockers (they may block API calls)</li>
+          <li>Try a different browser</li>
+          <li>Clear your browser cache</li>
+        </ol>
+        <p>Some data sources may occasionally be unavailable due to API rate limits or maintenance.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>My payment went through but content is still locked?</h3>
+        <p>Lightning payments are instant, but occasionally there may be a brief delay. Try refreshing the page. If the issue persists, your browser may have blocked the local storage where access is tracked. Try disabling strict privacy settings or using a different browser.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>How can I contact support?</h3>
+        <p>For questions or issues, reach out to us on Twitter/X at <a href="https://x.com/BTCSignal_ai" target="_blank" rel="noopener">@BTCSignal_ai</a>.</p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="faq-cta">
+    <h2>Ready to get started?</h2>
+    <p>Access AI-powered Bitcoin analysis at the lowest cost in the market.</p>
+    <div class="cta-buttons">
+      <a href="/posts/" class="btn-primary">View Analysis</a>
+      <a href="/pricing/" class="btn-secondary">See Pricing</a>
+    </div>
+  </div>
+
+</div>
+{{ end }}

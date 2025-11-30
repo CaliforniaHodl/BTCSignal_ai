@@ -1,0 +1,240 @@
+// =====================================================
+// FAQ PAGE STYLES
+// =====================================================
+
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.faq-page {
+  @include section-padding;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+// Header
+.faq-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+
+  h1 {
+    font-size: $font-3xl;
+    @include gradient-text;
+    margin-bottom: $spacing-sm;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: $font-lg;
+  }
+}
+
+// Important Notice Banner
+.faq-notice {
+  display: flex;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, rgba($red, 0.1) 0%, var(--bg-card) 100%);
+  border: 1px solid rgba($red, 0.3);
+  border-left: 4px solid var(--red);
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-2xl;
+
+  @include mobile {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.notice-icon {
+  font-size: 2.5rem;
+  color: var(--red);
+  flex-shrink: 0;
+}
+
+.notice-content {
+  h3 {
+    color: var(--red);
+    font-size: $font-lg;
+    margin: 0 0 $spacing-sm;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.6;
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+}
+
+// FAQ Sections
+.faq-sections {
+  margin-bottom: $spacing-2xl;
+}
+
+.faq-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    color: var(--text-primary);
+    margin-bottom: $spacing-lg;
+    padding-bottom: $spacing-sm;
+    border-bottom: 2px solid var(--bitcoin-orange);
+    display: inline-block;
+  }
+}
+
+// FAQ Items
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  transition: border-color $transition-base;
+
+  &:hover {
+    border-color: rgba($bitcoin-orange, 0.3);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-primary);
+    margin: 0 0 $spacing-md;
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-sm;
+
+    &::before {
+      content: "Q:";
+      color: var(--bitcoin-orange);
+      font-weight: $font-bold;
+      flex-shrink: 0;
+    }
+  }
+
+  p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin: 0 0 $spacing-md;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  ul, ol {
+    color: var(--text-secondary);
+    margin: 0 0 $spacing-md;
+    padding-left: $spacing-lg;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    li {
+      margin-bottom: $spacing-xs;
+      line-height: 1.6;
+
+      strong {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  a {
+    color: var(--bitcoin-orange);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Bottom CTA
+.faq-cta {
+  text-align: center;
+  padding: $spacing-2xl;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.1) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+
+  h2 {
+    font-size: $font-2xl;
+    color: var(--text-primary);
+    margin: 0 0 $spacing-sm;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: 0 0 $spacing-lg;
+  }
+}
+
+.cta-buttons {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  .btn-primary {
+    @include gradient-button;
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-base;
+    text-decoration: none;
+  }
+
+  .btn-secondary {
+    padding: $spacing-md $spacing-xl;
+    font-size: $font-base;
+    text-decoration: none;
+    color: var(--bitcoin-orange);
+    border: 1px solid var(--bitcoin-orange);
+    border-radius: $radius-md;
+    font-weight: $font-semibold;
+    transition: all $transition-base;
+
+    &:hover {
+      background: rgba($bitcoin-orange, 0.1);
+    }
+  }
+}
+
+// Responsive
+@include mobile {
+  .faq-header h1 {
+    font-size: $font-2xl;
+  }
+
+  .faq-section h2 {
+    font-size: $font-lg;
+  }
+
+  .faq-item {
+    padding: $spacing-md;
+
+    h3 {
+      font-size: $font-sm;
+    }
+  }
+
+  .faq-cta {
+    padding: $spacing-lg;
+
+    h2 {
+      font-size: $font-xl;
+    }
+  }
+}
