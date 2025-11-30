@@ -1,0 +1,551 @@
+// =====================================================
+// PRICING PAGE STYLES
+// =====================================================
+
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.pricing-page {
+  @include section-padding;
+}
+
+// Header
+.pricing-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+
+  h1 {
+    font-size: $font-4xl;
+    @include gradient-text;
+    margin-bottom: $spacing-sm;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: $font-lg;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+// Access Status
+.access-status {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  padding: $spacing-sm $spacing-lg;
+}
+
+.status-icon {
+  font-size: $font-xl;
+}
+
+.status-text {
+  color: var(--text-secondary);
+  font-weight: $font-medium;
+
+  &.active {
+    color: var(--green);
+  }
+
+  &.expired {
+    color: var(--red);
+  }
+
+  &.partial {
+    color: var(--bitcoin-orange);
+  }
+}
+
+// Pricing Grid
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-2xl;
+
+  @media (max-width: $breakpoint-xl) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Pricing Card
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  position: relative;
+  transition: all $transition-slow;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  &.featured {
+    border-color: var(--bitcoin-orange);
+    background: linear-gradient(180deg, rgba($bitcoin-orange, 0.1) 0%, var(--bg-card) 50%);
+  }
+}
+
+.card-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: 20px;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  white-space: nowrap;
+
+  &.popular {
+    background: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+    color: white;
+    font-weight: $font-semibold;
+  }
+}
+
+.discount-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--green);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: $radius-sm;
+  font-size: 0.7rem;
+  font-weight: $font-bold;
+}
+
+.plan-name {
+  font-size: $font-xl;
+  color: var(--text-primary);
+  margin-top: $spacing-md;
+  margin-bottom: $spacing-sm;
+}
+
+.plan-price {
+  margin-bottom: $spacing-sm;
+}
+
+.price-original {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  font-size: $font-base;
+  margin-right: $spacing-sm;
+}
+
+.price-amount {
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+}
+
+.price-unit {
+  font-size: $font-base;
+  color: var(--text-muted);
+  margin-left: $spacing-xs;
+}
+
+.plan-desc {
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  margin-bottom: $spacing-md;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 $spacing-lg;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-sm 0;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &.muted {
+      color: var(--text-muted);
+    }
+  }
+
+  .check {
+    color: var(--green);
+  }
+
+  .x {
+    color: var(--text-muted);
+  }
+}
+
+.btn-purchase {
+  width: 100%;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  font-size: $font-base;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    color: var(--bitcoin-orange);
+  }
+
+  &.primary {
+    @include gradient-button;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: $shadow-glow;
+    }
+  }
+}
+
+.plan-note {
+  margin-top: $spacing-sm;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+// Payment Modal
+.payment-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-md;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+
+  h3 {
+    text-align: center;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: $font-2xl;
+  cursor: pointer;
+  transition: color $transition-base;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+}
+
+.qr-container {
+  background: white;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  text-align: center;
+}
+
+.qr-code {
+  width: 200px;
+  height: 200px;
+}
+
+.invoice-details {
+  text-align: center;
+  margin-bottom: $spacing-md;
+}
+
+.invoice-amount {
+  font-size: $font-2xl;
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+  margin-bottom: $spacing-xs;
+}
+
+.invoice-expires {
+  font-size: $font-sm;
+  color: var(--text-muted);
+}
+
+.invoice-actions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.btn-copy,
+.btn-open-wallet {
+  flex: 1;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  text-align: center;
+  cursor: pointer;
+  transition: all $transition-base;
+}
+
+.btn-copy {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+.btn-open-wallet {
+  @include gradient-button;
+  text-decoration: none;
+}
+
+.payment-status {
+  text-align: center;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+}
+
+.status-waiting {
+  color: var(--text-muted);
+
+  &::before {
+    content: '\23F3 ';
+  }
+}
+
+.status-success {
+  color: var(--green);
+  font-weight: $font-semibold;
+}
+
+.status-expired {
+  color: var(--red);
+}
+
+// FAQ Section
+.pricing-faq {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+    color: var(--text-primary);
+  }
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+  }
+}
+
+// Value Props
+.value-props {
+  h2 {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+    color: var(--text-primary);
+  }
+}
+
+.props-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-lg;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prop-item {
+  text-align: center;
+  padding: $spacing-lg;
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.prop-icon {
+  font-size: $font-4xl;
+  display: block;
+  margin-bottom: $spacing-sm;
+}
+
+// Paywall Component Styles (for posts)
+.paywall-overlay {
+  position: relative;
+  margin-top: $spacing-xl;
+  padding: $spacing-xl;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 30%);
+  text-align: center;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 100%);
+    pointer-events: none;
+  }
+}
+
+.paywall-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  max-width: 500px;
+  margin: 0 auto;
+
+  h3 {
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.paywall-icon {
+  font-size: $font-3xl;
+  margin-bottom: $spacing-md;
+}
+
+.paywall-options {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.paywall-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+  }
+
+  &.featured {
+    background: linear-gradient(135deg, rgba($bitcoin-orange, 0.1) 0%, var(--bg-dark) 100%);
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+.paywall-btn-text {
+  text-align: left;
+}
+
+.paywall-btn-title {
+  font-weight: $font-semibold;
+  color: var(--text-primary);
+}
+
+.paywall-btn-desc {
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.paywall-btn-price {
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+}
+
+.paywall-link {
+  margin-top: $spacing-md;
+  font-size: $font-sm;
+
+  a {
+    color: var(--bitcoin-orange);
+  }
+}
