@@ -1,7 +1,12 @@
 import type { Context } from '@netlify/functions';
 
-// Simple page view counter using Netlify Blobs
+// Simple page view counter using Netlify Blobs REST API
 // No rebuilds, no IP addresses - just page: count pairs
+
+const SITE_ID = process.env.SITE_ID || '';
+const NETLIFY_TOKEN = process.env.NETLIFY_API_TOKEN || '';
+const STORE_NAME = 'page-views';
+const BLOB_KEY = 'counts';
 
 export default async (req: Request, context: Context) => {
   const headers = {
@@ -16,14 +21,18 @@ export default async (req: Request, context: Context) => {
     return new Response(null, { status: 204, headers });
   }
 
-  // Get the blob store from context
-  const store = context.blobs("page-views");
+  if (!SITE_ID || !NETLIFY_TOKEN) {
+    console.error('Missing SITE_ID or NETLIFY_API_TOKEN');
+    return new Response(JSON.stringify({ error: 'Server config error' }), {
+      status: 500,
+      headers,
+    });
+  }
 
   // GET = return current stats
   if (req.method === 'GET') {
     try {
-      const data = await store.get("counts");
-      const stats = data ? JSON.parse(data) : {};
+      const stats = await getStats();
       return new Response(JSON.stringify(stats), { status: 200, headers });
     } catch (error) {
       return new Response(JSON.stringify({}), { status: 200, headers });
@@ -42,23 +51,16 @@ export default async (req: Request, context: Context) => {
         });
       }
 
-      // Sanitize page name: /about/ -> about, / -> home
       const pageName = sanitizePageName(page);
 
       // Get current stats
-      let stats: Record<string, number> = {};
-      try {
-        const data = await store.get("counts");
-        stats = data ? JSON.parse(data) : {};
-      } catch (e) {
-        stats = {};
-      }
+      let stats = await getStats();
 
       // Increment
       stats[pageName] = (stats[pageName] || 0) + 1;
 
       // Save
-      await store.set("counts", JSON.stringify(stats));
+      await saveStats(stats);
 
       return new Response(JSON.stringify({ success: true, page: pageName }), {
         status: 200,
@@ -79,6 +81,36 @@ export default async (req: Request, context: Context) => {
     headers,
   });
 };
+
+async function getStats(): Promise<Record<string, number>> {
+  try {
+    const url = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/${STORE_NAME}/${BLOB_KEY}`;
+    const res = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${NETLIFY_TOKEN}`,
+      },
+    });
+
+    if (res.ok) {
+      return await res.json();
+    }
+    return {};
+  } catch (e) {
+    return {};
+  }
+}
+
+async function saveStats(stats: Record<string, number>): Promise<void> {
+  const url = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/${STORE_NAME}/${BLOB_KEY}`;
+  await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${NETLIFY_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(stats),
+  });
+}
 
 function sanitizePageName(page: string): string {
   let name = page.replace(/^\/+|\/+$/g, '');

@@ -40,6 +40,11 @@
   <link rel="stylesheet" href="{{ "src/css/" | relURL }}{{ $cssFile }}">
 {{ end }}
 
+{{/* Auto-load single-post.css for individual post pages */}}
+{{ if and (eq .Section "posts") .IsPage }}
+  <link rel="stylesheet" href="{{ "src/css/single-post.css" | relURL }}">
+{{ end }}
+
 <script src="{{ "src/js/access-manager.js" | relURL }}"></script>
 
 <!-- canonical -->

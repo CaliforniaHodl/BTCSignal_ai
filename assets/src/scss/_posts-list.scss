@@ -31,8 +31,8 @@
   th, td {
     padding: var(--spacing-md);
     text-align: left;
-    border-bottom: 1px solid var(--border-color);
   }
+  
 
   thead {
     background: var(--bg-dark);
@@ -73,7 +73,10 @@
   .col-date {
     color: var(--text-primary);
     white-space: nowrap;
+    width: 10%;
   }
+
+
 
   .col-time {
     color: var(--text-muted);

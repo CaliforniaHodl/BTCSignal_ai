@@ -1,1 +1,585 @@
-﻿:root{--bg-dark: #0d1117;--bg-card: #161b22;--bg-card-hover: #1f2937;--bg-surface: #21262d;--border-color: #30363d;--text-primary: #e6edf3;--text-secondary: #8d96a0;--text-muted: #7d8590;--bitcoin-orange: #f7931a;--bitcoin-gold: #ffb800;--green: #3fb950;--red: #f85149;--blue: #58a6ff;--purple: #a371f7;--bullish: #3fb950;--bearish: #f85149;--neutral: #d29922;--spacing-xs: 4px;--spacing-sm: 8px;--spacing-md: 16px;--spacing-lg: 24px;--spacing-xl: 32px;--radius-sm: 4px;--radius-md: 8px;--radius-lg: 12px}[data-theme=light]{--bg-dark: #f6f8fa;--bg-card: #ffffff;--bg-card-hover: #f3f4f6;--bg-surface: #eaeef2;--border-color: #d0d7de;--text-primary: #1f2328;--text-secondary: #57606a;--text-muted: #656d76;--bitcoin-orange: #9a6700;--bitcoin-gold: #7c5200;--green: #1a7f37;--red: #cf222e;--blue: #0969da;--purple: #8250df;--bullish: #1a7f37;--bearish: #cf222e;--neutral: #9a6700}.pricing-page{padding:32px 0}@media(max-width: 767px){.pricing-page{padding:24px 0}}.pricing-header{text-align:center;margin-bottom:48px}.pricing-header h1{font-size:2.5rem;background:linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:rgba(0,0,0,0);background-clip:text;margin-bottom:8px}.pricing-header .subtitle{color:var(--text-secondary);font-size:1.125rem;margin-bottom:24px}.access-status{display:inline-flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50px;padding:8px 24px}.status-icon{font-size:1.25rem}.status-text{color:var(--text-secondary);font-weight:500}.status-text.active{color:var(--green)}.status-text.expired{color:var(--red)}.status-text.partial{color:var(--bitcoin-orange)}.pricing-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:24px;margin-bottom:48px}@media(max-width: 1200px){.pricing-grid{grid-template-columns:repeat(2, 1fr)}}@media(max-width: 767px){.pricing-grid{grid-template-columns:1fr}}.pricing-card{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:24px;position:relative;transition:all .3s ease}.pricing-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.3)}.pricing-card.featured{border-color:var(--bitcoin-orange);background:linear-gradient(180deg, rgba(247, 147, 26, 0.1) 0%, var(--bg-card) 50%)}.card-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--bg-dark);border:1px solid var(--border-color);padding:4px 8px;border-radius:20px;font-size:.75rem;color:var(--text-muted);white-space:nowrap}.card-badge.popular{background:var(--bitcoin-orange);border-color:var(--bitcoin-orange);color:#fff;font-weight:600}.discount-badge{position:absolute;top:12px;right:12px;background:var(--green);color:#fff;padding:.2rem .5rem;border-radius:4px;font-size:.7rem;font-weight:700}.plan-name{font-size:1.25rem;color:var(--text-primary);margin-top:16px;margin-bottom:8px}.plan-price{margin-bottom:8px}.price-original{text-decoration:line-through;color:var(--text-muted);font-size:1rem;margin-right:8px}.price-amount{font-size:2.5rem;font-weight:700;color:var(--bitcoin-orange)}.price-unit{font-size:1rem;color:var(--text-muted);margin-left:4px}.plan-desc{color:var(--text-secondary);font-size:.875rem;margin-bottom:16px}.plan-features{list-style:none;padding:0;margin:0 0 24px}.plan-features li{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:.875rem;color:var(--text-secondary);border-bottom:1px solid var(--border-color)}.plan-features li:last-child{border-bottom:none}.plan-features li.muted{color:var(--text-muted)}.plan-features .check{color:var(--green)}.plan-features .x{color:var(--text-muted)}.btn-purchase{width:100%;background:var(--bg-dark);border:1px solid var(--border-color);color:var(--text-primary);padding:16px;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:all .2s ease}.btn-purchase:hover{border-color:var(--bitcoin-orange);color:var(--bitcoin-orange)}.btn-purchase.primary{background:linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .2s ease}.btn-purchase.primary:hover{transform:scale(1.02);box-shadow:0 4px 15px rgba(247,147,26,.4)}.btn-purchase.primary:hover{transform:scale(1.02);box-shadow:0 4px 15px rgba(247,147,26,.4)}.plan-note{margin-top:8px;font-size:.75rem;color:var(--text-muted);text-align:center}.payment-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:10000;justify-content:center;align-items:center;padding:16px}.modal-content{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:32px;max-width:400px;width:100%;position:relative}.modal-content h3{text-align:center;margin-bottom:24px}.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;transition:color .2s ease}.modal-close:hover{color:var(--text-primary)}.qr-container{background:#fff;border-radius:12px;padding:16px;margin-bottom:16px;text-align:center}.qr-code{width:200px;height:200px}.invoice-details{text-align:center;margin-bottom:16px}.invoice-amount{font-size:1.5rem;font-weight:700;color:var(--bitcoin-orange);margin-bottom:4px}.invoice-expires{font-size:.875rem;color:var(--text-muted)}.invoice-actions{display:flex;gap:8px;margin-bottom:16px}.btn-copy,.btn-open-wallet{flex:1;padding:8px;border-radius:8px;font-size:.875rem;font-weight:600;text-align:center;cursor:pointer;transition:all .2s ease}.btn-copy{background:var(--bg-dark);border:1px solid var(--border-color);color:var(--text-primary)}.btn-copy:hover{border-color:var(--bitcoin-orange)}.btn-open-wallet{background:linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);color:#000;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .2s ease;text-decoration:none}.btn-open-wallet:hover{transform:scale(1.02);box-shadow:0 4px 15px rgba(247,147,26,.4)}.payment-status{text-align:center;padding:16px;background:var(--bg-dark);border-radius:8px}.status-waiting{color:var(--text-muted)}.status-waiting::before{content:"⏳"}.status-success{color:var(--green);font-weight:600}.status-expired{color:var(--red)}.pricing-faq{margin-bottom:48px}.pricing-faq h2{text-align:center;margin-bottom:32px;color:var(--text-primary)}.faq-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:24px}@media(max-width: 767px){.faq-grid{grid-template-columns:1fr}}.faq-item{background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:24px}.faq-item h3{font-size:1rem;color:var(--text-primary);margin-bottom:8px}.faq-item p{font-size:.875rem;color:var(--text-secondary);line-height:1.6;margin:0}.value-props h2{text-align:center;margin-bottom:32px;color:var(--text-primary)}.props-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:24px}@media(max-width: 900px){.props-grid{grid-template-columns:repeat(2, 1fr)}}@media(max-width: 767px){.props-grid{grid-template-columns:1fr}}.prop-item{text-align:center;padding:24px}.prop-item h3{font-size:1rem;color:var(--text-primary);margin-bottom:8px}.prop-item p{font-size:.875rem;color:var(--text-secondary);margin:0}.prop-icon{font-size:2.5rem;display:block;margin-bottom:8px}.paywall-overlay{position:relative;margin-top:32px;padding:32px;background:linear-gradient(180deg, transparent 0%, var(--bg-dark) 30%);text-align:center}.paywall-overlay::before{content:"";position:absolute;top:-100px;left:0;right:0;height:100px;background:linear-gradient(180deg, transparent 0%, var(--bg-dark) 100%);pointer-events:none}.paywall-box{background:var(--bg-card);border:1px solid var(--border-color);border-radius:16px;padding:32px;max-width:500px;margin:0 auto}.paywall-box h3{margin-bottom:8px}.paywall-box p{color:var(--text-secondary);margin-bottom:24px}.paywall-icon{font-size:2rem;margin-bottom:16px}.paywall-options{display:flex;flex-direction:column;gap:8px}.paywall-btn{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;background:var(--bg-dark);border:1px solid var(--border-color);border-radius:8px;cursor:pointer;transition:all .2s ease;text-decoration:none;color:inherit}.paywall-btn:hover{border-color:var(--bitcoin-orange)}.paywall-btn.featured{background:linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--bg-dark) 100%);border-color:var(--bitcoin-orange)}.paywall-btn-text{text-align:left}.paywall-btn-title{font-weight:600;color:var(--text-primary)}.paywall-btn-desc{font-size:.75rem;color:var(--text-muted)}.paywall-btn-price{font-weight:700;color:var(--bitcoin-orange)}.paywall-link{margin-top:16px;font-size:.875rem}.paywall-link a{color:var(--bitcoin-orange)}
+@charset "UTF-8";
+:root {
+  --bg-dark: #0d1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #1f2937;
+  --bg-surface: #21262d;
+  --border-color: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8d96a0;
+  --text-muted: #7d8590;
+  --bitcoin-orange: #f7931a;
+  --bitcoin-gold: #ffb800;
+  --green: #3fb950;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --purple: #a371f7;
+  --bullish: #3fb950;
+  --bearish: #f85149;
+  --neutral: #d29922;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+[data-theme=light] {
+  --bg-dark: #f6f8fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3f4f6;
+  --bg-surface: #eaeef2;
+  --border-color: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #57606a;
+  --text-muted: #656d76;
+  --bitcoin-orange: #9a6700;
+  --bitcoin-gold: #7c5200;
+  --green: #1a7f37;
+  --red: #cf222e;
+  --blue: #0969da;
+  --purple: #8250df;
+  --bullish: #1a7f37;
+  --bearish: #cf222e;
+  --neutral: #9a6700;
+}
+
+.pricing-page {
+  padding: 32px 0;
+}
+@media (max-width: 767px) {
+  .pricing-page {
+    padding: 24px 0;
+  }
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.pricing-header h1 {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.pricing-header .subtitle {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  margin-bottom: 24px;
+}
+
+.access-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 8px 24px;
+}
+
+.status-icon {
+  font-size: 1.25rem;
+}
+
+.status-text {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.status-text.active {
+  color: var(--green);
+}
+.status-text.expired {
+  color: var(--red);
+}
+.status-text.partial {
+  color: var(--bitcoin-orange);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 48px;
+}
+@media (max-width: 1200px) {
+  .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+.pricing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+.pricing-card.featured {
+  border-color: var(--bitcoin-orange);
+  background: linear-gradient(180deg, rgba(247, 147, 26, 0.1) 0%, var(--bg-card) 50%);
+}
+
+.card-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  padding: 4px 8px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.card-badge.popular {
+  background: var(--bitcoin-orange);
+  border-color: var(--bitcoin-orange);
+  color: white;
+  font-weight: 600;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--green);
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.plan-name {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.plan-price {
+  margin-bottom: 8px;
+}
+
+.price-original {
+  text-decoration: line-through;
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin-right: 8px;
+}
+
+.price-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+}
+
+.price-unit {
+  font-size: 1rem;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.plan-desc {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 16px;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+.plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+}
+.plan-features li:last-child {
+  border-bottom: none;
+}
+.plan-features li.muted {
+  color: var(--text-muted);
+}
+.plan-features .check {
+  color: var(--green);
+}
+.plan-features .x {
+  color: var(--text-muted);
+}
+
+.btn-purchase {
+  width: 100%;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-purchase:hover {
+  border-color: var(--bitcoin-orange);
+  color: var(--bitcoin-orange);
+}
+.btn-purchase.primary {
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-purchase.primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+.btn-purchase.primary:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+
+.plan-note {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.payment-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10000;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+}
+.modal-content h3 {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.modal-close:hover {
+  color: var(--text-primary);
+}
+
+.qr-container {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.qr-code {
+  width: 200px;
+  height: 200px;
+}
+
+.invoice-details {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.invoice-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+  margin-bottom: 4px;
+}
+
+.invoice-expires {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.invoice-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.btn-copy,
+.btn-open-wallet {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-copy {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+.btn-copy:hover {
+  border-color: var(--bitcoin-orange);
+}
+
+.btn-open-wallet {
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn-open-wallet:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+
+.payment-status {
+  text-align: center;
+  padding: 16px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+}
+
+.status-waiting {
+  color: var(--text-muted);
+}
+.status-waiting::before {
+  content: "⏳";
+}
+
+.status-success {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.status-expired {
+  color: var(--red);
+}
+
+.pricing-faq {
+  margin-bottom: 48px;
+}
+.pricing-faq h2 {
+  text-align: center;
+  margin-bottom: 32px;
+  color: var(--text-primary);
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+@media (max-width: 767px) {
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.faq-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+.faq-item h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.faq-item p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.value-props h2 {
+  text-align: center;
+  margin-bottom: 32px;
+  color: var(--text-primary);
+}
+
+.props-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+@media (max-width: 900px) {
+  .props-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .props-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prop-item {
+  text-align: center;
+  padding: 24px;
+}
+.prop-item h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.prop-item p {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.prop-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.paywall-overlay {
+  position: relative;
+  margin-top: 32px;
+  padding: 32px;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 30%);
+  text-align: center;
+}
+.paywall-overlay::before {
+  content: "";
+  position: absolute;
+  top: -100px;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 100%);
+  pointer-events: none;
+}
+
+.paywall-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+.paywall-box h3 {
+  margin-bottom: 8px;
+}
+.paywall-box p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+}
+
+.paywall-icon {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+
+.paywall-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.paywall-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  color: inherit;
+}
+.paywall-btn:hover {
+  border-color: var(--bitcoin-orange);
+}
+.paywall-btn.featured {
+  background: linear-gradient(135deg, rgba(247, 147, 26, 0.1) 0%, var(--bg-dark) 100%);
+  border-color: var(--bitcoin-orange);
+}
+
+.paywall-btn-text {
+  text-align: left;
+}
+
+.paywall-btn-title {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.paywall-btn-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.paywall-btn-price {
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+}
+
+.paywall-link {
+  margin-top: 16px;
+  font-size: 0.875rem;
+}
+.paywall-link a {
+  color: var(--bitcoin-orange);
+}
