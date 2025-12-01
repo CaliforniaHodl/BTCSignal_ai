@@ -7,6 +7,7 @@ tags: ["education", "bollinger-bands", "indicators", "volatility"]
 icon: "📏"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What Are Bollinger Bands?

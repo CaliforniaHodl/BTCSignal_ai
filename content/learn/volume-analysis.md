@@ -7,6 +7,7 @@ tags: ["education", "volume", "orderflow", "trading-basics"]
 icon: "📊"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## Why Volume Matters

@@ -7,6 +7,7 @@ tags: ["education", "candlestick-patterns", "price-action", "reversals"]
 icon: "🕯️"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## Understanding Candlesticks

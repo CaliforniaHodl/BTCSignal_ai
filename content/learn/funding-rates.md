@@ -7,6 +7,7 @@ tags: ["education", "funding-rates", "perpetual-futures", "derivatives"]
 icon: "💰"
 category: "fundamentals"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What Are Funding Rates?

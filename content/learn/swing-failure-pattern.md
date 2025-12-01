@@ -7,6 +7,7 @@ tags: ["education", "sfp", "reversal", "trading-patterns"]
 icon: "🔄"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is a Swing Failure Pattern?

@@ -7,6 +7,7 @@ tags: ["education", "bart-patterns", "manipulation", "technical-analysis"]
 icon: "⚡"
 category: "advanced"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is a BART Pattern?

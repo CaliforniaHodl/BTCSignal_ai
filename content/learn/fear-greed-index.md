@@ -7,6 +7,7 @@ tags: ["education", "sentiment", "fear-greed", "contrarian-trading"]
 icon: "😱"
 category: "fundamentals"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What Is the Fear & Greed Index?

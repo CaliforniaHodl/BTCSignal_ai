@@ -7,6 +7,7 @@ tags: ["education", "fibonacci", "retracements", "key-levels"]
 icon: "🔢"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What Are Fibonacci Retracements?

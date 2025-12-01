@@ -7,6 +7,7 @@ tags: ["education", "fvg", "smart-money", "imbalance"]
 icon: "📐"
 category: "fundamentals"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is a Fair Value Gap?

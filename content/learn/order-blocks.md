@@ -7,6 +7,7 @@ tags: ["education", "order-blocks", "smart-money", "institutional"]
 icon: "🏛️"
 category: "fundamentals"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is an Order Block?

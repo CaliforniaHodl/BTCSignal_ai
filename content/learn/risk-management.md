@@ -7,6 +7,7 @@ tags: ["education", "risk-management", "position-sizing", "trading-psychology"]
 icon: "⚠️"
 category: "risk"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## Why Risk Management Matters

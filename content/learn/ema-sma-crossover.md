@@ -7,6 +7,7 @@ tags: ["education", "moving-averages", "ema", "sma", "trend-following"]
 icon: "〰️"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What Are Moving Averages?

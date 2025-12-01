@@ -7,6 +7,7 @@ tags: ["education", "rsi", "divergence", "indicators"]
 icon: "📈"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is RSI Divergence?

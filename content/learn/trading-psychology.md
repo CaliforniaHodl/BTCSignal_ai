@@ -7,6 +7,7 @@ tags: ["education", "psychology", "trading-mindset", "discipline"]
 icon: "🧠"
 category: "psychology"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## Why Psychology Matters

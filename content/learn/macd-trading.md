@@ -7,6 +7,7 @@ tags: ["education", "macd", "indicators", "momentum"]
 icon: "📉"
 category: "technical"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is MACD?

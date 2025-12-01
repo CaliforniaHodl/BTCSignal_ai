@@ -7,6 +7,7 @@ tags: ["education", "liquidity", "smart-money"]
 icon: "💧"
 category: "fundamentals"
 priority: 0.5
+css: ['learn.scss']
 ---
 
 ## What is Liquidity?
