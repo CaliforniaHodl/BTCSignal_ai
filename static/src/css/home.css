@@ -105,7 +105,7 @@
 }
 .analysis-post .prediction-section .prediction-card .confidence-bar .confidence-fill {
   height: 100%;
-  background: var(--btc-orange);
+  background: var(--bitcoin-orange);
   border-radius: var(--radius-sm);
   transition: width 0.3s ease;
 }
@@ -334,7 +334,7 @@
 }
 .posts-table .col-confidence .confidence-bar .confidence-fill {
   height: 100%;
-  background: var(--btc-orange);
+  background: var(--bitcoin-orange);
   border-radius: 2px;
 }
 .posts-table .col-price {
@@ -353,7 +353,7 @@
 .posts-table .col-action .view-btn {
   display: inline-block;
   padding: var(--spacing-xs) var(--spacing-md);
-  background: var(--btc-orange);
+  background: var(--bitcoin-orange);
   color: var(--bg-dark);
   text-decoration: none;
   border-radius: var(--radius-sm);
@@ -380,7 +380,7 @@
   font-size: 0.875rem;
 }
 .single-post-page .breadcrumb a {
-  color: var(--btc-orange);
+  color: var(--bitcoin-orange);
   text-decoration: none;
 }
 .single-post-page .breadcrumb a:hover {
@@ -518,7 +518,7 @@
   border-top: 1px solid var(--border-color);
 }
 .analysis-article .article-footer .back-link {
-  color: var(--btc-orange);
+  color: var(--bitcoin-orange);
   text-decoration: none;
 }
 .analysis-article .article-footer .back-link:hover {

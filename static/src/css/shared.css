@@ -1,3 +1,4 @@
+@charset "UTF-8";
 :root {
   --bg-dark: #0d1117;
   --bg-card: #161b22;
@@ -46,7 +47,7 @@
   --neutral: #9a6700;
 }
 
-h1, h2, h3, h4, h6, p {
+h1, h2, h3, h4, h5, h6, p {
   color: unset;
 }
 
@@ -72,6 +73,12 @@ h1,
   font-weight: 700;
   padding: 12px 18px;
   font-size: 16px;
+  background: linear-gradient(135deg, #f7931a, #ffb800);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 .btn-primary.btn-small {
   padding: 8px 12px;
@@ -84,6 +91,14 @@ h1,
 .btn-primary.btn-full {
   width: 100%;
   font-size: 16px;
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.btn-primary:focus-visible {
+  outline: 3px solid rgba(247, 147, 26, 0.5);
+  outline-offset: 2px;
 }
 
 .btn-lightning {
@@ -124,7 +139,8 @@ a.underlined {
   position: sticky;
   top: 0;
   z-index: 1000;
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+          backdrop-filter: blur(10px);
 }
 
 .header-content {
@@ -593,12 +609,16 @@ footer {
   color: var(--text-primary);
   font-size: 1rem;
 }
+#newsletter-email::-moz-placeholder {
+  color: var(--text-muted);
+}
 #newsletter-email::placeholder {
   color: var(--text-muted);
 }
 #newsletter-email:focus {
-  outline: none;
   border-color: var(--bitcoin-orange);
+  outline: 3px solid rgba(247, 147, 26, 0.3);
+  outline-offset: 1px;
 }
 
 .btn-subscribe {
@@ -716,7 +736,7 @@ main {
   border: 1px solid var(--border-color);
 }
 .live-ticker .ticker-label {
-  color: var(--btc-orange);
+  color: var(--bitcoin-orange);
   font-weight: 600;
 }
 .live-ticker .ticker-price {
@@ -754,7 +774,7 @@ section h2 {
 }
 .post-card:hover {
   background: var(--bg-card-hover);
-  border-color: var(--btc-orange);
+  border-color: var(--bitcoin-orange);
   transform: translateY(-2px);
 }
 .post-card.up {
@@ -894,7 +914,7 @@ section h2 {
   color: var(--text-muted);
 }
 .breadcrumb a {
-  color: var(--btc-orange);
+  color: var(--bitcoin-orange);
   text-decoration: none;
 }
 .breadcrumb a:hover {
@@ -931,4 +951,323 @@ section h2 {
   outline-offset: 2px;
 }
 
-/*# sourceMappingURL=shared.css.map */
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transform: translateX(100%);
+  transition: all 0.3s ease;
+  pointer-events: auto;
+}
+.toast.toast-visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.toast.toast-hiding {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.toast-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.toast-message {
+  flex: 1;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+}
+.toast-close:hover {
+  color: var(--text-primary);
+}
+.toast-close:focus-visible {
+  outline: 2px solid var(--bitcoin-orange);
+  outline-offset: 2px;
+}
+
+.toast-success {
+  border-left: 4px solid #4ade80;
+}
+.toast-success .toast-icon {
+  color: #4ade80;
+}
+
+.toast-error {
+  border-left: 4px solid #f85149;
+}
+.toast-error .toast-icon {
+  color: #f85149;
+}
+
+.toast-warning {
+  border-left: 4px solid var(--bitcoin-orange);
+}
+.toast-warning .toast-icon {
+  color: var(--bitcoin-orange);
+}
+
+.toast-info {
+  border-left: 4px solid #58a6ff;
+}
+.toast-info .toast-icon {
+  color: #58a6ff;
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100001;
+  animation: fadeIn 0.2s ease;
+}
+.confirm-overlay.confirm-hiding {
+  animation: fadeOut 0.2s ease;
+}
+
+.confirm-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.confirm-message {
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.confirm-btn:focus-visible {
+  outline: 3px solid var(--bitcoin-orange);
+  outline-offset: 2px;
+}
+
+.confirm-btn-cancel {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+.confirm-btn-cancel:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.confirm-btn-confirm {
+  background: linear-gradient(135deg, #f7931a, #ffb800);
+  border: none;
+  color: #fff;
+}
+.confirm-btn-confirm:hover {
+  filter: brightness(1.1);
+}
+
+.modal-open {
+  overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.dev-banner {
+  background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(247, 147, 26, 0.05));
+  border: 1px solid rgba(247, 147, 26, 0.3);
+  border-left: 4px solid var(--bitcoin-orange);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.dev-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.dev-banner-icon {
+  font-size: 1.25rem;
+}
+
+.dev-banner-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--bitcoin-orange);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dev-banner-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(247, 147, 26, 0.15);
+  border: 1px solid rgba(247, 147, 26, 0.3);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  color: var(--bitcoin-orange);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dev-banner-toggle:hover {
+  background: rgba(247, 147, 26, 0.25);
+}
+.dev-banner-toggle:focus-visible {
+  outline: 2px solid var(--bitcoin-orange);
+  outline-offset: 2px;
+}
+.dev-banner-toggle svg {
+  transition: transform 0.2s;
+}
+.expanded .dev-banner-toggle svg {
+  transform: rotate(180deg);
+}
+.expanded .dev-banner-toggle .toggle-text::before {
+  content: "Hide ";
+}
+
+.dev-banner-content {
+  display: none;
+  padding: 0 1rem 1rem;
+  border-top: 1px solid rgba(247, 147, 26, 0.2);
+  margin-top: 0;
+}
+.expanded .dev-banner-content {
+  display: block;
+}
+
+.dev-banner-desc {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.dev-todo-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  list-style: none;
+}
+.dev-todo-list li {
+  position: relative;
+  padding: 0.35rem 0;
+  padding-left: 1.5rem;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+.dev-todo-list li::before {
+  content: "☐";
+  position: absolute;
+  left: 0;
+  color: var(--bitcoin-orange);
+}
+.dev-todo-list li code {
+  background: var(--bg-dark);
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.8rem;
+}
+
+.dev-banner-simulation {
+  border-left-color: #58a6ff;
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.1), rgba(88, 166, 255, 0.05));
+  border-color: rgba(88, 166, 255, 0.3);
+}
+.dev-banner-simulation .dev-banner-title {
+  color: #58a6ff;
+}
+.dev-banner-simulation .dev-banner-toggle {
+  background: rgba(88, 166, 255, 0.15);
+  border-color: rgba(88, 166, 255, 0.3);
+  color: #58a6ff;
+}
+.dev-banner-simulation .dev-banner-toggle:hover {
+  background: rgba(88, 166, 255, 0.25);
+}
+.dev-banner-simulation .dev-todo-list li::before {
+  color: #58a6ff;
+}
+
+.dev-banner-placeholder {
+  border-left-color: #f0883e;
+  background: linear-gradient(135deg, rgba(240, 136, 62, 0.1), rgba(240, 136, 62, 0.05));
+}
+.dev-banner-placeholder .dev-banner-title {
+  color: #f0883e;
+}
+
+.dev-banner-partial {
+  border-left-color: #d29922;
+  background: linear-gradient(135deg, rgba(210, 153, 34, 0.1), rgba(210, 153, 34, 0.05));
+}
+.dev-banner-partial .dev-banner-title {
+  color: #d29922;
+}

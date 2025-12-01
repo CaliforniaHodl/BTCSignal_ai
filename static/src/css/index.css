@@ -325,9 +325,16 @@
 
 .sentiment-overview-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 24px;
   margin-top: 24px;
+}
+@media (max-width: 1400px) {
+  .sentiment-overview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
 }
 @media (max-width: 1024px) {
   .sentiment-overview-grid {
@@ -672,6 +679,156 @@
 .liq-tag {
   font-size: 0.65rem;
   color: var(--text-muted);
+}
+
+.sentiment-overview-card.bart-risk {
+  border-color: rgba(248, 81, 73, 0.3);
+}
+
+.bart-risk-display {
+  text-align: center;
+}
+
+.bart-risk-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.bart-risk-score {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.bart-risk-score.low {
+  color: var(--green);
+}
+.bart-risk-score.moderate {
+  color: #d29922;
+}
+.bart-risk-score.high {
+  color: #db6d28;
+}
+.bart-risk-score.extreme {
+  color: #f85149;
+}
+
+.bart-risk-percent {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.bart-risk-level {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 4px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.bart-risk-level.low {
+  color: var(--green);
+}
+.bart-risk-level.moderate {
+  color: #d29922;
+}
+.bart-risk-level.high {
+  color: #db6d28;
+}
+.bart-risk-level.extreme {
+  color: #f85149;
+}
+
+.bart-risk-bar-wrapper {
+  margin: 8px 0;
+}
+
+.bart-risk-bar-bg {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-dark);
+  overflow: hidden;
+}
+
+.bart-risk-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+.bart-risk-bar-fill.low {
+  background: linear-gradient(to right, var(--green), rgb(50.0443548387, 146.9556451613, 63.5483870968));
+}
+.bart-risk-bar-fill.moderate {
+  background: linear-gradient(to right, #d29922, rgb(166.106557377, 121.0204918033, 26.893442623));
+}
+.bart-risk-bar-fill.high {
+  background: linear-gradient(to right, #db6d28, rgb(178.1673306773, 87.0119521912, 29.8326693227));
+}
+.bart-risk-bar-fill.extreme {
+  background: linear-gradient(to right, #f85149, rgb(246.1111111111, 34.0476190476, 23.8888888889));
+}
+
+.bart-risk-status {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 8px 0;
+  line-height: 1.4;
+}
+
+.bart-risk-factors {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bart-factor {
+  display: grid;
+  grid-template-columns: 24px 70px 1fr auto;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  padding: 4px;
+  border-radius: 4px;
+  background: var(--bg-dark);
+}
+.bart-factor.warning {
+  background: rgba(248, 81, 73, 0.15);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+@media (max-width: 767px) {
+  .bart-factor {
+    grid-template-columns: 20px 1fr auto;
+  }
+  .bart-factor .bart-factor-reason {
+    display: none;
+  }
+}
+
+.bart-factor-icon {
+  font-size: 1rem;
+}
+
+.bart-factor-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.bart-factor-reason {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bart-factor-score {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: monospace;
 }
 
 .narrative-section {
