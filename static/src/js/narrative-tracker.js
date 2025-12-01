@@ -73,23 +73,28 @@
   // Load market data from CoinGecko (free, no API key)
   async function loadMarketData() {
     try {
-      const res = await fetch('https://api.coingecko.com/api/v3/global');
-      const data = await res.json();
+      // Fetch both Bitcoin-specific data and global data
+      const [btcRes, globalRes] = await Promise.all([
+        fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false'),
+        fetch('https://api.coingecko.com/api/v3/global')
+      ]);
+      const btcData = await btcRes.json();
+      const globalData = await globalRes.json();
 
-      // Market cap in trillions
-      const mcapTrillion = (data.data.total_market_cap.usd / 1e12).toFixed(2);
-      const btcDominance = data.data.market_cap_percentage.btc.toFixed(1);
+      // Bitcoin market cap in trillions (not total crypto market cap)
+      const btcMcapTrillion = (btcData.market_data.market_cap.usd / 1e12).toFixed(2);
+      const btcDominance = globalData.data.market_cap_percentage.btc.toFixed(1);
 
       const mcapEl = document.getElementById('market-cap');
       const domEl = document.getElementById('btc-dominance');
 
-      if (mcapEl) mcapEl.textContent = '$' + mcapTrillion;
+      if (mcapEl) mcapEl.textContent = '$' + btcMcapTrillion;
       if (domEl) domEl.textContent = btcDominance;
     } catch (e) {
       console.error('Market data error:', e);
       const mcapEl = document.getElementById('market-cap');
       const domEl = document.getElementById('btc-dominance');
-      if (mcapEl) mcapEl.textContent = '$3.5';
+      if (mcapEl) mcapEl.textContent = '$1.9';
       if (domEl) domEl.textContent = '55';
     }
   }
