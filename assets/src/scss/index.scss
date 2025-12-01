@@ -245,8 +245,12 @@
 }
 
 .sentiment-overview-grid {
-  @include grid(4, $spacing-lg);
+  @include grid(5, $spacing-lg);
   margin-top: $spacing-lg;
+
+  @media (max-width: 1400px) {
+    @include grid(3, $spacing-md);
+  }
 
   @media (max-width: $breakpoint-lg) {
     @include grid(2, $spacing-md);
@@ -551,6 +555,142 @@
 .liq-tag {
   font-size: 0.65rem;
   color: var(--text-muted);
+}
+
+// BART Risk Indicator
+.sentiment-overview-card.bart-risk {
+  border-color: rgba($red, 0.3);
+}
+
+.bart-risk-display {
+  text-align: center;
+}
+
+.bart-risk-main {
+  @include flex-center;
+  gap: 2px;
+}
+
+.bart-risk-score {
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  line-height: 1;
+
+  &.low { color: var(--green); }
+  &.moderate { color: $fng-neutral; }
+  &.high { color: $fear; }
+  &.extreme { color: $extreme-fear; }
+}
+
+.bart-risk-percent {
+  font-size: $font-lg;
+  color: var(--text-muted);
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+.bart-risk-level {
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  margin: $spacing-xs 0 $spacing-sm;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.low { color: var(--green); }
+  &.moderate { color: $fng-neutral; }
+  &.high { color: $fear; }
+  &.extreme { color: $extreme-fear; }
+}
+
+.bart-risk-bar-wrapper {
+  margin: $spacing-sm 0;
+}
+
+.bart-risk-bar-bg {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-dark);
+  overflow: hidden;
+}
+
+.bart-risk-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: all $transition-slow;
+
+  &.low {
+    background: linear-gradient(to right, var(--green), darken($green, 10%));
+  }
+  &.moderate {
+    background: linear-gradient(to right, $fng-neutral, darken($fng-neutral, 10%));
+  }
+  &.high {
+    background: linear-gradient(to right, $fear, darken($fear, 10%));
+  }
+  &.extreme {
+    background: linear-gradient(to right, $extreme-fear, darken($extreme-fear, 10%));
+  }
+}
+
+.bart-risk-status {
+  font-size: $font-xs;
+  color: var(--text-secondary);
+  margin: $spacing-sm 0;
+  line-height: 1.4;
+}
+
+.bart-risk-factors {
+  margin-top: $spacing-md;
+  padding-top: $spacing-sm;
+  border-top: 1px solid var(--border-color);
+  @include flex-column;
+  gap: $spacing-xs;
+}
+
+.bart-factor {
+  display: grid;
+  grid-template-columns: 24px 70px 1fr auto;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-xs;
+  padding: $spacing-xs;
+  border-radius: $radius-sm;
+  background: var(--bg-dark);
+
+  &.warning {
+    background: rgba($extreme-fear, 0.15);
+    border: 1px solid rgba($extreme-fear, 0.3);
+  }
+
+  @include mobile {
+    grid-template-columns: 20px 1fr auto;
+
+    .bart-factor-reason {
+      display: none;
+    }
+  }
+}
+
+.bart-factor-icon {
+  font-size: $font-base;
+}
+
+.bart-factor-name {
+  font-weight: $font-medium;
+  color: var(--text-primary);
+}
+
+.bart-factor-reason {
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bart-factor-score {
+  font-weight: $font-semibold;
+  color: var(--text-secondary);
+  font-family: monospace;
 }
 
 // Narrative Section (Bitcoin Fundamentals)

@@ -832,3 +832,485 @@
   margin: 0;
   font-style: italic;
 }
+
+// =====================================================
+// BART PATTERN ANALYSIS SECTION
+// =====================================================
+
+.bart-analysis-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.bart-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bart-card {
+  @include card;
+  padding: $spacing-lg;
+
+  &.bart-current-risk {
+    border-color: rgba($red, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($red, 0.05) 100%);
+  }
+
+  &.bart-factors-detail {
+    border-color: rgba($purple, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($purple, 0.05) 100%);
+  }
+
+  &.bart-history-chart {
+    border-color: rgba($bitcoin-orange, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.05) 100%);
+  }
+
+  &.bart-events-history {
+    border-color: rgba($blue, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($blue, 0.05) 100%);
+  }
+}
+
+.bart-card-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-lg;
+    font-weight: $font-semibold;
+    margin: 0;
+    color: var(--text-primary);
+    flex: 1;
+  }
+}
+
+.bart-card-icon {
+  font-size: $font-2xl;
+}
+
+.btn-clear-history {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: rgba($red, 0.2);
+    border-color: var(--red);
+    color: var(--red);
+  }
+}
+
+// Risk Gauge
+.bart-risk-gauge {
+  text-align: center;
+  position: relative;
+  padding: $spacing-lg 0;
+}
+
+.bart-gauge-value {
+  font-size: $font-5xl;
+  font-weight: $font-bold;
+  line-height: 1;
+
+  &.low { color: var(--green); }
+  &.moderate { color: $fng-neutral; }
+  &.high { color: $fear; }
+  &.extreme { color: $extreme-fear; }
+}
+
+.bart-gauge-label {
+  font-size: $font-base;
+  font-weight: $font-semibold;
+  margin-top: $spacing-xs;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  &.low { color: var(--green); }
+  &.moderate { color: $fng-neutral; }
+  &.high { color: $fear; }
+  &.extreme { color: $extreme-fear; }
+}
+
+.bart-gauge-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 180px;
+  pointer-events: none;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .bart-gauge-bg {
+    fill: none;
+    stroke: var(--bg-dark);
+    stroke-width: 8;
+  }
+
+  .bart-gauge-fill {
+    fill: none;
+    stroke: var(--bitcoin-orange);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease, stroke 0.3s ease;
+  }
+}
+
+.bart-status-message {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin-top: $spacing-lg;
+  text-align: center;
+  line-height: 1.5;
+}
+
+// Risk Factors Breakdown
+.bart-factors-list {
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.bart-factor-row {
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  transition: all $transition-fast;
+
+  &.warning {
+    background: rgba($extreme-fear, 0.15);
+    border: 1px solid rgba($extreme-fear, 0.3);
+  }
+}
+
+.factor-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.factor-icon {
+  font-size: $font-lg;
+}
+
+.factor-name {
+  flex: 1;
+  font-weight: $font-semibold;
+  color: var(--text-primary);
+}
+
+.factor-score {
+  font-family: monospace;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.factor-bar-wrapper {
+  margin: $spacing-xs 0;
+}
+
+.factor-bar {
+  height: 6px;
+  background: var(--bg-surface);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.factor-bar-fill {
+  height: 100%;
+  background: var(--bitcoin-orange);
+  border-radius: 3px;
+  transition: width $transition-slow;
+
+  &.warning {
+    background: $extreme-fear;
+  }
+}
+
+.factor-desc {
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.bart-factors-legend {
+  margin-top: $spacing-md;
+  padding-top: $spacing-sm;
+  border-top: 1px solid var(--border-color);
+
+  .legend-item {
+    font-size: $font-xs;
+    color: var(--text-muted);
+
+    &.warning {
+      color: $extreme-fear;
+    }
+  }
+}
+
+// Risk History Chart
+.bart-chart-container {
+  height: 200px;
+  margin-bottom: $spacing-md;
+}
+
+.bart-chart-stats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.chart-stat {
+  text-align: center;
+
+  .stat-label {
+    display: block;
+    font-size: $font-xs;
+    color: var(--text-muted);
+    margin-bottom: $spacing-xs;
+  }
+
+  .stat-value {
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+  }
+}
+
+// BART Events History
+.bart-events-list {
+  max-height: 400px;
+  overflow-y: auto;
+  @include flex-column;
+  gap: $spacing-sm;
+}
+
+.bart-event-empty {
+  padding: $spacing-xl;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: $font-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+}
+
+.bart-event-item {
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  border-left: 3px solid var(--border-color);
+
+  &.up {
+    border-left-color: var(--green);
+  }
+
+  &.down {
+    border-left-color: var(--red);
+  }
+}
+
+.event-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.event-type {
+  font-weight: $font-semibold;
+  font-size: $font-sm;
+
+  .bart-event-item.up & { color: var(--green); }
+  .bart-event-item.down & { color: var(--red); }
+}
+
+.event-time {
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.event-details {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: $spacing-xs;
+
+  @include mobile {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.event-detail {
+  text-align: center;
+
+  .detail-label {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .detail-value {
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+
+    &.up { color: var(--green); }
+    &.down { color: var(--red); }
+  }
+}
+
+.bart-events-more {
+  text-align: center;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  padding: $spacing-sm;
+}
+
+.bart-events-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.event-stat {
+  text-align: center;
+
+  .stat-label {
+    display: block;
+    font-size: $font-xs;
+    color: var(--text-muted);
+    margin-bottom: $spacing-xs;
+  }
+
+  .stat-value {
+    font-size: $font-xl;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+
+    &.up { color: var(--green); }
+    &.down { color: var(--red); }
+  }
+}
+
+// BART Explainer
+.bart-explainer {
+  @include card;
+  padding: $spacing-lg;
+  border-color: rgba($fng-neutral, 0.3);
+
+  h4 {
+    font-size: $font-base;
+    margin-bottom: $spacing-sm;
+    color: var(--text-primary);
+  }
+
+  > p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-lg;
+    line-height: 1.6;
+  }
+}
+
+.bart-factors-explainer {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: $spacing-md;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.factor-explain {
+  text-align: center;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+
+  .factor-icon {
+    display: block;
+    font-size: $font-2xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  strong {
+    display: block;
+    font-size: $font-sm;
+    color: var(--text-primary);
+    margin-bottom: $spacing-xs;
+  }
+
+  span {
+    font-size: $font-xs;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+}
+
+// BART Notification Toast
+.bart-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, rgba($red, 0.95) 0%, rgba(darken($red, 15%), 0.95) 100%);
+  color: white;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  box-shadow: $shadow-lg;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 9999;
+
+  &.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .notif-icon {
+    font-size: $font-2xl;
+  }
+
+  .notif-text {
+    font-weight: $font-semibold;
+    font-size: $font-sm;
+  }
+}

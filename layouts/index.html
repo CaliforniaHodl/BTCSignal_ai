@@ -210,6 +210,30 @@
           </div>
         </div>
       </article>
+
+      <!-- BART Risk Indicator -->
+      <article class="sentiment-overview-card bart-risk" role="listitem">
+        <div class="sentiment-overview-header">
+          <span class="sentiment-overview-icon" aria-hidden="true">⚡</span>
+          <h3>BART Risk</h3>
+        </div>
+        <div class="bart-risk-display">
+          <div class="bart-risk-main">
+            <span class="bart-risk-score" id="bart-risk-score">--</span>
+            <span class="bart-risk-percent">%</span>
+          </div>
+          <div class="bart-risk-level" id="bart-risk-level">Loading...</div>
+          <div class="bart-risk-bar-wrapper">
+            <div class="bart-risk-bar-bg">
+              <div class="bart-risk-bar-fill" id="bart-risk-bar"></div>
+            </div>
+          </div>
+          <div class="bart-risk-status" id="bart-risk-status">Analyzing market conditions...</div>
+        </div>
+        <div class="bart-risk-factors" id="bart-risk-factors">
+          <!-- Populated by JS -->
+        </div>
+      </article>
     </div>
   </section>
 
@@ -450,6 +474,7 @@
 <script src="{{ "src/js/narrative-tracker.js" | relURL }}"></script>
 <script src="{{ "src/js/key-level.js" | relURL }}"></script>
 <script src="{{ "src/js/market-sentiment.js" | relURL }}"></script>
+<script src="{{ "src/js/bart-detector.js" | relURL }}"></script>
 
 <!-- Live price ticker -->
 <script>

@@ -194,6 +194,135 @@
       </div>
     </section>
 
+    <!-- BART Risk Analysis Section -->
+    <section class="bart-analysis-section">
+      <h2>BART Pattern Analysis</h2>
+      <p class="section-desc">Manipulation pattern detection and pre-warning system</p>
+
+      <div class="bart-analysis-grid">
+        <!-- Current Risk Overview -->
+        <div class="bart-card bart-current-risk">
+          <div class="bart-card-header">
+            <span class="bart-card-icon">⚡</span>
+            <h3>Current BART Risk</h3>
+          </div>
+          <div class="bart-risk-gauge">
+            <div class="bart-gauge-value" id="dash-bart-score">--</div>
+            <div class="bart-gauge-label" id="dash-bart-level">Loading...</div>
+            <div class="bart-gauge-ring">
+              <svg viewBox="0 0 100 100">
+                <circle class="bart-gauge-bg" cx="50" cy="50" r="45"/>
+                <circle class="bart-gauge-fill" id="dash-bart-gauge" cx="50" cy="50" r="45"/>
+              </svg>
+            </div>
+          </div>
+          <div class="bart-status-message" id="dash-bart-status">Analyzing...</div>
+        </div>
+
+        <!-- Risk Factors Breakdown -->
+        <div class="bart-card bart-factors-detail">
+          <div class="bart-card-header">
+            <span class="bart-card-icon">📊</span>
+            <h3>Risk Factor Breakdown</h3>
+          </div>
+          <div class="bart-factors-list" id="dash-bart-factors">
+            <!-- Populated by JS -->
+          </div>
+          <div class="bart-factors-legend">
+            <span class="legend-item warning">Warning threshold reached</span>
+          </div>
+        </div>
+
+        <!-- Risk History Chart -->
+        <div class="bart-card bart-history-chart">
+          <div class="bart-card-header">
+            <span class="bart-card-icon">📈</span>
+            <h3>24h Risk History</h3>
+          </div>
+          <div class="bart-chart-container">
+            <canvas id="bartRiskChart" height="200"></canvas>
+          </div>
+          <div class="bart-chart-stats">
+            <div class="chart-stat">
+              <span class="stat-label">Avg Risk</span>
+              <span class="stat-value" id="dash-bart-avg">--</span>
+            </div>
+            <div class="chart-stat">
+              <span class="stat-label">Peak Risk</span>
+              <span class="stat-value" id="dash-bart-peak">--</span>
+            </div>
+            <div class="chart-stat">
+              <span class="stat-label">Time at High</span>
+              <span class="stat-value" id="dash-bart-high-time">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BART Events History -->
+        <div class="bart-card bart-events-history">
+          <div class="bart-card-header">
+            <span class="bart-card-icon">🎯</span>
+            <h3>Detected BART Events</h3>
+            <button class="btn-clear-history" id="btn-clear-bart-history" title="Clear history">Clear</button>
+          </div>
+          <div class="bart-events-list" id="dash-bart-events">
+            <div class="bart-event-empty">No BART events detected yet. Events are logged when price moves 2%+ and returns to origin.</div>
+          </div>
+          <div class="bart-events-stats">
+            <div class="event-stat">
+              <span class="stat-label">Total Events</span>
+              <span class="stat-value" id="dash-bart-total">0</span>
+            </div>
+            <div class="event-stat">
+              <span class="stat-label">Up BARTs</span>
+              <span class="stat-value up" id="dash-bart-up">0</span>
+            </div>
+            <div class="event-stat">
+              <span class="stat-label">Down BARTs</span>
+              <span class="stat-value down" id="dash-bart-down">0</span>
+            </div>
+            <div class="event-stat">
+              <span class="stat-label">Avg Magnitude</span>
+              <span class="stat-value" id="dash-bart-magnitude">--%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BART Pattern Explainer -->
+      <div class="bart-explainer">
+        <h4>What is a BART Pattern?</h4>
+        <p>A BART pattern (named after Bart Simpson's head shape) is a manipulation pattern where price spikes sharply, consolidates briefly, then reverses back to the starting point. This system monitors 5 risk factors that often precede BARTs:</p>
+        <div class="bart-factors-explainer">
+          <div class="factor-explain">
+            <span class="factor-icon">🕐</span>
+            <strong>Market Hours</strong>
+            <span>Weekends and off-peak hours have thinner liquidity</span>
+          </div>
+          <div class="factor-explain">
+            <span class="factor-icon">💰</span>
+            <strong>Funding Rate</strong>
+            <span>Extreme funding indicates over-leveraged positions</span>
+          </div>
+          <div class="factor-explain">
+            <span class="factor-icon">📊</span>
+            <strong>Volatility</strong>
+            <span>Low volatility often precedes sharp moves</span>
+          </div>
+          <div class="factor-explain">
+            <span class="factor-icon">📈</span>
+            <strong>OI/Volume</strong>
+            <span>High open interest vs volume = liquidation risk</span>
+          </div>
+          <div class="factor-explain">
+            <span class="factor-icon">🎯</span>
+            <strong>Price Range</strong>
+            <span>Tight consolidation = coiled spring ready to move</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- On-Chain & Macro Metrics -->
     <section class="onchain-section">
       <h2>On-Chain & Macro Analysis</h2>
@@ -335,6 +464,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ "src/js/bart-detector.js" | relURL }}"></script>
 <script src="{{ "src/js/dashboard.js" | relURL }}"></script>
 <script src="{{ "src/js/dashboard-widgets.js" | relURL }}"></script>
+<script src="{{ "src/js/dashboard-bart.js" | relURL }}"></script>
 {{ end }}
