@@ -342,40 +342,53 @@
   }
 
   // =====================================================
-  // DATA FETCHING
+  // DATA FETCHING (Using CoinGecko and OKX - works globally)
   // =====================================================
 
   async function fetchMarketData() {
     try {
-      const [tickerRes, fundingRes, oiRes, klinesRes] = await Promise.all([
-        fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'),
-        fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1'),
-        fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT'),
-        fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1h&limit=168')
+      // Fetch from multiple sources that work globally
+      const [btcDataRes, fundingRes, oiRes, ohlcRes] = await Promise.all([
+        fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false'),
+        fetch('https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP'),
+        fetch('https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP'),
+        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=7')
       ]);
 
-      const ticker = await tickerRes.json();
+      const btcData = await btcDataRes.json();
       const funding = await fundingRes.json();
       const oi = await oiRes.json();
-      const klines = await klinesRes.json();
+      const ohlc = await ohlcRes.json();
 
+      // Process OHLC data for volatility calculation
+      // CoinGecko OHLC format: [timestamp, open, high, low, close]
+      const klines = ohlc.map(candle => [candle[0], candle[1], candle[2], candle[3], candle[4]]);
       const recentKlines = klines.slice(-24);
       const allKlines = klines;
 
       const recentVol = calculateVolatility(recentKlines);
       const avgVol = calculateVolatility(allKlines);
 
-      const currentPrice = parseFloat(ticker.lastPrice);
+      const currentPrice = btcData.market_data.current_price.usd;
+      const volume24h = btcData.market_data.total_volume.usd;
+      const high24h = btcData.market_data.high_24h.usd;
+      const low24h = btcData.market_data.low_24h.usd;
+
+      // Get funding rate from OKX
+      const fundingRate = funding.data && funding.data[0] ? parseFloat(funding.data[0].fundingRate) : null;
+
+      // Get open interest from OKX (in BTC)
+      const openInterest = oi.data && oi.data[0] ? parseFloat(oi.data[0].oiCcy || oi.data[0].oi) : null;
 
       cachedData = {
-        fundingRate: funding[0] ? parseFloat(funding[0].fundingRate) : null,
-        openInterest: parseFloat(oi.openInterest),
+        fundingRate: fundingRate,
+        openInterest: openInterest,
         recentVolatility: recentVol,
         avgVolatility: avgVol,
-        volume24h: parseFloat(ticker.quoteVolume),
+        volume24h: volume24h,
         price: currentPrice,
-        high24h: parseFloat(ticker.highPrice),
-        low24h: parseFloat(ticker.lowPrice)
+        high24h: high24h,
+        low24h: low24h
       };
 
       // Add price snapshot for BART detection
@@ -402,10 +415,15 @@
 
     const returns = [];
     for (let i = 1; i < klines.length; i++) {
-      const prevClose = parseFloat(klines[i-1][4]);
+      const prevClose = parseFloat(klines[i][4]);
       const currClose = parseFloat(klines[i][4]);
-      returns.push((currClose - prevClose) / prevClose);
+      if (i > 0 && klines[i-1]) {
+        const prev = parseFloat(klines[i-1][4]);
+        returns.push((currClose - prev) / prev);
+      }
     }
+
+    if (returns.length === 0) return 0.5; // default volatility
 
     const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
     const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / returns.length;

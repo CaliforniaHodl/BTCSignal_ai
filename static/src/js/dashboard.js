@@ -109,14 +109,14 @@
     }
   }
 
-  // Load Funding Rates from Bybit (free, globally accessible)
+  // Load Funding Rates from OKX (works globally)
   async function loadFundingRates() {
     try {
-      const res = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
+      const res = await fetch('https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP');
       const data = await res.json();
 
-      if (data && data.result && data.result.list && data.result.list[0]) {
-        const rate = parseFloat(data.result.list[0].fundingRate) * 100;
+      if (data && data.data && data.data[0]) {
+        const rate = parseFloat(data.data[0].fundingRate) * 100;
         const fundingEl = document.getElementById('funding-rate');
         const fundingLabel = document.getElementById('funding-label');
 
@@ -145,34 +145,75 @@
   async function loadPerformanceStats() {
     try {
       const response = await fetch(GITHUB_POSTS_URL);
+
+      if (!response.ok) {
+        throw new Error('GitHub API returned ' + response.status);
+      }
+
       const files = await response.json();
+
+      // Check if we got an array (might be rate limited or error)
+      if (!Array.isArray(files)) {
+        console.error('GitHub API did not return an array:', files);
+        displayErrorStats();
+        return;
+      }
 
       // Filter markdown files (exclude _index.md)
       const mdFiles = files.filter(f => f.name.endsWith('.md') && f.name !== '_index.md');
 
-      // Fetch content of each file to get frontmatter
-      const posts = [];
-      for (const file of mdFiles.slice(0, 50)) { // Limit to latest 50
+      if (mdFiles.length === 0) {
+        console.log('No posts found');
+        displayErrorStats();
+        return;
+      }
+
+      // Fetch content of each file to get frontmatter (parallel fetch for speed)
+      const fetchPromises = mdFiles.slice(0, 50).map(async (file) => {
         try {
           const contentRes = await fetch(file.download_url);
           const content = await contentRes.text();
           const frontmatter = parseFrontmatter(content);
-          if (frontmatter) {
-            posts.push(frontmatter);
-          }
+          return frontmatter;
         } catch (e) {
           console.error('Error fetching post:', file.name, e);
+          return null;
         }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      const posts = results.filter(p => p !== null);
+
+      if (posts.length === 0) {
+        displayErrorStats();
+        return;
       }
 
       // Calculate stats
       const stats = calculateStats(posts);
       displayStats(stats);
-      renderCharts(posts, stats);
       renderCallsTable(posts);
+      renderCalendarHeatmap(posts);
     } catch (e) {
       console.error('Error loading performance stats:', e);
+      displayErrorStats();
     }
+  }
+
+  // Display error state for stats
+  function displayErrorStats() {
+    const elements = ['win-count', 'loss-count', 'win-rate', 'current-streak'];
+    elements.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '--';
+    });
+
+    // Also update advanced metrics
+    const advancedElements = ['avg-r-multiple', 'max-drawdown', 'long-bias'];
+    advancedElements.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '--';
+    });
   }
 
   // Parse YAML frontmatter from markdown
@@ -264,81 +305,83 @@
     const streakPrefix = stats.streakType === 'win' ? '🔥 ' : '❄️ ';
     document.getElementById('current-streak').textContent =
       stats.currentStreak > 0 ? streakPrefix + stats.currentStreak : '-';
+
+    // Calculate and display advanced metrics
+    displayAdvancedMetrics(stats);
   }
 
-  // Render Chart.js charts
-  function renderCharts(posts, stats) {
-    // Win/Loss History Chart
-    const winLossCtx = document.getElementById('winLossChart');
-    if (winLossCtx) {
-      new Chart(winLossCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Wins', 'Losses'],
-          datasets: [{
-            data: [stats.wins, stats.losses],
-            backgroundColor: ['#22c55e', '#ef4444'],
-            borderColor: ['#16a34a', '#dc2626'],
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: { color: '#e5e7eb' }
-            }
-          }
-        }
-      });
+  // Calculate and display advanced metrics
+  function displayAdvancedMetrics(stats) {
+    const posts = stats.posts || [];
+
+    // Calculate Average R-Multiple (simplified: based on wins/losses)
+    // R = reward/risk. For simplicity, win = +1R, loss = -1R
+    const rMultiples = posts.map(p => {
+      const outcome = determineOutcome(p);
+      if (outcome === 'win') return 1.0;
+      if (outcome === 'loss') return -1.0;
+      return 0;
+    }).filter(r => r !== 0);
+
+    const avgR = rMultiples.length > 0
+      ? (rMultiples.reduce((a, b) => a + b, 0) / rMultiples.length).toFixed(2)
+      : '--';
+    const avgREl = document.getElementById('avg-r-multiple');
+    if (avgREl) {
+      avgREl.textContent = avgR !== '--' ? avgR + 'R' : '--';
+      avgREl.className = 'stat-number ' + (parseFloat(avgR) > 0 ? 'positive' : parseFloat(avgR) < 0 ? 'negative' : '');
     }
 
-    // Confidence vs Outcome Chart
-    const confidenceCtx = document.getElementById('confidenceChart');
-    if (confidenceCtx) {
-      const recentPosts = posts.slice(0, 20);
-      const labels = recentPosts.map((p, i) => '#' + (i + 1)).reverse();
-      const confidences = recentPosts.map(p => p.confidence || 50).reverse();
-      const colors = recentPosts.map(p => {
-        const outcome = determineOutcome(p);
-        return outcome === 'win' ? '#22c55e' : outcome === 'loss' ? '#ef4444' : '#6b7280';
-      }).reverse();
+    // Calculate Max Drawdown (consecutive losses)
+    let maxDrawdown = 0;
+    let currentDrawdown = 0;
+    posts.forEach(p => {
+      const outcome = determineOutcome(p);
+      if (outcome === 'loss') {
+        currentDrawdown++;
+        maxDrawdown = Math.max(maxDrawdown, currentDrawdown);
+      } else if (outcome === 'win') {
+        currentDrawdown = 0;
+      }
+    });
+    const drawdownEl = document.getElementById('max-drawdown');
+    if (drawdownEl) {
+      drawdownEl.textContent = maxDrawdown > 0 ? maxDrawdown + ' streak' : '0';
+    }
 
-      new Chart(confidenceCtx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Confidence %',
-            data: confidences,
-            backgroundColor: colors,
-            borderRadius: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: true,
-              max: 100,
-              ticks: { color: '#9ca3af' },
-              grid: { color: '#374151' }
-            },
-            x: {
-              ticks: { color: '#9ca3af' },
-              grid: { color: '#374151' }
-            }
-          },
-          plugins: {
-            legend: {
-              display: false
-            }
-          }
+    // Calculate Directional Bias (long vs short preference)
+    let longCount = 0;
+    let shortCount = 0;
+    posts.forEach(p => {
+      const dir = (p.direction || p.sentiment || '').toLowerCase();
+      if (dir === 'up' || dir === 'bullish' || dir === 'long') {
+        longCount++;
+      } else if (dir === 'down' || dir === 'bearish' || dir === 'short') {
+        shortCount++;
+      }
+    });
+    const total = longCount + shortCount;
+    const biasEl = document.getElementById('long-bias');
+    if (biasEl) {
+      if (total > 0) {
+        const longPct = ((longCount / total) * 100).toFixed(0);
+        if (longCount > shortCount) {
+          biasEl.textContent = longPct + '% Long';
+          biasEl.className = 'stat-number positive';
+        } else if (shortCount > longCount) {
+          biasEl.textContent = (100 - parseInt(longPct)) + '% Short';
+          biasEl.className = 'stat-number negative';
+        } else {
+          biasEl.textContent = 'Neutral';
+          biasEl.className = 'stat-number';
         }
-      });
+      } else {
+        biasEl.textContent = '--';
+      }
     }
   }
+
+  // Charts removed - Win/Loss and Confidence charts no longer displayed
 
   // Render recent calls table
   function renderCallsTable(posts) {
