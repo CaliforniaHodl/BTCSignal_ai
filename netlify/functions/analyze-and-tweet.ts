@@ -109,6 +109,19 @@ export default async (req: Request, context: Context) => {
     const high24h = Math.max(...last24hData.map(d => d.high));
     const low24h = Math.min(...last24hData.map(d => d.low));
 
+    // Fetch current Bitcoin block height from mempool.space
+    console.log('Fetching current block height...');
+    let blockHeight: number | null = null;
+    try {
+      const blockHeightRes = await fetch('https://mempool.space/api/blocks/tip/height');
+      if (blockHeightRes.ok) {
+        blockHeight = parseInt(await blockHeightRes.text(), 10);
+        console.log('Block height:', blockHeight);
+      }
+    } catch (blockHeightError: any) {
+      console.error('Failed to fetch block height:', blockHeightError.message);
+    }
+
     // Update pending historical calls with current price
     console.log('Updating historical call results...');
     await historicalTracker.updatePendingCalls(currentPrice);
@@ -131,6 +144,7 @@ export default async (req: Request, context: Context) => {
       patterns,
       timestamp: new Date(),
       derivativesData,
+      blockHeight,
     };
 
     // Generate thread tweets

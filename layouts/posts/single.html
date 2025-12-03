@@ -91,7 +91,7 @@
         {{ end }}
         <div class="target-item block-height">
           <span class="target-label">Block Height</span>
-          <span class="target-value" id="block-height">Loading...</span>
+          <span class="target-value">{{ if .Params.blockHeight }}{{ lang.FormatNumber 0 .Params.blockHeight }}{{ else }}—{{ end }}</span>
         </div>
         <div class="target-item sats-per-dollar">
           <span class="target-label">Sats per $1</span>
@@ -635,6 +635,5 @@
 <script defer src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script defer src="{{ "src/js/paywall.js" | relURL }}"></script>
 {{ end }}
-<script defer src="{{ "src/js/block-height.js" | relURL }}"></script>
 <script defer src="{{ "src/js/post-stats.js" | relURL }}"></script>
 {{ end }}

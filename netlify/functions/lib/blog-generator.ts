@@ -15,6 +15,7 @@ export interface AnalysisResult {
   patterns: Pattern[];
   timestamp: Date;
   derivativesData?: DerivativesData | null;
+  blockHeight?: number | null;
 }
 
 export interface TradingSuggestion {
@@ -356,7 +357,7 @@ export class BlogGenerator {
    * @param firstTweetId - Optional tweet ID to link to live tweet thread
    */
   generateMarkdown(analysis: AnalysisResult, historicalCalls: HistoricalCall[] = [], firstTweetId?: string | null): string {
-    const { symbol, timeframe, currentPrice, priceChange, priceChange24h, high24h, low24h, prediction, indicators, patterns, timestamp, derivativesData } = analysis;
+    const { symbol, timeframe, currentPrice, priceChange, priceChange24h, high24h, low24h, prediction, indicators, patterns, timestamp, derivativesData, blockHeight } = analysis;
 
     const suggestions = this.generateTradingSuggestions(analysis);
     const thread = this.generateThread(analysis, historicalCalls);
@@ -401,6 +402,7 @@ fundingSignal: "${df?.fundingSignal || 'neutral'}"
 openInterest: ${df?.openInterest !== null && df?.openInterest !== undefined ? (df.openInterest / 1_000_000_000).toFixed(2) : 'null'}
 squeezeRisk: "${df?.squeezeRisk || 'none'}"
 squeezeProbability: "${df?.squeezeProbability || 'low'}"
+blockHeight: ${blockHeight ?? 'null'}
 tweetId: "${firstTweetId || ''}"
 ---
 
