@@ -207,7 +207,12 @@ export class HistoricalTracker {
 
   /**
    * Update pending calls with actual results using OHLC candle data
-   * Checks if price touched stop loss or take profit at ANY point since the signal
+   *
+   * Rules:
+   * 1. Call stays PENDING for minimum 24 hours
+   * 2. EXCEPTION: If stop loss or take profit is touched, resolve immediately
+   * 3. After 24 hours, if no stop/target touched, mark based on current P&L
+   * 4. After 7 days, force resolve based on current P&L
    */
   async updatePendingCalls(currentPrice: number): Promise<HistoricalCall[]> {
     const calls = await this.getHistoricalCalls();
@@ -217,9 +222,14 @@ export class HistoricalTracker {
     const candles = await this.fetchOHLCCandles(30);
     console.log(`Fetched ${candles.length} OHLC candles for win/loss checking`);
 
+    const now = new Date();
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+
     for (const call of calls) {
       if (call.actualResult === 'pending') {
         const callTimestamp = new Date(call.date).getTime();
+        const hoursSinceCall = (now.getTime() - callTimestamp) / (1000 * 60 * 60);
+        const daysSinceCall = hoursSinceCall / 24;
 
         // Use actual stop loss from call if available, otherwise use 2% below entry
         const stopLoss = call.stopLoss || (call.direction === 'up'
@@ -235,6 +245,7 @@ export class HistoricalTracker {
           call.direction
         );
 
+        // RULE: Stop loss or take profit touched = resolve immediately (regardless of time)
         if (touchResult.result !== 'pending') {
           call.actualResult = touchResult.result;
 
@@ -251,23 +262,27 @@ export class HistoricalTracker {
 
           console.log(`Call ${call.date}: ${call.direction.toUpperCase()} → ${touchResult.result.toUpperCase()} (touched ${touchResult.price} at ${new Date(touchResult.touchedAt!).toISOString()})`);
           updated = true;
-        } else {
-          // If no target/stop touched yet, check if call is older than 7 days
-          // Mark based on current P&L
-          const callDate = new Date(call.date);
-          const now = new Date();
-          const daysDiff = (now.getTime() - callDate.getTime()) / (1000 * 60 * 60 * 24);
+        }
+        // RULE: If older than 7 days and no stop/target touched, force resolve
+        else if (daysSinceCall > 7) {
+          const pnl = call.direction === 'up'
+            ? ((currentPrice - call.entryPrice) / call.entryPrice) * 100
+            : ((call.entryPrice - currentPrice) / call.entryPrice) * 100;
 
-          if (daysDiff > 7) {
-            const pnl = call.direction === 'up'
-              ? ((currentPrice - call.entryPrice) / call.entryPrice) * 100
-              : ((call.entryPrice - currentPrice) / call.entryPrice) * 100;
-
-            call.actualResult = pnl >= 0 ? 'win' : 'loss';
-            call.pnlPercent = parseFloat(pnl.toFixed(2));
-            console.log(`Call ${call.date}: Expired after 7 days → ${call.actualResult.toUpperCase()} (${pnl.toFixed(2)}%)`);
-            updated = true;
-          }
+          call.actualResult = pnl >= 0 ? 'win' : 'loss';
+          call.pnlPercent = parseFloat(pnl.toFixed(2));
+          console.log(`Call ${call.date}: Expired after 7 days → ${call.actualResult.toUpperCase()} (${pnl.toFixed(2)}%)`);
+          updated = true;
+        }
+        // RULE: Less than 24 hours = stay pending (no action needed)
+        else if (hoursSinceCall < 24) {
+          console.log(`Call ${call.date}: Still pending (${hoursSinceCall.toFixed(1)}h < 24h minimum)`);
+          // No update - stays pending
+        }
+        // RULE: Between 24h and 7 days, no stop/target touched = stays pending
+        else {
+          console.log(`Call ${call.date}: Pending (${daysSinceCall.toFixed(1)} days, no stop/target touched yet)`);
+          // No update - stays pending until stop/target hit or 7 day expiry
         }
       }
     }

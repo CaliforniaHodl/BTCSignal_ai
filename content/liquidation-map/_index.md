@@ -8,4 +8,5 @@ keywords: 'Bitcoin liquidation map, BTC liquidation heatmap, crypto liquidations
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+js: ['liquidation-map.js']
 ---

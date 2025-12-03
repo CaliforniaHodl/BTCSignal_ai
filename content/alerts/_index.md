@@ -8,4 +8,5 @@ keywords: 'Bitcoin alerts, BTC price notifications, crypto alerts, price target 
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+js: ['alerts.js']
 ---

@@ -8,4 +8,7 @@ keywords: 'Bitcoin chart patterns, BTC pattern detection, crypto technical analy
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+charts: true
+chartAnnotations: true
+js: ['pattern-detector.js']
 ---

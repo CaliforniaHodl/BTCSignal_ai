@@ -8,4 +8,6 @@ keywords: 'Bitcoin dashboard, BTC trading metrics, liquidation watchlist, crypto
 layout: "single"
 priority: 0.8
 css: ['dashboard.scss']
+charts: true
+js: ['bart-detector.js', 'dashboard.js', 'dashboard-widgets.js', 'dashboard-bart.js']
 ---

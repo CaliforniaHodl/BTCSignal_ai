@@ -338,6 +338,10 @@
   }
 
   // Determine if a call was a win or loss using OHLC candle data
+  // Rules:
+  // 1. Call stays PENDING for minimum 24 hours
+  // 2. EXCEPTION: If stop loss or take profit is touched, resolve immediately
+  // 3. After 7 days, force resolve based on current P&L
   function determineOutcome(post, currentPrice) {
     // If explicit result is stored, use it
     if (post.result) {
@@ -351,6 +355,10 @@
     const targetPrice = post.targetPrice;
     const direction = (post.direction || post.sentiment || '').toLowerCase();
     const postTimestamp = new Date(post.date).getTime();
+    const now = Date.now();
+    const timeSinceCall = now - postTimestamp;
+    const TWENTY_FOUR_HOURS_MS = 24 * 60 * 60 * 1000;
+    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
     // Use actual stop loss from post, or default to 2% from entry
     const stopLoss = post.stopLoss || (direction === 'up' || direction === 'bullish'
@@ -360,21 +368,26 @@
     // Check OHLC candles to see if price touched stop loss or target
     const result = checkPriceTouched(postTimestamp, targetPrice, stopLoss, direction);
 
+    // RULE: Stop loss or take profit touched = resolve immediately
     if (result !== 'pending') {
       return result;
     }
 
-    // If still pending, check current price as fallback
-    if (currentPrice) {
+    // RULE: Less than 24 hours and no stop/target touched = pending
+    if (timeSinceCall < TWENTY_FOUR_HOURS_MS) {
+      return 'pending';
+    }
+
+    // RULE: After 7 days, force resolve based on current price
+    if (timeSinceCall > SEVEN_DAYS_MS && currentPrice) {
       if (direction === 'up' || direction === 'bullish') {
-        if (targetPrice && currentPrice >= targetPrice) return 'win';
-        if (currentPrice <= stopLoss) return 'loss';
+        return currentPrice >= entryPrice ? 'win' : 'loss';
       } else if (direction === 'down' || direction === 'bearish') {
-        if (targetPrice && currentPrice <= targetPrice) return 'win';
-        if (currentPrice >= stopLoss) return 'loss';
+        return currentPrice <= entryPrice ? 'win' : 'loss';
       }
     }
 
+    // Between 24h and 7 days, no stop/target touched = stays pending
     return 'pending';
   }
 

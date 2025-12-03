@@ -8,4 +8,5 @@ keywords: 'Bitcoin chart analysis, AI technical analysis, BTC pattern recognitio
 type: "analyze"
 layout: "single"
 priority: 0.8
+js: ['chart-analyze.js']
 ---

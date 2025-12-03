@@ -8,4 +8,5 @@ keywords: 'Bitcoin newsletter, crypto newsletter, BTC analysis newsletter, weekl
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+js: ['newsletter.js']
 ---

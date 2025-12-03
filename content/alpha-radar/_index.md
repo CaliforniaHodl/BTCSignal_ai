@@ -8,6 +8,7 @@ keywords: 'Bitcoin whale tracking, BTC dominance, crypto market intelligence, li
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+js: ['alpha-radar.js']
 ---
 
 

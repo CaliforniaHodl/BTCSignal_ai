@@ -8,4 +8,5 @@ keywords: 'Bitcoin trade analysis, BTC trading coach, crypto trade review, tradi
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+js: ['trade-coach.js']
 ---

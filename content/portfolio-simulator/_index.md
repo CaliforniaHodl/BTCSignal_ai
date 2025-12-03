@@ -8,4 +8,6 @@ keywords: 'Bitcoin portfolio simulator, BTC strategy backtester, crypto trading 
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+charts: true
+js: ['portfolio-simulator.js']
 ---

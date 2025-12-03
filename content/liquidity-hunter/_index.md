@@ -8,4 +8,5 @@ keywords: 'Bitcoin liquidity zones, BTC stop hunt prediction, crypto liquidity s
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+js: ['liquidity-hunter.js']
 ---

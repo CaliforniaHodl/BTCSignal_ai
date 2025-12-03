@@ -1,6 +1,25 @@
 
+{{/* Load Three.js if page needs 3D */}}
+{{ if .Params.threejs }}
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+{{ end }}
+
+{{/* Load Chart.js if page needs charts */}}
+{{ if .Params.charts }}
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  {{ if .Params.chartAnnotations }}
+  <script defer src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation"></script>
+  {{ end }}
+{{ end }}
+
+{{/* Load QRCode.js if page needs QR codes */}}
+{{ if .Params.qrcode }}
+  <script defer src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+{{ end }}
+
+{{/* Load page-specific JS from frontmatter */}}
 {{ range .Params.js }}
-  <script defer  src="{{ "src/js/" | relURL }}{{ . }}"></script>
+  <script defer src="{{ "src/js/" | relURL }}{{ . }}"></script>
 {{ end }}
 
 

@@ -7,6 +7,7 @@ image: 'og-image.png'
 keywords: 'Bitcoin trading signals, BTC analysis, AI trading, cryptocurrency signals, liquidity predictions, Lightning Network payments'
 priority: 1.0
 cta: false
-js: ['menu.js']
+threejs: true
+js: ['menu.js', 'bitcoin-coin.js', 'narrative-tracker.js', 'key-level.js', 'market-sentiment.js', 'bart-detector.js', 'price-ticker.js']
 css: ['index.scss']
 ---

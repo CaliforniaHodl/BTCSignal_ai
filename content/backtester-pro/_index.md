@@ -8,4 +8,6 @@ keywords: 'Bitcoin backtesting, crypto strategy tester, trading strategy backtes
 layout: "single"
 priority: 0.8
 css: ['premium-features.scss']
+charts: true
+js: ['backtester-pro.js']
 ---
