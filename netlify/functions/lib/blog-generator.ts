@@ -38,6 +38,7 @@ export interface HistoricalCall {
   confidence: number;
   entryPrice: number;
   targetPrice: number;
+  stopLoss?: number;
   actualResult: 'win' | 'loss' | 'pending';
   pnlPercent: number | null;
 }
@@ -204,7 +205,7 @@ export class BlogGenerator {
   generateThread(analysis: AnalysisResult, historicalCalls: HistoricalCall[]): ThreadTweets {
     const { currentPrice, priceChange24h, high24h, low24h, indicators } = analysis;
     const suggestions = this.generateTradingSuggestions(analysis);
-    const stats = this.calculateHistoricalStats(historicalCalls);
+    const stats = this.calculateHistoricalStats(historicalCalls, currentPrice);
     const weekly = this.generateWeeklyRefinement(analysis, historicalCalls);
 
     const price = Math.round(currentPrice).toLocaleString();
@@ -280,33 +281,70 @@ export class BlogGenerator {
 
   /**
    * Calculate historical stats from past calls
+   * Note: For accurate results, calls should be pre-updated via HistoricalTracker.updatePendingCalls()
+   * which checks OHLC candles for stop loss/take profit touches
    */
-  calculateHistoricalStats(calls: HistoricalCall[]): {
+  calculateHistoricalStats(calls: HistoricalCall[], currentPrice?: number): {
     wins: number;
     losses: number;
     winRate: string;
     avgGain: string;
     avgLoss: string;
   } {
-    const completedCalls = calls.filter(c => c.actualResult !== 'pending');
-    const wins = completedCalls.filter(c => c.actualResult === 'win');
-    const losses = completedCalls.filter(c => c.actualResult === 'loss');
+    let wins = 0;
+    let losses = 0;
+    let totalGain = 0;
+    let totalLoss = 0;
 
-    const winRate = completedCalls.length > 0
-      ? ((wins.length / completedCalls.length) * 100).toFixed(0)
-      : '0';
+    calls.forEach(call => {
+      let result = call.actualResult;
+      let pnl = call.pnlPercent;
 
-    const avgGain = wins.length > 0
-      ? (wins.reduce((sum, c) => sum + (c.pnlPercent || 0), 0) / wins.length).toFixed(1)
-      : '0.0';
+      // For pending calls that haven't been updated yet, use current price as fallback
+      // (The proper OHLC check happens in HistoricalTracker.updatePendingCalls)
+      if (result === 'pending' && currentPrice) {
+        const entryPrice = call.entryPrice;
+        const targetPrice = call.targetPrice;
+        const stopLoss = call.stopLoss || (call.direction === 'up'
+          ? entryPrice * 0.98
+          : entryPrice * 1.02);
 
-    const avgLoss = losses.length > 0
-      ? (losses.reduce((sum, c) => sum + (c.pnlPercent || 0), 0) / losses.length).toFixed(1)
-      : '0.0';
+        if (call.direction === 'up') {
+          if (currentPrice >= targetPrice) {
+            result = 'win';
+            pnl = ((targetPrice - entryPrice) / entryPrice) * 100;
+          } else if (currentPrice <= stopLoss) {
+            result = 'loss';
+            pnl = ((stopLoss - entryPrice) / entryPrice) * 100;
+          }
+        } else if (call.direction === 'down') {
+          if (currentPrice <= targetPrice) {
+            result = 'win';
+            pnl = ((entryPrice - targetPrice) / entryPrice) * 100;
+          } else if (currentPrice >= stopLoss) {
+            result = 'loss';
+            pnl = ((entryPrice - stopLoss) / entryPrice) * 100;
+          }
+        }
+      }
+
+      if (result === 'win') {
+        wins++;
+        totalGain += pnl || 2; // Default 2% gain
+      } else if (result === 'loss') {
+        losses++;
+        totalLoss += pnl || -2; // Default 2% loss
+      }
+    });
+
+    const total = wins + losses;
+    const winRate = total > 0 ? ((wins / total) * 100).toFixed(0) : '0';
+    const avgGain = wins > 0 ? (totalGain / wins).toFixed(1) : '0.0';
+    const avgLoss = losses > 0 ? (totalLoss / losses).toFixed(1) : '0.0';
 
     return {
-      wins: wins.length,
-      losses: losses.length,
+      wins,
+      losses,
       winRate,
       avgGain,
       avgLoss,
@@ -322,7 +360,7 @@ export class BlogGenerator {
 
     const suggestions = this.generateTradingSuggestions(analysis);
     const thread = this.generateThread(analysis, historicalCalls);
-    const stats = this.calculateHistoricalStats(historicalCalls);
+    const stats = this.calculateHistoricalStats(historicalCalls, currentPrice);
     const weekly = this.generateWeeklyRefinement(analysis, historicalCalls);
 
     const refinedEmoji = weekly.refinedBias === 'up' ? '📈' : weekly.refinedBias === 'down' ? '📉' : '⏸️';

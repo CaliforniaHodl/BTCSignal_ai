@@ -594,11 +594,25 @@
             display: true,
             position: 'top',
             labels: { color: '#8d96a0', boxWidth: 12, font: { size: 10 } }
+          },
+          subtitle: {
+            display: true,
+            text: '30-Day Timeframe • Daily Data',
+            color: '#6e7681',
+            font: { size: 9, style: 'italic' },
+            padding: { bottom: 5 }
           }
         },
         scales: {
           x: {
-            display: false
+            display: true,
+            ticks: {
+              color: '#6e7681',
+              font: { size: 8 },
+              maxTicksLimit: 6,
+              maxRotation: 0
+            },
+            grid: { display: false }
           },
           y: {
             type: 'linear',
@@ -783,7 +797,14 @@
     const btcNorm = btcPrices.map(p => ((p - btcPrices[0]) / btcPrices[0] * 100).toFixed(2));
     const sp500Norm = sp500Prices.map(p => ((p - sp500Prices[0]) / sp500Prices[0] * 100).toFixed(2));
 
-    const labels = btcPrices.map((_, i) => 'D' + (i + 1));
+    // Generate date labels for the last 30 days
+    const labels = [];
+    const now = new Date();
+    for (let i = btcPrices.length - 1; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
 
     // Destroy existing chart
     if (correlationChart) {
@@ -825,11 +846,25 @@
             display: true,
             position: 'top',
             labels: { color: '#8d96a0', boxWidth: 12, font: { size: 10 } }
+          },
+          subtitle: {
+            display: true,
+            text: '30-Day Timeframe • Daily Data • S&P 500 Estimated',
+            color: '#6e7681',
+            font: { size: 9, style: 'italic' },
+            padding: { bottom: 5 }
           }
         },
         scales: {
           x: {
-            display: false
+            display: true,
+            ticks: {
+              color: '#6e7681',
+              font: { size: 8 },
+              maxTicksLimit: 6,
+              maxRotation: 0
+            },
+            grid: { display: false }
           },
           y: {
             ticks: {

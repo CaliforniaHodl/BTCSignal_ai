@@ -210,7 +210,8 @@ export default async (req: Request, context: Context) => {
         prediction.direction,
         prediction.confidence,
         currentPrice,
-        prediction.targetPrice
+        prediction.targetPrice,
+        prediction.stopLoss // Include stop loss for accurate tracking
       );
       await historicalTracker.addCall(newCall);
       console.log('Added new call to historical tracking');

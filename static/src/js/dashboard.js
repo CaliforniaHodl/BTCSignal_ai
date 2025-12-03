@@ -60,8 +60,26 @@
     }
   }
 
+  // OHLC candle data for accurate win/loss checking
+  let ohlcCandles = [];
+  let currentBtcPrice = null;
+
   // Load all dashboard data
   async function loadDashboardData() {
+    // Fetch OHLC candles and current price first for accurate win/loss detection
+    try {
+      const [ohlcRes, priceRes] = await Promise.all([
+        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=30'),
+        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
+      ]);
+      ohlcCandles = await ohlcRes.json();
+      const priceData = await priceRes.json();
+      currentBtcPrice = priceData.bitcoin?.usd || null;
+    } catch (e) {
+      console.error('Failed to fetch OHLC candles or price:', e);
+      ohlcCandles = [];
+    }
+
     await Promise.all([
       loadPerformanceStats(),
       loadCurrentPrice(),
@@ -253,7 +271,7 @@
     posts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     posts.forEach((post, index) => {
-      const outcome = determineOutcome(post);
+      const outcome = determineOutcome(post, currentBtcPrice);
 
       if (outcome === 'win') {
         wins++;
@@ -283,16 +301,80 @@
     };
   }
 
-  // Determine if a call was a win or loss
-  function determineOutcome(post) {
+  // Check if price touched stop loss or take profit using OHLC candles
+  function checkPriceTouched(sinceTimestamp, targetPrice, stopLoss, direction) {
+    if (!ohlcCandles || ohlcCandles.length === 0) return 'pending';
+
+    // Filter candles since the signal was made
+    // OHLC format: [timestamp, open, high, low, close]
+    const relevantCandles = ohlcCandles.filter(c => c[0] >= sinceTimestamp);
+
+    for (const candle of relevantCandles) {
+      const high = candle[2];
+      const low = candle[3];
+
+      if (direction === 'up' || direction === 'bullish') {
+        // For bullish calls: check if low touched stop (loss) or high touched target (win)
+        // Check stop loss FIRST - if both hit in same candle, stop loss takes priority
+        if (stopLoss && low <= stopLoss) {
+          return 'loss';
+        }
+        if (targetPrice && high >= targetPrice) {
+          return 'win';
+        }
+      } else if (direction === 'down' || direction === 'bearish') {
+        // For bearish calls: check if high touched stop (loss) or low touched target (win)
+        // Check stop loss FIRST
+        if (stopLoss && high >= stopLoss) {
+          return 'loss';
+        }
+        if (targetPrice && low <= targetPrice) {
+          return 'win';
+        }
+      }
+    }
+
+    return 'pending';
+  }
+
+  // Determine if a call was a win or loss using OHLC candle data
+  function determineOutcome(post, currentPrice) {
+    // If explicit result is stored, use it
     if (post.result) {
       return post.result.toLowerCase();
     }
-    if (post.confidence >= 70) {
-      return 'win';
-    } else if (post.confidence < 50) {
-      return 'loss';
+
+    // Use OHLC candle checking for accurate win/loss detection
+    if (!post.date || !post.price) return 'pending';
+
+    const entryPrice = post.price;
+    const targetPrice = post.targetPrice;
+    const direction = (post.direction || post.sentiment || '').toLowerCase();
+    const postTimestamp = new Date(post.date).getTime();
+
+    // Use actual stop loss from post, or default to 2% from entry
+    const stopLoss = post.stopLoss || (direction === 'up' || direction === 'bullish'
+      ? entryPrice * 0.98
+      : entryPrice * 1.02);
+
+    // Check OHLC candles to see if price touched stop loss or target
+    const result = checkPriceTouched(postTimestamp, targetPrice, stopLoss, direction);
+
+    if (result !== 'pending') {
+      return result;
     }
+
+    // If still pending, check current price as fallback
+    if (currentPrice) {
+      if (direction === 'up' || direction === 'bullish') {
+        if (targetPrice && currentPrice >= targetPrice) return 'win';
+        if (currentPrice <= stopLoss) return 'loss';
+      } else if (direction === 'down' || direction === 'bearish') {
+        if (targetPrice && currentPrice <= targetPrice) return 'win';
+        if (currentPrice >= stopLoss) return 'loss';
+      }
+    }
+
     return 'pending';
   }
 
@@ -317,7 +399,7 @@
     // Calculate Average R-Multiple (simplified: based on wins/losses)
     // R = reward/risk. For simplicity, win = +1R, loss = -1R
     const rMultiples = posts.map(p => {
-      const outcome = determineOutcome(p);
+      const outcome = determineOutcome(p, currentBtcPrice);
       if (outcome === 'win') return 1.0;
       if (outcome === 'loss') return -1.0;
       return 0;
@@ -336,7 +418,7 @@
     let maxDrawdown = 0;
     let currentDrawdown = 0;
     posts.forEach(p => {
-      const outcome = determineOutcome(p);
+      const outcome = determineOutcome(p, currentBtcPrice);
       if (outcome === 'loss') {
         currentDrawdown++;
         maxDrawdown = Math.max(maxDrawdown, currentDrawdown);
@@ -390,7 +472,7 @@
 
     const recentPosts = posts.slice(0, 10);
     tbody.innerHTML = recentPosts.map(post => {
-      const outcome = determineOutcome(post);
+      const outcome = determineOutcome(post, currentBtcPrice);
       const outcomeClass = outcome === 'win' ? 'win' : outcome === 'loss' ? 'loss' : 'pending';
       const outcomeText = outcome === 'win' ? '✅ Win' : outcome === 'loss' ? '❌ Loss' : '⏳ Pending';
       const direction = post.direction || post.sentiment || '-';
@@ -492,7 +574,7 @@
     posts.forEach(post => {
       if (post.date) {
         const dateKey = post.date.split('T')[0];
-        const outcome = determineOutcome(post);
+        const outcome = determineOutcome(post, currentBtcPrice);
         postsByDate[dateKey] = outcome;
       }
     });

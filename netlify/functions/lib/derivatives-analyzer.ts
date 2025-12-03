@@ -38,56 +38,61 @@ export interface DerivativesData {
 
 export class DerivativesAnalyzer {
   /**
-   * Get funding rate from Binance Futures
+   * Get funding rate from OKX (works globally, Binance is blocked in US)
    */
   async getFundingRate(): Promise<FundingRate | null> {
     try {
-      const response = await axios.get('https://fapi.binance.com/fapi/v1/fundingRate', {
-        params: { symbol: 'BTCUSDT', limit: 1 }
+      const response = await axios.get('https://www.okx.com/api/v5/public/funding-rate', {
+        params: { instId: 'BTC-USDT-SWAP' }
       });
 
-      if (response.data && response.data.length > 0) {
-        const data = response.data[0];
+      if (response.data && response.data.data && response.data.data.length > 0) {
+        const data = response.data.data[0];
         return {
-          symbol: data.symbol,
+          symbol: 'BTCUSDT',
           fundingRate: parseFloat(data.fundingRate),
-          fundingTime: data.fundingTime,
-          markPrice: parseFloat(data.markPrice || '0'),
+          fundingTime: parseInt(data.fundingTime),
+          markPrice: 0, // OKX doesn't return mark price in this endpoint
         };
       }
       return null;
     } catch (error: any) {
-      console.log('Failed to fetch funding rate:', error.message);
+      console.log('Failed to fetch funding rate from OKX:', error.message);
       return null;
     }
   }
 
   /**
-   * Get open interest from Binance Futures
+   * Get open interest from OKX (works globally)
    */
   async getOpenInterest(): Promise<OpenInterest | null> {
     try {
-      const response = await axios.get('https://fapi.binance.com/fapi/v1/openInterest', {
-        params: { symbol: 'BTCUSDT' }
+      const response = await axios.get('https://www.okx.com/api/v5/public/open-interest', {
+        params: { instType: 'SWAP', instId: 'BTC-USDT-SWAP' }
       });
 
-      if (response.data) {
-        // Get mark price for value calculation
-        const priceResponse = await axios.get('https://fapi.binance.com/fapi/v1/ticker/price', {
-          params: { symbol: 'BTCUSDT' }
+      if (response.data && response.data.data && response.data.data.length > 0) {
+        const data = response.data.data[0];
+        const oi = parseFloat(data.oi); // OI in contracts
+        const oiCcy = parseFloat(data.oiCcy || '0'); // OI in BTC
+
+        // Get current price from OKX for value calculation
+        const priceResponse = await axios.get('https://www.okx.com/api/v5/market/ticker', {
+          params: { instId: 'BTC-USDT-SWAP' }
         });
-        const price = parseFloat(priceResponse.data.price);
-        const oi = parseFloat(response.data.openInterest);
+        const price = priceResponse.data?.data?.[0]?.last
+          ? parseFloat(priceResponse.data.data[0].last)
+          : 95000; // fallback price
 
         return {
-          symbol: response.data.symbol,
-          openInterest: oi,
-          openInterestValue: oi * price,
+          symbol: 'BTCUSDT',
+          openInterest: oiCcy || oi,
+          openInterestValue: (oiCcy || oi) * price,
         };
       }
       return null;
     } catch (error: any) {
-      console.log('Failed to fetch open interest:', error.message);
+      console.log('Failed to fetch open interest from OKX:', error.message);
       return null;
     }
   }

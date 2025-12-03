@@ -213,6 +213,13 @@
           maintainAspectRatio: false,
           plugins: {
             legend: { display: false },
+            subtitle: {
+              display: true,
+              text: '24-Hour Timeframe • 30-Second Intervals',
+              color: '#6e7681',
+              font: { size: 9, style: 'italic' },
+              padding: { bottom: 5 }
+            },
             tooltip: {
               callbacks: {
                 label: function(ctx) {
@@ -225,7 +232,7 @@
             x: {
               display: true,
               grid: { color: 'rgba(255,255,255,0.1)' },
-              ticks: { color: '#888', maxTicksLimit: 8 }
+              ticks: { color: '#888', maxTicksLimit: 8, font: { size: 8 } }
             },
             y: {
               display: true,
