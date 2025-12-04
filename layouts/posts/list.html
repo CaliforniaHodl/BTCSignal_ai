@@ -5,10 +5,11 @@
     <p class="page-description">Bitcoin technical analysis powered by AI</p>
   </header>
 
-  <div class="posts-table-container">
+  <!-- Desktop Table View -->
+  <div class="posts-table-container d-none d-md-block">
     <table class="posts-table">
       <thead>
-        <tr class="d-flex justify-content-between">
+        <tr>
           <th class="col-date">Date</th>
           <th class="col-time">Time</th>
           <th class="col-sentiment">Sentiment</th>
@@ -22,7 +23,7 @@
         {{ $pages := .Pages.ByDate.Reverse }}
         {{ range $index, $post := $pages }}
         {{ $isLocked := lt $index 10 }}
-        <tr class="post-row d-flex justify-content-between {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
+        <tr class="post-row {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
           <td class="col-date">{{ $post.Date.Format "Jan 02, 2006" }}</td>
           <td class="col-time">{{ $post.Date.Format "15:04" }} UTC</td>
           <td class="col-sentiment">
@@ -59,6 +60,39 @@
         {{ end }}
       </tbody>
     </table>
+  </div>
+
+  <!-- Mobile Card View -->
+  <div class="posts-cards-container d-md-none">
+    {{ $pages := .Pages.ByDate.Reverse }}
+    {{ range $index, $post := $pages }}
+    {{ $isLocked := lt $index 10 }}
+    <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
+      <div class="post-card-header">
+        <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
+        {{ if $isLocked }}
+        <span class="lock-badge">🔒 21 sats</span>
+        {{ else }}
+        <span class="free-badge">✓ Free</span>
+        {{ end }}
+      </div>
+      <div class="post-card-body">
+        <span class="direction-badge {{ $post.Params.direction }}">
+          {{ if eq $post.Params.direction "up" }}📈 BULLISH{{ else if eq $post.Params.direction "down" }}📉 BEARISH{{ else }}⏸️ NEUTRAL{{ end }}
+        </span>
+        <span class="confidence">
+          <span class="confidence-label">Confidence</span>
+          <span class="confidence-value">{{ $post.Params.confidence }}%</span>
+        </span>
+      </div>
+      <div class="post-card-footer">
+        <span class="price">${{ printf "%.2f" $post.Params.price }}</span>
+        {{ if $post.Params.priceChange }}
+        <span class="change {{ if hasPrefix $post.Params.priceChange "+" }}positive{{ else }}negative{{ end }}">{{ $post.Params.priceChange }}</span>
+        {{ end }}
+      </div>
+    </a>
+    {{ end }}
   </div>
 
   {{ if eq (len .Pages) 0 }}
