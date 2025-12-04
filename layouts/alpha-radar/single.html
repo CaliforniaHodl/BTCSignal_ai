@@ -24,13 +24,13 @@
   <!-- Alpha Radar Content (Hidden until unlocked) -->
   <div class="premium-content" id="premium-content" style="display: none;">
     <header class="radar-header">
-{{ partial "dev-banner.html" (dict 
-      "status" "simulation" 
-      "todos" (slice 
+{{ partial "dev-banner.html" (dict
+      "status" "simulation"
+      "todos" (slice
         "Integrate <code>LNbits</code> or <code>BTCPay Server</code> API for real Lightning payments"
         "✅ <code>Blockchain.info API</code> integrated (free) - tracks large mempool transactions"
+        "✅ <code>Whale Tracker</code> built using mempool.space - detects 1000+ BTC movements every 5 mins"
         "Implement anomaly detection algorithm (statistical deviation monitoring)"
-        "Add <code>Whale Alert API</code> for large transaction tracking"
         "Set up WebSocket for real-time data updates"
       )
     ) }}
@@ -126,13 +126,22 @@
           <p class="metric-note" id="netflow-signal">Loading...</p>
         </div>
         <div class="whale-card">
-          <h3>Large Txns (>100 BTC)</h3>
+          <h3>Large Txns (>1000 BTC)</h3>
           <div class="whale-metric">
             <span class="metric-value" id="large-txns">--</span>
             <span class="metric-unit">in 24h</span>
           </div>
           <p class="metric-note" id="txn-signal">Loading...</p>
         </div>
+      </div>
+    </section>
+
+    <!-- Whale Alerts Feed -->
+    <section class="radar-section whale-alerts">
+      <h2>🚨 Whale Alerts (1000+ BTC)</h2>
+      <p class="section-desc">High-confidence whale movements detected via mempool analysis</p>
+      <div class="whale-alerts-list" id="whale-alerts-list">
+        <div class="loading-spinner">Scanning for whale movements...</div>
       </div>
     </section>
 

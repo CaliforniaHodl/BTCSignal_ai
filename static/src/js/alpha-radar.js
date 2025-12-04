@@ -101,6 +101,7 @@
       await Promise.all([
         loadMarketOverview(),
         loadWhaleActivity(),
+        loadWhaleAlerts(),
         loadLiquidityZones(),
         loadAnomalies(),
         loadAISummary()
@@ -280,6 +281,105 @@
         ? 'Live mempool data from Blockchain.info'
         : 'Estimated from CoinGecko market data';
     }
+  }
+
+  // Load whale alerts from static JSON
+  async function loadWhaleAlerts() {
+    const container = document.getElementById('whale-alerts-list');
+    if (!container) return;
+
+    try {
+      const res = await fetch('/data/whale-alerts.json');
+      if (!res.ok) {
+        container.innerHTML = '<p class="no-alerts">No whale alerts yet. Tracker will start collecting data shortly.</p>';
+        return;
+      }
+
+      const data = await res.json();
+      const alerts = data.alerts || [];
+
+      if (alerts.length === 0) {
+        container.innerHTML = '<p class="no-alerts">No whale movements detected in the last 24 hours. This is unusual - whale activity typically occurs multiple times daily.</p>';
+        return;
+      }
+
+      // Update stats in whale activity section
+      if (data.stats) {
+        const largeTxnsEl = document.getElementById('large-txns');
+        const txnSignalEl = document.getElementById('txn-signal');
+        if (largeTxnsEl) largeTxnsEl.textContent = data.stats.totalTracked24h;
+        if (txnSignalEl) {
+          txnSignalEl.textContent = data.stats.totalTracked24h > 5
+            ? 'High whale activity!'
+            : data.stats.totalTracked24h > 0
+              ? 'Normal whale activity'
+              : 'Low activity';
+        }
+      }
+
+      // Render alerts
+      container.innerHTML = alerts.slice(0, 10).map(alert => {
+        const timeAgo = getTimeAgo(new Date(alert.timestamp));
+        const typeIcon = {
+          'exchange_deposit': '📥',
+          'exchange_withdrawal': '📤',
+          'whale_transfer': '🔄',
+          'dormant_wallet': '💤'
+        }[alert.type] || '🐋';
+
+        const typeLabel = {
+          'exchange_deposit': 'Exchange Deposit',
+          'exchange_withdrawal': 'Exchange Withdrawal',
+          'whale_transfer': 'Whale Transfer',
+          'dormant_wallet': 'Dormant Wallet'
+        }[alert.type] || 'Unknown';
+
+        const confidenceClass = {
+          'high': 'confidence-high',
+          'medium': 'confidence-medium',
+          'low': 'confidence-low'
+        }[alert.confidence] || '';
+
+        return `
+          <div class="whale-alert-item ${alert.type}">
+            <div class="alert-header">
+              <span class="alert-type">${typeIcon} ${typeLabel}</span>
+              <span class="alert-confidence ${confidenceClass}">${alert.confidence.toUpperCase()}</span>
+            </div>
+            <div class="alert-amount">
+              <span class="btc-amount">${alert.amount_btc.toLocaleString()} BTC</span>
+              <span class="usd-amount">$${(alert.amount_usd / 1000000).toFixed(1)}M</span>
+            </div>
+            <div class="alert-flow">
+              <span class="from">${alert.from_type}</span>
+              <span class="arrow">→</span>
+              <span class="to">${alert.to_type}</span>
+            </div>
+            <div class="alert-analysis">${alert.analysis}</div>
+            <div class="alert-footer">
+              <span class="alert-time">${timeAgo}</span>
+              <a href="https://mempool.space/tx/${alert.txid}" target="_blank" class="tx-link">View TX →</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+    } catch (error) {
+      console.error('Error loading whale alerts:', error);
+      container.innerHTML = '<p class="error">Failed to load whale alerts. Will retry on next refresh.</p>';
+    }
+  }
+
+  // Helper: get time ago string
+  function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
   }
 
   // Load liquidity zones from static snapshot

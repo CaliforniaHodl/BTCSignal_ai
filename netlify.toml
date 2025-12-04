@@ -17,3 +17,7 @@
 # 1am, 5am, 9am, 1pm, 5pm, 9pm UTC
 [functions."fetch-market-data"]
   schedule = "0 1,5,9,13,17,21 * * *"
+
+# Whale tracker - runs every 5 minutes to detect large BTC movements
+[functions."whale-tracker"]
+  schedule = "*/5 * * * *"
