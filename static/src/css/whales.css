@@ -1,0 +1,362 @@
+/* Whale Alerts Page Styles */
+:root {
+  --bg-dark: #0d1117;
+  --bg-card: #161b22;
+  --bg-card-hover: #1f2937;
+  --bg-surface: #21262d;
+  --border-color: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8d96a0;
+  --text-muted: #7d8590;
+  --bitcoin-orange: #f7931a;
+  --bitcoin-gold: #ffb800;
+  --green: #3fb950;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --purple: #a371f7;
+}
+
+[data-theme=light] {
+  --bg-dark: #f6f8fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f3f4f6;
+  --bg-surface: #eaeef2;
+  --border-color: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #57606a;
+  --text-muted: #656d76;
+  --bitcoin-orange: #9a6700;
+  --bitcoin-gold: #7c5200;
+  --green: #1a7f37;
+  --red: #cf222e;
+  --blue: #0969da;
+  --purple: #8250df;
+}
+
+.whales-page {
+  padding: 32px 0;
+  max-width: 900px;
+}
+
+.whales-page .page-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.whales-page .page-header h1 {
+  font-size: 2rem;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+
+.whales-page .page-description {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Stats Summary */
+.whale-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* Filter Tabs */
+.filter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  border-color: var(--bitcoin-orange);
+  color: var(--bitcoin-orange);
+}
+
+.filter-btn.active {
+  background: var(--bitcoin-orange);
+  border-color: var(--bitcoin-orange);
+  color: #000;
+  font-weight: 600;
+}
+
+/* Alerts Container */
+.whale-alerts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.whale-alerts-container .loading-spinner,
+.whale-alerts-container .error,
+.whale-alerts-container .no-results {
+  text-align: center;
+  padding: 48px;
+  color: var(--text-muted);
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px dashed var(--border-color);
+}
+
+/* Whale Alert Card */
+.whale-alert-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.whale-alert-card:hover {
+  border-color: var(--bitcoin-orange);
+  background: var(--bg-card-hover);
+}
+
+.whale-alert-card.exchange_deposit {
+  border-left: 4px solid var(--red);
+}
+
+.whale-alert-card.exchange_withdrawal {
+  border-left: 4px solid var(--green);
+}
+
+.whale-alert-card.whale_transfer {
+  border-left: 4px solid var(--blue);
+}
+
+.whale-alert-card.dormant_wallet {
+  border-left: 4px solid var(--purple);
+}
+
+.alert-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.alert-type-badge {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.alert-type-badge.exchange_deposit { color: var(--red); }
+.alert-type-badge.exchange_withdrawal { color: var(--green); }
+.alert-type-badge.whale_transfer { color: var(--blue); }
+.alert-type-badge.dormant_wallet { color: var(--purple); }
+
+.alert-confidence {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.alert-confidence.confidence-high {
+  background: rgba(63, 185, 80, 0.2);
+  color: var(--green);
+}
+
+.alert-confidence.confidence-medium {
+  background: rgba(210, 153, 34, 0.2);
+  color: #d29922;
+}
+
+.alert-confidence.confidence-low {
+  background: rgba(141, 150, 160, 0.2);
+  color: var(--text-muted);
+}
+
+.alert-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.alert-amount {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.alert-amount .btc {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+}
+
+.alert-amount .usd {
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.alert-flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.alert-flow .from,
+.alert-flow .to {
+  padding: 4px 10px;
+  background: var(--bg-dark);
+  border-radius: 6px;
+  color: var(--text-secondary);
+}
+
+.alert-flow .arrow {
+  color: var(--text-muted);
+}
+
+.alert-card-analysis {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+}
+
+.alert-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.alert-card-footer .time {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.alert-card-footer .tx-link {
+  font-size: 0.85rem;
+  color: var(--bitcoin-orange);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.alert-card-footer .tx-link:hover {
+  text-decoration: underline;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 64px 32px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+}
+
+.empty-state h3 {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  color: var(--text-muted);
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .whales-page {
+    padding: 24px 16px;
+  }
+
+  .whale-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat-card {
+    padding: 12px;
+  }
+
+  .stat-value {
+    font-size: 1rem;
+  }
+
+  .filter-tabs {
+    overflow-x: auto;
+    padding-bottom: 8px;
+    flex-wrap: nowrap;
+  }
+
+  .filter-btn {
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .alert-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .alert-amount .btc {
+    font-size: 1.5rem;
+  }
+
+  .alert-flow {
+    width: 100%;
+  }
+}

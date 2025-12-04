@@ -1,0 +1,252 @@
+{{ define "main" }}
+<div class="container whales-page">
+  <header class="page-header">
+    <h1>Whale Alerts</h1>
+    <p class="page-description">Large Bitcoin movements tracked via mempool analysis</p>
+  </header>
+
+  <!-- Stats Summary -->
+  <div class="whale-stats">
+    <div class="stat-card">
+      <span class="stat-icon">🐋</span>
+      <div class="stat-content">
+        <span class="stat-value" id="total-alerts">--</span>
+        <span class="stat-label">Alerts (24h)</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📥</span>
+      <div class="stat-content">
+        <span class="stat-value" id="exchange-inflow">--</span>
+        <span class="stat-label">Exchange Inflow</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📤</span>
+      <div class="stat-content">
+        <span class="stat-value" id="exchange-outflow">--</span>
+        <span class="stat-label">Exchange Outflow</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">💰</span>
+      <div class="stat-content">
+        <span class="stat-value" id="largest-tx">--</span>
+        <span class="stat-label">Largest TX</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="exchange_deposit">Deposits</button>
+    <button class="filter-btn" data-filter="exchange_withdrawal">Withdrawals</button>
+    <button class="filter-btn" data-filter="whale_transfer">Transfers</button>
+    <button class="filter-btn" data-filter="dormant_wallet">Dormant</button>
+  </div>
+
+  <!-- Alerts List -->
+  <div class="whale-alerts-container" id="whale-alerts-container">
+    <div class="loading-spinner">Loading whale alerts...</div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" id="empty-state" style="display: none;">
+    <div class="empty-icon">🐋</div>
+    <h3>No Whale Alerts Yet</h3>
+    <p>The tracker is scanning for large BTC movements. Data will accumulate as the system runs.</p>
+  </div>
+</div>
+
+<script>
+(function() {
+  let allAlerts = [];
+  let currentFilter = 'all';
+
+  async function loadWhaleAlerts() {
+    const container = document.getElementById('whale-alerts-container');
+    const emptyState = document.getElementById('empty-state');
+
+    try {
+      // Try static file first
+      let alerts = [];
+      let stats = null;
+
+      const res = await fetch('/data/whale-alerts.json');
+      if (res.ok) {
+        const data = await res.json();
+        alerts = data.alerts || [];
+        stats = data.stats;
+      }
+
+      // Fallback to live if empty
+      if (alerts.length === 0) {
+        alerts = await fetchLiveWhaleData();
+      }
+
+      allAlerts = alerts;
+
+      if (alerts.length === 0) {
+        container.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      // Update stats
+      updateStats(stats, alerts);
+
+      // Render alerts
+      renderAlerts(alerts);
+
+    } catch (error) {
+      console.error('Error loading whale alerts:', error);
+      container.innerHTML = '<p class="error">Failed to load whale alerts.</p>';
+    }
+  }
+
+  async function fetchLiveWhaleData() {
+    const alerts = [];
+    try {
+      const priceRes = await fetch('https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT');
+      const priceData = await priceRes.json();
+      const btcPrice = parseFloat(priceData.price) || 95000;
+
+      // Check recent blocks for large txs
+      const blocksRes = await fetch('https://mempool.space/api/blocks');
+      if (blocksRes.ok) {
+        const blocks = await blocksRes.json();
+        for (const block of blocks.slice(0, 3)) {
+          const blockTxsRes = await fetch(`https://mempool.space/api/block/${block.id}/txs/0`);
+          if (blockTxsRes.ok) {
+            const blockTxs = await blockTxsRes.json();
+            for (const txData of blockTxs.slice(1, 30)) {
+              const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
+              const amountBTC = totalValue / 100000000;
+
+              if (amountBTC >= 100 && alerts.length < 20) {
+                alerts.push({
+                  id: `block_${txData.txid.substring(0, 12)}`,
+                  timestamp: new Date(block.timestamp * 1000).toISOString(),
+                  txid: txData.txid,
+                  type: 'whale_transfer',
+                  amount_btc: Math.round(amountBTC * 100) / 100,
+                  amount_usd: Math.round(amountBTC * btcPrice),
+                  confidence: amountBTC >= 1000 ? 'high' : amountBTC >= 500 ? 'medium' : 'low',
+                  from_type: 'Unknown',
+                  to_type: 'Unknown',
+                  analysis: `${amountBTC.toFixed(2)} BTC confirmed in block ${block.height}.`
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Live fetch error:', e);
+    }
+    return alerts.sort((a, b) => b.amount_btc - a.amount_btc);
+  }
+
+  function updateStats(stats, alerts) {
+    document.getElementById('total-alerts').textContent = alerts.length;
+
+    if (stats) {
+      document.getElementById('exchange-inflow').textContent = stats.exchangeInflow24h.toLocaleString() + ' BTC';
+      document.getElementById('exchange-outflow').textContent = stats.exchangeOutflow24h.toLocaleString() + ' BTC';
+      document.getElementById('largest-tx').textContent = stats.largestTx24h.toLocaleString() + ' BTC';
+    } else {
+      const deposits = alerts.filter(a => a.type === 'exchange_deposit').reduce((s, a) => s + a.amount_btc, 0);
+      const withdrawals = alerts.filter(a => a.type === 'exchange_withdrawal').reduce((s, a) => s + a.amount_btc, 0);
+      const largest = Math.max(...alerts.map(a => a.amount_btc), 0);
+
+      document.getElementById('exchange-inflow').textContent = Math.round(deposits).toLocaleString() + ' BTC';
+      document.getElementById('exchange-outflow').textContent = Math.round(withdrawals).toLocaleString() + ' BTC';
+      document.getElementById('largest-tx').textContent = Math.round(largest).toLocaleString() + ' BTC';
+    }
+  }
+
+  function renderAlerts(alerts) {
+    const container = document.getElementById('whale-alerts-container');
+    const filtered = currentFilter === 'all' ? alerts : alerts.filter(a => a.type === currentFilter);
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<p class="no-results">No alerts match this filter.</p>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(alert => {
+      const timeAgo = getTimeAgo(new Date(alert.timestamp));
+      const typeIcon = {
+        'exchange_deposit': '📥',
+        'exchange_withdrawal': '📤',
+        'whale_transfer': '🔄',
+        'dormant_wallet': '💤'
+      }[alert.type] || '🐋';
+
+      const typeLabel = {
+        'exchange_deposit': 'Exchange Deposit',
+        'exchange_withdrawal': 'Exchange Withdrawal',
+        'whale_transfer': 'Whale Transfer',
+        'dormant_wallet': 'Dormant Wallet'
+      }[alert.type] || 'Unknown';
+
+      const confidenceClass = {
+        'high': 'confidence-high',
+        'medium': 'confidence-medium',
+        'low': 'confidence-low'
+      }[alert.confidence] || '';
+
+      return `
+        <div class="whale-alert-card ${alert.type}">
+          <div class="alert-card-header">
+            <div class="alert-type-badge ${alert.type}">${typeIcon} ${typeLabel}</div>
+            <span class="alert-confidence ${confidenceClass}">${alert.confidence.toUpperCase()}</span>
+          </div>
+          <div class="alert-card-body">
+            <div class="alert-amount">
+              <span class="btc">${alert.amount_btc.toLocaleString()} BTC</span>
+              <span class="usd">$${(alert.amount_usd / 1000000).toFixed(1)}M</span>
+            </div>
+            <div class="alert-flow">
+              <span class="from">${alert.from_type}</span>
+              <span class="arrow">→</span>
+              <span class="to">${alert.to_type}</span>
+            </div>
+          </div>
+          <div class="alert-card-analysis">${alert.analysis}</div>
+          <div class="alert-card-footer">
+            <span class="time">${timeAgo}</span>
+            <a href="https://mempool.space/tx/${alert.txid}" target="_blank" rel="noopener" class="tx-link">View on Mempool →</a>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return minutes + 'm ago';
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return hours + 'h ago';
+    const days = Math.floor(hours / 24);
+    return days + 'd ago';
+  }
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentFilter = this.dataset.filter;
+      renderAlerts(allAlerts);
+    });
+  });
+
+  // Initialize
+  loadWhaleAlerts();
+})();
+</script>
+{{ end }}

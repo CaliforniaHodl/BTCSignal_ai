@@ -18,6 +18,7 @@
 [functions."fetch-market-data"]
   schedule = "0 1,5,9,13,17,21 * * *"
 
-# Whale tracker - runs every 5 minutes to detect large BTC movements
+# Whale tracker - runs with market data fetch (6x daily)
+# Builds up whale alert data during site builds
 [functions."whale-tracker"]
-  schedule = "*/5 * * * *"
+  schedule = "0 1,5,9,13,17,21 * * *"
