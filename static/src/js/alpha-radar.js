@@ -283,91 +283,206 @@
     }
   }
 
-  // Load whale alerts from static JSON
+  // Load whale alerts from static JSON or fetch live from mempool
   async function loadWhaleAlerts() {
     const container = document.getElementById('whale-alerts-list');
     if (!container) return;
 
     try {
+      // Try to load from static file first
       const res = await fetch('/data/whale-alerts.json');
-      if (!res.ok) {
-        container.innerHTML = '<p class="no-alerts">No whale alerts yet. Tracker will start collecting data shortly.</p>';
-        return;
+      let data = null;
+
+      if (res.ok) {
+        data = await res.json();
       }
 
-      const data = await res.json();
-      const alerts = data.alerts || [];
+      const alerts = data?.alerts || [];
 
+      // If no alerts from static file, fetch live from mempool as fallback
       if (alerts.length === 0) {
-        container.innerHTML = '<p class="no-alerts">No whale movements detected in the last 24 hours. This is unusual - whale activity typically occurs multiple times daily.</p>';
+        const liveAlerts = await fetchLiveWhaleData();
+        if (liveAlerts.length > 0) {
+          renderWhaleAlerts(liveAlerts, container, true);
+          return;
+        }
+        container.innerHTML = '<p class="no-alerts">Scanning mempool for whale movements... Data will accumulate as the tracker runs every 5 minutes.</p>';
         return;
       }
 
-      // Update stats in whale activity section
-      if (data.stats) {
-        const largeTxnsEl = document.getElementById('large-txns');
-        const txnSignalEl = document.getElementById('txn-signal');
-        if (largeTxnsEl) largeTxnsEl.textContent = data.stats.totalTracked24h;
-        if (txnSignalEl) {
-          txnSignalEl.textContent = data.stats.totalTracked24h > 5
-            ? 'High whale activity!'
-            : data.stats.totalTracked24h > 0
-              ? 'Normal whale activity'
-              : 'Low activity';
-        }
-      }
-
-      // Render alerts
-      container.innerHTML = alerts.slice(0, 10).map(alert => {
-        const timeAgo = getTimeAgo(new Date(alert.timestamp));
-        const typeIcon = {
-          'exchange_deposit': '📥',
-          'exchange_withdrawal': '📤',
-          'whale_transfer': '🔄',
-          'dormant_wallet': '💤'
-        }[alert.type] || '🐋';
-
-        const typeLabel = {
-          'exchange_deposit': 'Exchange Deposit',
-          'exchange_withdrawal': 'Exchange Withdrawal',
-          'whale_transfer': 'Whale Transfer',
-          'dormant_wallet': 'Dormant Wallet'
-        }[alert.type] || 'Unknown';
-
-        const confidenceClass = {
-          'high': 'confidence-high',
-          'medium': 'confidence-medium',
-          'low': 'confidence-low'
-        }[alert.confidence] || '';
-
-        return `
-          <div class="whale-alert-item ${alert.type}">
-            <div class="alert-header">
-              <span class="alert-type">${typeIcon} ${typeLabel}</span>
-              <span class="alert-confidence ${confidenceClass}">${alert.confidence.toUpperCase()}</span>
-            </div>
-            <div class="alert-amount">
-              <span class="btc-amount">${alert.amount_btc.toLocaleString()} BTC</span>
-              <span class="usd-amount">$${(alert.amount_usd / 1000000).toFixed(1)}M</span>
-            </div>
-            <div class="alert-flow">
-              <span class="from">${alert.from_type}</span>
-              <span class="arrow">→</span>
-              <span class="to">${alert.to_type}</span>
-            </div>
-            <div class="alert-analysis">${alert.analysis}</div>
-            <div class="alert-footer">
-              <span class="alert-time">${timeAgo}</span>
-              <a href="https://mempool.space/tx/${alert.txid}" target="_blank" class="tx-link">View TX →</a>
-            </div>
-          </div>
-        `;
-      }).join('');
+      renderWhaleAlerts(alerts, container, false);
 
     } catch (error) {
       console.error('Error loading whale alerts:', error);
+      // Try live fallback on error
+      try {
+        const liveAlerts = await fetchLiveWhaleData();
+        if (liveAlerts.length > 0) {
+          renderWhaleAlerts(liveAlerts, container, true);
+          return;
+        }
+      } catch (e) {
+        console.error('Live fallback also failed:', e);
+      }
       container.innerHTML = '<p class="error">Failed to load whale alerts. Will retry on next refresh.</p>';
     }
+  }
+
+  // Fetch live whale data directly from mempool.space
+  async function fetchLiveWhaleData() {
+    const alerts = [];
+
+    try {
+      // Get BTC price first
+      const priceRes = await fetch('https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT');
+      const priceData = await priceRes.json();
+      const btcPrice = parseFloat(priceData.price) || 95000;
+
+      // Get recent mempool transactions
+      const mempoolRes = await fetch('https://mempool.space/api/mempool/recent');
+      if (!mempoolRes.ok) return alerts;
+
+      const recentTxs = await mempoolRes.json();
+
+      // Filter for large transactions (100+ BTC for live display, lower threshold for demo)
+      const largeTxs = recentTxs.filter(tx => tx.value > 10000000000); // 100 BTC in sats
+
+      // Get details for top 5 large txs
+      for (const tx of largeTxs.slice(0, 5)) {
+        try {
+          const txRes = await fetch(`https://mempool.space/api/tx/${tx.txid}`);
+          if (!txRes.ok) continue;
+
+          const txData = await txRes.json();
+          const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
+          const amountBTC = totalValue / 100000000;
+
+          if (amountBTC >= 100) {
+            alerts.push({
+              id: `live_${tx.txid.substring(0, 12)}`,
+              timestamp: new Date().toISOString(),
+              txid: tx.txid,
+              type: 'whale_transfer',
+              amount_btc: Math.round(amountBTC * 100) / 100,
+              amount_usd: Math.round(amountBTC * btcPrice),
+              confidence: amountBTC >= 1000 ? 'high' : amountBTC >= 500 ? 'medium' : 'low',
+              from_type: 'Unknown',
+              to_type: 'Unknown',
+              analysis: `${amountBTC.toFixed(2)} BTC movement detected in mempool. Live data - full analysis available after cron processing.`
+            });
+          }
+        } catch (e) {
+          console.error('Failed to fetch tx details:', e);
+        }
+      }
+
+      // Also check recent blocks if mempool is quiet
+      if (alerts.length < 3) {
+        const blocksRes = await fetch('https://mempool.space/api/blocks');
+        if (blocksRes.ok) {
+          const blocks = await blocksRes.json();
+          if (blocks.length > 0) {
+            const blockTxsRes = await fetch(`https://mempool.space/api/block/${blocks[0].id}/txs/0`);
+            if (blockTxsRes.ok) {
+              const blockTxs = await blockTxsRes.json();
+              for (const txData of blockTxs.slice(1, 20)) { // Skip coinbase
+                const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
+                const amountBTC = totalValue / 100000000;
+
+                if (amountBTC >= 100 && alerts.length < 5) {
+                  alerts.push({
+                    id: `block_${txData.txid.substring(0, 12)}`,
+                    timestamp: new Date(blocks[0].timestamp * 1000).toISOString(),
+                    txid: txData.txid,
+                    type: 'whale_transfer',
+                    amount_btc: Math.round(amountBTC * 100) / 100,
+                    amount_usd: Math.round(amountBTC * btcPrice),
+                    confidence: amountBTC >= 1000 ? 'high' : amountBTC >= 500 ? 'medium' : 'low',
+                    from_type: 'Unknown',
+                    to_type: 'Unknown',
+                    analysis: `${amountBTC.toFixed(2)} BTC confirmed in block ${blocks[0].height}. Live data from recent block.`
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching live whale data:', error);
+    }
+
+    return alerts.sort((a, b) => b.amount_btc - a.amount_btc);
+  }
+
+  // Render whale alerts to container
+  function renderWhaleAlerts(alerts, container, isLive) {
+    if (!alerts || alerts.length === 0) {
+      container.innerHTML = '<p class="no-alerts">No whale movements detected.</p>';
+      return;
+    }
+
+    // Update stats in whale activity section
+    const largeTxnsEl = document.getElementById('large-txns');
+    const txnSignalEl = document.getElementById('txn-signal');
+    if (largeTxnsEl) largeTxnsEl.textContent = alerts.length;
+    if (txnSignalEl) {
+      txnSignalEl.textContent = alerts.length > 5
+        ? 'High whale activity!'
+        : alerts.length > 0
+          ? 'Normal whale activity'
+          : 'Low activity';
+    }
+
+    // Add live indicator if showing live data
+    const liveIndicator = isLive ? '<span class="live-badge">LIVE</span>' : '';
+
+    // Render alerts
+    container.innerHTML = liveIndicator + alerts.slice(0, 10).map(alert => {
+      const timeAgo = getTimeAgo(new Date(alert.timestamp));
+      const typeIcon = {
+        'exchange_deposit': '📥',
+        'exchange_withdrawal': '📤',
+        'whale_transfer': '🔄',
+        'dormant_wallet': '💤'
+      }[alert.type] || '🐋';
+
+      const typeLabel = {
+        'exchange_deposit': 'Exchange Deposit',
+        'exchange_withdrawal': 'Exchange Withdrawal',
+        'whale_transfer': 'Whale Transfer',
+        'dormant_wallet': 'Dormant Wallet'
+      }[alert.type] || 'Unknown';
+
+      const confidenceClass = {
+        'high': 'confidence-high',
+        'medium': 'confidence-medium',
+        'low': 'confidence-low'
+      }[alert.confidence] || '';
+
+      return `
+        <div class="whale-alert-item ${alert.type}">
+          <div class="alert-header">
+            <span class="alert-type">${typeIcon} ${typeLabel}</span>
+            <span class="alert-confidence ${confidenceClass}">${alert.confidence.toUpperCase()}</span>
+          </div>
+          <div class="alert-amount">
+            <span class="btc-amount">${alert.amount_btc.toLocaleString()} BTC</span>
+            <span class="usd-amount">$${(alert.amount_usd / 1000000).toFixed(1)}M</span>
+          </div>
+          <div class="alert-flow">
+            <span class="from">${alert.from_type}</span>
+            <span class="arrow">→</span>
+            <span class="to">${alert.to_type}</span>
+          </div>
+          <div class="alert-analysis">${alert.analysis}</div>
+          <div class="alert-footer">
+            <span class="alert-time">${timeAgo}</span>
+            <a href="https://mempool.space/tx/${alert.txid}" target="_blank" class="tx-link">View TX →</a>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   // Helper: get time ago string
