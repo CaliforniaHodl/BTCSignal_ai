@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-12-03T22:00:17.461Z",
+  "timestamp": "2025-12-04T05:01:22.737Z",
   "btc": {
     "price": 0,
     "price24hAgo": 0,
@@ -10,15 +10,15 @@
     "marketCap": 0
   },
   "fearGreed": {
-    "value": 28,
+    "value": 26,
     "label": "Fear"
   },
   "funding": {
-    "rate": 0.0000170657664595,
-    "ratePercent": 0.00170657664595
+    "rate": -0.0000166247682607,
+    "ratePercent": -0.00166247682607
   },
   "openInterest": {
-    "btc": 23862.172700000036,
+    "btc": 23828.969400000045,
     "usd": 0
   },
   "longShortRatio": {
@@ -30,7 +30,7 @@
     "btc": 0
   },
   "hashrate": {
-    "current": 1060.304058639604,
+    "current": 1055.661438728333,
     "unit": "EH/s"
   },
   "ohlc": {
