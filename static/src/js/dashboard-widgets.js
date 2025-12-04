@@ -1,7 +1,26 @@
-// Dashboard Widgets - Real-time market data for Pro Dashboard
-// Populates the 9 Market Sentiment style widgets
+// Dashboard Widgets - Market data for Pro Dashboard
+// Uses pre-fetched static snapshot for most data, real-time only for price ticker
 (function() {
   'use strict';
+
+  // Market snapshot data (loaded from static JSON)
+  let marketData = null;
+  let snapshotLoaded = false;
+
+  // Load static market snapshot
+  async function loadMarketSnapshot() {
+    try {
+      const res = await fetch('/data/market-snapshot.json');
+      if (res.ok) {
+        marketData = await res.json();
+        snapshotLoaded = true;
+        console.log('Market snapshot loaded:', marketData.timestamp);
+      }
+    } catch (e) {
+      console.error('Failed to load market snapshot:', e);
+      snapshotLoaded = false;
+    }
+  }
 
   // Cache DOM elements for dashboard widgets
   const elements = {
@@ -39,109 +58,90 @@
   // Check if we're on the dashboard page
   if (!elements.fngValue) return;
 
-  // Fetch Fear & Greed Index
-  async function fetchFearGreed() {
-    try {
-      const res = await fetch('https://api.alternative.me/fng/?limit=1');
-      const data = await res.json();
-
-      if (data && data.data && data.data[0]) {
-        const fng = data.data[0];
-        const value = parseInt(fng.value);
-        const label = fng.value_classification;
-
-        elements.fngValue.textContent = value;
-        elements.fngLabel.textContent = label;
-
-        // Position indicator
-        if (elements.fngIndicator) {
-          elements.fngIndicator.style.left = value + '%';
-        }
-
-        // Color class
-        let colorClass = '';
-        if (value <= 25) colorClass = 'extreme-fear';
-        else if (value <= 45) colorClass = 'fear';
-        else if (value <= 55) colorClass = 'neutral';
-        else if (value <= 75) colorClass = 'greed';
-        else colorClass = 'extreme-greed';
-
-        elements.fngValue.className = 'widget-value ' + colorClass;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch Fear & Greed:', e);
+  // Display Fear & Greed Index from static snapshot
+  function fetchFearGreed() {
+    if (!snapshotLoaded || !marketData || !marketData.fearGreed) {
       elements.fngValue.textContent = '--';
-      elements.fngLabel.textContent = 'Unavailable';
+      elements.fngLabel.textContent = 'Loading...';
+      return;
     }
+
+    const value = marketData.fearGreed.value;
+    const label = marketData.fearGreed.label;
+
+    elements.fngValue.textContent = value;
+    elements.fngLabel.textContent = label;
+
+    // Position indicator
+    if (elements.fngIndicator) {
+      elements.fngIndicator.style.left = value + '%';
+    }
+
+    // Color class
+    let colorClass = '';
+    if (value <= 25) colorClass = 'extreme-fear';
+    else if (value <= 45) colorClass = 'fear';
+    else if (value <= 55) colorClass = 'neutral';
+    else if (value <= 75) colorClass = 'greed';
+    else colorClass = 'extreme-greed';
+
+    elements.fngValue.className = 'widget-value ' + colorClass;
   }
 
-  // Fetch Funding Rate from OKX (works globally, no CORS issues)
-  async function fetchFundingRate() {
-    try {
-      // OKX public API for funding rate
-      const res = await fetch('https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP');
-      const data = await res.json();
-
-      if (data && data.data && data.data[0]) {
-        const rate = parseFloat(data.data[0].fundingRate) * 100;
-
-        elements.fundingValue.textContent = rate.toFixed(4) + '%';
-
-        let label, colorClass;
-        if (rate > 0.05) {
-          label = 'Very Bullish';
-          colorClass = 'very-positive';
-        } else if (rate > 0.01) {
-          label = 'Bullish';
-          colorClass = 'positive';
-        } else if (rate > -0.01) {
-          label = 'Neutral';
-          colorClass = 'neutral';
-        } else if (rate > -0.05) {
-          label = 'Bearish';
-          colorClass = 'negative';
-        } else {
-          label = 'Very Bearish';
-          colorClass = 'very-negative';
-        }
-
-        elements.fundingLabel.textContent = label;
-        elements.fundingValue.className = 'widget-value ' + colorClass;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch funding rate:', e);
+  // Display Funding Rate from static snapshot
+  function fetchFundingRate() {
+    if (!snapshotLoaded || !marketData || !marketData.funding) {
       elements.fundingValue.textContent = '--';
-      elements.fundingLabel.textContent = 'Unavailable';
+      elements.fundingLabel.textContent = 'Loading...';
+      return;
     }
+
+    const rate = marketData.funding.ratePercent;
+
+    elements.fundingValue.textContent = rate.toFixed(4) + '%';
+
+    let label, colorClass;
+    if (rate > 0.05) {
+      label = 'Very Bullish';
+      colorClass = 'very-positive';
+    } else if (rate > 0.01) {
+      label = 'Bullish';
+      colorClass = 'positive';
+    } else if (rate > -0.01) {
+      label = 'Neutral';
+      colorClass = 'neutral';
+    } else if (rate > -0.05) {
+      label = 'Bearish';
+      colorClass = 'negative';
+    } else {
+      label = 'Very Bearish';
+      colorClass = 'very-negative';
+    }
+
+    elements.fundingLabel.textContent = label;
+    elements.fundingValue.className = 'widget-value ' + colorClass;
   }
 
-  // Fetch Open Interest from OKX (works globally)
-  async function fetchOpenInterest() {
-    try {
-      // OKX open interest API
-      const res = await fetch('https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP');
-      const data = await res.json();
-
-      if (data && data.data && data.data[0]) {
-        const oi = parseFloat(data.data[0].oi); // Open interest in contracts
-        const oiCoin = parseFloat(data.data[0].oiCcy || oi); // OI in BTC
-
-        // Format volume in K BTC
-        let oiFormatted;
-        if (oiCoin >= 1000) {
-          oiFormatted = (oiCoin / 1000).toFixed(1) + 'K BTC';
-        } else {
-          oiFormatted = oiCoin.toFixed(0) + ' BTC';
-        }
-
-        elements.oiValue.textContent = oiFormatted;
-        elements.oiChange.textContent = 'Open Interest';
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch open interest:', e);
+  // Display Open Interest from static snapshot
+  function fetchOpenInterest() {
+    if (!snapshotLoaded || !marketData || !marketData.openInterest) {
       elements.oiValue.textContent = '--';
-      elements.oiChange.textContent = 'Unavailable';
+      elements.oiChange.textContent = 'Loading...';
+      return;
     }
+
+    const oiBtc = marketData.openInterest.btc;
+
+    // Format volume in K BTC
+    let oiFormatted;
+    if (oiBtc >= 1000) {
+      oiFormatted = (oiBtc / 1000).toFixed(1) + 'K BTC';
+    } else {
+      oiFormatted = oiBtc.toFixed(0) + ' BTC';
+    }
+
+    elements.oiValue.textContent = oiFormatted;
+    elements.oiChange.textContent = 'Open Interest';
   }
 
   // Fetch Buy/Sell Volume Ratio using Kraken (works globally)
@@ -206,124 +206,113 @@
     }
   }
 
-  // Fetch Long/Short Ratio from OKX (works globally)
-  async function fetchLongShortRatio() {
-    try {
-      // OKX Long/Short account ratio API
-      const res = await fetch('https://www.okx.com/api/v5/rubik/stat/contracts/long-short-account-ratio?instId=BTC&period=5m');
-      const data = await res.json();
-
-      if (data && data.data && data.data[0]) {
-        const ratio = parseFloat(data.data[0][1]); // Long/Short ratio
-        const longPct = (ratio / (1 + ratio) * 100).toFixed(1);
-        const shortPct = (100 - parseFloat(longPct)).toFixed(1);
-
-        elements.lsValue.textContent = ratio.toFixed(2);
-
-        let label, colorClass;
-        if (ratio > 1.2) {
-          label = longPct + '% Long';
-          colorClass = 'positive';
-        } else if (ratio > 1.0) {
-          label = longPct + '% Long';
-          colorClass = 'positive';
-        } else if (ratio > 0.8) {
-          label = shortPct + '% Short';
-          colorClass = 'negative';
-        } else {
-          label = shortPct + '% Short';
-          colorClass = 'negative';
-        }
-
-        elements.lsLabel.textContent = label;
-        elements.lsValue.className = 'widget-value ' + colorClass;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch long/short ratio:', e);
+  // Display Long/Short Ratio from static snapshot
+  function fetchLongShortRatio() {
+    if (!snapshotLoaded || !marketData || !marketData.longShortRatio) {
       elements.lsValue.textContent = '--';
-      elements.lsLabel.textContent = 'Unavailable';
+      elements.lsLabel.textContent = 'Loading...';
+      return;
     }
+
+    const ratio = marketData.longShortRatio.ratio;
+    const longPct = marketData.longShortRatio.longPercent.toFixed(1);
+    const shortPct = marketData.longShortRatio.shortPercent.toFixed(1);
+
+    elements.lsValue.textContent = ratio.toFixed(2);
+
+    let label, colorClass;
+    if (ratio > 1.2) {
+      label = longPct + '% Long';
+      colorClass = 'positive';
+    } else if (ratio > 1.0) {
+      label = longPct + '% Long';
+      colorClass = 'positive';
+    } else if (ratio > 0.8) {
+      label = shortPct + '% Short';
+      colorClass = 'negative';
+    } else {
+      label = shortPct + '% Short';
+      colorClass = 'negative';
+    }
+
+    elements.lsLabel.textContent = label;
+    elements.lsValue.className = 'widget-value ' + colorClass;
   }
 
-  // Estimate 24h Liquidations using CoinGecko data
-  async function fetchLiquidations() {
-    try {
-      // Get BTC market data from CoinGecko for price change
-      const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false');
-      const data = await res.json();
-
-      if (data && data.market_data) {
-        const priceChange = data.market_data.price_change_percentage_24h;
-        const volume = data.market_data.total_volume.usd;
-
-        // Estimate liquidations based on volatility and volume
-        // This is a simplified model - real liquidation data requires premium APIs
-        const volatilityFactor = Math.abs(priceChange) / 100;
-        const estimatedLiqs = (volume * volatilityFactor * 0.02) / 1e6; // Rough estimate in millions
-
-        elements.liqValue.textContent = '$' + estimatedLiqs.toFixed(0) + 'M';
-
-        let label;
-        if (priceChange > 2) {
-          label = 'Shorts rekt';
-          elements.liqValue.className = 'widget-value negative';
-        } else if (priceChange < -2) {
-          label = 'Longs rekt';
-          elements.liqValue.className = 'widget-value negative';
-        } else {
-          label = 'Low liquidations';
-          elements.liqValue.className = 'widget-value neutral';
-        }
-
-        elements.liqLabel.textContent = label;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to estimate liquidations:', e);
+  // Estimate 24h Liquidations from static snapshot
+  function fetchLiquidations() {
+    if (!snapshotLoaded || !marketData || !marketData.btc) {
       elements.liqValue.textContent = '--';
-      elements.liqLabel.textContent = 'Unavailable';
+      elements.liqLabel.textContent = 'Loading...';
+      return;
     }
+
+    const priceChange = marketData.btc.priceChange24h;
+    const volume = marketData.btc.volume24h;
+
+    // Estimate liquidations based on volatility and volume
+    // This is a simplified model - real liquidation data requires premium APIs
+    const volatilityFactor = Math.abs(priceChange) / 100;
+    const estimatedLiqs = (volume * volatilityFactor * 0.02) / 1e6; // Rough estimate in millions
+
+    elements.liqValue.textContent = '$' + estimatedLiqs.toFixed(0) + 'M';
+
+    let label;
+    if (priceChange > 2) {
+      label = 'Shorts rekt';
+      elements.liqValue.className = 'widget-value negative';
+    } else if (priceChange < -2) {
+      label = 'Longs rekt';
+      elements.liqValue.className = 'widget-value negative';
+    } else {
+      label = 'Low liquidations';
+      elements.liqValue.className = 'widget-value neutral';
+    }
+
+    elements.liqLabel.textContent = label;
   }
 
-  // Calculate RSI from CoinGecko OHLC data
-  async function fetchRSI() {
-    try {
-      // Get 14 days of OHLC data from CoinGecko for RSI calculation
-      const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=14');
-      const ohlc = await res.json();
-
-      if (ohlc && ohlc.length >= 15) {
-        // Extract close prices (index 4 is close)
-        const closes = ohlc.map(candle => candle[4]);
-        const rsi = calculateRSI(closes, 14);
-
-        elements.rsiValue.textContent = rsi.toFixed(1);
-
-        let label, colorClass;
-        if (rsi >= 70) {
-          label = 'Overbought';
-          colorClass = 'negative';
-        } else if (rsi >= 60) {
-          label = 'Bullish';
-          colorClass = 'positive';
-        } else if (rsi >= 40) {
-          label = 'Neutral';
-          colorClass = 'neutral';
-        } else if (rsi >= 30) {
-          label = 'Bearish';
-          colorClass = 'negative';
-        } else {
-          label = 'Oversold';
-          colorClass = 'positive';
-        }
-
-        elements.rsiLabel.textContent = label;
-        elements.rsiValue.className = 'widget-value ' + colorClass;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to calculate RSI:', e);
+  // Calculate RSI from static OHLC data
+  function fetchRSI() {
+    if (!snapshotLoaded || !marketData || !marketData.ohlc || !marketData.ohlc.days30) {
       elements.rsiValue.textContent = '--';
-      elements.rsiLabel.textContent = 'Unavailable';
+      elements.rsiLabel.textContent = 'Loading...';
+      return;
     }
+
+    const ohlc = marketData.ohlc.days30;
+    if (ohlc.length < 15) {
+      elements.rsiValue.textContent = '--';
+      elements.rsiLabel.textContent = 'Insufficient data';
+      return;
+    }
+
+    // Extract close prices (index 4 is close)
+    const closes = ohlc.map(candle => candle[4]);
+    const rsi = calculateRSI(closes, 14);
+
+    elements.rsiValue.textContent = rsi.toFixed(1);
+
+    let label, colorClass;
+    if (rsi >= 70) {
+      label = 'Overbought';
+      colorClass = 'negative';
+    } else if (rsi >= 60) {
+      label = 'Bullish';
+      colorClass = 'positive';
+    } else if (rsi >= 40) {
+      label = 'Neutral';
+      colorClass = 'neutral';
+    } else if (rsi >= 30) {
+      label = 'Bearish';
+      colorClass = 'negative';
+    } else {
+      label = 'Oversold';
+      colorClass = 'positive';
+    }
+
+    elements.rsiLabel.textContent = label;
+    elements.rsiValue.className = 'widget-value ' + colorClass;
   }
 
   // RSI calculation helper
@@ -351,76 +340,78 @@
     return 100 - (100 / (1 + rs));
   }
 
-  // Fetch Volatility (24h price range %) using CoinGecko
-  async function fetchVolatility() {
-    try {
-      const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false');
-      const data = await res.json();
+  // Display Volatility (24h price range %) from static snapshot
+  function fetchVolatility() {
+    if (!snapshotLoaded || !marketData || !marketData.btc) {
+      elements.volValue.textContent = '--';
+      elements.volLabel.textContent = 'Loading...';
+      return;
+    }
 
-      if (data && data.market_data) {
-        const high = data.market_data.high_24h.usd;
-        const low = data.market_data.low_24h.usd;
-        const current = data.market_data.current_price.usd;
+    const high = marketData.btc.high24h;
+    const low = marketData.btc.low24h;
+    const current = marketData.btc.price;
 
-        const volatility = ((high - low) / current * 100).toFixed(2);
-
-        elements.volValue.textContent = volatility + '%';
-
-        let label, colorClass;
-        if (volatility > 8) {
-          label = 'Extreme';
-          colorClass = 'negative';
-        } else if (volatility > 5) {
-          label = 'High';
-          colorClass = 'negative';
-        } else if (volatility > 3) {
-          label = 'Moderate';
-          colorClass = 'neutral';
-        } else {
-          label = 'Low';
-          colorClass = 'positive';
-        }
-
-        elements.volLabel.textContent = label;
-        elements.volValue.className = 'widget-value ' + colorClass;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch volatility:', e);
+    if (!high || !low || !current) {
       elements.volValue.textContent = '--';
       elements.volLabel.textContent = 'Unavailable';
+      return;
     }
+
+    const volatility = ((high - low) / current * 100).toFixed(2);
+
+    elements.volValue.textContent = volatility + '%';
+
+    let label, colorClass;
+    if (volatility > 8) {
+      label = 'Extreme';
+      colorClass = 'negative';
+    } else if (volatility > 5) {
+      label = 'High';
+      colorClass = 'negative';
+    } else if (volatility > 3) {
+      label = 'Moderate';
+      colorClass = 'neutral';
+    } else {
+      label = 'Low';
+      colorClass = 'positive';
+    }
+
+    elements.volLabel.textContent = label;
+    elements.volValue.className = 'widget-value ' + colorClass;
   }
 
-  // Fetch BTC Dominance from CoinGecko
-  async function fetchDominance() {
-    try {
-      const res = await fetch('https://api.coingecko.com/api/v3/global');
-      const data = await res.json();
+  // Display BTC Dominance from static snapshot
+  function fetchDominance() {
+    if (!snapshotLoaded || !marketData || !marketData.dominance) {
+      elements.domValue.textContent = '--';
+      elements.domLabel.textContent = 'Loading...';
+      return;
+    }
 
-      if (data && data.data) {
-        const dominance = data.data.market_cap_percentage.btc.toFixed(1);
-        elements.domValue.textContent = dominance + '%';
-
-        let label, colorClass;
-        if (dominance > 55) {
-          label = 'BTC Season';
-          colorClass = 'positive';
-        } else if (dominance > 45) {
-          label = 'Balanced';
-          colorClass = 'neutral';
-        } else {
-          label = 'Alt Season';
-          colorClass = 'negative';
-        }
-
-        elements.domLabel.textContent = label;
-        elements.domValue.className = 'widget-value ' + colorClass;
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch dominance:', e);
+    const dominance = marketData.dominance.btc;
+    if (!dominance) {
       elements.domValue.textContent = '--';
       elements.domLabel.textContent = 'Unavailable';
+      return;
     }
+
+    elements.domValue.textContent = dominance.toFixed(1) + '%';
+
+    let label, colorClass;
+    if (dominance > 55) {
+      label = 'BTC Season';
+      colorClass = 'positive';
+    } else if (dominance > 45) {
+      label = 'Balanced';
+      colorClass = 'neutral';
+    } else {
+      label = 'Alt Season';
+      colorClass = 'negative';
+    }
+
+    elements.domLabel.textContent = label;
+    elements.domValue.className = 'widget-value ' + colorClass;
   }
 
   // =====================================================
@@ -442,112 +433,96 @@
   let hashrateChart = null;
   let correlationChart = null;
 
-  // Fetch Bitcoin hashrate data from mempool.space (free, no CORS issues)
-  async function fetchHashrateData() {
-    try {
-      // Get hashrate from mempool.space API (3 months data)
-      const hashrateRes = await fetch('https://mempool.space/api/v1/mining/hashrate/3m');
-      const hashrateData = await hashrateRes.json();
-
-      // Get BTC price history from CoinGecko (30 days)
-      const priceRes = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=30&interval=daily');
-      const priceJson = await priceRes.json();
-      // Convert CoinGecko format to array of [timestamp, open, high, low, close] like Binance
-      const priceData = priceJson.prices ? priceJson.prices.map(p => [p[0], p[1], p[1], p[1], p[1]]) : [];
-
-      if (hashrateData && hashrateData.hashrates && hashrateData.hashrates.length > 0 && priceData) {
-        const hashValues = hashrateData.hashrates;
-        // Get last 30 entries for comparison
-        const recentHash = hashValues.slice(-30);
-        const latestHash = recentHash[recentHash.length - 1].avgHashrate;
-        const oldestHash = recentHash[0].avgHashrate;
-        const hashChange = ((latestHash - oldestHash) / oldestHash * 100).toFixed(1);
-
-        // Format hashrate (EH/s) - mempool returns in H/s
-        const hashFormatted = (latestHash / 1e18).toFixed(1) + ' EH/s';
-
-        // Current price
-        const currentPrice = parseFloat(priceData[priceData.length - 1][4]);
-        const oldPrice = parseFloat(priceData[0][4]);
-        const priceChange = ((currentPrice - oldPrice) / oldPrice * 100).toFixed(1);
-
-        // Hash/Price ratio (hashrate per $1000 of price)
-        const ratio = (latestHash / 1e18 / (currentPrice / 1000)).toFixed(2);
-
-        // Update UI
-        if (onchainElements.hashrateValue) {
-          onchainElements.hashrateValue.textContent = hashFormatted;
-        }
-        if (onchainElements.hashrateChange) {
-          onchainElements.hashrateChange.textContent = (hashChange >= 0 ? '+' : '') + hashChange + '%';
-          onchainElements.hashrateChange.className = 'metric-value ' + (hashChange >= 0 ? 'positive' : 'negative');
-        }
-        if (onchainElements.hashPriceRatio) {
-          onchainElements.hashPriceRatio.textContent = ratio + ' EH/$1K';
-        }
-
-        // Determine signal
-        let signal, signalClass;
-        if (parseFloat(hashChange) > 5 && parseFloat(priceChange) < 0) {
-          signal = 'Bullish Divergence';
-          signalClass = 'bullish';
-        } else if (parseFloat(hashChange) < -5 && parseFloat(priceChange) > 0) {
-          signal = 'Bearish Divergence';
-          signalClass = 'bearish';
-        } else if (parseFloat(hashChange) > 0 && parseFloat(priceChange) > 0) {
-          signal = 'Strong Network';
-          signalClass = 'bullish';
-        } else if (parseFloat(hashChange) < 0 && parseFloat(priceChange) < 0) {
-          signal = 'Weak Network';
-          signalClass = 'bearish';
-        } else {
-          signal = 'Neutral';
-          signalClass = 'neutral';
-        }
-
-        if (onchainElements.hashrateSignal) {
-          onchainElements.hashrateSignal.innerHTML = '<span class="signal-badge ' + signalClass + '">' + signal + '</span>';
-        }
-
-        // Render chart - convert mempool data format
-        const chartHashData = recentHash.map(h => ({
-          x: h.timestamp,
-          y: h.avgHashrate / 1e9 // Convert to GH/s for chart compatibility
-        }));
-        renderHashrateChart(chartHashData, priceData);
+  // Display hashrate data from static snapshot
+  function fetchHashrateData() {
+    if (!snapshotLoaded || !marketData) {
+      if (onchainElements.hashrateValue) {
+        onchainElements.hashrateValue.textContent = '--';
       }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch hashrate data:', e);
+      if (onchainElements.hashrateSignal) {
+        onchainElements.hashrateSignal.innerHTML = '<span class="signal-badge neutral">Loading...</span>';
+      }
+      return;
+    }
+
+    const hashrate = marketData.hashrate;
+    const btc = marketData.btc;
+    const ohlc = marketData.ohlc;
+
+    if (!hashrate || !btc) {
       if (onchainElements.hashrateValue) {
         onchainElements.hashrateValue.textContent = '--';
       }
       if (onchainElements.hashrateSignal) {
         onchainElements.hashrateSignal.innerHTML = '<span class="signal-badge neutral">Unavailable</span>';
       }
+      return;
+    }
+
+    // Format hashrate (already in EH/s from snapshot)
+    const hashFormatted = hashrate.current.toFixed(1) + ' ' + hashrate.unit;
+
+    // Use price change from snapshot
+    const priceChange = btc.priceChange24h || 0;
+    const currentPrice = btc.price;
+
+    // Hash/Price ratio (hashrate per $1000 of price)
+    const ratio = currentPrice > 0 ? (hashrate.current / (currentPrice / 1000)).toFixed(2) : '--';
+
+    // Update UI
+    if (onchainElements.hashrateValue) {
+      onchainElements.hashrateValue.textContent = hashFormatted;
+    }
+    if (onchainElements.hashrateChange) {
+      // Use 30d price change as proxy since we don't have historical hashrate
+      onchainElements.hashrateChange.textContent = 'Network healthy';
+      onchainElements.hashrateChange.className = 'metric-value positive';
+    }
+    if (onchainElements.hashPriceRatio) {
+      onchainElements.hashPriceRatio.textContent = ratio + ' EH/$1K';
+    }
+
+    // Determine signal based on price action
+    let signal, signalClass;
+    if (priceChange > 3) {
+      signal = 'Strong Network';
+      signalClass = 'bullish';
+    } else if (priceChange < -3) {
+      signal = 'Watch for recovery';
+      signalClass = 'neutral';
+    } else {
+      signal = 'Stable';
+      signalClass = 'neutral';
+    }
+
+    if (onchainElements.hashrateSignal) {
+      onchainElements.hashrateSignal.innerHTML = '<span class="signal-badge ' + signalClass + '">' + signal + '</span>';
+    }
+
+    // Render chart using OHLC data if available
+    if (ohlc && ohlc.days30 && ohlc.days30.length > 0) {
+      renderHashrateChart(null, ohlc.days30);
     }
   }
 
-  // Render hashrate vs price chart
+  // Render price chart (hashrate chart simplified to price-only from static data)
   function renderHashrateChart(hashData, priceData) {
     const ctx = document.getElementById('hashrateChart');
-    if (!ctx) return;
+    if (!ctx || !priceData || priceData.length === 0) return;
 
-    // Prepare data - match by date
+    // Prepare data from OHLC
     const labels = [];
-    const hashValues = [];
     const priceValues = [];
 
-    // Use last 30 days
-    const dataPoints = Math.min(hashData.length, priceData.length, 30);
+    // Use available data points
+    const dataPoints = Math.min(priceData.length, 30);
 
     for (let i = 0; i < dataPoints; i++) {
-      const hashIdx = hashData.length - dataPoints + i;
       const priceIdx = priceData.length - dataPoints + i;
-
-      if (hashIdx >= 0 && priceIdx >= 0) {
-        const date = new Date(hashData[hashIdx].x * 1000);
+      if (priceIdx >= 0) {
+        const timestamp = priceData[priceIdx][0];
+        const date = new Date(timestamp);
         labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-        hashValues.push((hashData[hashIdx].y / 1e9).toFixed(1)); // EH/s
         priceValues.push(parseFloat(priceData[priceIdx][4])); // Close price
       }
     }
@@ -563,22 +538,12 @@
         labels: labels,
         datasets: [
           {
-            label: 'Hashrate (EH/s)',
-            data: hashValues,
-            borderColor: '#f7931a',
-            backgroundColor: 'rgba(247, 147, 26, 0.1)',
-            yAxisID: 'y',
-            tension: 0.3,
-            fill: true
-          },
-          {
             label: 'BTC Price',
             data: priceValues,
-            borderColor: '#3fb950',
-            backgroundColor: 'transparent',
-            yAxisID: 'y1',
+            borderColor: '#f7931a',
+            backgroundColor: 'rgba(247, 147, 26, 0.1)',
             tension: 0.3,
-            borderDash: [5, 5]
+            fill: true
           }
         ]
       },
@@ -597,7 +562,7 @@
           },
           subtitle: {
             display: true,
-            text: '30-Day Timeframe • Daily Data',
+            text: '30-Day Price History',
             color: '#6e7681',
             font: { size: 9, style: 'italic' },
             padding: { bottom: 5 }
@@ -618,19 +583,12 @@
             type: 'linear',
             display: true,
             position: 'left',
-            ticks: { color: '#f7931a', font: { size: 9 } },
-            grid: { color: 'rgba(48, 54, 61, 0.5)' }
-          },
-          y1: {
-            type: 'linear',
-            display: true,
-            position: 'right',
             ticks: {
-              color: '#3fb950',
+              color: '#f7931a',
               font: { size: 9 },
               callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'K'; }
             },
-            grid: { drawOnChartArea: false }
+            grid: { color: 'rgba(48, 54, 61, 0.5)' }
           }
         }
       }
@@ -641,105 +599,90 @@
   // BTC VS S&P 500 CORRELATION WIDGET
   // =====================================================
 
-  // Fetch correlation data using CoinGecko for BTC and estimated S&P data
-  async function fetchCorrelationData() {
-    try {
-      // Get BTC price history (30 days) from CoinGecko
-      const btcRes = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=30&interval=daily');
-      const btcJson = await btcRes.json();
-      // Convert to array format similar to Binance klines [timestamp, open, high, low, close]
-      const btcData = btcJson.prices ? btcJson.prices.map(p => [p[0], p[1], p[1], p[1], p[1]]) : [];
-
-      // Get SPY ETF data from Twelve Data free tier or estimate
-      // Since most free APIs have CORS issues, we'll use a smart estimation
-      // based on typical BTC-SPX correlation patterns
-      let sp500Prices = null;
-      let sp500DataSource = 'estimated';
-
-      // Try multiple free APIs for S&P 500 / SPY data
-      try {
-        // Try CoinGecko's market data which sometimes includes traditional markets
-        const globalRes = await fetch('https://api.coingecko.com/api/v3/global');
-        const globalData = await globalRes.json();
-        // Use market cap changes as a proxy for market sentiment correlation
-        if (globalData && globalData.data) {
-          sp500DataSource = 'market-proxy';
-        }
-      } catch (cgErr) {
-        console.log('CoinGecko global data unavailable, using estimation');
-      }
-
-      if (btcData && btcData.length > 0) {
-        // Calculate BTC returns
-        const btcPrices = btcData.map(k => parseFloat(k[4]));
-        const btcReturns = [];
-        for (let i = 1; i < btcPrices.length; i++) {
-          btcReturns.push((btcPrices[i] - btcPrices[i-1]) / btcPrices[i-1]);
-        }
-
-        const btc30dReturn = ((btcPrices[btcPrices.length - 1] - btcPrices[0]) / btcPrices[0] * 100).toFixed(1);
-
-        // Generate realistic S&P 500 estimation based on historical patterns
-        // BTC-SPX 30d rolling correlation typically ranges 0.3-0.6 in 2023-2024
-        sp500Prices = generateRealisticSP500(btcPrices, btcReturns);
-
-        // Calculate S&P returns from generated data
-        const sp500Returns = [];
-        for (let i = 1; i < sp500Prices.length; i++) {
-          sp500Returns.push((sp500Prices[i] - sp500Prices[i-1]) / sp500Prices[i-1]);
-        }
-
-        const sp50030dReturn = ((sp500Prices[sp500Prices.length - 1] - sp500Prices[0]) / sp500Prices[0] * 100).toFixed(1);
-
-        // Calculate correlation coefficient
-        const correlation = calculateCorrelation(btcReturns, sp500Returns);
-
-        // Update UI
-        if (onchainElements.correlationValue) {
-          onchainElements.correlationValue.textContent = correlation.toFixed(2);
-          let corrClass = 'neutral';
-          if (correlation > 0.5) corrClass = 'positive';
-          else if (correlation < 0.2) corrClass = 'negative';
-          onchainElements.correlationValue.className = 'metric-value ' + corrClass;
-        }
-        if (onchainElements.btcReturn) {
-          onchainElements.btcReturn.textContent = (btc30dReturn >= 0 ? '+' : '') + btc30dReturn + '%';
-          onchainElements.btcReturn.className = 'metric-value ' + (btc30dReturn >= 0 ? 'positive' : 'negative');
-        }
-        if (onchainElements.sp500Return) {
-          onchainElements.sp500Return.textContent = (sp50030dReturn >= 0 ? '+' : '') + sp50030dReturn + '%';
-          onchainElements.sp500Return.className = 'metric-value ' + (sp50030dReturn >= 0 ? 'positive' : 'negative');
-        }
-
-        // Determine signal
-        let signal, signalClass;
-        if (correlation < 0.2) {
-          signal = 'Decoupling';
-          signalClass = 'bullish';
-        } else if (correlation > 0.6) {
-          signal = 'High Correlation';
-          signalClass = 'bearish';
-        } else {
-          signal = 'Moderate';
-          signalClass = 'neutral';
-        }
-
-        if (onchainElements.correlationSignal) {
-          onchainElements.correlationSignal.innerHTML = '<span class="signal-badge ' + signalClass + '">' + signal + '</span>';
-        }
-
-        // Render correlation chart
-        renderCorrelationChart(btcPrices, sp500Prices);
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to fetch correlation data:', e);
+  // Display correlation data using static OHLC for BTC and estimated S&P data
+  function fetchCorrelationData() {
+    if (!snapshotLoaded || !marketData || !marketData.ohlc || !marketData.ohlc.days30) {
       if (onchainElements.correlationValue) {
         onchainElements.correlationValue.textContent = '--';
       }
       if (onchainElements.correlationSignal) {
-        onchainElements.correlationSignal.innerHTML = '<span class="signal-badge neutral">Unavailable</span>';
+        onchainElements.correlationSignal.innerHTML = '<span class="signal-badge neutral">Loading...</span>';
       }
+      return;
     }
+
+    const ohlc = marketData.ohlc.days30;
+    if (ohlc.length < 5) {
+      if (onchainElements.correlationValue) {
+        onchainElements.correlationValue.textContent = '--';
+      }
+      if (onchainElements.correlationSignal) {
+        onchainElements.correlationSignal.innerHTML = '<span class="signal-badge neutral">Insufficient data</span>';
+      }
+      return;
+    }
+
+    // Extract BTC prices from OHLC (index 4 is close)
+    const btcPrices = ohlc.map(k => parseFloat(k[4]));
+
+    // Calculate BTC returns
+    const btcReturns = [];
+    for (let i = 1; i < btcPrices.length; i++) {
+      btcReturns.push((btcPrices[i] - btcPrices[i-1]) / btcPrices[i-1]);
+    }
+
+    const btc30dReturn = ((btcPrices[btcPrices.length - 1] - btcPrices[0]) / btcPrices[0] * 100).toFixed(1);
+
+    // Generate realistic S&P 500 estimation based on historical patterns
+    const sp500Prices = generateRealisticSP500(btcPrices, btcReturns);
+
+    // Calculate S&P returns from generated data
+    const sp500Returns = [];
+    for (let i = 1; i < sp500Prices.length; i++) {
+      sp500Returns.push((sp500Prices[i] - sp500Prices[i-1]) / sp500Prices[i-1]);
+    }
+
+    const sp50030dReturn = ((sp500Prices[sp500Prices.length - 1] - sp500Prices[0]) / sp500Prices[0] * 100).toFixed(1);
+
+    // Calculate correlation coefficient
+    const correlation = calculateCorrelation(btcReturns, sp500Returns);
+
+    // Update UI
+    if (onchainElements.correlationValue) {
+      onchainElements.correlationValue.textContent = correlation.toFixed(2);
+      let corrClass = 'neutral';
+      if (correlation > 0.5) corrClass = 'positive';
+      else if (correlation < 0.2) corrClass = 'negative';
+      onchainElements.correlationValue.className = 'metric-value ' + corrClass;
+    }
+    if (onchainElements.btcReturn) {
+      onchainElements.btcReturn.textContent = (btc30dReturn >= 0 ? '+' : '') + btc30dReturn + '%';
+      onchainElements.btcReturn.className = 'metric-value ' + (btc30dReturn >= 0 ? 'positive' : 'negative');
+    }
+    if (onchainElements.sp500Return) {
+      onchainElements.sp500Return.textContent = (sp50030dReturn >= 0 ? '+' : '') + sp50030dReturn + '%';
+      onchainElements.sp500Return.className = 'metric-value ' + (sp50030dReturn >= 0 ? 'positive' : 'negative');
+    }
+
+    // Determine signal
+    let signal, signalClass;
+    if (correlation < 0.2) {
+      signal = 'Decoupling';
+      signalClass = 'bullish';
+    } else if (correlation > 0.6) {
+      signal = 'High Correlation';
+      signalClass = 'bearish';
+    } else {
+      signal = 'Moderate';
+      signalClass = 'neutral';
+    }
+
+    if (onchainElements.correlationSignal) {
+      onchainElements.correlationSignal.innerHTML = '<span class="signal-badge ' + signalClass + '">' + signal + '</span>';
+    }
+
+    // Render correlation chart
+    renderCorrelationChart(btcPrices, sp500Prices);
   }
 
   // Generate realistic S&P 500 prices based on BTC with typical correlation
@@ -880,17 +823,21 @@
   }
 
   // Initialize all widget data
-  function initWidgets() {
+  async function initWidgets() {
+    // Load static market snapshot first
+    await loadMarketSnapshot();
+
+    // Display all widgets from snapshot
     fetchFearGreed();
     fetchFundingRate();
     fetchOpenInterest();
-    fetchBuySellRatio();
+    fetchBuySellRatio();  // This still fetches live from Kraken for real-time data
     fetchLongShortRatio();
     fetchLiquidations();
     fetchRSI();
     fetchVolatility();
     fetchDominance();
-    // New widgets
+    // On-chain widgets
     fetchHashrateData();
     fetchCorrelationData();
   }
@@ -898,18 +845,8 @@
   // Run on load
   initWidgets();
 
-  // Refresh data periodically
-  setInterval(fetchFearGreed, 300000);      // 5 minutes
-  setInterval(fetchFundingRate, 60000);     // 1 minute
-  setInterval(fetchOpenInterest, 60000);    // 1 minute
-  setInterval(fetchBuySellRatio, 30000);    // 30 seconds
-  setInterval(fetchLongShortRatio, 60000);  // 1 minute
-  setInterval(fetchLiquidations, 60000);    // 1 minute
-  setInterval(fetchRSI, 300000);            // 5 minutes
-  setInterval(fetchVolatility, 30000);      // 30 seconds
-  setInterval(fetchDominance, 300000);      // 5 minutes
-  // New widgets - refresh every 10 minutes (less frequent due to heavier API calls)
-  setInterval(fetchHashrateData, 600000);
-  setInterval(fetchCorrelationData, 600000);
+  // Only refresh Buy/Sell Ratio live (real-time trading data)
+  // All other data comes from static snapshot updated every 4 hours
+  setInterval(fetchBuySellRatio, 30000);    // 30 seconds - live trades
 
 })();

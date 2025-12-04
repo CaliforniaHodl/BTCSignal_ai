@@ -1,9 +1,26 @@
 // BART Pattern Pre-Warning System
 // Detects conditions that typically precede BART (Bart Simpson head) manipulation patterns
 // Also tracks and logs actual BART events when they occur
+// Uses pre-fetched static snapshot for market data, real-time only for price tracking
 
 (function() {
   'use strict';
+
+  // Market snapshot data
+  let marketData = null;
+
+  // Load static market snapshot
+  async function loadMarketSnapshot() {
+    try {
+      const res = await fetch('/data/market-snapshot.json');
+      if (res.ok) {
+        marketData = await res.json();
+        console.log('BART: Market snapshot loaded:', marketData.timestamp);
+      }
+    } catch (e) {
+      console.error('BART: Failed to load market snapshot:', e);
+    }
+  }
 
   const CONFIG = {
     UPDATE_INTERVAL: 30000, // 30 seconds
@@ -342,57 +359,52 @@
   }
 
   // =====================================================
-  // DATA FETCHING (Using CoinGecko and OKX - works globally)
+  // DATA FETCHING (Using static snapshot + live price for BART detection)
   // =====================================================
 
   async function fetchMarketData() {
     try {
-      // Fetch from multiple sources that work globally
-      const [btcDataRes, fundingRes, oiRes, ohlcRes] = await Promise.all([
-        fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false'),
-        fetch('https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP'),
-        fetch('https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP'),
-        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=7')
-      ]);
+      // Load static snapshot on first run
+      if (!marketData) {
+        await loadMarketSnapshot();
+      }
 
-      const btcData = await btcDataRes.json();
-      const funding = await fundingRes.json();
-      const oi = await oiRes.json();
-      const ohlc = await ohlcRes.json();
+      // Use static data for most metrics
+      if (marketData) {
+        // Use OHLC data for volatility calculation
+        const ohlc = marketData.ohlc && marketData.ohlc.days7 ? marketData.ohlc.days7 : [];
+        const recentKlines = ohlc.slice(-24);
+        const allKlines = ohlc;
 
-      // Process OHLC data for volatility calculation
-      // CoinGecko OHLC format: [timestamp, open, high, low, close]
-      const klines = ohlc.map(candle => [candle[0], candle[1], candle[2], candle[3], candle[4]]);
-      const recentKlines = klines.slice(-24);
-      const allKlines = klines;
+        const recentVol = calculateVolatility(recentKlines);
+        const avgVol = calculateVolatility(allKlines);
 
-      const recentVol = calculateVolatility(recentKlines);
-      const avgVol = calculateVolatility(allKlines);
+        // Use static data for funding, OI, etc.
+        cachedData.fundingRate = marketData.funding ? marketData.funding.rate : null;
+        cachedData.openInterest = marketData.openInterest ? marketData.openInterest.btc : null;
+        cachedData.recentVolatility = recentVol;
+        cachedData.avgVolatility = avgVol;
+        cachedData.volume24h = marketData.btc ? marketData.btc.volume24h : null;
+        cachedData.high24h = marketData.btc ? marketData.btc.high24h : null;
+        cachedData.low24h = marketData.btc ? marketData.btc.low24h : null;
+      }
 
-      const currentPrice = btcData.market_data.current_price.usd;
-      const volume24h = btcData.market_data.total_volume.usd;
-      const high24h = btcData.market_data.high_24h.usd;
-      const low24h = btcData.market_data.low_24h.usd;
-
-      // Get funding rate from OKX
-      const fundingRate = funding.data && funding.data[0] ? parseFloat(funding.data[0].fundingRate) : null;
-
-      // Get open interest from OKX (in BTC)
-      const openInterest = oi.data && oi.data[0] ? parseFloat(oi.data[0].oiCcy || oi.data[0].oi) : null;
-
-      cachedData = {
-        fundingRate: fundingRate,
-        openInterest: openInterest,
-        recentVolatility: recentVol,
-        avgVolatility: avgVol,
-        volume24h: volume24h,
-        price: currentPrice,
-        high24h: high24h,
-        low24h: low24h
-      };
-
-      // Add price snapshot for BART detection
-      addPriceSnapshot(currentPrice);
+      // Fetch ONLY live price for real-time BART detection
+      try {
+        const priceRes = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
+        const priceData = await priceRes.json();
+        if (priceData && priceData.data && priceData.data.amount) {
+          cachedData.price = parseFloat(priceData.data.amount);
+          // Add price snapshot for BART detection
+          addPriceSnapshot(cachedData.price);
+        }
+      } catch (priceErr) {
+        console.error('BART: Failed to fetch live price:', priceErr);
+        // Fallback to static price
+        if (marketData && marketData.btc) {
+          cachedData.price = marketData.btc.price;
+        }
+      }
 
       calculateRiskScore();
 

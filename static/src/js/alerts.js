@@ -60,7 +60,7 @@
   // Fetch current price
   async function fetchPrice() {
     try {
-      const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+      const res = await fetch('https://api.binance.us/api/v3/ticker/24hr?symbol=BTCUSDT');
       const data = await res.json();
 
       currentPrice = parseFloat(data.lastPrice);

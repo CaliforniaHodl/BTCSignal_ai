@@ -1,6 +1,23 @@
 // Alpha Radar - AI Market Intelligence Dashboard
+// Uses pre-fetched static snapshot for market data
 (function() {
   const FEATURE_KEY = 'alpha-radar-access';
+
+  // Market snapshot data
+  let marketData = null;
+
+  // Load static market snapshot
+  async function loadMarketSnapshot() {
+    try {
+      const res = await fetch('/data/market-snapshot.json');
+      if (res.ok) {
+        marketData = await res.json();
+        console.log('Alpha Radar: Market snapshot loaded:', marketData.timestamp);
+      }
+    } catch (e) {
+      console.error('Alpha Radar: Failed to load market snapshot:', e);
+    }
+  }
 
   // Check if user has access
   function checkAccess() {
@@ -78,6 +95,9 @@
     document.getElementById('last-scan').textContent = 'Scanning...';
 
     try {
+      // Load static snapshot first
+      await loadMarketSnapshot();
+
       await Promise.all([
         loadMarketOverview(),
         loadWhaleActivity(),
@@ -92,54 +112,59 @@
     }
   }
 
-  // Load market overview data
-  async function loadMarketOverview() {
-    try {
-      // BTC Dominance from CoinGecko
-      const globalRes = await fetch('https://api.coingecko.com/api/v3/global');
-      const globalData = await globalRes.json();
-      const btcDom = globalData.data.market_cap_percentage.btc.toFixed(1);
+  // Load market overview data from static snapshot
+  function loadMarketOverview() {
+    // BTC Dominance
+    const btcDom = marketData && marketData.dominance ? marketData.dominance.btc.toFixed(1) : '--';
+    const btcDomEl = document.getElementById('btc-dom');
+    const btcDomChangeEl = document.getElementById('btc-dom-change');
+    const btcDomSignalEl = document.getElementById('btc-dom-signal');
 
-      document.getElementById('btc-dom').textContent = btcDom + '%';
-      document.getElementById('btc-dom-change').textContent = btcDom > 55 ? 'BTC Season' : 'Alt Season brewing';
-      document.getElementById('btc-dom-signal').innerHTML = btcDom > 55
-        ? '<span class="signal bullish">Bullish for BTC</span>'
-        : '<span class="signal neutral">Watch alts</span>';
+    if (btcDomEl) btcDomEl.textContent = btcDom + '%';
+    if (btcDomChangeEl) btcDomChangeEl.textContent = btcDom > 55 ? 'BTC Season' : 'Alt Season brewing';
+    if (btcDomSignalEl) btcDomSignalEl.innerHTML = btcDom > 55
+      ? '<span class="signal bullish">Bullish for BTC</span>'
+      : '<span class="signal neutral">Watch alts</span>';
 
-      // Stablecoin supply (simplified)
-      const stableSupply = (globalData.data.total_market_cap.usd / 1e12 * 0.08).toFixed(1);
-      document.getElementById('stable-supply').textContent = '$' + stableSupply + 'T';
-      document.getElementById('stable-change').textContent = 'Dry powder available';
-      document.getElementById('stable-signal').innerHTML = '<span class="signal neutral">Watching inflows</span>';
+    // Stablecoin supply (estimated from global market cap)
+    const totalMcap = marketData && marketData.global ? marketData.global.totalMarketCap : 0;
+    const stableSupply = (totalMcap / 1e12 * 0.08).toFixed(1);
+    const stableSupplyEl = document.getElementById('stable-supply');
+    const stableChangeEl = document.getElementById('stable-change');
+    const stableSignalEl = document.getElementById('stable-signal');
 
-      // Fear & Greed
-      const fgRes = await fetch('https://api.alternative.me/fng/');
-      const fgData = await fgRes.json();
-      const fgValue = parseInt(fgData.data[0].value);
-      const fgLabel = fgData.data[0].value_classification;
+    if (stableSupplyEl) stableSupplyEl.textContent = '$' + stableSupply + 'T';
+    if (stableChangeEl) stableChangeEl.textContent = 'Dry powder available';
+    if (stableSignalEl) stableSignalEl.innerHTML = '<span class="signal neutral">Watching inflows</span>';
 
-      document.getElementById('fear-greed').textContent = fgValue;
-      document.getElementById('fear-greed-label').textContent = fgLabel;
-      document.getElementById('fear-greed-fill').style.width = fgValue + '%';
-      document.getElementById('fear-greed-fill').className = 'fear-greed-fill ' +
+    // Fear & Greed from snapshot
+    const fgValue = marketData && marketData.fearGreed ? marketData.fearGreed.value : 50;
+    const fgLabel = marketData && marketData.fearGreed ? marketData.fearGreed.label : 'Neutral';
+    const fearGreedEl = document.getElementById('fear-greed');
+    const fearGreedLabelEl = document.getElementById('fear-greed-label');
+    const fearGreedFillEl = document.getElementById('fear-greed-fill');
+
+    if (fearGreedEl) fearGreedEl.textContent = fgValue;
+    if (fearGreedLabelEl) fearGreedLabelEl.textContent = fgLabel;
+    if (fearGreedFillEl) {
+      fearGreedFillEl.style.width = fgValue + '%';
+      fearGreedFillEl.className = 'fear-greed-fill ' +
         (fgValue < 25 ? 'extreme-fear' : fgValue < 45 ? 'fear' : fgValue < 55 ? 'neutral' : fgValue < 75 ? 'greed' : 'extreme-greed');
-
-      // Funding Rate from Bybit (free, globally accessible)
-      const fundingRes = await fetch('https://api.bybit.com/v5/market/tickers?category=linear&symbol=BTCUSDT');
-      const fundingData = await fundingRes.json();
-      const fundingRate = (parseFloat(fundingData.result.list[0].fundingRate) * 100).toFixed(4);
-
-      document.getElementById('funding-rate').textContent = fundingRate + '%';
-      document.getElementById('funding-bias').textContent = fundingRate > 0.01 ? 'Longs paying shorts' : fundingRate < -0.01 ? 'Shorts paying longs' : 'Neutral';
-      document.getElementById('funding-signal').innerHTML = fundingRate > 0.05
-        ? '<span class="signal bearish">Overheated longs</span>'
-        : fundingRate < -0.01
-          ? '<span class="signal bullish">Shorts squeezable</span>'
-          : '<span class="signal neutral">Balanced</span>';
-
-    } catch (error) {
-      console.error('Market overview error:', error);
     }
+
+    // Funding Rate from snapshot
+    const fundingRate = marketData && marketData.funding ? marketData.funding.ratePercent.toFixed(4) : '0.0000';
+    const fundingRateEl = document.getElementById('funding-rate');
+    const fundingBiasEl = document.getElementById('funding-bias');
+    const fundingSignalEl = document.getElementById('funding-signal');
+
+    if (fundingRateEl) fundingRateEl.textContent = fundingRate + '%';
+    if (fundingBiasEl) fundingBiasEl.textContent = fundingRate > 0.01 ? 'Longs paying shorts' : fundingRate < -0.01 ? 'Shorts paying longs' : 'Neutral';
+    if (fundingSignalEl) fundingSignalEl.innerHTML = fundingRate > 0.05
+      ? '<span class="signal bearish">Overheated longs</span>'
+      : fundingRate < -0.01
+        ? '<span class="signal bullish">Shorts squeezable</span>'
+        : '<span class="signal neutral">Balanced</span>';
   }
 
   // Load whale activity data from Blockchain.com API (free)
@@ -257,38 +282,37 @@
     }
   }
 
-  // Load liquidity zones
-  async function loadLiquidityZones() {
+  // Load liquidity zones from static snapshot
+  function loadLiquidityZones() {
     const container = document.getElementById('liquidity-zones');
+    if (!container) return;
 
-    try {
-      const priceRes = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
-      const priceData = await priceRes.json();
-      const currentPrice = parseFloat(priceData.data.amount);
+    const currentPrice = marketData && marketData.btc ? marketData.btc.price : 0;
 
-      // Calculate key levels
-      const zones = [
-        { price: Math.round(currentPrice * 1.05 / 1000) * 1000, type: 'resistance', strength: 'Strong', note: 'Previous swing high area' },
-        { price: Math.round(currentPrice * 1.02 / 500) * 500, type: 'resistance', strength: 'Moderate', note: 'Short-term liquidity' },
-        { price: Math.round(currentPrice * 0.98 / 500) * 500, type: 'support', strength: 'Moderate', note: 'Short-term liquidity' },
-        { price: Math.round(currentPrice * 0.95 / 1000) * 1000, type: 'support', strength: 'Strong', note: 'Previous swing low area' }
-      ];
-
-      container.innerHTML = zones.map(zone => `
-        <div class="zone-card ${zone.type}">
-          <div class="zone-header">
-            <span class="zone-type">${zone.type === 'resistance' ? '🔴 Resistance' : '🟢 Support'}</span>
-            <span class="zone-strength">${zone.strength}</span>
-          </div>
-          <div class="zone-price">$${zone.price.toLocaleString()}</div>
-          <div class="zone-distance">${((zone.price - currentPrice) / currentPrice * 100).toFixed(1)}% from current</div>
-          <div class="zone-note">${zone.note}</div>
-        </div>
-      `).join('');
-
-    } catch (error) {
-      container.innerHTML = '<p class="error">Failed to load liquidity zones</p>';
+    if (!currentPrice) {
+      container.innerHTML = '<p class="error">Price data unavailable</p>';
+      return;
     }
+
+    // Calculate key levels
+    const zones = [
+      { price: Math.round(currentPrice * 1.05 / 1000) * 1000, type: 'resistance', strength: 'Strong', note: 'Previous swing high area' },
+      { price: Math.round(currentPrice * 1.02 / 500) * 500, type: 'resistance', strength: 'Moderate', note: 'Short-term liquidity' },
+      { price: Math.round(currentPrice * 0.98 / 500) * 500, type: 'support', strength: 'Moderate', note: 'Short-term liquidity' },
+      { price: Math.round(currentPrice * 0.95 / 1000) * 1000, type: 'support', strength: 'Strong', note: 'Previous swing low area' }
+    ];
+
+    container.innerHTML = zones.map(zone => `
+      <div class="zone-card ${zone.type}">
+        <div class="zone-header">
+          <span class="zone-type">${zone.type === 'resistance' ? '🔴 Resistance' : '🟢 Support'}</span>
+          <span class="zone-strength">${zone.strength}</span>
+        </div>
+        <div class="zone-price">$${zone.price.toLocaleString()}</div>
+        <div class="zone-distance">${((zone.price - currentPrice) / currentPrice * 100).toFixed(1)}% from current</div>
+        <div class="zone-note">${zone.note}</div>
+      </div>
+    `).join('');
   }
 
   // Load anomalies

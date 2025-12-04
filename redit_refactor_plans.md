@@ -1,7 +1,7 @@
 # Reddit Refactor Plans - Static Data Approach
 
-**Target Date:** Friday (End of Day)
-**Goal:** Reduce API calls by ~70% by pre-fetching data and serving from static JSON
+**Status:** IMPLEMENTED
+**Goal:** Reduce API calls by ~87% by pre-fetching data and serving from static JSON
 
 ---
 
@@ -15,27 +15,37 @@ Instead of every user hitting external APIs directly from their browser, we:
 
 ---
 
-## Build Schedule (Free Tier - 5 builds/day)
+## Build Schedule (6 builds/day - every 4 hours)
 
 | Build | UTC | PST | Note |
 |-------|-----|-----|------|
-| 1 | 5:00 PM | 9:00 AM | Tweet time |
-| 2 | 10:00 PM | 2:00 PM | Afternoon |
-| 3 | 3:00 AM | 7:00 PM | Evening |
-| 4 | 8:00 AM | 12:00 AM | Midnight |
-| 5 | 1:00 PM | 5:00 AM | Early morning |
+| 1 | 1:00 AM | 5:00 PM (prev) | Evening PST |
+| 2 | 5:00 AM | 9:00 PM (prev) | Night PST |
+| 3 | 9:00 AM | 1:00 AM | Early morning PST |
+| 4 | 1:00 PM | 5:00 AM | Morning PST |
+| 5 | 5:00 PM | 9:00 AM | Tweet time |
+| 6 | 9:00 PM | 1:00 PM | Afternoon PST |
 
-Cron: `0 17,22,3,8,13 * * *`
+Cron: `0 1,5,9,13,17,21 * * *`
 
 ---
 
 ## Completed
 
 - [x] Created `netlify/functions/fetch-market-data.ts` - Scheduled function that fetches all API data and saves to GitHub
+- [x] Updated netlify.toml with fetch-market-data schedule (6 builds/day)
+- [x] Updated fetch-market-data.ts schedule to 6 times per day
+- [x] Updated dashboard-widgets.js to use static snapshot
+- [x] Updated dashboard.js to use static snapshot
+- [x] Updated bart-detector.js to use static snapshot (keeps live price for BART detection)
+- [x] Updated market-sentiment.js to use static snapshot
+- [x] Updated narrative-tracker.js to use static snapshot
+- [x] Updated alpha-radar.js to use static snapshot
+- [x] Created data directory with market-snapshot.json
 
 ---
 
-## TODO Friday
+## TODO (If needed)
 
 ### 1. Update netlify.toml
 Add the scheduled function config (already in the .ts file, but verify):

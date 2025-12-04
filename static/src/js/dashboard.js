@@ -1,6 +1,23 @@
 // Premium Dashboard JavaScript
+// Uses pre-fetched static snapshot for market data
 (function() {
   const GITHUB_POSTS_URL = 'https://api.github.com/repos/CaliforniaHodl/BTCSignal_ai/contents/content/posts';
+
+  // Market snapshot data
+  let marketData = null;
+
+  // Load static market snapshot
+  async function loadMarketSnapshot() {
+    try {
+      const res = await fetch('/data/market-snapshot.json');
+      if (res.ok) {
+        marketData = await res.json();
+        console.log('Dashboard: Market snapshot loaded:', marketData.timestamp);
+      }
+    } catch (e) {
+      console.error('Dashboard: Failed to load market snapshot:', e);
+    }
+  }
 
   // Check if user has access using BTCSAIAccess system
   function hasAccess() {
@@ -66,18 +83,26 @@
 
   // Load all dashboard data
   async function loadDashboardData() {
-    // Fetch OHLC candles and current price first for accurate win/loss detection
-    try {
-      const [ohlcRes, priceRes] = await Promise.all([
-        fetch('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=30'),
-        fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd')
-      ]);
-      ohlcCandles = await ohlcRes.json();
-      const priceData = await priceRes.json();
-      currentBtcPrice = priceData.bitcoin?.usd || null;
-    } catch (e) {
-      console.error('Failed to fetch OHLC candles or price:', e);
-      ohlcCandles = [];
+    // Load static market snapshot first
+    await loadMarketSnapshot();
+
+    // Use OHLC candles and price from snapshot if available
+    if (marketData && marketData.ohlc && marketData.ohlc.days30) {
+      ohlcCandles = marketData.ohlc.days30;
+    }
+    if (marketData && marketData.btc && marketData.btc.price) {
+      currentBtcPrice = marketData.btc.price;
+    }
+
+    // Fallback: fetch live price if snapshot doesn't have it
+    if (!currentBtcPrice) {
+      try {
+        const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+        const priceData = await priceRes.json();
+        currentBtcPrice = priceData.bitcoin?.usd || null;
+      } catch (e) {
+        console.error('Failed to fetch BTC price:', e);
+      }
     }
 
     await Promise.all([
@@ -88,74 +113,63 @@
     ]);
   }
 
-  // Load Fear & Greed Index
-  async function loadFearGreedIndex() {
-    try {
-      const res = await fetch('https://api.alternative.me/fng/');
-      const data = await res.json();
-      const fng = data.data[0];
+  // Load Fear & Greed Index from static snapshot
+  function loadFearGreedIndex() {
+    const fngValue = document.getElementById('fng-value');
+    const fngLabel = document.getElementById('fng-label');
+    const fngBar = document.getElementById('fng-bar');
 
-      const value = parseInt(fng.value);
-      const classification = fng.value_classification;
-
-      // Update UI
-      const fngValue = document.getElementById('fng-value');
-      const fngLabel = document.getElementById('fng-label');
-      const fngBar = document.getElementById('fng-bar');
-
-      if (fngValue) fngValue.textContent = value;
-      if (fngLabel) fngLabel.textContent = classification;
-      if (fngBar) {
-        fngBar.style.width = value + '%';
-        // Color based on value
-        if (value <= 25) {
-          fngBar.style.background = '#ef4444'; // Extreme Fear - Red
-        } else if (value <= 45) {
-          fngBar.style.background = '#f97316'; // Fear - Orange
-        } else if (value <= 55) {
-          fngBar.style.background = '#eab308'; // Neutral - Yellow
-        } else if (value <= 75) {
-          fngBar.style.background = '#84cc16'; // Greed - Light Green
-        } else {
-          fngBar.style.background = '#22c55e'; // Extreme Greed - Green
-        }
-      }
-    } catch (e) {
-      console.error('Error loading Fear & Greed:', e);
-      const fngValue = document.getElementById('fng-value');
+    if (!marketData || !marketData.fearGreed) {
       if (fngValue) fngValue.textContent = '--';
+      return;
+    }
+
+    const value = marketData.fearGreed.value;
+    const classification = marketData.fearGreed.label;
+
+    if (fngValue) fngValue.textContent = value;
+    if (fngLabel) fngLabel.textContent = classification;
+    if (fngBar) {
+      fngBar.style.width = value + '%';
+      // Color based on value
+      if (value <= 25) {
+        fngBar.style.background = '#ef4444'; // Extreme Fear - Red
+      } else if (value <= 45) {
+        fngBar.style.background = '#f97316'; // Fear - Orange
+      } else if (value <= 55) {
+        fngBar.style.background = '#eab308'; // Neutral - Yellow
+      } else if (value <= 75) {
+        fngBar.style.background = '#84cc16'; // Greed - Light Green
+      } else {
+        fngBar.style.background = '#22c55e'; // Extreme Greed - Green
+      }
     }
   }
 
-  // Load Funding Rates from OKX (works globally)
-  async function loadFundingRates() {
-    try {
-      const res = await fetch('https://www.okx.com/api/v5/public/funding-rate?instId=BTC-USDT-SWAP');
-      const data = await res.json();
+  // Load Funding Rates from static snapshot
+  function loadFundingRates() {
+    const fundingEl = document.getElementById('funding-rate');
+    const fundingLabel = document.getElementById('funding-label');
 
-      if (data && data.data && data.data[0]) {
-        const rate = parseFloat(data.data[0].fundingRate) * 100;
-        const fundingEl = document.getElementById('funding-rate');
-        const fundingLabel = document.getElementById('funding-label');
-
-        if (fundingEl) {
-          fundingEl.textContent = rate.toFixed(4) + '%';
-          fundingEl.className = 'metric-value ' + (rate >= 0 ? 'positive' : 'negative');
-        }
-        if (fundingLabel) {
-          if (rate > 0.01) {
-            fundingLabel.textContent = 'Longs pay shorts';
-          } else if (rate < -0.01) {
-            fundingLabel.textContent = 'Shorts pay longs';
-          } else {
-            fundingLabel.textContent = 'Neutral';
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Error loading funding rates:', e);
-      const fundingEl = document.getElementById('funding-rate');
+    if (!marketData || !marketData.funding) {
       if (fundingEl) fundingEl.textContent = '--';
+      return;
+    }
+
+    const rate = marketData.funding.ratePercent;
+
+    if (fundingEl) {
+      fundingEl.textContent = rate.toFixed(4) + '%';
+      fundingEl.className = 'metric-value ' + (rate >= 0 ? 'positive' : 'negative');
+    }
+    if (fundingLabel) {
+      if (rate > 0.01) {
+        fundingLabel.textContent = 'Longs pay shorts';
+      } else if (rate < -0.01) {
+        fundingLabel.textContent = 'Shorts pay longs';
+      } else {
+        fundingLabel.textContent = 'Neutral';
+      }
     }
   }
 

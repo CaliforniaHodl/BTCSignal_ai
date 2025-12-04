@@ -12,3 +12,8 @@
 # Scheduled function - runs daily at 9am PST (5pm UTC)
 [functions."analyze-and-tweet"]
   schedule = "0 17 * * *"
+
+# Market data fetcher - runs 6 times daily (every 4 hours)
+# 1am, 5am, 9am, 1pm, 5pm, 9pm UTC
+[functions."fetch-market-data"]
+  schedule = "0 1,5,9,13,17,21 * * *"

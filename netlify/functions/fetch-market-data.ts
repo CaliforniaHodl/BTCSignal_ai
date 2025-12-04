@@ -296,8 +296,8 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Schedule: runs 5 times daily spread evenly, anchored at 5 PM UTC (9 AM PST)
-// 5 PM, 10 PM, 3 AM, 8 AM, 1 PM UTC
+// Schedule: runs 6 times daily (every 4 hours)
+// 1 AM, 5 AM, 9 AM, 1 PM, 5 PM, 9 PM UTC
 export const config: Config = {
-  schedule: '0 17,22,3,8,13 * * *',
+  schedule: '0 1,5,9,13,17,21 * * *',
 };
