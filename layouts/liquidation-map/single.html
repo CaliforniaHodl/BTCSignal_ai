@@ -1,15 +1,5 @@
 {{ define "main" }}
 <div class="container premium-page liquidation-map-page">
-  {{ partial "dev-banner.html" (dict
-    "status" "simulation"
-    "todos" (slice
-      "Integrate exchange order book APIs (<code>Binance</code>, <code>Bybit</code>)"
-      "Fetch real liquidation levels from <code>Coinglass API</code>"
-      "Calculate liquidation points from open interest + funding data"
-      "Implement WebSocket for real-time updates"
-      "Add exchange selector UI (aggregate or per-exchange view)"
-    )
-  ) }}
   <header class="liq-map-header">
     <h1>Liquidation Heatmap</h1>
     <p class="subtitle">Interactive visualization of leveraged position liquidation levels</p>

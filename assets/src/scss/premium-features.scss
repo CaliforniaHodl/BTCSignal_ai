@@ -2225,35 +2225,7 @@
   font-size: 0.875rem;
 }
 
-.lev-btn, .view-btn {
-  background: var(--bg-dark);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.lev-btn:hover, .view-btn:hover {
-  background: var(--bg-card-hover);
-  color: var(--text-primary);
-}
-
-.lev-btn.active {
-  background: var(--bitcoin-orange);
-  border-color: var(--bitcoin-orange);
-  color: #000;
-}
-
-/* Exchange Selector */
-.exchange-selector {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.exchange-btn {
+.lev-btn, .view-btn, .exchange-btn {
   background: var(--bg-dark);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
@@ -2262,17 +2234,28 @@
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.875rem;
+  font-weight: 500;
 }
 
-.exchange-btn:hover {
+.lev-btn:hover, .view-btn:hover, .exchange-btn:hover {
   background: var(--bg-card-hover);
+  border-color: var(--text-muted);
   color: var(--text-primary);
 }
 
-.exchange-btn.active {
+.lev-btn.active, .exchange-btn.active {
   background: var(--bitcoin-orange);
   border-color: var(--bitcoin-orange);
   color: #000;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(247, 147, 26, 0.3);
+}
+
+/* Exchange Selector */
+.exchange-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Data Source Toggle */
