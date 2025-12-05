@@ -218,7 +218,7 @@
   visibility: visible;
 }
 .widget-tooltip::after {
-  content: attr(title);
+  content: attr(data-tooltip);
   position: absolute;
   top: calc(100% + 8px);
   left: 50%;
@@ -2141,7 +2141,7 @@
   visibility: visible;
 }
 .oi-stat-tooltip::after {
-  content: attr(title);
+  content: attr(data-tooltip);
   position: absolute;
   top: calc(100% + 8px);
   left: 50%;
@@ -2822,7 +2822,7 @@
   visibility: visible;
 }
 .onchain-tooltip::after {
-  content: attr(title);
+  content: attr(data-tooltip);
   position: absolute;
   top: calc(100% + 8px);
   right: 0;

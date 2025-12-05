@@ -1,0 +1,18 @@
+{{/*
+  Tooltip Partial - Styled CSS tooltip with accessibility
+
+  Usage:
+    {{ partial "tooltip.html" (dict "text" "Your tooltip text here") }}
+    {{ partial "tooltip.html" (dict "text" "Tooltip text" "icon" "?" "class" "custom-class") }}
+
+  Parameters:
+    - text: (required) The tooltip content
+    - icon: (optional) Icon to display, defaults to info emoji
+    - class: (optional) Additional CSS classes
+*/}}
+
+{{ $text := .text | default "" }}
+{{ $icon := .icon | default "ℹ️" }}
+{{ $class := .class | default "" }}
+
+<span class="widget-tooltip {{ $class }}" data-tooltip="{{ $text }}" role="tooltip" aria-label="{{ $text }}">{{ $icon }}</span>
