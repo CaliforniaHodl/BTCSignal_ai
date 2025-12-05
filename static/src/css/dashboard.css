@@ -417,6 +417,19 @@
   background: var(--text-muted);
 }
 
+/* Clickable calendar day links */
+.cal-day-link {
+  display: block;
+  text-decoration: none;
+}
+.cal-day-link .cal-day {
+  cursor: pointer;
+}
+.cal-day-link:hover .cal-day {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px rgba(247, 147, 26, 0.5);
+}
+
 .calendar-legend {
   display: flex;
   align-items: center;

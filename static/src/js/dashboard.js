@@ -567,7 +567,7 @@
     }
   }
 
-  // Render calendar heatmap
+  // Render calendar heatmap with clickable links to posts
   function renderCalendarHeatmap(posts) {
     const container = document.getElementById('calendar-heatmap');
     if (!container) return;
@@ -581,32 +581,46 @@
       days.push(date.toISOString().split('T')[0]);
     }
 
-    // Map posts to dates
+    // Map posts to dates with outcome and URL
     const postsByDate = {};
     posts.forEach(post => {
       if (post.date) {
         const dateKey = post.date.split('T')[0];
         const outcome = determineOutcome(post, currentBtcPrice);
-        postsByDate[dateKey] = outcome;
+        // Generate post URL from date (format: /posts/YYYY-MM-DD-HHMM-btc-usd/)
+        const postDate = new Date(post.date);
+        const urlDate = postDate.toISOString().split('T')[0];
+        const urlTime = postDate.toISOString().split('T')[1].substring(0, 5).replace(':', '');
+        const postUrl = '/posts/' + urlDate + '-' + urlTime + '-btc-usd/';
+        postsByDate[dateKey] = { outcome, url: postUrl };
       }
     });
 
-    // Render grid
+    // Render grid with links
     const html = days.map(day => {
-      const outcome = postsByDate[day];
+      const postData = postsByDate[day];
       let className = 'cal-day';
       let title = day;
-      if (outcome === 'win') {
-        className += ' win';
-        title += ' - Win';
-      } else if (outcome === 'loss') {
-        className += ' loss';
-        title += ' - Loss';
-      } else if (outcome === 'pending') {
-        className += ' pending';
-        title += ' - Pending';
+      let linkStart = '';
+      let linkEnd = '';
+
+      if (postData) {
+        linkStart = '<a href="' + postData.url + '" class="cal-day-link">';
+        linkEnd = '</a>';
+
+        if (postData.outcome === 'win') {
+          className += ' win';
+          title += ' - Win (click to view)';
+        } else if (postData.outcome === 'loss') {
+          className += ' loss';
+          title += ' - Loss (click to view)';
+        } else if (postData.outcome === 'pending') {
+          className += ' pending';
+          title += ' - Pending (click to view)';
+        }
       }
-      return '<div class="' + className + '" title="' + title + '"></div>';
+
+      return linkStart + '<div class="' + className + '" title="' + title + '"></div>' + linkEnd;
     }).join('');
 
     container.innerHTML = html;

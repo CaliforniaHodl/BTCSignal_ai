@@ -207,6 +207,45 @@
 .quick-stats .stat.change.negative .stat-value {
   color: var(--red);
 }
+
+/* Result chip styles */
+.quick-stats .stat.result {
+  position: relative;
+}
+.quick-stats .stat.result.win {
+  border-left: 4px solid var(--green);
+}
+.quick-stats .stat.result.loss {
+  border-left: 4px solid var(--red);
+}
+.quick-stats .stat.result.pending {
+  border-left: 4px solid var(--bitcoin-orange);
+}
+.result-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.result-chip.win {
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--green);
+}
+.result-chip.loss {
+  background: rgba(248, 113, 113, 0.15);
+  color: var(--red);
+}
+.result-chip.pending {
+  background: rgba(247, 147, 26, 0.15);
+  color: var(--bitcoin-orange);
+}
+.result-timestamp {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
 .quick-stats .stat .confidence-bar-mini {
   height: 4px;
   background: var(--bg-surface);

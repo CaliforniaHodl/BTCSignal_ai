@@ -51,6 +51,15 @@
             {{ upper .Params.sentiment }}
           </span>
         </div>
+        <div class="stat result {{ default "pending" .Params.callResult }}">
+          <span class="stat-label">Result</span>
+          <span class="stat-value result-chip {{ default "pending" .Params.callResult }}">
+            {{ if eq .Params.callResult "win" }}✅ WIN{{ else if eq .Params.callResult "loss" }}❌ LOSS{{ else }}⏳ PENDING{{ end }}
+          </span>
+          {{ if .Params.resultTimestamp }}
+          <span class="result-timestamp">{{ .Params.resultTimestamp }}</span>
+          {{ end }}
+        </div>
         <div class="stat confidence">
           <span class="stat-label">Confidence</span>
           <span class="stat-value">{{ .Params.confidence }}%</span>
