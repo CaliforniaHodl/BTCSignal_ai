@@ -640,7 +640,7 @@
 
   const PORTFOLIO_CONFIG = {
     startingCapital: 10000,
-    positionSizePercent: 0.0005, // 0.05%
+    positionSizePercent: 0.005, // 0.5%
     leverage: 1
   };
 
