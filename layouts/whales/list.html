@@ -124,7 +124,7 @@
               const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
               const amountBTC = totalValue / 100000000;
 
-              if (amountBTC >= 100 && alerts.length < 20) {
+              if (amountBTC >= 500 && alerts.length < 20) {
                 alerts.push({
                   id: `block_${txData.txid.substring(0, 12)}`,
                   timestamp: new Date(block.timestamp * 1000).toISOString(),

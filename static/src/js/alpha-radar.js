@@ -344,8 +344,8 @@
 
       const recentTxs = await mempoolRes.json();
 
-      // Filter for large transactions (100+ BTC for live display, lower threshold for demo)
-      const largeTxs = recentTxs.filter(tx => tx.value > 10000000000); // 100 BTC in sats
+      // Filter for large transactions (500+ BTC for live display)
+      const largeTxs = recentTxs.filter(tx => tx.value > 50000000000); // 500 BTC in sats
 
       // Get details for top 5 large txs
       for (const tx of largeTxs.slice(0, 5)) {
@@ -357,7 +357,7 @@
           const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
           const amountBTC = totalValue / 100000000;
 
-          if (amountBTC >= 100) {
+          if (amountBTC >= 500) {
             alerts.push({
               id: `live_${tx.txid.substring(0, 12)}`,
               timestamp: new Date().toISOString(),
