@@ -353,10 +353,9 @@
     const storedResult = post.callResult || post.result;
     if (storedResult) {
       const result = storedResult.toLowerCase();
-      // If stored as pending, continue with calculation logic
-      if (result !== 'pending') {
-        return result;
-      }
+      // Return the stored result (win, loss, or pending)
+      // Trust the stored value - it's set by the system when resolving trades
+      return result;
     }
 
     // Use OHLC candle checking for accurate win/loss detection
