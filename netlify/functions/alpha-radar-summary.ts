@@ -7,7 +7,7 @@ export default async (req: Request, context: Context) => {
     const [globalRes, fgRes, fundingRes, priceRes] = await Promise.all([
       fetch('https://api.coingecko.com/api/v3/global'),
       fetch('https://api.alternative.me/fng/'),
-      fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1'),
+      fetch('https://fapi.binance.us/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1'),
       fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot')
     ]);
 

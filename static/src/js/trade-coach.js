@@ -80,7 +80,7 @@
 
       // Fallback: fetch directly from APIs
       const [priceRes, fgRes] = await Promise.all([
-        fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'),
+        fetch('https://api.binance.us/api/v3/ticker/24hr?symbol=BTCUSDT'),
         fetch('https://api.alternative.me/fng/?limit=1').catch(() => null)
       ]);
 

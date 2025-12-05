@@ -38,7 +38,7 @@ const BTCSAIShared = (function() {
     try {
       switch (source) {
         case 'binance':
-          const binanceRes = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT');
+          const binanceRes = await fetch('https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT');
           const binanceData = await binanceRes.json();
           return parseFloat(binanceData.price);
 
@@ -71,7 +71,7 @@ const BTCSAIShared = (function() {
   async function fetchOHLCData(timeframe = '1h', limit = 100) {
     try {
       const res = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${timeframe}&limit=${limit}`
+        `https://api.binance.us/api/v3/klines?symbol=BTCUSDT&interval=${timeframe}&limit=${limit}`
       );
       const data = await res.json();
 

@@ -132,7 +132,7 @@
     try {
       // Use daily candles
       const response = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&endTime=${end}&limit=1000`
+        `https://api.binance.us/api/v3/klines?symbol=BTCUSDT&interval=1d&startTime=${start}&endTime=${end}&limit=1000`
       );
       const data = await response.json();
 

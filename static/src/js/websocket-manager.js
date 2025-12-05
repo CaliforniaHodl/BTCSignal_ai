@@ -13,7 +13,7 @@
 
     // WebSocket endpoints
     endpoints: {
-      binance: 'wss://fstream.binance.com/ws',
+      binance: 'wss://fstream.binance.us/ws',
       bybit: 'wss://stream.bybit.com/v5/public/linear'
     },
 

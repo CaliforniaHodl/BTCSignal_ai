@@ -76,7 +76,7 @@ export class DataProvider {
   async fetchBinanceData(symbol: string, timeframe: string, limit: number = 100): Promise<MarketData> {
     try {
       const interval = this.convertToBinanceInterval(timeframe);
-      const url = `https://api.binance.com/api/v3/klines`;
+      const url = `https://api.binance.us/api/v3/klines`;
 
       const response = await axios.get(url, {
         params: {
