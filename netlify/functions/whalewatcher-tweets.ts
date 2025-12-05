@@ -153,18 +153,19 @@ async function getBTCPrice(): Promise<number> {
 export default async (req: Request, context: Context) => {
   console.log('BTCWhaleWatcher: Starting tweet generation...');
 
-  // Check for Twitter credentials (use separate env vars for whale account)
-  const apiKey = process.env.WHALE_TWITTER_API_KEY || process.env.TWITTER_API_KEY;
-  const apiSecret = process.env.WHALE_TWITTER_API_SECRET || process.env.TWITTER_API_SECRET;
-  const accessToken = process.env.WHALE_TWITTER_ACCESS_TOKEN || process.env.TWITTER_ACCESS_TOKEN;
-  const accessSecret = process.env.WHALE_TWITTER_ACCESS_SECRET || process.env.TWITTER_ACCESS_SECRET;
+  // Check for Twitter credentials (REQUIRES separate WHALE_TWITTER_* env vars - no fallback)
+  const apiKey = process.env.WHALE_TWITTER_API_KEY;
+  const apiSecret = process.env.WHALE_TWITTER_API_SECRET;
+  const accessToken = process.env.WHALE_TWITTER_ACCESS_TOKEN;
+  const accessSecret = process.env.WHALE_TWITTER_ACCESS_SECRET;
 
   if (!apiKey || !apiSecret || !accessToken || !accessSecret) {
-    console.log('Whale Twitter credentials not configured');
+    console.log('BTCWhaleWatcher: Skipping - WHALE_TWITTER_* credentials not configured');
     return new Response(JSON.stringify({
-      success: false,
-      error: 'Twitter credentials not configured',
-    }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+      success: true,
+      skipped: true,
+      message: 'Whale Twitter account not configured (WHALE_TWITTER_* env vars required)',
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
   try {
