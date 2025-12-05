@@ -1,0 +1,141 @@
+{{ define "main" }}
+<div class="container dashboard-page trading-history-page">
+  <header class="dashboard-header">
+    <h1>Simulated Trading History</h1>
+    <p class="subtitle">Complete trade log following BTC Signal AI signals</p>
+  </header>
+
+  <!-- Portfolio Summary -->
+  <section class="portfolio-summary-section">
+    <div class="portfolio-summary-grid">
+      <div class="summary-card">
+        <span class="summary-label">Starting Capital</span>
+        <span class="summary-value">$10,000</span>
+      </div>
+      <div class="summary-card highlight">
+        <span class="summary-label">Current Balance</span>
+        <span class="summary-value" id="th-balance">$10,000.00</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Total P&L</span>
+        <span class="summary-value" id="th-total-pnl">$0.00</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Return</span>
+        <span class="summary-value" id="th-return">0.00%</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Total Trades</span>
+        <span class="summary-value" id="th-total-trades">0</span>
+      </div>
+      <div class="summary-card">
+        <span class="summary-label">Win Rate</span>
+        <span class="summary-value" id="th-win-rate">0%</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Equity Curve -->
+  <section class="equity-curve-section">
+    <h2>Equity Curve</h2>
+    <div class="equity-chart-container">
+      <canvas id="equityCurveChart" height="300"></canvas>
+    </div>
+  </section>
+
+  <!-- Trade Statistics -->
+  <section class="trade-stats-section">
+    <h2>Trade Statistics</h2>
+    <div class="trade-stats-grid">
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-winning-trades">0</span>
+        <span class="stat-box-label">Winning Trades</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-losing-trades">0</span>
+        <span class="stat-box-label">Losing Trades</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-avg-win">$0.00</span>
+        <span class="stat-box-label">Avg Win</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-avg-loss">$0.00</span>
+        <span class="stat-box-label">Avg Loss</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-best-trade">$0.00</span>
+        <span class="stat-box-label">Best Trade</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-worst-trade">$0.00</span>
+        <span class="stat-box-label">Worst Trade</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-profit-factor">0.00</span>
+        <span class="stat-box-label">Profit Factor</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-box-value" id="th-max-drawdown">0.00%</span>
+        <span class="stat-box-label">Max Drawdown</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Full Trade History -->
+  <section class="trade-history-section">
+    <h2>All Trades</h2>
+    <div class="trade-history-wrapper">
+      <table class="trade-history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Direction</th>
+            <th>Entry</th>
+            <th>Target</th>
+            <th>Stop</th>
+            <th>Exit</th>
+            <th>Result</th>
+            <th>P&L</th>
+            <th>Balance</th>
+          </tr>
+        </thead>
+        <tbody id="trade-history-body">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+    <p class="trade-history-note">Showing resolved trades only. Pending trades are not included.</p>
+  </section>
+
+  <!-- Settings Info -->
+  <section class="settings-info-section">
+    <h2>Portfolio Settings</h2>
+    <div class="settings-info-grid">
+      <div class="setting-info">
+        <span class="setting-info-label">Starting Capital</span>
+        <span class="setting-info-value">$10,000</span>
+      </div>
+      <div class="setting-info">
+        <span class="setting-info-label">Position Size</span>
+        <span class="setting-info-value">0.5% per trade</span>
+      </div>
+      <div class="setting-info">
+        <span class="setting-info-label">Leverage</span>
+        <span class="setting-info-value">1x (No leverage)</span>
+      </div>
+      <div class="setting-info">
+        <span class="setting-info-label">Trade Entry</span>
+        <span class="setting-info-value">Signal price at time of call</span>
+      </div>
+      <div class="setting-info">
+        <span class="setting-info-label">Trade Exit</span>
+        <span class="setting-info-value">Target or stop loss price</span>
+      </div>
+    </div>
+    <p class="settings-disclaimer">This is a simulated portfolio for educational purposes. Past performance does not guarantee future results.</p>
+  </section>
+
+  <a href="/dashboard/" class="btn-back-dashboard">Back to Dashboard</a>
+</div>
+{{ end }}

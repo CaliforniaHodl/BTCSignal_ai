@@ -1611,4 +1611,310 @@
   padding: 32px;
 }
 
+.btn-view-history {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-view-history:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+.btn-view-history {
+  padding: 8px 24px;
+  text-decoration: none;
+  font-size: 0.875rem;
+  margin-top: 24px;
+}
+
+.trading-history-page .dashboard-header {
+  margin-bottom: 32px;
+}
+
+.portfolio-summary-section {
+  margin-bottom: 32px;
+}
+
+.portfolio-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1024px) {
+  .portfolio-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+@media (max-width: 767px) {
+  .portfolio-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  padding: 16px;
+  text-align: center;
+}
+.summary-card.highlight {
+  border-color: rgba(247, 147, 26, 0.5);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.08) 100%);
+}
+
+.summary-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.summary-value.positive {
+  color: var(--green);
+}
+.summary-value.negative {
+  color: var(--red);
+}
+
+.equity-curve-section {
+  margin-bottom: 32px;
+}
+.equity-curve-section h2 {
+  font-size: 1.125rem;
+  margin-bottom: 16px;
+}
+
+.equity-chart-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  padding: 24px;
+  min-height: 340px;
+}
+.equity-chart-container canvas {
+  width: 100%;
+}
+
+.trade-stats-section {
+  margin-bottom: 32px;
+}
+.trade-stats-section h2 {
+  font-size: 1.125rem;
+  margin-bottom: 16px;
+}
+
+.trade-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1024px) {
+  .trade-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+@media (max-width: 767px) {
+  .trade-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  padding: 16px;
+  text-align: center;
+}
+
+.stat-box-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-box-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.trade-history-section {
+  margin-bottom: 32px;
+}
+.trade-history-section h2 {
+  font-size: 1.125rem;
+  margin-bottom: 16px;
+}
+
+.trade-history-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  overflow-x: auto;
+}
+
+.trade-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.trade-history-table th, .trade-history-table td {
+  padding: 8px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+.trade-history-table th {
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: sticky;
+  top: 0;
+}
+.trade-history-table tr.win {
+  background: rgba(63, 185, 80, 0.05);
+}
+.trade-history-table tr.loss {
+  background: rgba(248, 81, 73, 0.05);
+}
+.trade-history-table tr:hover {
+  background: var(--bg-dark);
+}
+.trade-history-table td {
+  color: var(--text-primary);
+}
+.trade-history-table td.positive {
+  color: var(--green);
+  font-weight: 600;
+}
+.trade-history-table td.negative {
+  color: var(--red);
+  font-weight: 600;
+}
+.trade-history-table td.no-trades {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 32px;
+}
+.trade-history-table .result-win {
+  color: var(--green);
+  font-weight: 600;
+}
+.trade-history-table .result-loss {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.trade-history-note {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-align: center;
+}
+
+.settings-info-section {
+  margin-bottom: 32px;
+}
+.settings-info-section h2 {
+  font-size: 1.125rem;
+  margin-bottom: 16px;
+}
+
+.settings-info-grid {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
+}
+@media (max-width: 1024px) {
+  .settings-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+}
+@media (max-width: 767px) {
+  .settings-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+}
+
+.setting-info {
+  text-align: center;
+}
+
+.setting-info-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.setting-info-value {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-disclaimer {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 16px;
+  font-style: italic;
+}
+
+.btn-back-dashboard {
+  display: inline-block;
+  padding: 8px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+.btn-back-dashboard:hover {
+  border-color: var(--bitcoin-orange);
+  color: var(--bitcoin-orange);
+}
+
 /*# sourceMappingURL=dashboard.css.map */

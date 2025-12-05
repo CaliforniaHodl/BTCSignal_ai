@@ -1570,3 +1570,293 @@
     }
   }
 }
+
+// View History Button
+.btn-view-history {
+  display: inline-block;
+  @include gradient-button;
+  padding: $spacing-sm $spacing-lg;
+  text-decoration: none;
+  font-size: $font-sm;
+  margin-top: $spacing-lg;
+}
+
+// =====================================================
+// TRADING HISTORY PAGE
+// =====================================================
+
+.trading-history-page {
+  .dashboard-header {
+    margin-bottom: $spacing-xl;
+  }
+}
+
+// Portfolio Summary
+.portfolio-summary-section {
+  margin-bottom: $spacing-xl;
+}
+
+.portfolio-summary-grid {
+  @include grid(6, $spacing-md);
+
+  @media (max-width: $breakpoint-lg) {
+    @include grid(3, $spacing-md);
+  }
+
+  @include mobile {
+    @include grid(2, $spacing-sm);
+  }
+}
+
+.summary-card {
+  @include card;
+  padding: $spacing-md;
+  text-align: center;
+
+  &.highlight {
+    border-color: rgba($bitcoin-orange, 0.5);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.08) 100%);
+  }
+}
+
+.summary-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-bottom: $spacing-xs;
+}
+
+.summary-value {
+  display: block;
+  font-size: $font-lg;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+// Equity Curve Section
+.equity-curve-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.equity-chart-container {
+  @include card;
+  padding: $spacing-lg;
+  min-height: 340px;
+
+  canvas {
+    width: 100%;
+  }
+}
+
+// Trade Statistics
+.trade-stats-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.trade-stats-grid {
+  @include grid(8, $spacing-md);
+
+  @media (max-width: $breakpoint-lg) {
+    @include grid(4, $spacing-md);
+  }
+
+  @include mobile {
+    @include grid(2, $spacing-sm);
+  }
+}
+
+.stat-box {
+  @include card;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.stat-box-value {
+  display: block;
+  font-size: $font-xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+}
+
+.stat-box-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-top: $spacing-xs;
+}
+
+// Trade History Table
+.trade-history-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.trade-history-wrapper {
+  @include card;
+  overflow-x: auto;
+}
+
+.trade-history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-sm;
+
+  th, td {
+    padding: $spacing-sm $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  th {
+    background: var(--bg-dark);
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+    font-size: $font-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
+  }
+
+  tr {
+    &.win {
+      background: rgba($green, 0.05);
+    }
+
+    &.loss {
+      background: rgba($red, 0.05);
+    }
+
+    &:hover {
+      background: var(--bg-dark);
+    }
+  }
+
+  td {
+    color: var(--text-primary);
+
+    &.positive {
+      color: var(--green);
+      font-weight: $font-semibold;
+    }
+
+    &.negative {
+      color: var(--red);
+      font-weight: $font-semibold;
+    }
+
+    &.no-trades {
+      text-align: center;
+      color: var(--text-muted);
+      padding: $spacing-xl;
+    }
+  }
+
+  .result-win {
+    color: var(--green);
+    font-weight: $font-semibold;
+  }
+
+  .result-loss {
+    color: var(--red);
+    font-weight: $font-semibold;
+  }
+}
+
+.trade-history-note {
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-top: $spacing-sm;
+  text-align: center;
+}
+
+// Settings Info
+.settings-info-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.settings-info-grid {
+  @include card;
+  padding: $spacing-lg;
+  @include grid(5, $spacing-lg);
+
+  @media (max-width: $breakpoint-lg) {
+    @include grid(3, $spacing-md);
+  }
+
+  @include mobile {
+    @include grid(2, $spacing-md);
+  }
+}
+
+.setting-info {
+  text-align: center;
+}
+
+.setting-info-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-bottom: $spacing-xs;
+}
+
+.setting-info-value {
+  display: block;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  color: var(--text-primary);
+}
+
+.settings-disclaimer {
+  font-size: $font-xs;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: $spacing-md;
+  font-style: italic;
+}
+
+// Back Button
+.btn-back-dashboard {
+  display: inline-block;
+  padding: $spacing-sm $spacing-lg;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: $font-sm;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    color: var(--bitcoin-orange);
+  }
+}
