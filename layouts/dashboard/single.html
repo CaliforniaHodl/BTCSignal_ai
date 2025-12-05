@@ -183,7 +183,7 @@
           <div class="oi-stat-card">
             <span class="oi-stat-label">OI/MCap Ratio</span>
             <span class="oi-stat-value" id="oi-mcap-ratio">--</span>
-            <span class="oi-stat-tooltip" title="Open Interest as % of Market Cap. Higher = more leveraged market.">?</span>
+            {{ partial "tooltip.html" (dict "text" "Open Interest as % of Market Cap. Higher = more leveraged market.") }}
           </div>
         </div>
 
@@ -394,7 +394,7 @@
           <div class="onchain-card-header">
             <span class="onchain-card-icon">🏦</span>
             <h3>Exchange Reserves</h3>
-            <span class="onchain-tooltip" title="BTC held on exchanges. Decreasing reserves = accumulation (bullish). Increasing = distribution (bearish).">?</span>
+            {{ partial "tooltip.html" (dict "text" "BTC held on exchanges. Decreasing reserves = accumulation (bullish). Increasing = distribution (bearish).") }}
           </div>
 
           <div class="reserves-main">
@@ -432,7 +432,7 @@
           <div class="onchain-card-header">
             <span class="onchain-card-icon">🐋</span>
             <h3>Whale Flows (24h)</h3>
-            <span class="onchain-tooltip" title="Large BTC movements to/from exchanges. Net outflow = accumulation. Net inflow = selling pressure.">?</span>
+            {{ partial "tooltip.html" (dict "text" "Large BTC movements to/from exchanges. Net outflow = accumulation. Net inflow = selling pressure.") }}
           </div>
 
           <div class="whale-flows">
@@ -473,7 +473,7 @@
           <div class="onchain-card-header">
             <span class="onchain-card-icon">📊</span>
             <h3>MVRV Ratio</h3>
-            <span class="onchain-tooltip" title="Market Value to Realized Value. <1 = undervalued, 1-2.4 = fair, 2.4-3.5 = overvalued, >3.5 = extreme.">?</span>
+            {{ partial "tooltip.html" (dict "text" "Market Value to Realized Value. <1 = undervalued, 1-2.4 = fair, 2.4-3.5 = overvalued, >3.5 = extreme.") }}
           </div>
 
           <div class="mvrv-main">
