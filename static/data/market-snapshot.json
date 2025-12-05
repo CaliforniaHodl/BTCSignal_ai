@@ -1,0 +1,44 @@
+{
+  "timestamp": "2025-12-04T12:00:00.000Z",
+  "btc": {
+    "price": 97500,
+    "price24hAgo": 96000,
+    "priceChange24h": 1.56,
+    "high24h": 98200,
+    "low24h": 95800,
+    "volume24h": 42000000000,
+    "marketCap": 1920000000000
+  },
+  "fearGreed": {
+    "value": 72,
+    "label": "Greed"
+  },
+  "funding": {
+    "rate": 0.0001,
+    "ratePercent": 0.01
+  },
+  "openInterest": {
+    "btc": 24000,
+    "usd": 2340000000
+  },
+  "longShortRatio": {
+    "ratio": 1.15,
+    "longPercent": 53.5,
+    "shortPercent": 46.5
+  },
+  "dominance": {
+    "btc": 57.2
+  },
+  "hashrate": {
+    "current": 750,
+    "unit": "EH/s"
+  },
+  "ohlc": {
+    "days7": [],
+    "days30": []
+  },
+  "global": {
+    "totalMarketCap": 3400000000000,
+    "total24hVolume": 180000000000
+  }
+}

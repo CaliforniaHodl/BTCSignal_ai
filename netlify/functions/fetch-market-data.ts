@@ -70,7 +70,7 @@ async function saveToGitHub(snapshot: MarketSnapshot): Promise<boolean> {
     return false;
   }
 
-  const path = 'data/market-snapshot.json';
+  const path = 'static/data/market-snapshot.json';
   const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
   try {
@@ -167,16 +167,48 @@ export default async (req: Request, context: Context) => {
     // Process BTC data from CoinGecko
     if (btcDataRes.status === 'fulfilled' && btcDataRes.value.ok) {
       const data = await btcDataRes.value.json();
-      if (data && data.market_data) {
+      const md = data?.market_data;
+      if (md?.current_price?.usd) {
         snapshot.btc = {
-          price: data.market_data.current_price.usd,
-          price24hAgo: data.market_data.current_price.usd / (1 + data.market_data.price_change_percentage_24h / 100),
-          priceChange24h: data.market_data.price_change_percentage_24h,
-          high24h: data.market_data.high_24h.usd,
-          low24h: data.market_data.low_24h.usd,
-          volume24h: data.market_data.total_volume.usd,
-          marketCap: data.market_data.market_cap.usd,
+          price: md.current_price.usd,
+          price24hAgo: md.current_price.usd / (1 + (md.price_change_percentage_24h || 0) / 100),
+          priceChange24h: md.price_change_percentage_24h || 0,
+          high24h: md.high_24h?.usd || 0,
+          low24h: md.low_24h?.usd || 0,
+          volume24h: md.total_volume?.usd || 0,
+          marketCap: md.market_cap?.usd || 0,
         };
+      } else {
+        console.log('CoinGecko response missing market_data:', JSON.stringify(data).slice(0, 200));
+      }
+    } else if (btcDataRes.status === 'fulfilled') {
+      console.log('CoinGecko API error, status:', btcDataRes.value.status);
+    }
+
+    // Fallback to CoinCap API if CoinGecko failed
+    if (snapshot.btc.price === 0) {
+      console.log('Trying CoinCap fallback...');
+      try {
+        const coinCapRes = await fetchWithTimeout('https://api.coincap.io/v2/assets/bitcoin');
+        if (coinCapRes.ok) {
+          const data = await coinCapRes.json();
+          if (data?.data?.priceUsd) {
+            const price = parseFloat(data.data.priceUsd);
+            const change24h = parseFloat(data.data.changePercent24Hr) || 0;
+            snapshot.btc = {
+              price: price,
+              price24hAgo: price / (1 + change24h / 100),
+              priceChange24h: change24h,
+              high24h: 0,
+              low24h: 0,
+              volume24h: parseFloat(data.data.volumeUsd24Hr) || 0,
+              marketCap: parseFloat(data.data.marketCapUsd) || 0,
+            };
+            console.log('CoinCap fallback succeeded');
+          }
+        }
+      } catch (e) {
+        console.log('CoinCap fallback also failed');
       }
     }
     console.log('BTC data:', snapshot.btc.price > 0 ? 'OK' : 'FAILED');
@@ -237,17 +269,18 @@ export default async (req: Request, context: Context) => {
     // Process Global data (dominance, total market cap)
     if (globalRes.status === 'fulfilled' && globalRes.value.ok) {
       const data = await globalRes.value.json();
-      if (data && data.data) {
+      const gd = data?.data;
+      if (gd?.market_cap_percentage?.btc) {
         snapshot.dominance = {
-          btc: data.data.market_cap_percentage.btc,
+          btc: gd.market_cap_percentage.btc,
         };
         snapshot.global = {
-          totalMarketCap: data.data.total_market_cap.usd,
-          total24hVolume: data.data.total_24h_volume.usd,
+          totalMarketCap: gd.total_market_cap?.usd || 0,
+          total24hVolume: gd.total_24h_volume?.usd || 0,
         };
       }
     }
-    console.log('BTC Dominance:', snapshot.dominance.btc.toFixed(1) + '%');
+    console.log('BTC Dominance:', snapshot.dominance.btc > 0 ? snapshot.dominance.btc.toFixed(1) + '%' : 'FAILED');
 
     // Process Hashrate from mempool.space
     if (hashrateRes.status === 'fulfilled' && hashrateRes.value.ok) {
