@@ -317,6 +317,98 @@
 
 ---
 
+### Phase 7: Access Recovery & Persistence
+*Goal: Solve the "lost localStorage = lost access" problem for paid subscribers*
+*Priority: High (critical for yearly pass viability)*
+
+**The Problem:**
+- Access tokens stored in browser localStorage
+- Clearing browser data = losing paid access
+- No way to transfer access between devices
+- Yearly pass customers especially affected
+- No KYC = no email to recover with
+
+**Sprint 1: Recovery Code System (Week 1-2)**
+- [ ] Generate unique recovery codes on purchase (format: `BTCSIG-XXXX-XXXX-XXXX`)
+- [ ] Create `data/access-records.json` to store: `{code, paymentHash, tier, purchaseDate, expiresAt}`
+- [ ] Create `netlify/functions/store-access.ts` - called after successful payment
+- [ ] Create `netlify/functions/recover-access.ts` - validates code and returns access
+- [ ] Update payment flow to display recovery code prominently after purchase
+- [ ] Add "Save this code!" modal with copy button and download option
+- [ ] Store recovery code in localStorage alongside access token
+
+**Sprint 2: Recovery UI (Week 2-3)**
+- [ ] Add "Recover Access" link to pricing page and locked content
+- [ ] Create `/recover/` page with recovery code input
+- [ ] Validate code format client-side before API call
+- [ ] On success: restore access token to localStorage, redirect to dashboard
+- [ ] On failure: show helpful error message with support contact
+- [ ] Add recovery code display to user's current access status
+
+**Sprint 3: Payment Hash Backup (Week 3-4)**
+- [ ] Allow recovery via Lightning payment hash (backup method)
+- [ ] User can paste their payment hash from wallet history
+- [ ] Server looks up payment hash in access records
+- [ ] Useful when user lost recovery code but has wallet transaction history
+- [ ] Add "Lost your code? Try payment hash" option on recovery page
+
+**Sprint 4: Multi-Device Sync (Week 4-5)** - Optional Enhancement
+- [ ] QR code to transfer access between devices
+- [ ] Device A shows QR with encrypted access token
+- [ ] Device B scans and imports access
+- [ ] No server needed, peer-to-peer via QR
+- [ ] Alternative: shareable recovery link (one-time use)
+
+**Data Schema:**
+```json
+// data/access-records.json
+{
+  "records": [
+    {
+      "recoveryCode": "BTCSIG-A7X9-K2M4-P8Q1",
+      "paymentHash": "abc123...",
+      "tier": "yearly",
+      "amountSats": 400000,
+      "purchaseDate": "2024-12-05T10:30:00Z",
+      "expiresAt": "2025-12-05T10:30:00Z",
+      "recoveryCount": 0,
+      "lastRecovery": null
+    }
+  ]
+}
+```
+
+**API Endpoints:**
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/.netlify/functions/store-access` | POST | Store new access record after payment |
+| `/.netlify/functions/recover-access` | POST | Validate recovery code/payment hash |
+| `/.netlify/functions/check-access` | GET | Verify if access record exists |
+
+**Success Criteria:**
+- [ ] Recovery codes generated and displayed on every purchase
+- [ ] Users can recover access on new device/browser
+- [ ] Payment hash backup method working
+- [ ] Recovery page accessible from pricing and locked content
+- [ ] Access records persisted in GitHub (survives deploys)
+
+**Security Considerations:**
+- Recovery codes are single-use per device (increment recoveryCount)
+- Rate limit recovery attempts (prevent brute force)
+- Codes expire when access expires
+- No PII stored - just codes, hashes, and timestamps
+
+**UX Flow:**
+```
+Purchase → Payment Success → Show Recovery Code Modal → User Saves Code
+                                    ↓
+Lost Access → Go to /recover/ → Enter Code → Access Restored
+                                    ↓
+              Lost Code? → Enter Payment Hash → Access Restored
+```
+
+---
+
 ## Tech Stack (CURRENT)
 
 - **Frontend**: Hugo static site generator
@@ -335,7 +427,7 @@
 ---
 
 ## Recent Updates
-
+**2024-12-05**: Phase 5-6 Complete
 - **2024-11-29**: Phase 4 Complete:
   - Interactive Liquidation Map with heatmap visualization
   - Backtester PRO with natural language strategy parsing
