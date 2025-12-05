@@ -276,151 +276,44 @@
 
 ---
 
-### Phase 5: Social & Community (PLANNED)
-*Goal: Build community engagement and viral growth*
+### Phase 6: Competitive Feature Parity (PLANNED)
+*Goal: Close the gap with Coinglass free tier while leveraging unique advantages*
+*Timeline: 4-6 weeks*
+*Detailed plan: [Phase_6.md](./Phase_6.md)*
 
-**Free Features:**
-- [ ] Public Leaderboard - Top traders ranked by verified P&L
-- [ ] Trade Ideas Feed - Community-submitted setups with upvotes
-- [ ] Weekly Prediction Contest - Free entry, win sats prizes
-- [ ] Comment System - Discuss analysis posts
-- [ ] Share Cards - Beautiful social media images for trades
+**Sprint 1: Quick Wins (Week 1)**
+- [ ] Long/Short ratio display (Bybit API)
+- [ ] Multi-exchange funding rate comparison (dYdX, Bitget, OKX, Bybit)
+- [ ] Funding rate history chart (30 days)
 
-**Paid Features:**
-- [ ] Copy Trading Signals - Follow top performers
-- [ ] Private Discord/Telegram Integration - Alerts to your server
-- [ ] Referral Program - Earn sats for inviting users
-- [ ] Verified Trader Badge - Prove your track record
+**Sprint 2: Data Infrastructure (Week 2)**
+- [ ] Historical Open Interest tracking + chart
+- [ ] Signal accuracy tracking system (public stats)
+- [ ] Data caching layer for API responses
 
-### Phase 6: Multi-Asset Expansion (PLANNED)
-*Goal: Capture ETH and altcoin traders*
+**Sprint 3: Differentiators (Week 3-4)**
+- [ ] Telegram alert integration
+- [ ] Discord webhook integration
+- [ ] Funding rate arbitrage calculator
 
-**Free Features:**
-- [ ] ETH Signal AI - Same analysis for Ethereum
-- [ ] Top 10 Altcoin Dashboard - Quick overview of majors
-- [ ] BTC vs ETH Correlation Tracker
-- [ ] Altcoin Season Indicator
-- [ ] DeFi Yields Snapshot
+**Sprint 4: On-Chain Basics (Week 4-5)**
+- [ ] Exchange reserve tracking
+- [ ] Whale transaction alerts (>500 BTC)
+- [ ] Basic MVRV indicator
 
-**Paid Features:**
-- [ ] Full Altcoin Analysis (ETH, SOL, etc.)
-- [ ] Cross-Asset Pattern Detection
-- [ ] Portfolio Correlation Matrix
-- [ ] Multi-Asset Backtester
-- [ ] Altcoin Liquidation Maps
+**Sprint 5: Polish & Positioning (Week 5-6)**
+- [ ] Educational tooltips on every metric
+- [ ] Monthly pricing tier (50,000 sats)
+- [ ] Marketing site updates + comparison table
 
-### Phase 7: Advanced Analytics (PLANNED)
-*Goal: Pro-level institutional features*
+**Success Criteria:**
+- [ ] Signal accuracy publicly displayed
+- [ ] 4+ exchange funding comparison live
+- [ ] Telegram alerts functional
+- [ ] At least 2 on-chain metrics added
 
-**Free Features:**
-- [ ] Options Flow Preview - See unusual activity
-- [ ] Whale Watch Feed - Large transactions
-- [ ] Exchange Reserve Tracker
-- [ ] Stablecoin Flow Indicator
-- [ ] Mining Profitability Calculator
-
-**Paid Features:**
-- [ ] Full Options Flow Dashboard
-- [ ] Smart Money Tracker - Follow whale wallets
-- [ ] On-Chain Metrics Deep Dive
-- [ ] Realized Cap / MVRV Analysis
-- [ ] Exchange Netflow Alerts
-- [ ] Miner Selling Pressure Index
-- [ ] Long-Term Holder vs Short-Term Holder Ratio
-
-### Phase 8: AI Trading Assistant (PLANNED)
-*Goal: Conversational AI for trading*
-
-**Free Features:**
-- [ ] Ask AI - Simple questions about BTC
-- [ ] Daily AI Market Brief (text-to-speech)
-- [ ] AI Price Prediction (1 free/day)
-
-**Paid Features:**
-- [ ] Full AI Chat Assistant - "What should I do if BTC breaks $100k?"
-- [ ] Voice Commands - Hands-free analysis
-- [ ] Custom AI Personas - Aggressive vs Conservative advisor
-- [ ] AI Trade Journal Analysis - Upload your trades, get feedback
-- [ ] AI-Generated Trading Plans
-- [ ] Natural Language Alerts - "Alert me when whales are selling"
-
-### Phase 9: Automation & Integration (PLANNED)
-*Goal: Connect to trading infrastructure*
-
-**Free Features:**
-- [ ] TradingView Webhook Receiver (limited)
-- [ ] Public API (rate limited)
-- [ ] Zapier Integration (basic triggers)
-
-**Paid Features:**
-- [ ] Full API Access - Build your own tools
-- [ ] TradingView Strategy Alerts
-- [ ] Exchange API Connection (read-only)
-- [ ] Auto-Journal from Exchange History
-- [ ] Webhook Alerts to Any Endpoint
-- [ ] Google Sheets Integration
-- [ ] Notion Integration
-
-### Phase 10: Premium Ecosystem (PLANNED)
-*Goal: Recurring revenue and retention*
-
-**Subscription Tiers:**
-- [ ] Monthly Plan - 50,000 sats/month (best value)
-- [ ] Annual Plan - 500,000 sats/year (17% off)
-- [ ] Lifetime Access - 2,000,000 sats (one-time)
-- [ ] Stripe/Card Payments Option
-
-**Premium Perks:**
-- [ ] Early Access to New Features
-- [ ] Priority AI Processing
-- [ ] Custom Branding on Exports
-- [ ] 1-on-1 Strategy Review (quarterly)
-- [ ] Premium Discord Role
-- [ ] Ad-Free Experience
-- [ ] White-Label Embeds
-
-**Enterprise Features:**
-- [ ] Team Accounts
-- [ ] Custom Data Feeds
-- [ ] API SLA Guarantee
-- [ ] Dedicated Support
-
----
-
-## Future Considerations
-
-### Mobile App (Phase 11+)
-- [ ] React Native or PWA
-- [ ] Push Notifications
-- [ ] Widget for Home Screen
-- [ ] Apple Watch / Wear OS alerts
-- [ ] Offline Mode for saved analysis
-
-### Content & SEO Expansion
-- [ ] YouTube Integration - Auto-post analysis videos
-- [ ] Podcast Feed - AI-narrated daily updates
-- [ ] Guest Analysis - Invite traders to contribute
-- [ ] Trading Courses - Monetized education
-- [ ] Affiliate Partnerships - Exchange referrals
-
-### Gamification
-- [ ] Achievement Badges
-- [ ] Streak Rewards - Daily login bonuses
-- [ ] XP System - Level up your account
-- [ ] Trading Challenges - Weekly competitions
-- [ ] NFT Certificates for milestones
-
----
-
-## Monetization Tiers (IMPLEMENTED)
-
-| Tier | Price | Features |
-|------|-------|----------|
-| Free | $0 | Dashboard, delayed trades (10+ days old), 1 level/day, education hub |
-| Single Post | 21 sats | Individual analysis posts |
-| Hourly | 1,000 sats | 1 hour all-access |
-| Daily | 10,000 sats | 24 hour all-access |
-| Weekly | 25,000 sats | 7 day all-access |
+**Positioning After Phase 6:**
+> "The only Bitcoin signal platform that proves its accuracy, explains what the data means, and alerts you via Telegram - all payable in sats"
 
 ---
 
