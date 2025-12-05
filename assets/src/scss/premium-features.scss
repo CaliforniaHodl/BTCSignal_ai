@@ -2246,6 +2246,174 @@
   color: #000;
 }
 
+/* Exchange Selector */
+.exchange-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exchange-btn {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+}
+
+.exchange-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.exchange-btn.active {
+  background: var(--bitcoin-orange);
+  border-color: var(--bitcoin-orange);
+  color: #000;
+}
+
+/* Data Source Toggle */
+.data-source-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--text-muted);
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--bitcoin-orange);
+  border-color: var(--bitcoin-orange);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+  background-color: #000;
+}
+
+.data-source-indicator {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.data-source-indicator.live {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.data-source-indicator.simulated {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+/* Real-time Liquidation Flash */
+.liq-flash {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  animation: flash-in 0.3s ease-out, flash-out 0.5s ease-in 2.5s forwards;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.liq-flash.long {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(185, 28, 28, 0.95));
+  border: 1px solid #ef4444;
+}
+
+.liq-flash.short {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.95));
+  border: 1px solid #22c55e;
+}
+
+.flash-icon {
+  font-size: 1.5rem;
+}
+
+.flash-text {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #fff;
+}
+
+.flash-amount {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.flash-exchange {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+}
+
+@keyframes flash-in {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes flash-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 .view-controls {
   display: flex;
   gap: 0.5rem;

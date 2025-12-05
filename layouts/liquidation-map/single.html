@@ -23,8 +23,14 @@
   <!-- Main Heatmap Section -->
   <section class="heatmap-section">
     <div class="heatmap-controls">
+      <div class="exchange-selector">
+        <span class="control-label">Exchange:</span>
+        <button class="exchange-btn active" data-exchange="aggregate">Aggregate</button>
+        <button class="exchange-btn" data-exchange="binance">Binance</button>
+        <button class="exchange-btn" data-exchange="bybit">Bybit</button>
+      </div>
       <div class="leverage-selector">
-        <span class="control-label">Leverage Filter:</span>
+        <span class="control-label">Leverage:</span>
         <button class="lev-btn active" data-lev="all">All</button>
         <button class="lev-btn" data-lev="10">10x</button>
         <button class="lev-btn" data-lev="25">25x</button>
@@ -35,6 +41,13 @@
         <button class="view-btn" id="btn-zoom-in">+</button>
         <button class="view-btn" id="btn-zoom-out">-</button>
         <button class="view-btn" id="btn-reset">Reset</button>
+      </div>
+      <div class="data-source-control">
+        <label class="toggle-switch">
+          <input type="checkbox" id="data-source-toggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="data-source-indicator live" id="data-source-indicator">Live Data</span>
       </div>
     </div>
 

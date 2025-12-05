@@ -11,7 +11,7 @@
 {{ else if .Site.Params.keywords }}
 <meta name="keywords" content="{{ .Site.Params.keywords }}">
 {{ end }}
-<meta name="author" content="{{ .Site.Params.author | default "BTC Signal AI" }}">
+<meta name="author" content="{{ .Site.Params.author | default "BTC Signal" }}">
 <meta name="summary" content="{{ .Summary }}" >
 <meta name="date" content="{{ .Date }}" >
 
@@ -57,7 +57,7 @@
   "description": "{{ .Site.Params.description }}",
   "publisher": {
     "@type": "Organization",
-    "name": "{{ .Site.Params.CompanyName | default "BTC Signal AI" }}",
+    "name": "{{ .Site.Params.CompanyName | default "BTC Signal" }}",
     "logo": {
       "@type": "ImageObject",
       "url": "{{ "apple-touch-icon.png" | absURL }}"
@@ -75,11 +75,11 @@
   "image": "{{ .Params.seoimage | absURL }}",
   "author": {
     "@type": "Organization",
-    "name": "{{ .Site.Params.CompanyName | default "BTC Signal AI" }}"
+    "name": "{{ .Site.Params.CompanyName | default "BTC Signal" }}"
   },
   "publisher": {
     "@type": "Organization",
-    "name": "{{ .Site.Params.CompanyName | default "BTC Signal AI" }}",
+    "name": "{{ .Site.Params.CompanyName | default "BTC Signal" }}",
     "logo": {
       "@type": "ImageObject",
       "url": "{{ "apple-touch-icon.png" | absURL }}"

@@ -1,8 +1,8 @@
 {{ define "main" }}
 <div class="container">
   <header class="hero-section">
-    <h1 class="site-title">Bitcoin Analysis Bot</h1>
-    <p class="site-description">Automated technical analysis powered by AI</p>
+    <h1 class="site-title">BTC Signal</h1>
+    <p class="site-description">Data-driven Bitcoin signals & on-chain metrics</p>
 
     <div class="live-ticker" id="btc-ticker" role="status" aria-live="polite" aria-label="Live Bitcoin price">
       <span class="ticker-label">BTC/USD</span>
@@ -35,11 +35,11 @@
   <section class="hero-features" aria-labelledby="features-heading">
     <h2 id="features-heading" class="sr-only">Key Features</h2>
     <div class="hero-features-grid">
-      <!-- AI Signal Card -->
+      <!-- Signal Card -->
       <article class="hero-feature-card signal-card">
-        <div class="hero-feature-icon" aria-hidden="true">🤖</div>
+        <div class="hero-feature-icon" aria-hidden="true">📊</div>
         <div class="hero-feature-content">
-          <h3>Latest AI Signal</h3>
+          <h3>Latest Signal</h3>
           {{ $latestPost := index (where .Site.RegularPages "Section" "posts") 0 }}
           {{ if $latestPost }}
           <div class="signal-display">
@@ -90,8 +90,8 @@
           <h3>Pro Trading Tools</h3>
           <ul class="pro-tools-list">
             <li><span aria-hidden="true">📊</span> Pattern Detector</li>
-            <li><span aria-hidden="true">🔥</span> Liquidation Hunter</li>
-            <li><span aria-hidden="true">🧠</span> AI Trade Coach</li>
+            <li><span aria-hidden="true">🔥</span> Liquidation Map</li>
+            <li><span aria-hidden="true">🧠</span> Trade Coach</li>
           </ul>
           <a href="/pro-tools/dashboard/" class="hero-feature-link highlight">Explore Tools →</a>
         </div>
@@ -432,7 +432,7 @@
           <span class="backtest-icon" aria-hidden="true">🚀</span>
           <h3>Portfolio Simulator</h3>
         </div>
-        <p class="premium-text">Run full backtests with equity curves, Sharpe ratio, and AI insights</p>
+        <p class="premium-text">Run full backtests with equity curves, Sharpe ratio, and detailed metrics</p>
         <a href="/portfolio-simulator/" class="btn-unlock">Try Simulator</a>
       </article>
 
@@ -441,7 +441,7 @@
           <span class="backtest-icon" aria-hidden="true">🔒</span>
           <h3>Backtester PRO</h3>
         </div>
-        <p class="premium-text">AI-powered custom strategies with detailed trade-by-trade analysis</p>
+        <p class="premium-text">Custom strategies with detailed trade-by-trade analysis</p>
         <a href="/pricing/" class="btn-unlock">Coming Soon</a>
       </article>
     </div>

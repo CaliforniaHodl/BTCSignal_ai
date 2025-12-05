@@ -1,10 +1,10 @@
 ---
-title: 'BTC Signal AI'
-PageTitle: 'BTC Signal AI - AI-Powered Bitcoin Trading Signals & Analysis'
-description: 'Get real-time AI-powered Bitcoin trading signals, technical analysis, and liquidity predictions. Professional BTC market intelligence with Claude AI. Pay with Lightning Network.'
+title: 'BTC Signal'
+PageTitle: 'BTC Signal - Bitcoin On-Chain Data & Technical Analysis'
+description: 'Bitcoin on-chain metrics, funding rates, liquidation data, and technical analysis. Real-time BTC market data at low cost. Pay with Lightning Network.'
 seoimage: 'og-image.png'
 image: 'og-image.png'
-keywords: 'Bitcoin trading signals, BTC analysis, AI trading, cryptocurrency signals, liquidity predictions, Lightning Network payments'
+keywords: 'Bitcoin trading signals, BTC analysis, on-chain data, funding rates, liquidations, open interest, Lightning Network payments'
 priority: 1.0
 cta: false
 threejs: true
