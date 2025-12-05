@@ -2786,4 +2786,415 @@
   color: var(--text-muted);
 }
 
+/* On-Chain Metrics Section */
+.onchain-section {
+  margin-bottom: 48px;
+}
+.onchain-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.onchain-section .section-desc {
+  margin-bottom: 24px;
+}
+
+.onchain-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+@media (max-width: 1200px) {
+  .onchain-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 768px) {
+  .onchain-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.onchain-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+.onchain-card.reserves-card {
+  border-color: rgba(88, 166, 255, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(88, 166, 255, 0.05) 100%);
+}
+.onchain-card.whale-card {
+  border-color: rgba(210, 153, 34, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(210, 153, 34, 0.05) 100%);
+}
+.onchain-card.mvrv-card {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(139, 92, 246, 0.05) 100%);
+}
+
+.onchain-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.onchain-card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+.onchain-card-icon {
+  font-size: 1.5rem;
+}
+.onchain-tooltip {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: help;
+}
+
+/* Exchange Reserves */
+.reserves-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+.reserves-total {
+  display: flex;
+  flex-direction: column;
+}
+.reserves-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.reserves-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.reserves-changes {
+  display: flex;
+  gap: 16px;
+}
+.reserves-change {
+  text-align: right;
+}
+.reserves-change .change-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.reserves-change .change-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.reserves-change .change-value.positive { color: var(--green); }
+.reserves-change .change-value.negative { color: var(--red); }
+
+.reserves-trend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.reserves-trend .trend-icon {
+  font-size: 1.25rem;
+}
+.reserves-trend .trend-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.reserves-trend.accumulation {
+  border: 1px solid rgba(63, 185, 80, 0.3);
+  background: rgba(63, 185, 80, 0.1);
+}
+.reserves-trend.accumulation .trend-text { color: var(--green); }
+.reserves-trend.distribution {
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  background: rgba(248, 81, 73, 0.1);
+}
+.reserves-trend.distribution .trend-text { color: var(--red); }
+
+.reserves-breakdown h4 {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin: 0 0 12px 0;
+}
+.exchange-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.exchange-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-dark);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.exchange-row.loading {
+  justify-content: center;
+  color: var(--text-muted);
+}
+.exchange-row .exchange-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+.exchange-row .exchange-btc {
+  color: var(--text-secondary);
+}
+.exchange-row .exchange-change {
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+.exchange-row .exchange-change.positive { color: var(--green); }
+.exchange-row .exchange-change.negative { color: var(--red); }
+
+/* Whale Flows */
+.whale-flows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.flow-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+}
+.flow-item.inflow {
+  border-left: 3px solid var(--red);
+}
+.flow-item.outflow {
+  border-left: 3px solid var(--green);
+}
+.flow-icon {
+  font-size: 1.25rem;
+}
+.flow-info {
+  display: flex;
+  flex-direction: column;
+}
+.flow-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.flow-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.net-flow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.net-flow-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.net-flow-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.net-flow.bullish .net-flow-value { color: var(--green); }
+.net-flow.bearish .net-flow-value { color: var(--red); }
+
+.whale-signal {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.signal-badge {
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.whale-signal.bullish .signal-badge {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+}
+.whale-signal.bearish .signal-badge {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+.whale-signal.neutral .signal-badge {
+  background: rgba(156, 163, 175, 0.15);
+  color: var(--text-secondary);
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+.signal-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.whale-alerts-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.alerts-icon {
+  font-size: 1rem;
+}
+
+/* MVRV Indicator */
+.mvrv-main {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.mvrv-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.mvrv-zone {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 4px 16px;
+  border-radius: 50px;
+  display: inline-block;
+}
+.mvrv-zone.undervalued {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+}
+.mvrv-zone.fair {
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+  border: 1px solid rgba(88, 166, 255, 0.3);
+}
+.mvrv-zone.overvalued {
+  background: rgba(210, 153, 34, 0.15);
+  color: #d29922;
+  border: 1px solid rgba(210, 153, 34, 0.3);
+}
+.mvrv-zone.extreme {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
+.mvrv-meter {
+  margin-bottom: 20px;
+}
+.mvrv-bar {
+  height: 12px;
+  background: linear-gradient(to right,
+    var(--green) 0%,
+    var(--green) 20%,
+    #58a6ff 20%,
+    #58a6ff 50%,
+    #d29922 50%,
+    #d29922 75%,
+    var(--red) 75%,
+    var(--red) 100%
+  );
+  border-radius: 6px;
+  position: relative;
+}
+.mvrv-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: transparent;
+  border-radius: 6px;
+}
+.mvrv-marker {
+  position: absolute;
+  top: -4px;
+  width: 4px;
+  height: 20px;
+  background: white;
+  border-radius: 2px;
+  transform: translateX(-50%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+.mvrv-zones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.zone-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+.zone-label.under { color: var(--green); }
+.zone-label.fair { color: #58a6ff; }
+.zone-label.over { color: #d29922; }
+.zone-label.extreme { color: var(--red); }
+
+.mvrv-signal {
+  padding: 12px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.mvrv-signal p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.mvrv-caps {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+.cap-item {
+  text-align: center;
+}
+.cap-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.cap-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
 /*# sourceMappingURL=dashboard.css.map */

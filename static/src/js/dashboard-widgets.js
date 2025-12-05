@@ -1616,6 +1616,188 @@
     updateCacheStatus();
     // Phase 6 Sprint 3: Arbitrage calculator
     initArbitrageCalculator();
+    // Phase 6 Sprint 4: On-chain metrics
+    loadOnChainData();
+  }
+
+  // Load on-chain data from JSON file
+  async function loadOnChainData() {
+    try {
+      const res = await fetch('/data/onchain-data.json');
+      if (!res.ok) return;
+      const data = await res.json();
+
+      // Render Exchange Reserves
+      renderExchangeReserves(data.exchangeReserves);
+
+      // Render Whale Flows
+      renderWhaleFlows(data.whaleFlows);
+
+      // Render MVRV
+      renderMVRV(data.mvrv);
+    } catch (e) {
+      console.log('Failed to load on-chain data:', e);
+    }
+  }
+
+  // Render Exchange Reserves Card
+  function renderExchangeReserves(reserves) {
+    if (!reserves) return;
+
+    const totalEl = document.getElementById('reserves-total');
+    const change24hEl = document.getElementById('reserves-24h');
+    const change7dEl = document.getElementById('reserves-7d');
+    const trendEl = document.getElementById('reserves-trend');
+    const listEl = document.getElementById('exchange-reserves-list');
+
+    if (totalEl) {
+      totalEl.textContent = (reserves.totalBTC / 1000000).toFixed(2) + 'M';
+    }
+
+    if (change24hEl) {
+      const change24h = reserves.change24h;
+      change24hEl.textContent = (change24h >= 0 ? '+' : '') + change24h.toFixed(2) + '%';
+      change24hEl.className = 'change-value ' + (change24h < 0 ? 'negative' : 'positive');
+    }
+
+    if (change7dEl) {
+      const change7d = reserves.change7d;
+      change7dEl.textContent = (change7d >= 0 ? '+' : '') + change7d.toFixed(2) + '%';
+      change7dEl.className = 'change-value ' + (change7d < 0 ? 'negative' : 'positive');
+    }
+
+    if (trendEl) {
+      trendEl.className = 'reserves-trend ' + reserves.trend;
+      const iconSpan = trendEl.querySelector('.trend-icon');
+      const textSpan = trendEl.querySelector('.trend-text');
+
+      if (reserves.trend === 'accumulation') {
+        if (iconSpan) iconSpan.textContent = '📤';
+        if (textSpan) textSpan.textContent = 'Coins leaving exchanges - Accumulation signal';
+      } else if (reserves.trend === 'distribution') {
+        if (iconSpan) iconSpan.textContent = '📥';
+        if (textSpan) textSpan.textContent = 'Coins entering exchanges - Distribution signal';
+      } else {
+        if (iconSpan) iconSpan.textContent = '↔️';
+        if (textSpan) textSpan.textContent = 'Exchange flows neutral';
+      }
+    }
+
+    if (listEl && reserves.exchanges) {
+      listEl.innerHTML = reserves.exchanges.map(ex => {
+        const changeClass = ex.change24h < 0 ? 'negative' : 'positive';
+        return `
+          <div class="exchange-row">
+            <span class="exchange-name">${ex.name}</span>
+            <span class="exchange-btc">${(ex.btc / 1000).toFixed(0)}K BTC</span>
+            <span class="exchange-change ${changeClass}">${ex.change24h >= 0 ? '+' : ''}${ex.change24h.toFixed(2)}%</span>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // Render Whale Flows Card
+  function renderWhaleFlows(flows) {
+    if (!flows) return;
+
+    const inflowEl = document.getElementById('whale-inflow');
+    const outflowEl = document.getElementById('whale-outflow');
+    const netFlowEl = document.getElementById('net-flow');
+    const signalEl = document.getElementById('whale-signal');
+    const alertCountEl = document.getElementById('whale-alert-count');
+
+    if (inflowEl) {
+      inflowEl.textContent = flows.inflow24h.toLocaleString() + ' BTC';
+    }
+
+    if (outflowEl) {
+      outflowEl.textContent = flows.outflow24h.toLocaleString() + ' BTC';
+    }
+
+    if (netFlowEl) {
+      const netFlow = flows.netFlow24h;
+      netFlowEl.className = 'net-flow ' + flows.flowSignal;
+      const valueSpan = netFlowEl.querySelector('.net-flow-value');
+      if (valueSpan) {
+        const prefix = netFlow > 0 ? '+' : '';
+        valueSpan.textContent = prefix + netFlow.toLocaleString() + ' BTC';
+      }
+    }
+
+    if (signalEl) {
+      signalEl.className = 'whale-signal ' + flows.flowSignal;
+      const badgeSpan = signalEl.querySelector('.signal-badge');
+      const textSpan = signalEl.querySelector('.signal-text');
+
+      if (flows.flowSignal === 'bullish') {
+        if (badgeSpan) badgeSpan.textContent = 'Bullish';
+        if (textSpan) textSpan.textContent = 'Net outflows indicate accumulation';
+      } else if (flows.flowSignal === 'bearish') {
+        if (badgeSpan) badgeSpan.textContent = 'Bearish';
+        if (textSpan) textSpan.textContent = 'Net inflows indicate selling pressure';
+      } else {
+        if (badgeSpan) badgeSpan.textContent = 'Neutral';
+        if (textSpan) textSpan.textContent = 'Balanced flows - no clear signal';
+      }
+    }
+
+    if (alertCountEl) {
+      alertCountEl.textContent = flows.recentAlerts || 0;
+    }
+  }
+
+  // Render MVRV Card
+  function renderMVRV(mvrv) {
+    if (!mvrv) return;
+
+    const valueEl = document.getElementById('mvrv-value');
+    const zoneEl = document.getElementById('mvrv-zone');
+    const markerEl = document.getElementById('mvrv-marker');
+    const signalEl = document.getElementById('mvrv-signal');
+    const marketCapEl = document.getElementById('market-cap');
+    const realizedCapEl = document.getElementById('realized-cap');
+
+    if (valueEl) {
+      valueEl.textContent = mvrv.ratio.toFixed(2);
+    }
+
+    if (zoneEl) {
+      zoneEl.className = 'mvrv-zone ' + mvrv.zone;
+      const zoneLabels = {
+        undervalued: 'Undervalued',
+        fair: 'Fair Value',
+        overvalued: 'Overvalued',
+        extreme: 'Extreme'
+      };
+      zoneEl.textContent = zoneLabels[mvrv.zone] || mvrv.zone;
+    }
+
+    if (markerEl) {
+      // Calculate marker position (MVRV 0-5 mapped to 0-100%)
+      const position = Math.min(Math.max((mvrv.ratio / 5) * 100, 0), 100);
+      markerEl.style.left = position + '%';
+    }
+
+    if (signalEl) {
+      signalEl.innerHTML = '<p>' + mvrv.signal + '</p>';
+    }
+
+    if (marketCapEl) {
+      marketCapEl.textContent = '$' + formatLargeNumber(mvrv.marketCap);
+    }
+
+    if (realizedCapEl) {
+      realizedCapEl.textContent = '$' + formatLargeNumber(mvrv.realizedCap);
+    }
+  }
+
+  // Helper to format large numbers
+  function formatLargeNumber(num) {
+    if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    return num.toLocaleString();
   }
 
   // Run on load

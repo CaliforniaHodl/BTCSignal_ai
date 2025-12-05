@@ -296,10 +296,10 @@
 - [x] Discord webhook integration (URL input, test, and save with alert types)
 - [x] Funding rate arbitrage calculator (profit calculator with exchange selection)
 
-**Sprint 4: On-Chain Basics (Week 4-5)**
-- [ ] Exchange reserve tracking
-- [ ] Whale transaction alerts (>500 BTC)
-- [ ] Basic MVRV indicator
+**Sprint 4: On-Chain Basics (Week 4-5)** - COMPLETE
+- [x] Exchange reserve tracking (top 5 exchanges with 24h/7d changes)
+- [x] Whale transaction alerts (>500 BTC - uses existing whale-tracker.ts)
+- [x] Basic MVRV indicator (with valuation zones and signals)
 
 **Sprint 5: Polish & Positioning (Week 5-6)**
 - [ ] Educational tooltips on every metric

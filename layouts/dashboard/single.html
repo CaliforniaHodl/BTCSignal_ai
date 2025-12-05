@@ -384,6 +384,135 @@
       </div>
     </section>
 
+    <!-- On-Chain Metrics (Phase 6 Sprint 4) -->
+    <section class="onchain-section">
+      <h2>On-Chain Intelligence</h2>
+      <p class="section-desc">Track exchange reserves, whale flows, and market valuation metrics for deeper market insights.</p>
+
+      <div class="onchain-grid">
+        <!-- Exchange Reserves Card -->
+        <div class="onchain-card reserves-card">
+          <div class="onchain-card-header">
+            <span class="onchain-card-icon">🏦</span>
+            <h3>Exchange Reserves</h3>
+            <span class="onchain-tooltip" title="BTC held on exchanges. Decreasing reserves = accumulation (bullish). Increasing = distribution (bearish).">?</span>
+          </div>
+
+          <div class="reserves-main">
+            <div class="reserves-total">
+              <span class="reserves-value" id="reserves-total">--</span>
+              <span class="reserves-label">BTC on Exchanges</span>
+            </div>
+            <div class="reserves-changes">
+              <div class="reserves-change">
+                <span class="change-label">24h</span>
+                <span class="change-value" id="reserves-24h">--%</span>
+              </div>
+              <div class="reserves-change">
+                <span class="change-label">7d</span>
+                <span class="change-value" id="reserves-7d">--%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="reserves-trend" id="reserves-trend">
+            <span class="trend-icon">--</span>
+            <span class="trend-text">Loading...</span>
+          </div>
+
+          <div class="reserves-breakdown">
+            <h4>Top Exchanges</h4>
+            <div class="exchange-list" id="exchange-reserves-list">
+              <div class="exchange-row loading">Loading exchange data...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Whale Flows Card -->
+        <div class="onchain-card whale-card">
+          <div class="onchain-card-header">
+            <span class="onchain-card-icon">🐋</span>
+            <h3>Whale Flows (24h)</h3>
+            <span class="onchain-tooltip" title="Large BTC movements to/from exchanges. Net outflow = accumulation. Net inflow = selling pressure.">?</span>
+          </div>
+
+          <div class="whale-flows">
+            <div class="flow-item inflow">
+              <span class="flow-icon">📥</span>
+              <div class="flow-info">
+                <span class="flow-label">Exchange Inflow</span>
+                <span class="flow-value" id="whale-inflow">-- BTC</span>
+              </div>
+            </div>
+            <div class="flow-item outflow">
+              <span class="flow-icon">📤</span>
+              <div class="flow-info">
+                <span class="flow-label">Exchange Outflow</span>
+                <span class="flow-value" id="whale-outflow">-- BTC</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="net-flow" id="net-flow">
+            <span class="net-flow-label">Net Flow:</span>
+            <span class="net-flow-value">--</span>
+          </div>
+
+          <div class="whale-signal" id="whale-signal">
+            <span class="signal-badge">--</span>
+            <span class="signal-text">Loading...</span>
+          </div>
+
+          <div class="whale-alerts-count">
+            <span class="alerts-icon">🚨</span>
+            <span id="whale-alert-count">0</span> whale alerts tracked in last 24h
+          </div>
+        </div>
+
+        <!-- MVRV Indicator Card -->
+        <div class="onchain-card mvrv-card">
+          <div class="onchain-card-header">
+            <span class="onchain-card-icon">📊</span>
+            <h3>MVRV Ratio</h3>
+            <span class="onchain-tooltip" title="Market Value to Realized Value. <1 = undervalued, 1-2.4 = fair, 2.4-3.5 = overvalued, >3.5 = extreme.">?</span>
+          </div>
+
+          <div class="mvrv-main">
+            <div class="mvrv-value" id="mvrv-value">--</div>
+            <div class="mvrv-zone" id="mvrv-zone">Loading...</div>
+          </div>
+
+          <div class="mvrv-meter">
+            <div class="mvrv-bar">
+              <div class="mvrv-fill" id="mvrv-fill" style="width: 0%"></div>
+              <div class="mvrv-marker" id="mvrv-marker" style="left: 0%"></div>
+            </div>
+            <div class="mvrv-zones">
+              <span class="zone-label under">Undervalued</span>
+              <span class="zone-label fair">Fair</span>
+              <span class="zone-label over">Overvalued</span>
+              <span class="zone-label extreme">Extreme</span>
+            </div>
+          </div>
+
+          <div class="mvrv-signal" id="mvrv-signal">
+            <p>Loading market valuation signal...</p>
+          </div>
+
+          <div class="mvrv-caps">
+            <div class="cap-item">
+              <span class="cap-label">Market Cap</span>
+              <span class="cap-value" id="market-cap">$--</span>
+            </div>
+            <div class="cap-item">
+              <span class="cap-label">Realized Cap</span>
+              <span class="cap-value" id="realized-cap">$--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Signal Accuracy Tracking (Phase 6) -->
     <section class="accuracy-section">
       <h2>Signal Accuracy Tracking</h2>
