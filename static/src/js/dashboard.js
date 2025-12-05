@@ -1,34 +1,22 @@
 // Premium Dashboard JavaScript
 // Uses pre-fetched static snapshot for market data
+// Requires: shared.js
 (function() {
   const GITHUB_POSTS_URL = 'https://api.github.com/repos/CaliforniaHodl/BTCSignal_ai/contents/content/posts';
 
-  // Market snapshot data
+  // Market snapshot data (use shared loader)
   let marketData = null;
 
-  // Load static market snapshot
+  // Load static market snapshot using shared utility
   async function loadMarketSnapshot() {
-    try {
-      const res = await fetch('/data/market-snapshot.json');
-      if (res.ok) {
-        marketData = await res.json();
-        console.log('Dashboard: Market snapshot loaded:', marketData.timestamp);
-      }
-    } catch (e) {
-      console.error('Dashboard: Failed to load market snapshot:', e);
-    }
+    marketData = await BTCSAIShared.loadMarketSnapshot();
   }
 
-  // Check if user has access using BTCSAIAccess system
+  // Check if user has access using shared utility
   function hasAccess() {
-    // First check if BTCSAIAccess is available and user is admin
-    if (typeof BTCSAIAccess !== 'undefined') {
-      if (BTCSAIAccess.isAdmin()) {
-        return true;
-      }
-      if (BTCSAIAccess.hasAllAccess()) {
-        return true;
-      }
+    // Use shared access check first
+    if (BTCSAIShared.checkAccess()) {
+      return true;
     }
 
     // Fallback: check legacy unlockedPosts
@@ -523,18 +511,15 @@
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
-  // Load current BTC price
+  // Load current BTC price using shared utility
   async function loadCurrentPrice() {
-    try {
-      const res = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
-      const data = await res.json();
-      const price = parseFloat(data.data.amount);
-      document.getElementById('current-btc-price').textContent =
-        '$' + price.toLocaleString(undefined, { maximumFractionDigits: 0 });
-
+    const price = await BTCSAIShared.fetchBTCPrice();
+    const el = document.getElementById('current-btc-price');
+    if (el) {
+      el.textContent = price ? BTCSAIShared.formatPrice(price) : 'Error';
+    }
+    if (price) {
       calculateLiquidationLevels(price);
-    } catch (e) {
-      document.getElementById('current-btc-price').textContent = 'Error';
     }
   }
 

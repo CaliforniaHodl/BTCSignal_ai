@@ -1,31 +1,16 @@
 // AI Trade Coach - Trade Evaluation Tool
+// Requires: shared.js
 (function() {
   const FEATURE_KEY = 'trade-coach-access';
   const HISTORY_KEY = 'trade-coach-history';
 
+  // Use shared access check
   function checkAccess() {
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      return true;
-    }
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      return true;
-    }
-    return localStorage.getItem(FEATURE_KEY) === 'unlocked';
+    return BTCSAIShared.checkAccess(FEATURE_KEY);
   }
 
   function updateUI() {
-    const gate = document.getElementById('premium-gate');
-    const content = document.getElementById('premium-content');
-    if (checkAccess()) {
-      if (gate) gate.style.display = 'none';
-      if (content) {
-        content.style.display = 'block';
-        loadHistory();
-      }
-    } else {
-      if (gate) gate.style.display = 'flex';
-      if (content) content.style.display = 'none';
-    }
+    BTCSAIShared.updatePremiumUI('premium-gate', 'premium-content', checkAccess(), loadHistory);
   }
 
   // Expose for manual refresh after enabling admin

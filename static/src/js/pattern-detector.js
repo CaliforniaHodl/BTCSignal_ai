@@ -1,32 +1,18 @@
 // Pattern Detector - AI Chart Pattern Recognition
+// Requires: shared.js
 (function() {
   const FEATURE_KEY = 'pattern-detector-access';
   let priceChart = null;
   let currentTimeframe = '1h';
   let priceData = [];
 
+  // Use shared access check
   function checkAccess() {
-    // Check admin mode first (bypasses all paywalls)
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      return true;
-    }
-    // Check all-access subscription
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      return true;
-    }
-    // Legacy localStorage check
-    return localStorage.getItem(FEATURE_KEY) === 'unlocked';
+    return BTCSAIShared.checkAccess(FEATURE_KEY);
   }
 
   function updateAccessUI() {
-    const premiumGate = document.getElementById('premium-gate');
-    const premiumContent = document.getElementById('premium-content');
-
-    if (checkAccess()) {
-      if (premiumGate) premiumGate.style.display = 'none';
-      if (premiumContent) premiumContent.style.display = 'block';
-      loadFullAnalysis();
-    }
+    BTCSAIShared.updatePremiumUI('premium-gate', 'premium-content', checkAccess(), loadFullAnalysis);
   }
 
   // Unlock button
@@ -108,39 +94,14 @@
     }
   }
 
+  // Use shared OHLC fetcher
   async function fetchPriceData(timeframe) {
-    const intervals = {
-      '15m': '15m',
-      '1h': '1h',
-      '4h': '4h',
-      '1d': '1d'
-    };
-
-    const limits = {
-      '15m': 100,
-      '1h': 100,
-      '4h': 100,
-      '1d': 100
-    };
-
-    try {
-      const response = await fetch(
-        `https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${intervals[timeframe]}&limit=${limits[timeframe]}`
-      );
-      const data = await response.json();
-
-      return data.map(candle => ({
-        time: new Date(candle[0]),
-        open: parseFloat(candle[1]),
-        high: parseFloat(candle[2]),
-        low: parseFloat(candle[3]),
-        close: parseFloat(candle[4]),
-        volume: parseFloat(candle[5])
-      }));
-    } catch (error) {
-      console.error('Error fetching price data:', error);
-      return [];
-    }
+    const data = await BTCSAIShared.fetchOHLCData(timeframe, 100);
+    // Convert time to Date object for compatibility
+    return data.map(candle => ({
+      ...candle,
+      time: new Date(candle.time)
+    }));
   }
 
   function detectPatterns(data) {
@@ -531,15 +492,9 @@
     return valleys;
   }
 
+  // Use shared EMA calculator
   function calculateEMA(data, period) {
-    const ema = [];
-    const multiplier = 2 / (period + 1);
-    ema[0] = data[0];
-
-    for (let i = 1; i < data.length; i++) {
-      ema[i] = (data[i] - ema[i - 1]) * multiplier + ema[i - 1];
-    }
-    return ema;
+    return BTCSAIShared.calculateEMA(data, period);
   }
 
   function drawChart(data, patterns) {

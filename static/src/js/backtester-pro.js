@@ -1,20 +1,15 @@
 // Backtester PRO - AI-powered custom strategy backtesting
 // Parses natural language strategy descriptions and simulates trades
+// Requires: shared.js
 
 (function() {
   'use strict';
 
   const FEATURE_KEY = 'btcsai_backtester_pro';
 
-  // Check access
+  // Use shared access check
   function checkAccess() {
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      return true;
-    }
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      return true;
-    }
-    return localStorage.getItem(FEATURE_KEY) === 'unlocked';
+    return BTCSAIShared.checkAccess(FEATURE_KEY);
   }
 
   // State
@@ -175,27 +170,10 @@
     return strategy;
   }
 
-  // Fetch historical price data
+  // Fetch historical price data using shared utility
   async function fetchPriceData(timeframe, days) {
-    const interval = timeframe;
     const limit = Math.min(1000, days * (timeframe === '1d' ? 1 : timeframe === '4h' ? 6 : timeframe === '1h' ? 24 : 96));
-
-    try {
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=${interval}&limit=${limit}`);
-      const data = await res.json();
-
-      return data.map(candle => ({
-        time: candle[0],
-        open: parseFloat(candle[1]),
-        high: parseFloat(candle[2]),
-        low: parseFloat(candle[3]),
-        close: parseFloat(candle[4]),
-        volume: parseFloat(candle[5])
-      }));
-    } catch (e) {
-      console.error('Failed to fetch price data:', e);
-      return [];
-    }
+    return BTCSAIShared.fetchOHLCData(timeframe, limit);
   }
 
   // Calculate indicators

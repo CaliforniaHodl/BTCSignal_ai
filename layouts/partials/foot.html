@@ -17,6 +17,11 @@
   <script defer src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 {{ end }}
 
+{{/* Load shared utilities first (required by other scripts) */}}
+{{ if .Params.js }}
+  <script defer src="{{ "src/js/shared.js" | relURL }}"></script>
+{{ end }}
+
 {{/* Load page-specific JS from frontmatter */}}
 {{ range .Params.js }}
   <script defer src="{{ "src/js/" | relURL }}{{ . }}"></script>

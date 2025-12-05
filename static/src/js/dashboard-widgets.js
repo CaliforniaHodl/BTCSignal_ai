@@ -1,25 +1,17 @@
 // Dashboard Widgets - Market data for Pro Dashboard
 // Uses pre-fetched static snapshot for most data, real-time only for price ticker
+// Requires: shared.js
 (function() {
   'use strict';
 
-  // Market snapshot data (loaded from static JSON)
+  // Market snapshot data (use shared loader)
   let marketData = null;
   let snapshotLoaded = false;
 
-  // Load static market snapshot
+  // Load static market snapshot using shared utility
   async function loadMarketSnapshot() {
-    try {
-      const res = await fetch('/data/market-snapshot.json');
-      if (res.ok) {
-        marketData = await res.json();
-        snapshotLoaded = true;
-        console.log('Market snapshot loaded:', marketData.timestamp);
-      }
-    } catch (e) {
-      console.error('Failed to load market snapshot:', e);
-      snapshotLoaded = false;
-    }
+    marketData = await BTCSAIShared.loadMarketSnapshot();
+    snapshotLoaded = !!marketData;
   }
 
   // Cache DOM elements for dashboard widgets
@@ -315,29 +307,9 @@
     elements.rsiValue.className = 'widget-value ' + colorClass;
   }
 
-  // RSI calculation helper
+  // Use shared RSI calculator
   function calculateRSI(prices, period) {
-    if (prices.length < period + 1) return 50;
-
-    let gains = 0;
-    let losses = 0;
-
-    for (let i = 1; i <= period; i++) {
-      const change = prices[i] - prices[i - 1];
-      if (change >= 0) {
-        gains += change;
-      } else {
-        losses -= change;
-      }
-    }
-
-    const avgGain = gains / period;
-    const avgLoss = losses / period;
-
-    if (avgLoss === 0) return 100;
-
-    const rs = avgGain / avgLoss;
-    return 100 - (100 / (1 + rs));
+    return BTCSAIShared.calculateRSI(prices, period);
   }
 
   // Display Volatility (24h price range %) from static snapshot

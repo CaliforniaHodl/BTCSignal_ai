@@ -1,23 +1,16 @@
 // Market Sentiment Dashboard - Homepage widgets
 // Uses pre-fetched static snapshot for most data
+// Requires: shared.js
 
 (function() {
   'use strict';
 
-  // Market snapshot data
+  // Market snapshot data (use shared loader)
   let marketData = null;
 
-  // Load static market snapshot
+  // Load static market snapshot using shared utility
   async function loadMarketSnapshot() {
-    try {
-      const res = await fetch('/data/market-snapshot.json');
-      if (res.ok) {
-        marketData = await res.json();
-        console.log('Sentiment: Market snapshot loaded:', marketData.timestamp);
-      }
-    } catch (e) {
-      console.error('Sentiment: Failed to load market snapshot:', e);
-    }
+    marketData = await BTCSAIShared.loadMarketSnapshot();
   }
 
   const elements = {

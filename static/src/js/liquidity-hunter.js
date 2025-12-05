@@ -1,34 +1,15 @@
 // Liquidity Hunter - AI Liquidity Sweep Predictions
+// Requires: shared.js
 (function() {
   const FEATURE_KEY = 'liquidity-hunter-access';
 
+  // Use shared access check
   function checkAccess() {
-    // Check admin mode first (bypasses all paywalls)
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.isAdmin()) {
-      return true;
-    }
-    // Check all-access subscription
-    if (typeof BTCSAIAccess !== 'undefined' && BTCSAIAccess.hasAllAccess()) {
-      return true;
-    }
-    // Legacy localStorage check
-    return localStorage.getItem(FEATURE_KEY) === 'unlocked';
+    return BTCSAIShared.checkAccess(FEATURE_KEY);
   }
 
   function updateUI() {
-    const gate = document.getElementById('premium-gate');
-    const content = document.getElementById('premium-content');
-
-    if (checkAccess()) {
-      if (gate) gate.style.display = 'none';
-      if (content) {
-        content.style.display = 'block';
-        loadPredictions();
-      }
-    } else {
-      if (gate) gate.style.display = 'flex';
-      if (content) content.style.display = 'none';
-    }
+    BTCSAIShared.updatePremiumUI('premium-gate', 'premium-content', checkAccess(), loadPredictions);
   }
 
   // Unlock button
@@ -86,16 +67,12 @@
     }
   }
 
-  // Load current price
+  // Load current price using shared utility
   async function loadCurrentPrice() {
-    try {
-      const res = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
-      const data = await res.json();
-      const price = parseFloat(data.data.amount);
-
-      document.getElementById('current-price').textContent = '$' + price.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    } catch (error) {
-      document.getElementById('current-price').textContent = 'Error';
+    const price = await BTCSAIShared.fetchBTCPrice();
+    const el = document.getElementById('current-price');
+    if (el) {
+      el.textContent = price ? BTCSAIShared.formatPrice(price) : 'Error';
     }
   }
 
