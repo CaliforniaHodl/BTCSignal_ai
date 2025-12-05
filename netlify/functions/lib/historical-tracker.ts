@@ -259,6 +259,11 @@ export class HistoricalTracker {
           }
 
           console.log(`Call ${call.date}: ${call.direction.toUpperCase()} → ${touchResult.result.toUpperCase()} (touched ${touchResult.price} at ${new Date(touchResult.touchedAt!).toISOString()})`);
+
+          // Update the post frontmatter with the result
+          const resolvedAt = touchResult.touchedAt ? new Date(touchResult.touchedAt) : now;
+          await this.updatePostFrontmatter(call.date, touchResult.result, resolvedAt);
+
           updated = true;
         }
         // RULE: If older than 7 days and no stop/target touched, force resolve
@@ -270,6 +275,10 @@ export class HistoricalTracker {
           call.actualResult = pnl >= 0 ? 'win' : 'loss';
           call.pnlPercent = parseFloat(pnl.toFixed(2));
           console.log(`Call ${call.date}: Expired after 7 days → ${call.actualResult.toUpperCase()} (${pnl.toFixed(2)}%)`);
+
+          // Update the post frontmatter with the result
+          await this.updatePostFrontmatter(call.date, call.actualResult, now);
+
           updated = true;
         }
         // RULE: Less than 24 hours = stay pending (no action needed)
@@ -290,6 +299,135 @@ export class HistoricalTracker {
     }
 
     return calls;
+  }
+
+  /**
+   * Update post frontmatter with call result
+   * Finds the post file based on the call date and updates callResult/resultTimestamp
+   */
+  async updatePostFrontmatter(
+    callDate: string,
+    result: 'win' | 'loss',
+    resolvedAt: Date
+  ): Promise<boolean> {
+    if (!this.token || !this.repo) {
+      console.log('GitHub credentials not set, skipping post update');
+      return false;
+    }
+
+    try {
+      // Parse the call date to build the post filename
+      // Post files are named like: 2025-12-03-1701-btc-usd.md
+      const date = new Date(callDate);
+      const dateStr = date.toISOString().split('T')[0]; // 2025-12-03
+      const hours = date.getUTCHours().toString().padStart(2, '0');
+      const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+      // List files in content/posts to find matching post
+      const listUrl = `${GITHUB_API_BASE}/repos/${this.repo}/contents/content/posts`;
+      const listResponse = await fetch(listUrl, {
+        headers: {
+          'Authorization': this.getAuthHeader(),
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (!listResponse.ok) {
+        console.error('Failed to list posts directory');
+        return false;
+      }
+
+      const files = await listResponse.json();
+
+      // Find the post file that matches this date (within same hour)
+      const matchingFile = files.find((f: any) => {
+        if (!f.name.endsWith('.md') || f.name === '_index.md') return false;
+        // Extract date and time from filename: 2025-12-03-1701-btc-usd.md
+        const match = f.name.match(/^(\d{4}-\d{2}-\d{2})-(\d{2})(\d{2})-btc-usd\.md$/);
+        if (!match) return false;
+        const fileDate = match[1];
+        const fileHour = match[2];
+        return fileDate === dateStr && fileHour === hours;
+      });
+
+      if (!matchingFile) {
+        console.log(`No matching post found for call date ${callDate}`);
+        return false;
+      }
+
+      console.log(`Found matching post: ${matchingFile.name}`);
+
+      // Fetch the post content
+      const postUrl = `${GITHUB_API_BASE}/repos/${this.repo}/contents/content/posts/${matchingFile.name}`;
+      const postResponse = await fetch(postUrl, {
+        headers: {
+          'Authorization': this.getAuthHeader(),
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (!postResponse.ok) {
+        console.error('Failed to fetch post content');
+        return false;
+      }
+
+      const postData = await postResponse.json();
+      let content = Buffer.from(postData.content, 'base64').toString('utf-8');
+
+      // Format the result timestamp
+      const resultTimestamp = resolvedAt.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric'
+      });
+
+      // Update or add callResult and resultTimestamp in frontmatter
+      // Check if callResult already exists
+      if (content.includes('callResult:')) {
+        // Update existing callResult
+        content = content.replace(/callResult:\s*"?\w+"?/, `callResult: "${result}"`);
+      } else {
+        // Add callResult before the closing ---
+        content = content.replace(/^(---\n[\s\S]*?)(---)$/m, `$1callResult: "${result}"\n$2`);
+      }
+
+      // Check if resultTimestamp already exists
+      if (content.includes('resultTimestamp:')) {
+        // Update existing resultTimestamp
+        content = content.replace(/resultTimestamp:\s*"[^"]*"/, `resultTimestamp: "${resultTimestamp}"`);
+      } else {
+        // Add resultTimestamp after callResult
+        content = content.replace(/callResult: "[^"]*"/, `callResult: "${result}"\nresultTimestamp: "${resultTimestamp}"`);
+      }
+
+      // Save the updated post
+      const putResponse = await fetch(postUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': this.getAuthHeader(),
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github.v3+json',
+        },
+        body: JSON.stringify({
+          message: `Update call result: ${result.toUpperCase()} for ${matchingFile.name}`,
+          content: Buffer.from(content).toString('base64'),
+          sha: postData.sha,
+          branch: 'master',
+        }),
+      });
+
+      if (putResponse.ok) {
+        console.log(`Updated post ${matchingFile.name} with result: ${result}`);
+        return true;
+      } else {
+        const error = await putResponse.json();
+        console.error('Failed to update post:', error);
+        return false;
+      }
+    } catch (error: any) {
+      console.error('Error updating post frontmatter:', error.message);
+      return false;
+    }
   }
 
   /**
