@@ -499,13 +499,14 @@
       onchainElements.hashrateSignal.innerHTML = '<span class="signal-badge ' + signalClass + '">' + signal + '</span>';
     }
 
-    // Render chart using OHLC data if available
+    // Render chart using OHLC and hashrate history data
     if (ohlc && ohlc.days30 && ohlc.days30.length > 0) {
-      renderHashrateChart(null, ohlc.days30);
+      const hashHistory = hashrate.history || [];
+      renderHashrateChart(hashHistory, ohlc.days30);
     }
   }
 
-  // Render price chart (hashrate chart simplified to price-only from static data)
+  // Render hashrate vs price chart
   function renderHashrateChart(hashData, priceData) {
     const ctx = document.getElementById('hashrateChart');
     if (!ctx || !priceData || priceData.length === 0) return;
@@ -513,6 +514,7 @@
     // Prepare data from OHLC
     const labels = [];
     const priceValues = [];
+    const hashrateValues = [];
 
     // Use available data points
     const dataPoints = Math.min(priceData.length, 30);
@@ -524,6 +526,14 @@
         const date = new Date(timestamp);
         labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         priceValues.push(parseFloat(priceData[priceIdx][4])); // Close price
+
+        // Find matching hashrate data point (closest timestamp)
+        if (hashData && hashData.length > 0) {
+          const closest = hashData.reduce((prev, curr) =>
+            Math.abs(curr[0] - timestamp) < Math.abs(prev[0] - timestamp) ? curr : prev
+          );
+          hashrateValues.push(closest[1]);
+        }
       }
     }
 
@@ -532,20 +542,37 @@
       hashrateChart.destroy();
     }
 
+    // Build datasets
+    const datasets = [
+      {
+        label: 'BTC Price',
+        data: priceValues,
+        borderColor: '#f7931a',
+        backgroundColor: 'rgba(247, 147, 26, 0.1)',
+        tension: 0.3,
+        fill: true,
+        yAxisID: 'y'
+      }
+    ];
+
+    // Add hashrate dataset if we have data
+    if (hashrateValues.length > 0) {
+      datasets.push({
+        label: 'Hashrate (EH/s)',
+        data: hashrateValues,
+        borderColor: '#3fb950',
+        backgroundColor: 'rgba(63, 185, 80, 0.1)',
+        tension: 0.3,
+        fill: false,
+        yAxisID: 'y1'
+      });
+    }
+
     hashrateChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels: labels,
-        datasets: [
-          {
-            label: 'BTC Price',
-            data: priceValues,
-            borderColor: '#f7931a',
-            backgroundColor: 'rgba(247, 147, 26, 0.1)',
-            tension: 0.3,
-            fill: true
-          }
-        ]
+        datasets: datasets
       },
       options: {
         responsive: true,
@@ -562,7 +589,7 @@
           },
           subtitle: {
             display: true,
-            text: '30-Day Price History',
+            text: hashrateValues.length > 0 ? '30-Day Hashrate vs Price' : '30-Day Price History',
             color: '#6e7681',
             font: { size: 9, style: 'italic' },
             padding: { bottom: 5 }
@@ -589,6 +616,17 @@
               callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'K'; }
             },
             grid: { color: 'rgba(48, 54, 61, 0.5)' }
+          },
+          y1: {
+            type: 'linear',
+            display: hashrateValues.length > 0,
+            position: 'right',
+            ticks: {
+              color: '#3fb950',
+              font: { size: 9 },
+              callback: function(value) { return value.toFixed(0) + ' EH/s'; }
+            },
+            grid: { display: false }
           }
         }
       }

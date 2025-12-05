@@ -35,6 +35,7 @@ interface MarketSnapshot {
   hashrate: {
     current: number;
     unit: string;
+    history: number[][]; // [timestamp, hashrate in EH/s]
   };
   ohlc: {
     days7: number[][];  // [timestamp, open, high, low, close]
@@ -135,7 +136,7 @@ export default async (req: Request, context: Context) => {
     openInterest: { btc: 0, usd: 0 },
     longShortRatio: { ratio: 1, longPercent: 50, shortPercent: 50 },
     dominance: { btc: 0 },
-    hashrate: { current: 0, unit: 'EH/s' },
+    hashrate: { current: 0, unit: 'EH/s', history: [] },
     ohlc: { days7: [], days30: [] },
     global: { totalMarketCap: 0, total24hVolume: 0 },
   };
@@ -286,13 +287,19 @@ export default async (req: Request, context: Context) => {
     if (hashrateRes.status === 'fulfilled' && hashrateRes.value.ok) {
       const data = await hashrateRes.value.json();
       if (data && data.currentHashrate) {
-        snapshot.hashrate = {
-          current: data.currentHashrate / 1e18, // Convert to EH/s
-          unit: 'EH/s',
-        };
+        snapshot.hashrate.current = data.currentHashrate / 1e18; // Convert to EH/s
+        snapshot.hashrate.unit = 'EH/s';
+
+        // Extract historical hashrate data (last 30 days)
+        if (data.hashrates && Array.isArray(data.hashrates)) {
+          snapshot.hashrate.history = data.hashrates
+            .slice(-30) // Last 30 data points
+            .map((h: any) => [h.timestamp * 1000, h.avgHashrate / 1e18]); // [timestamp ms, EH/s]
+        }
       }
     }
     console.log('Hashrate:', snapshot.hashrate.current.toFixed(1) + ' EH/s');
+    console.log('Hashrate history:', snapshot.hashrate.history.length + ' data points');
 
     // Process OHLC data
     if (ohlc7Res.status === 'fulfilled' && ohlc7Res.value.ok) {
