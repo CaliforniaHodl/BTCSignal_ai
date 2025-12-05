@@ -95,10 +95,18 @@
       </div>
     </section>
 
-    <!-- Whale Activity -->
+    <!-- Whale Activity Stats -->
     <section class="radar-section whale-activity">
-      <h2>🐋 Whale Activity</h2>
+      <h2>🐋 Whale Activity <span class="data-source-badge" id="whale-data-source"></span></h2>
       <div class="whale-grid">
+        <div class="whale-card">
+          <h3>Alerts (24h)</h3>
+          <div class="whale-metric">
+            <span class="metric-value" id="whale-alert-count">--</span>
+            <span class="metric-unit">movements</span>
+          </div>
+          <p class="metric-note" id="alert-count-signal">Loading...</p>
+        </div>
         <div class="whale-card">
           <h3>Exchange Inflows (24h)</h3>
           <div class="whale-metric">
@@ -116,30 +124,25 @@
           <p class="metric-note" id="outflow-signal">Loading...</p>
         </div>
         <div class="whale-card">
-          <h3>Net Flow</h3>
+          <h3>Largest TX (24h)</h3>
           <div class="whale-metric">
-            <span class="metric-value" id="net-flow">--</span>
+            <span class="metric-value" id="largest-tx">--</span>
             <span class="metric-unit">BTC</span>
           </div>
-          <p class="metric-note" id="netflow-signal">Loading...</p>
-        </div>
-        <div class="whale-card">
-          <h3>Large Txns (>1000 BTC)</h3>
-          <div class="whale-metric">
-            <span class="metric-value" id="large-txns">--</span>
-            <span class="metric-unit">in 24h</span>
-          </div>
-          <p class="metric-note" id="txn-signal">Loading...</p>
+          <p class="metric-note" id="largest-tx-signal">Loading...</p>
         </div>
       </div>
     </section>
 
     <!-- Whale Alerts Feed -->
     <section class="radar-section whale-alerts">
-      <h2>🚨 Whale Alerts (1000+ BTC)</h2>
-      <p class="section-desc">High-confidence whale movements detected via mempool analysis</p>
+      <h2>🚨 Whale Alerts</h2>
+      <p class="section-desc">Real-time whale movements from <a href="/whales/">our tracker</a></p>
       <div class="whale-alerts-list" id="whale-alerts-list">
-        <div class="loading-spinner">Scanning for whale movements...</div>
+        <div class="loading-spinner">Loading whale data...</div>
+      </div>
+      <div class="section-footer">
+        <a href="/whales/" class="view-all-link">View all whale alerts →</a>
       </div>
     </section>
 

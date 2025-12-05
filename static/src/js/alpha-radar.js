@@ -100,8 +100,7 @@
 
       await Promise.all([
         loadMarketOverview(),
-        loadWhaleActivity(),
-        loadWhaleAlerts(),
+        loadWhaleData(),
         loadLiquidityZones(),
         loadAnomalies(),
         loadAISummary()
@@ -168,167 +167,138 @@
         : '<span class="signal neutral">Balanced</span>';
   }
 
-  // Load whale activity data from Blockchain.com API (free)
-  async function loadWhaleActivity() {
-    let inflow = 0, outflow = 0, largeTxns = 0;
-    let dataSource = 'estimated';
-
-    try {
-      // Fetch recent unconfirmed transactions from mempool
-      const res = await fetch('https://blockchain.info/unconfirmed-transactions?format=json&cors=true');
-      
-      if (res.ok) {
-        const data = await res.json();
-        dataSource = 'live';
-
-        // Process transactions - look for large ones (> 1 BTC = 100M satoshis)
-        const WHALE_THRESHOLD = 100000000; // 1 BTC in satoshis
-        const LARGE_THRESHOLD = 1000000000; // 10 BTC in satoshis
-
-        if (data.txs && data.txs.length > 0) {
-          // Known exchange addresses (partial list - major exchanges)
-          const exchangePatterns = ['1NDyJ', 'bc1qg', '3Kzh9', '1Kr6Q', 'bc1qa', '3LYJf'];
-
-          data.txs.forEach(tx => {
-            const totalOutput = tx.out.reduce((sum, o) => sum + (o.value || 0), 0);
-
-            if (totalOutput >= WHALE_THRESHOLD) {
-              largeTxns++;
-
-              // Check if likely exchange transaction (heuristic)
-              const hasExchangeAddr = tx.out.some(o => 
-                o.addr && exchangePatterns.some(p => o.addr.startsWith(p))
-              );
-              const hasMultipleOutputs = tx.out.length > 5;
-
-              // Exchange deposits typically have few outputs, withdrawals have many
-              if (hasExchangeAddr || hasMultipleOutputs) {
-                if (tx.out.length <= 3) {
-                  inflow += totalOutput / 100000000; // Convert to BTC
-                } else {
-                  outflow += totalOutput / 100000000;
-                }
-              }
-            }
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Blockchain.info API error:', error);
-    }
-
-    // Fallback/supplement with CoinGecko estimation
-    if (inflow === 0 && outflow === 0) {
-      dataSource = 'estimated';
-      try {
-        const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false');
-        const data = await res.json();
-        const volume24h = data.market_data.total_volume.usd;
-        const priceChange = data.market_data.price_change_percentage_24h;
-        const currentPrice = data.market_data.current_price.usd;
-
-        // Estimate whale activity based on volume and price action
-        const volumeBTC = volume24h / currentPrice;
-        const baseFlow = Math.round(volumeBTC / 10000); // ~0.01% of daily volume
-
-        if (priceChange < -2) {
-          inflow = baseFlow + Math.round(Math.abs(priceChange) * 20);
-          outflow = Math.round(baseFlow * 0.7);
-        } else if (priceChange > 2) {
-          inflow = Math.round(baseFlow * 0.7);
-          outflow = baseFlow + Math.round(priceChange * 20);
-        } else {
-          inflow = baseFlow + Math.round(Math.random() * 200);
-          outflow = baseFlow + Math.round(Math.random() * 200);
-        }
-
-        largeTxns = Math.round(15 + (volumeBTC / 100000) + Math.random() * 10);
-      } catch (e) {
-        inflow = 1500 + Math.round(Math.random() * 500);
-        outflow = 1500 + Math.round(Math.random() * 500);
-        largeTxns = 20 + Math.round(Math.random() * 15);
-      }
-    }
-
-    const netFlow = inflow - outflow;
-
-    // Update UI
-    document.getElementById('exchange-inflow').textContent = Math.round(inflow).toLocaleString();
-    document.getElementById('inflow-signal').textContent = inflow > 3000 ? 'Above average - watch for sells' : 'Normal range';
-
-    document.getElementById('exchange-outflow').textContent = Math.round(outflow).toLocaleString();
-    document.getElementById('outflow-signal').textContent = outflow > 3000 ? 'Accumulation signal' : 'Normal range';
-
-    document.getElementById('net-flow').textContent = (netFlow > 0 ? '+' : '') + Math.round(netFlow).toLocaleString();
-    document.getElementById('net-flow').className = 'metric-value ' + (netFlow > 0 ? 'negative' : 'positive');
-    document.getElementById('netflow-signal').textContent = netFlow > 1000 ? 'Sell pressure building' : netFlow < -1000 ? 'Accumulation mode' : 'Neutral flow';
-
-    document.getElementById('large-txns').textContent = largeTxns;
-    document.getElementById('txn-signal').textContent = largeTxns > 30 ? 'High whale activity' : 'Normal activity';
-
-    // Show data source indicator
-    const whaleSection = document.querySelector('.whale-activity-section');
-    if (whaleSection) {
-      let badge = whaleSection.querySelector('.data-source-badge');
-      if (!badge) {
-        badge = document.createElement('span');
-        badge.className = 'data-source-badge';
-        const header = whaleSection.querySelector('h3') || whaleSection.querySelector('.section-title');
-        if (header) header.appendChild(badge);
-      }
-      badge.textContent = dataSource === 'live' ? ' 🟢 LIVE' : ' 🔵 EST';
-      badge.title = dataSource === 'live'
-        ? 'Live mempool data from Blockchain.info'
-        : 'Estimated from CoinGecko market data';
-    }
-  }
-
-  // Load whale alerts from static JSON or fetch live from mempool
-  async function loadWhaleAlerts() {
+  // Load whale data from whale-alerts.json
+  async function loadWhaleData() {
     const container = document.getElementById('whale-alerts-list');
-    if (!container) return;
+    const dataSourceEl = document.getElementById('whale-data-source');
 
     try {
-      // Try to load from static file first
+      // Load from our whale-alerts.json data
       const res = await fetch('/data/whale-alerts.json');
       let data = null;
+      let isLive = false;
 
       if (res.ok) {
         data = await res.json();
       }
 
       const alerts = data?.alerts || [];
+      const stats = data?.stats || null;
+
+      // Update data source indicator
+      if (dataSourceEl) {
+        if (alerts.length > 0) {
+          const lastUpdated = data?.lastUpdated ? new Date(data.lastUpdated) : null;
+          const isRecent = lastUpdated && (Date.now() - lastUpdated.getTime() < 30 * 60 * 1000);
+          dataSourceEl.textContent = isRecent ? '🟢 LIVE' : '🔵 TRACKED';
+          dataSourceEl.title = lastUpdated ? `Last updated: ${lastUpdated.toLocaleString()}` : 'Whale tracker data';
+        } else {
+          dataSourceEl.textContent = '';
+        }
+      }
+
+      // Update stats cards
+      updateWhaleStats(stats, alerts);
 
       // If no alerts from static file, fetch live from mempool as fallback
-      if (alerts.length === 0) {
+      if (alerts.length === 0 && container) {
         const liveAlerts = await fetchLiveWhaleData();
         if (liveAlerts.length > 0) {
+          isLive = true;
+          if (dataSourceEl) {
+            dataSourceEl.textContent = '🟢 LIVE';
+            dataSourceEl.title = 'Live data from mempool.space';
+          }
+          updateWhaleStats(null, liveAlerts);
           renderWhaleAlerts(liveAlerts, container, true);
           return;
         }
-        container.innerHTML = '<p class="no-alerts">Scanning mempool for whale movements... Data will accumulate as the tracker runs every 5 minutes.</p>';
+        container.innerHTML = '<p class="no-alerts">Scanning for whale movements... Data accumulates as the tracker runs.</p>';
         return;
       }
 
-      renderWhaleAlerts(alerts, container, false);
+      if (container) {
+        renderWhaleAlerts(alerts, container, isLive);
+      }
 
     } catch (error) {
-      console.error('Error loading whale alerts:', error);
-      // Try live fallback on error
-      try {
-        const liveAlerts = await fetchLiveWhaleData();
-        if (liveAlerts.length > 0) {
-          renderWhaleAlerts(liveAlerts, container, true);
-          return;
-        }
-      } catch (e) {
-        console.error('Live fallback also failed:', e);
+      console.error('Error loading whale data:', error);
+      if (container) {
+        container.innerHTML = '<p class="error">Failed to load whale data. Will retry on refresh.</p>';
       }
-      container.innerHTML = '<p class="error">Failed to load whale alerts. Will retry on next refresh.</p>';
     }
   }
 
-  // Fetch live whale data directly from mempool.space
+  // Update whale stats from data
+  function updateWhaleStats(stats, alerts) {
+    const alertCountEl = document.getElementById('whale-alert-count');
+    const alertCountSignalEl = document.getElementById('alert-count-signal');
+    const inflowEl = document.getElementById('exchange-inflow');
+    const inflowSignalEl = document.getElementById('inflow-signal');
+    const outflowEl = document.getElementById('exchange-outflow');
+    const outflowSignalEl = document.getElementById('outflow-signal');
+    const largestTxEl = document.getElementById('largest-tx');
+    const largestTxSignalEl = document.getElementById('largest-tx-signal');
+
+    // Alert count
+    const alertCount = alerts.length;
+    if (alertCountEl) alertCountEl.textContent = alertCount;
+    if (alertCountSignalEl) {
+      alertCountSignalEl.textContent = alertCount > 10
+        ? 'High whale activity!'
+        : alertCount > 5
+          ? 'Moderate activity'
+          : alertCount > 0
+            ? 'Normal activity'
+            : 'Quiet period';
+    }
+
+    // Use stats from JSON if available, otherwise calculate from alerts
+    if (stats) {
+      if (inflowEl) inflowEl.textContent = stats.exchangeInflow24h.toLocaleString();
+      if (inflowSignalEl) {
+        inflowSignalEl.textContent = stats.exchangeInflow24h > 1000
+          ? 'Sell pressure detected'
+          : stats.exchangeInflow24h > 0
+            ? 'Normal inflows'
+            : 'No inflows tracked';
+      }
+
+      if (outflowEl) outflowEl.textContent = stats.exchangeOutflow24h.toLocaleString();
+      if (outflowSignalEl) {
+        outflowSignalEl.textContent = stats.exchangeOutflow24h > 1000
+          ? 'Accumulation signal'
+          : stats.exchangeOutflow24h > 0
+            ? 'Normal outflows'
+            : 'No outflows tracked';
+      }
+
+      if (largestTxEl) largestTxEl.textContent = stats.largestTx24h.toLocaleString();
+      if (largestTxSignalEl) {
+        largestTxSignalEl.textContent = stats.largestTx24h > 5000
+          ? 'Major whale movement!'
+          : stats.largestTx24h > 1000
+            ? 'Significant transfer'
+            : 'Standard activity';
+      }
+    } else {
+      // Calculate from alerts
+      const deposits = alerts.filter(a => a.type === 'exchange_deposit').reduce((s, a) => s + a.amount_btc, 0);
+      const withdrawals = alerts.filter(a => a.type === 'exchange_withdrawal').reduce((s, a) => s + a.amount_btc, 0);
+      const largest = alerts.length > 0 ? Math.max(...alerts.map(a => a.amount_btc)) : 0;
+
+      if (inflowEl) inflowEl.textContent = Math.round(deposits).toLocaleString();
+      if (inflowSignalEl) inflowSignalEl.textContent = deposits > 1000 ? 'Sell pressure' : deposits > 0 ? 'Normal' : '--';
+
+      if (outflowEl) outflowEl.textContent = Math.round(withdrawals).toLocaleString();
+      if (outflowSignalEl) outflowSignalEl.textContent = withdrawals > 1000 ? 'Accumulation' : withdrawals > 0 ? 'Normal' : '--';
+
+      if (largestTxEl) largestTxEl.textContent = Math.round(largest).toLocaleString();
+      if (largestTxSignalEl) largestTxSignalEl.textContent = largest > 1000 ? 'Major movement' : largest > 0 ? 'Standard' : '--';
+    }
+  }
+
+  // Fetch live whale data directly from mempool.space as fallback
   async function fetchLiveWhaleData() {
     const alerts = [];
 
@@ -338,80 +308,39 @@
       const priceData = await priceRes.json();
       const btcPrice = parseFloat(priceData.price) || 95000;
 
-      // Get recent mempool transactions
-      const mempoolRes = await fetch('https://mempool.space/api/mempool/recent');
-      if (!mempoolRes.ok) return alerts;
+      // Check recent blocks for large txs
+      const blocksRes = await fetch('https://mempool.space/api/blocks');
+      if (blocksRes.ok) {
+        const blocks = await blocksRes.json();
+        for (const block of blocks.slice(0, 2)) {
+          const blockTxsRes = await fetch(`https://mempool.space/api/block/${block.id}/txs/0`);
+          if (blockTxsRes.ok) {
+            const blockTxs = await blockTxsRes.json();
+            for (const txData of blockTxs.slice(1, 20)) {
+              const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
+              const amountBTC = totalValue / 100000000;
 
-      const recentTxs = await mempoolRes.json();
-
-      // Filter for large transactions (500+ BTC for live display)
-      const largeTxs = recentTxs.filter(tx => tx.value > 50000000000); // 500 BTC in sats
-
-      // Get details for top 5 large txs
-      for (const tx of largeTxs.slice(0, 5)) {
-        try {
-          const txRes = await fetch(`https://mempool.space/api/tx/${tx.txid}`);
-          if (!txRes.ok) continue;
-
-          const txData = await txRes.json();
-          const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
-          const amountBTC = totalValue / 100000000;
-
-          if (amountBTC >= 500) {
-            alerts.push({
-              id: `live_${tx.txid.substring(0, 12)}`,
-              timestamp: new Date().toISOString(),
-              txid: tx.txid,
-              type: 'whale_transfer',
-              amount_btc: Math.round(amountBTC * 100) / 100,
-              amount_usd: Math.round(amountBTC * btcPrice),
-              confidence: amountBTC >= 1000 ? 'high' : amountBTC >= 500 ? 'medium' : 'low',
-              from_type: 'Unknown',
-              to_type: 'Unknown',
-              analysis: `${amountBTC.toFixed(2)} BTC movement detected in mempool. Live data - full analysis available after cron processing.`
-            });
-          }
-        } catch (e) {
-          console.error('Failed to fetch tx details:', e);
-        }
-      }
-
-      // Also check recent blocks if mempool is quiet
-      if (alerts.length < 3) {
-        const blocksRes = await fetch('https://mempool.space/api/blocks');
-        if (blocksRes.ok) {
-          const blocks = await blocksRes.json();
-          if (blocks.length > 0) {
-            const blockTxsRes = await fetch(`https://mempool.space/api/block/${blocks[0].id}/txs/0`);
-            if (blockTxsRes.ok) {
-              const blockTxs = await blockTxsRes.json();
-              for (const txData of blockTxs.slice(1, 20)) { // Skip coinbase
-                const totalValue = txData.vout?.reduce((sum, out) => sum + (out.value || 0), 0) || 0;
-                const amountBTC = totalValue / 100000000;
-
-                if (amountBTC >= 100 && alerts.length < 5) {
-                  alerts.push({
-                    id: `block_${txData.txid.substring(0, 12)}`,
-                    timestamp: new Date(blocks[0].timestamp * 1000).toISOString(),
-                    txid: txData.txid,
-                    type: 'whale_transfer',
-                    amount_btc: Math.round(amountBTC * 100) / 100,
-                    amount_usd: Math.round(amountBTC * btcPrice),
-                    confidence: amountBTC >= 1000 ? 'high' : amountBTC >= 500 ? 'medium' : 'low',
-                    from_type: 'Unknown',
-                    to_type: 'Unknown',
-                    analysis: `${amountBTC.toFixed(2)} BTC confirmed in block ${blocks[0].height}. Live data from recent block.`
-                  });
-                }
+              if (amountBTC >= 500 && alerts.length < 10) {
+                alerts.push({
+                  id: `block_${txData.txid.substring(0, 12)}`,
+                  timestamp: new Date(block.timestamp * 1000).toISOString(),
+                  txid: txData.txid,
+                  type: 'whale_transfer',
+                  amount_btc: Math.round(amountBTC * 100) / 100,
+                  amount_usd: Math.round(amountBTC * btcPrice),
+                  confidence: amountBTC >= 1000 ? 'high' : 'medium',
+                  from_type: 'Unknown',
+                  to_type: 'Unknown',
+                  analysis: `${amountBTC.toFixed(2)} BTC confirmed in block ${block.height}.`
+                });
               }
             }
           }
         }
       }
-    } catch (error) {
-      console.error('Error fetching live whale data:', error);
+    } catch (e) {
+      console.error('Live fetch error:', e);
     }
-
     return alerts.sort((a, b) => b.amount_btc - a.amount_btc);
   }
 
@@ -422,23 +351,11 @@
       return;
     }
 
-    // Update stats in whale activity section
-    const largeTxnsEl = document.getElementById('large-txns');
-    const txnSignalEl = document.getElementById('txn-signal');
-    if (largeTxnsEl) largeTxnsEl.textContent = alerts.length;
-    if (txnSignalEl) {
-      txnSignalEl.textContent = alerts.length > 5
-        ? 'High whale activity!'
-        : alerts.length > 0
-          ? 'Normal whale activity'
-          : 'Low activity';
-    }
-
     // Add live indicator if showing live data
     const liveIndicator = isLive ? '<span class="live-badge">LIVE</span>' : '';
 
-    // Render alerts
-    container.innerHTML = liveIndicator + alerts.slice(0, 10).map(alert => {
+    // Render alerts (show top 5 on alpha radar, link to full page)
+    container.innerHTML = liveIndicator + alerts.slice(0, 5).map(alert => {
       const timeAgo = getTimeAgo(new Date(alert.timestamp));
       const typeIcon = {
         'exchange_deposit': '📥',
@@ -530,21 +447,125 @@
     `).join('');
   }
 
-  // Load anomalies
+  // Load anomalies - derived from whale data and market snapshot
   async function loadAnomalies() {
     const container = document.getElementById('anomaly-list');
+    if (!container) return;
 
-    // Simulated anomalies
-    const anomalies = [
-      { severity: 'medium', title: 'Funding Rate Spike', desc: 'Funding rate increased 3x in last 4 hours', time: '2h ago' },
-      { severity: 'low', title: 'Volume Divergence', desc: 'Price up but volume declining on 4H', time: '4h ago' },
-      { severity: 'high', title: 'Whale Wallet Active', desc: 'Dormant whale moved 500 BTC to exchange', time: '1h ago' }
-    ];
+    const anomalies = [];
 
+    try {
+      // Load whale alerts data
+      const whaleRes = await fetch('/data/whale-alerts.json');
+      let whaleData = null;
+      if (whaleRes.ok) {
+        whaleData = await whaleRes.json();
+      }
+
+      const alerts = whaleData?.alerts || [];
+      const stats = whaleData?.stats || {};
+
+      // Check for dormant wallet activity (high severity)
+      const dormantAlerts = alerts.filter(a => a.type === 'dormant_wallet');
+      if (dormantAlerts.length > 0) {
+        const largest = dormantAlerts.reduce((max, a) => a.amount_btc > max.amount_btc ? a : max, dormantAlerts[0]);
+        anomalies.push({
+          severity: 'high',
+          title: 'Dormant Wallet Active',
+          desc: `${largest.amount_btc.toLocaleString()} BTC moved from dormant wallet`,
+          time: getTimeAgo(new Date(largest.timestamp))
+        });
+      }
+
+      // Check for large exchange deposits (potential sell pressure)
+      const deposits = alerts.filter(a => a.type === 'exchange_deposit');
+      const totalDeposits = deposits.reduce((sum, a) => sum + a.amount_btc, 0);
+      if (totalDeposits > 1000) {
+        anomalies.push({
+          severity: totalDeposits > 5000 ? 'high' : 'medium',
+          title: 'Exchange Inflow Spike',
+          desc: `${Math.round(totalDeposits).toLocaleString()} BTC deposited to exchanges`,
+          time: deposits.length > 0 ? getTimeAgo(new Date(deposits[0].timestamp)) : 'Recent'
+        });
+      }
+
+      // Check for large exchange withdrawals (accumulation signal)
+      const withdrawals = alerts.filter(a => a.type === 'exchange_withdrawal');
+      const totalWithdrawals = withdrawals.reduce((sum, a) => sum + a.amount_btc, 0);
+      if (totalWithdrawals > 1000) {
+        anomalies.push({
+          severity: 'low',
+          title: 'Accumulation Signal',
+          desc: `${Math.round(totalWithdrawals).toLocaleString()} BTC withdrawn from exchanges`,
+          time: withdrawals.length > 0 ? getTimeAgo(new Date(withdrawals[0].timestamp)) : 'Recent'
+        });
+      }
+
+      // Check for very large single transactions
+      const megaWhales = alerts.filter(a => a.amount_btc >= 5000);
+      if (megaWhales.length > 0) {
+        const largest = megaWhales.reduce((max, a) => a.amount_btc > max.amount_btc ? a : max, megaWhales[0]);
+        anomalies.push({
+          severity: 'high',
+          title: 'Mega Whale Movement',
+          desc: `${largest.amount_btc.toLocaleString()} BTC ($${(largest.amount_usd / 1000000).toFixed(0)}M) transferred`,
+          time: getTimeAgo(new Date(largest.timestamp))
+        });
+      }
+
+      // Check funding rate from market snapshot
+      if (marketData && marketData.funding) {
+        const rate = marketData.funding.ratePercent;
+        if (rate > 0.05) {
+          anomalies.push({
+            severity: 'medium',
+            title: 'High Funding Rate',
+            desc: `Funding at ${rate.toFixed(4)}% - longs paying premium`,
+            time: 'Current'
+          });
+        } else if (rate < -0.02) {
+          anomalies.push({
+            severity: 'medium',
+            title: 'Negative Funding',
+            desc: `Funding at ${rate.toFixed(4)}% - shorts paying longs`,
+            time: 'Current'
+          });
+        }
+      }
+
+      // Check fear & greed extremes
+      if (marketData && marketData.fearGreed) {
+        const fg = marketData.fearGreed.value;
+        if (fg <= 20) {
+          anomalies.push({
+            severity: 'medium',
+            title: 'Extreme Fear',
+            desc: `Fear & Greed at ${fg} - historically a buying opportunity`,
+            time: 'Current'
+          });
+        } else if (fg >= 80) {
+          anomalies.push({
+            severity: 'medium',
+            title: 'Extreme Greed',
+            desc: `Fear & Greed at ${fg} - caution advised`,
+            time: 'Current'
+          });
+        }
+      }
+
+    } catch (error) {
+      console.error('Error loading anomalies:', error);
+    }
+
+    // Render anomalies
     if (anomalies.length === 0) {
       container.innerHTML = '<p class="no-anomalies">No significant anomalies detected</p>';
     } else {
-      container.innerHTML = anomalies.map(a => `
+      // Sort by severity (high first)
+      const severityOrder = { high: 0, medium: 1, low: 2 };
+      anomalies.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+      container.innerHTML = anomalies.slice(0, 5).map(a => `
         <div class="anomaly-item ${a.severity}">
           <div class="anomaly-severity">${a.severity === 'high' ? '🔴' : a.severity === 'medium' ? '🟡' : '🟢'}</div>
           <div class="anomaly-content">
