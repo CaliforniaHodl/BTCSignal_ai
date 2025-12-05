@@ -1006,3 +1006,135 @@
     margin-bottom: $spacing-lg;
   }
 }
+
+// =====================================================
+// COMPARISON TABLE SECTION (vs Coinglass)
+// =====================================================
+.comparison-section {
+  margin: $spacing-2xl 0;
+  padding: $spacing-2xl 0;
+  border-top: 1px solid var(--border-color);
+
+  h2 {
+    text-align: center;
+    font-size: $font-3xl;
+    margin-bottom: $spacing-sm;
+    @include gradient-text;
+  }
+
+  .section-desc {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: $radius-lg;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+
+  th, td {
+    padding: $spacing-md $spacing-lg;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  thead th {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-weight: $font-semibold;
+    font-size: $font-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: var(--bg-surface);
+  }
+
+  .our-col {
+    background: rgba($bitcoin-orange, 0.1);
+    text-align: center;
+  }
+
+  thead th.our-col {
+    background: rgba($bitcoin-orange, 0.2);
+    color: var(--bitcoin-orange);
+  }
+
+  td:not(:first-child) {
+    text-align: center;
+  }
+
+  .highlight-row {
+    background: rgba($green, 0.05);
+
+    td:first-child {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.check-icon {
+  color: var(--green);
+  font-weight: $font-bold;
+  font-size: $font-lg;
+}
+
+.x-icon {
+  color: var(--red);
+  font-weight: $font-bold;
+  font-size: $font-lg;
+}
+
+.partial-icon {
+  color: var(--neutral);
+  font-size: $font-xs;
+  font-weight: $font-medium;
+}
+
+.comparison-cta {
+  text-align: center;
+  margin-top: $spacing-xl;
+}
+
+.comparison-tagline {
+  font-size: $font-xl;
+  color: var(--text-primary);
+  margin-bottom: $spacing-md;
+  font-weight: $font-medium;
+}
+
+.btn-cta {
+  display: inline-block;
+  @include gradient-button;
+  padding: $spacing-md $spacing-2xl;
+  font-size: $font-lg;
+  text-decoration: none;
+}
+
+@include mobile {
+  .comparison-table th,
+  .comparison-table td {
+    padding: $spacing-sm;
+    font-size: $font-xs;
+  }
+
+  .comparison-section h2 {
+    font-size: $font-2xl;
+  }
+}

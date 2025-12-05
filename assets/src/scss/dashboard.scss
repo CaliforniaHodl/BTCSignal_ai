@@ -149,6 +149,18 @@
   }
 }
 
+.widget-tooltip {
+  font-size: $font-sm;
+  cursor: help;
+  opacity: 0.6;
+  transition: opacity $transition-base;
+  margin-left: auto;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 .widget-icon {
   font-size: $font-2xl;
 }

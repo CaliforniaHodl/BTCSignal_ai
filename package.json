@@ -8,6 +8,7 @@
     "twitter-api-v2": "^1.28.0"
   },
   "devDependencies": {
+    "sass": "^1.94.2",
     "typescript": "^5.9.3"
   }
 }

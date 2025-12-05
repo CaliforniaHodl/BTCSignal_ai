@@ -62,11 +62,15 @@
 // Pricing Grid
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: $spacing-lg;
   margin-bottom: $spacing-2xl;
 
-  @media (max-width: $breakpoint-xl) {
+  @media (max-width: 1400px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: $breakpoint-lg) {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -93,6 +97,15 @@
     border-color: var(--bitcoin-orange);
     background: linear-gradient(180deg, rgba($bitcoin-orange, 0.1) 0%, var(--bg-card) 50%);
   }
+
+  &.monthly {
+    border-color: var(--green);
+    background: linear-gradient(180deg, rgba($green, 0.15) 0%, var(--bg-card) 50%);
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba($green, 0.3);
+    }
+  }
 }
 
 .card-badge {
@@ -111,6 +124,13 @@
   &.popular {
     background: var(--bitcoin-orange);
     border-color: var(--bitcoin-orange);
+    color: white;
+    font-weight: $font-semibold;
+  }
+
+  &.best-value {
+    background: var(--green);
+    border-color: var(--green);
     color: white;
     font-weight: $font-semibold;
   }

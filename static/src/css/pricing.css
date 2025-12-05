@@ -398,11 +398,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-decoration: none;
 }
 .btn-open-wallet:hover {
   transform: scale(1.02);
   box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+.btn-open-wallet {
+  text-decoration: none;
 }
 
 .payment-status {
@@ -601,3 +603,5 @@
 .paywall-link a {
   color: var(--bitcoin-orange);
 }
+
+/*# sourceMappingURL=pricing.css.map */
