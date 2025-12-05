@@ -203,9 +203,56 @@
   opacity: 0.6;
   transition: opacity 0.2s ease;
   margin-left: auto;
+  position: relative;
 }
 .widget-tooltip:hover {
   opacity: 1;
+}
+.widget-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.widget-tooltip:hover::before {
+  opacity: 1;
+  visibility: visible;
+}
+.widget-tooltip::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: normal;
+  width: 250px;
+  max-width: 80vw;
+  text-align: left;
+  line-height: 1.5;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+.widget-tooltip::before {
+  content: "";
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: var(--border-color);
+  z-index: 1001;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
 }
 
 .widget-icon {
@@ -2085,6 +2132,37 @@
   justify-content: center;
   cursor: help;
 }
+.oi-stat-tooltip:hover {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+}
+.oi-stat-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+.oi-stat-tooltip::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: normal;
+  width: 200px;
+  text-align: left;
+  line-height: 1.5;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
 
 .oi-chart-card {
   background: var(--bg-card);
@@ -2733,10 +2811,37 @@
   justify-content: center;
   cursor: help;
   margin-left: auto;
+  position: relative;
 }
 .onchain-tooltip:hover {
   background: var(--bg-surface);
   color: var(--text-secondary);
+}
+.onchain-tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+.onchain-tooltip::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: normal;
+  width: 220px;
+  text-align: left;
+  line-height: 1.5;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
 
 .reserves-card {

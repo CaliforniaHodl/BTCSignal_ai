@@ -155,9 +155,62 @@
   opacity: 0.6;
   transition: opacity $transition-base;
   margin-left: auto;
+  position: relative;
 
   &:hover {
     opacity: 1;
+
+    &::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    &::before {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  // Custom tooltip overlay
+  &::after {
+    content: attr(title);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-xs;
+    color: var(--text-secondary);
+    white-space: normal;
+    width: 250px;
+    max-width: 80vw;
+    text-align: left;
+    line-height: 1.5;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+  }
+
+  // Arrow pointing up
+  &::before {
+    content: '';
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: var(--border-color);
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
   }
 }
 
@@ -2046,6 +2099,40 @@
   align-items: center;
   justify-content: center;
   cursor: help;
+
+  &:hover {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+
+    &::after {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  &::after {
+    content: attr(title);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-xs;
+    color: var(--text-secondary);
+    white-space: normal;
+    width: 200px;
+    text-align: left;
+    line-height: 1.5;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+  }
 }
 
 .oi-chart-card {
@@ -2733,10 +2820,39 @@
   justify-content: center;
   cursor: help;
   margin-left: auto;
+  position: relative;
 
   &:hover {
     background: var(--bg-surface);
     color: var(--text-secondary);
+
+    &::after {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  &::after {
+    content: attr(title);
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-xs;
+    color: var(--text-secondary);
+    white-space: normal;
+    width: 220px;
+    text-align: left;
+    line-height: 1.5;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
   }
 }
 
