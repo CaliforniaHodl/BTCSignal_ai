@@ -1872,3 +1872,1261 @@
     color: var(--bitcoin-orange);
   }
 }
+
+// =====================================================
+// CACHE STATUS INDICATOR
+// =====================================================
+
+.cache-status {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding: $spacing-xs $spacing-md;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  font-size: $font-xs;
+}
+
+.cache-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+
+  &.fresh {
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+  }
+
+  &.stale {
+    background: $fng-neutral;
+    box-shadow: 0 0 6px $fng-neutral;
+  }
+
+  &.old {
+    background: var(--red);
+    box-shadow: 0 0 6px var(--red);
+  }
+}
+
+.cache-text {
+  color: var(--text-secondary);
+}
+
+.cache-time {
+  color: var(--text-muted);
+}
+
+// =====================================================
+// LONG/SHORT RATIO BARS
+// =====================================================
+
+.ls-bar-container {
+  display: flex;
+  height: 24px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: var(--bg-dark);
+}
+
+.ls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  transition: width $transition-base;
+
+  &.long {
+    background: var(--green);
+  }
+
+  &.short {
+    background: var(--red);
+  }
+}
+
+.ls-bar-label {
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.ls-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $spacing-xs;
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.long-label {
+  color: var(--green);
+}
+
+.short-label {
+  color: var(--red);
+}
+
+// =====================================================
+// OPEN INTEREST HISTORY SECTION
+// =====================================================
+
+.oi-history-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.oi-grid {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+}
+
+.oi-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.oi-stat-card {
+  @include card;
+  padding: $spacing-md;
+  text-align: center;
+  position: relative;
+}
+
+.oi-stat-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-bottom: $spacing-xs;
+}
+
+.oi-stat-value {
+  display: block;
+  font-size: $font-xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+.oi-stat-tooltip {
+  position: absolute;
+  top: $spacing-sm;
+  right: $spacing-sm;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  color: var(--text-muted);
+  font-size: $font-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+}
+
+.oi-chart-card {
+  @include card;
+  padding: $spacing-lg;
+}
+
+.oi-chart-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+
+  h3 {
+    font-size: $font-lg;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+.oi-chart-icon {
+  font-size: $font-xl;
+}
+
+.oi-chart-container {
+  min-height: 250px;
+}
+
+.oi-chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-lg;
+  margin-top: $spacing-md;
+  font-size: $font-sm;
+  color: var(--text-muted);
+}
+
+.legend-oi,
+.legend-price {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: $radius-sm;
+
+  &.oi {
+    background: var(--bitcoin-orange);
+  }
+
+  &.price {
+    background: var(--blue);
+  }
+}
+
+// =====================================================
+// MULTI-EXCHANGE FUNDING RATE COMPARISON
+// =====================================================
+
+.funding-comparison-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.funding-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.funding-card {
+  @include card;
+  padding: $spacing-lg;
+
+  &.funding-table-card {
+    border-color: rgba($blue, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($blue, 0.05) 100%);
+  }
+
+  &.funding-history-card {
+    border-color: rgba($bitcoin-orange, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.05) 100%);
+  }
+}
+
+.funding-card-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-lg;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+.funding-card-icon {
+  font-size: $font-xl;
+}
+
+.funding-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: $spacing-md;
+}
+
+.funding-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-sm;
+
+  th, td {
+    padding: $spacing-sm $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-dark);
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+    font-size: $font-xs;
+    text-transform: uppercase;
+  }
+
+  td {
+    color: var(--text-primary);
+  }
+
+  .loading-row {
+    text-align: center;
+    color: var(--text-muted);
+    padding: $spacing-lg;
+  }
+
+  .rate-positive {
+    color: var(--green);
+    font-weight: $font-semibold;
+  }
+
+  .rate-negative {
+    color: var(--red);
+    font-weight: $font-semibold;
+  }
+}
+
+.funding-arbitrage {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+}
+
+.arbitrage-label {
+  font-size: $font-sm;
+  color: var(--text-muted);
+}
+
+.arbitrage-value {
+  font-size: $font-lg;
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+}
+
+.arbitrage-opportunity {
+  font-size: $font-xs;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  background: rgba($green, 0.15);
+  color: var(--green);
+  margin-left: auto;
+}
+
+.funding-chart-container {
+  min-height: 200px;
+  margin-bottom: $spacing-md;
+}
+
+.funding-stats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.funding-stat {
+  text-align: center;
+
+  .stat-label {
+    display: block;
+    font-size: $font-xs;
+    color: var(--text-muted);
+    margin-bottom: $spacing-xs;
+  }
+
+  .stat-value {
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+
+    &.positive {
+      color: var(--green);
+    }
+
+    &.negative {
+      color: var(--red);
+    }
+  }
+}
+
+// =====================================================
+// FUNDING RATE ARBITRAGE CALCULATOR
+// =====================================================
+
+.arbitrage-calculator-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.arbitrage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arbitrage-card {
+  @include card;
+  padding: $spacing-lg;
+
+  &.calculator-card {
+    border-color: rgba($green, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($green, 0.05) 100%);
+  }
+
+  &.info-card {
+    border-color: rgba($blue, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($blue, 0.05) 100%);
+  }
+}
+
+.arbitrage-card-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-lg;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+.arbitrage-card-icon {
+  font-size: $font-xl;
+}
+
+.arbitrage-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.arb-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arb-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  label {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+
+  input, select {
+    padding: $spacing-sm $spacing-md;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    color: var(--text-primary);
+    font-size: $font-base;
+
+    &:focus {
+      outline: none;
+      border-color: var(--bitcoin-orange);
+    }
+  }
+}
+
+.arb-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+
+  &:focus-within {
+    border-color: var(--bitcoin-orange);
+  }
+
+  input {
+    border: none;
+    background: transparent;
+    flex: 1;
+
+    &:focus {
+      outline: none;
+      border: none;
+    }
+  }
+}
+
+.arb-prefix {
+  padding: $spacing-sm;
+  color: var(--text-muted);
+  font-weight: $font-semibold;
+}
+
+.arb-exchanges {
+  display: flex;
+  align-items: stretch;
+  gap: $spacing-md;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.arb-exchange {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+
+  label {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+
+  select {
+    padding: $spacing-sm;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-sm;
+    color: var(--text-primary);
+    font-size: $font-sm;
+  }
+
+  &.long-exchange {
+    border-left: 3px solid var(--green);
+  }
+
+  &.short-exchange {
+    border-left: 3px solid var(--red);
+  }
+}
+
+.arb-exchange-arrow {
+  display: flex;
+  align-items: center;
+  font-size: $font-2xl;
+  color: var(--text-muted);
+
+  @include mobile {
+    justify-content: center;
+    transform: rotate(90deg);
+  }
+}
+
+.exchange-rate {
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-top: $spacing-xs;
+}
+
+.btn-calculate-arb {
+  @include gradient-button;
+  padding: $spacing-md;
+  font-size: $font-base;
+  margin-top: $spacing-sm;
+}
+
+.arb-results {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid var(--border-color);
+}
+
+.arb-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.main-result {
+    padding: $spacing-md 0;
+
+    .result-value {
+      font-size: $font-2xl;
+    }
+  }
+
+  &.fees {
+    .result-value {
+      color: var(--red);
+    }
+  }
+}
+
+.result-label {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.result-value {
+  font-size: $font-base;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+
+  &.profit {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+// Arbitrage Info Card
+.arb-info-content {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.arb-steps {
+  padding-left: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  li {
+    margin-bottom: $spacing-sm;
+    color: var(--text-secondary);
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.arb-risk-warning {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: rgba($red, 0.1);
+  border: 1px solid rgba($red, 0.3);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+
+  .warning-icon {
+    font-size: $font-xl;
+  }
+
+  p {
+    font-size: $font-sm;
+    margin: 0;
+    color: var(--text-secondary);
+
+    strong {
+      color: var(--red);
+    }
+  }
+}
+
+.arb-assumptions {
+  h4 {
+    font-size: $font-sm;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  ul {
+    padding-left: $spacing-lg;
+    margin: 0;
+
+    li {
+      font-size: $font-xs;
+      color: var(--text-muted);
+      margin-bottom: $spacing-xs;
+    }
+  }
+}
+
+// =====================================================
+// SIGNAL ACCURACY TRACKING
+// =====================================================
+
+.accuracy-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.accuracy-grid {
+  display: grid;
+  grid-template-columns: 1fr repeat(5, minmax(100px, 1fr));
+  gap: $spacing-md;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.accuracy-card {
+  @include card;
+  padding: $spacing-md;
+  text-align: center;
+
+  &.accuracy-main {
+    grid-row: span 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-color: rgba($bitcoin-orange, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.08) 100%);
+
+    @media (max-width: $breakpoint-lg) {
+      grid-row: span 1;
+      grid-column: span 3;
+    }
+
+    @include mobile {
+      grid-column: span 2;
+    }
+  }
+}
+
+.accuracy-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.accuracy-icon {
+  font-size: $font-2xl;
+}
+
+.accuracy-big-value {
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+  line-height: 1;
+}
+
+.accuracy-subtitle {
+  font-size: $font-sm;
+  color: var(--text-muted);
+  margin-top: $spacing-sm;
+}
+
+.accuracy-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-bottom: $spacing-sm;
+}
+
+.accuracy-value {
+  display: block;
+  font-size: $font-xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+}
+
+.accuracy-note {
+  @include card;
+  padding: $spacing-md;
+  margin-top: $spacing-lg;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  text-align: center;
+
+  strong {
+    color: var(--text-primary);
+  }
+}
+
+// =====================================================
+// ON-CHAIN METRICS (PHASE 6 SPRINT 4)
+// =====================================================
+
+// Shared card header for on-chain section
+.onchain-card-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-lg;
+    font-weight: $font-semibold;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+.onchain-card-icon {
+  font-size: $font-2xl;
+}
+
+.onchain-tooltip {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  color: var(--text-muted);
+  font-size: $font-xs;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  margin-left: auto;
+
+  &:hover {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+  }
+}
+
+// Exchange Reserves Card
+.reserves-card {
+  border-color: rgba($blue, 0.3) !important;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($blue, 0.05) 100%) !important;
+}
+
+.reserves-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reserves-total {
+  text-align: left;
+}
+
+.reserves-value {
+  display: block;
+  font-size: $font-3xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+}
+
+.reserves-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-top: $spacing-xs;
+}
+
+.reserves-changes {
+  display: flex;
+  gap: $spacing-lg;
+}
+
+.reserves-change {
+  text-align: center;
+}
+
+.change-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-bottom: $spacing-xs;
+}
+
+.change-value {
+  display: block;
+  font-size: $font-base;
+  font-weight: $font-bold;
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+.reserves-trend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &.accumulating {
+    background: rgba($green, 0.1);
+    border: 1px solid rgba($green, 0.3);
+  }
+
+  &.distributing {
+    background: rgba($red, 0.1);
+    border: 1px solid rgba($red, 0.3);
+  }
+}
+
+.trend-icon {
+  font-size: $font-xl;
+}
+
+.trend-text {
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  color: var(--text-primary);
+}
+
+.reserves-breakdown {
+  h4 {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.exchange-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+}
+
+.exchange-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-sm;
+  font-size: $font-sm;
+
+  &.loading {
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .exchange-name {
+    color: var(--text-primary);
+  }
+
+  .exchange-amount {
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+  }
+}
+
+// Whale Flows Card
+.whale-card {
+  border-color: rgba($purple, 0.3) !important;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($purple, 0.05) 100%) !important;
+}
+
+.whale-flows {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.flow-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+
+  &.inflow {
+    border-left: 3px solid var(--red);
+  }
+
+  &.outflow {
+    border-left: 3px solid var(--green);
+  }
+}
+
+.flow-icon {
+  font-size: $font-2xl;
+}
+
+.flow-info {
+  flex: 1;
+}
+
+.flow-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.flow-value {
+  display: block;
+  font-size: $font-lg;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+}
+
+.net-flow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+
+  &.bullish {
+    background: rgba($green, 0.1);
+    border: 1px solid rgba($green, 0.3);
+
+    .net-flow-value {
+      color: var(--green);
+    }
+  }
+
+  &.bearish {
+    background: rgba($red, 0.1);
+    border: 1px solid rgba($red, 0.3);
+
+    .net-flow-value {
+      color: var(--red);
+    }
+  }
+}
+
+.net-flow-label {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.net-flow-value {
+  font-size: $font-lg;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+}
+
+.whale-signal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.signal-text {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.whale-alerts-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  font-size: $font-sm;
+  color: var(--text-muted);
+  padding: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-sm;
+}
+
+.alerts-icon {
+  font-size: $font-base;
+}
+
+// MVRV Indicator Card
+.mvrv-card {
+  border-color: rgba($bitcoin-orange, 0.3) !important;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.05) 100%) !important;
+}
+
+.mvrv-main {
+  text-align: center;
+  margin-bottom: $spacing-lg;
+}
+
+.mvrv-value {
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.mvrv-zone {
+  font-size: $font-base;
+  font-weight: $font-semibold;
+  margin-top: $spacing-sm;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  &.undervalued {
+    color: var(--green);
+  }
+
+  &.fair {
+    color: $fng-neutral;
+  }
+
+  &.overvalued {
+    color: $fear;
+  }
+
+  &.extreme {
+    color: $extreme-fear;
+  }
+}
+
+.mvrv-meter {
+  margin-bottom: $spacing-lg;
+}
+
+.mvrv-bar {
+  height: 12px;
+  background: linear-gradient(90deg, var(--green) 0%, $fng-neutral 33%, $fear 66%, $extreme-fear 100%);
+  border-radius: $radius-md;
+  position: relative;
+}
+
+.mvrv-fill {
+  height: 100%;
+  border-radius: $radius-md;
+  transition: width $transition-slow;
+}
+
+.mvrv-marker {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background: var(--bg-card);
+  border: 3px solid var(--text-primary);
+  border-radius: 50%;
+  transition: left $transition-slow;
+}
+
+.mvrv-zones {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $spacing-sm;
+}
+
+.zone-label {
+  font-size: $font-xs;
+  color: var(--text-muted);
+
+  &.under {
+    color: var(--green);
+  }
+
+  &.fair {
+    color: $fng-neutral;
+  }
+
+  &.over {
+    color: $fear;
+  }
+
+  &.extreme {
+    color: $extreme-fear;
+  }
+}
+
+.mvrv-signal {
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-md;
+  text-align: center;
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.mvrv-caps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+}
+
+.cap-item {
+  text-align: center;
+  padding: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-sm;
+}
+
+.cap-label {
+  display: block;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  margin-bottom: $spacing-xs;
+}
+
+.cap-value {
+  display: block;
+  font-size: $font-base;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+}
