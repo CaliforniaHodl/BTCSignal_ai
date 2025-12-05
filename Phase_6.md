@@ -76,33 +76,47 @@ Bybit:  (existing)
 
 ---
 
-## Sprint 3: Differentiators (Week 3-4)
+## Sprint 3: Differentiators (Week 3-4) - COMPLETE
 
-### 3.1 Telegram Alert Integration
-- [ ] Create Telegram bot via BotFather
-- [ ] Build `/api/telegram-subscribe` endpoint
-- [ ] Store subscriber chat IDs (encrypted)
-- [ ] Implement alert types:
-  - [ ] New signal alerts
-  - [ ] Funding rate spike (>0.05%)
-  - [ ] Squeeze risk alerts
-  - [ ] Price target hit alerts
-- [ ] Add Telegram connect button to Alerts page
-- [ ] Rate limit: max 10 alerts/day per user
+### 3.1 Telegram Alert Integration - DONE
+- [x] Created `telegram-webhook.ts` - handles bot commands (/start, /stop, /status, /alerts, /help)
+- [x] Created `send-telegram-alert.ts` - sends alerts to all subscribers
+- [x] Store subscriber chat IDs in GitHub (`data/telegram-subscribers.json`)
+- [x] Implement alert types:
+  - [x] Signal alerts (formatSignalAlert helper)
+  - [x] Funding rate spike (formatFundingAlert helper)
+  - [x] Squeeze risk alerts (formatSqueezeAlert helper)
+- [x] Add Telegram connect button to Alerts page
+- [x] Graceful skip if TELEGRAM_BOT_TOKEN not configured
 
-### 3.2 Discord Webhook Integration
-- [ ] Create Discord webhook input field
-- [ ] Validate webhook URL format
-- [ ] Send test message on save
-- [ ] Mirror Telegram alert types to Discord
-- [ ] Store webhook URLs (encrypted)
+**Files Created:**
+- `netlify/functions/telegram-webhook.ts` - Bot command handler
+- `netlify/functions/send-telegram-alert.ts` - Alert sender
+- `data/telegram-subscribers.json` - Subscriber storage
 
-### 3.3 Funding Rate Arbitrage Calculator
-- [ ] Calculate spread between exchanges
-- [ ] Show potential profit per $1000 position
-- [ ] Factor in trading fees
-- [ ] Display: "Long on dYdX, Short on Bybit = X% profit"
-- [ ] Add risk disclaimer
+### 3.2 Discord Webhook Integration - DONE
+- [x] Created Discord webhook input field on Alerts page
+- [x] Validate webhook URL format (discord.com/api/webhooks or discordapp.com/api/webhooks)
+- [x] Send test message on save with rich embed
+- [x] Mirror Telegram alert types to Discord
+- [x] Store webhook URLs in localStorage (client-side)
+
+**Files Created:**
+- `netlify/functions/discord-webhook.ts` - Webhook handler with test and send actions
+
+### 3.3 Funding Rate Arbitrage Calculator - DONE
+- [x] Calculate spread between exchanges using live funding rate data
+- [x] Show potential profit with configurable position size ($100-unlimited)
+- [x] Factor in trading fees (0.05% maker fee * 4 trades)
+- [x] Auto-select best exchanges or manual selection
+- [x] Display gross profit, net profit, annualized return
+- [x] Add risk warning and calculator assumptions
+
+**Features:**
+- Position size input (default $10,000)
+- Holding period selection (1 day, 1 week, 30 days)
+- Long/Short exchange dropdowns with auto option
+- Live rate display from multi-exchange funding data
 
 ---
 

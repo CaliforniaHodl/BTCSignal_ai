@@ -291,10 +291,10 @@
 - [x] Signal accuracy tracking system (public stats, 24h outcome checking)
 - [x] Data cache status indicator (freshness display in UI)
 
-**Sprint 3: Differentiators (Week 3-4)**
-- [ ] Telegram alert integration
-- [ ] Discord webhook integration
-- [ ] Funding rate arbitrage calculator
+**Sprint 3: Differentiators (Week 3-4)** - COMPLETE
+- [x] Telegram alert integration (bot infrastructure - skips gracefully if not configured)
+- [x] Discord webhook integration (URL input, test, and save with alert types)
+- [x] Funding rate arbitrage calculator (profit calculator with exchange selection)
 
 **Sprint 4: On-Chain Basics (Week 4-5)**
 - [ ] Exchange reserve tracking

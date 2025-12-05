@@ -616,6 +616,13 @@
         opportunityEl.className = 'arbitrage-opportunity low';
       }
     }
+
+    // Store rates for arbitrage calculator (convert ratePercent to decimal)
+    const ratesForArb = { exchanges: {} };
+    exchangeData.forEach(ex => {
+      ratesForArb.exchanges[ex.name.toLowerCase()] = { rate: ex.rate / 100 };
+    });
+    storeExchangeRates(ratesForArb);
   }
 
   // Fetch live funding rates from exchange APIs
@@ -1447,6 +1454,139 @@
     });
   }
 
+  // Arbitrage Calculator
+  let exchangeRates = {}; // Store rates from multi-exchange funding
+
+  function initArbitrageCalculator() {
+    const calcBtn = document.getElementById('btn-calculate-arb');
+    const longSelect = document.getElementById('arb-long-exchange');
+    const shortSelect = document.getElementById('arb-short-exchange');
+
+    if (!calcBtn) return;
+
+    // Calculate button click
+    calcBtn.addEventListener('click', calculateArbitrage);
+
+    // Update displayed rates when exchange selections change
+    if (longSelect) {
+      longSelect.addEventListener('change', updateExchangeRateDisplay);
+    }
+    if (shortSelect) {
+      shortSelect.addEventListener('change', updateExchangeRateDisplay);
+    }
+  }
+
+  function updateExchangeRateDisplay() {
+    const longSelect = document.getElementById('arb-long-exchange');
+    const shortSelect = document.getElementById('arb-short-exchange');
+    const longRateEl = document.getElementById('arb-long-rate');
+    const shortRateEl = document.getElementById('arb-short-rate');
+
+    if (!longSelect || !shortSelect || Object.keys(exchangeRates).length === 0) return;
+
+    const longExchange = longSelect.value;
+    const shortExchange = shortSelect.value;
+
+    // Find min and max rates for auto selection
+    const rates = Object.entries(exchangeRates);
+    const minRate = rates.reduce((min, [ex, rate]) => rate < min.rate ? { exchange: ex, rate } : min, { exchange: '', rate: Infinity });
+    const maxRate = rates.reduce((max, [ex, rate]) => rate > max.rate ? { exchange: ex, rate } : max, { exchange: '', rate: -Infinity });
+
+    // Display long rate
+    if (longExchange === 'auto') {
+      longRateEl.textContent = `Rate: ${(minRate.rate * 100).toFixed(4)}% (${minRate.exchange})`;
+    } else if (exchangeRates[longExchange] !== undefined) {
+      longRateEl.textContent = `Rate: ${(exchangeRates[longExchange] * 100).toFixed(4)}%`;
+    } else {
+      longRateEl.textContent = 'Rate: N/A';
+    }
+
+    // Display short rate
+    if (shortExchange === 'auto') {
+      shortRateEl.textContent = `Rate: ${(maxRate.rate * 100).toFixed(4)}% (${maxRate.exchange})`;
+    } else if (exchangeRates[shortExchange] !== undefined) {
+      shortRateEl.textContent = `Rate: ${(exchangeRates[shortExchange] * 100).toFixed(4)}%`;
+    } else {
+      shortRateEl.textContent = 'Rate: N/A';
+    }
+  }
+
+  function calculateArbitrage() {
+    const positionSize = parseFloat(document.getElementById('arb-position-size')?.value) || 10000;
+    const periodDays = parseInt(document.getElementById('arb-period')?.value) || 7;
+    const longExchangeSelect = document.getElementById('arb-long-exchange')?.value || 'auto';
+    const shortExchangeSelect = document.getElementById('arb-short-exchange')?.value || 'auto';
+
+    const resultsEl = document.getElementById('arb-results');
+    if (!resultsEl || Object.keys(exchangeRates).length === 0) {
+      alert('Please wait for funding rate data to load.');
+      return;
+    }
+
+    // Get rates
+    const rates = Object.entries(exchangeRates);
+    const minRate = rates.reduce((min, [ex, rate]) => rate < min.rate ? { exchange: ex, rate } : min, { exchange: '', rate: Infinity });
+    const maxRate = rates.reduce((max, [ex, rate]) => rate > max.rate ? { exchange: ex, rate } : max, { exchange: '', rate: -Infinity });
+
+    let longRate, shortRate;
+
+    if (longExchangeSelect === 'auto') {
+      longRate = minRate.rate;
+    } else {
+      longRate = exchangeRates[longExchangeSelect] ?? minRate.rate;
+    }
+
+    if (shortExchangeSelect === 'auto') {
+      shortRate = maxRate.rate;
+    } else {
+      shortRate = exchangeRates[shortExchangeSelect] ?? maxRate.rate;
+    }
+
+    // Calculate spread
+    const spread = shortRate - longRate;
+
+    // Funding periods (3x per day)
+    const fundingPeriods = periodDays * 3;
+
+    // Gross profit from funding
+    const grossProfit = positionSize * spread * fundingPeriods;
+
+    // Trading fees (0.05% maker fee per trade, 4 trades total: open long, open short, close long, close short)
+    const feeRate = 0.0005;
+    const totalFees = positionSize * feeRate * 4;
+
+    // Net profit
+    const netProfit = grossProfit - totalFees;
+
+    // Annualized return
+    const annualizedReturn = (netProfit / positionSize) * (365 / periodDays) * 100;
+
+    // Display results
+    resultsEl.style.display = 'block';
+    document.getElementById('arb-profit').textContent = `$${grossProfit.toFixed(2)}`;
+    document.getElementById('arb-spread-result').textContent = `${(spread * 100).toFixed(4)}%`;
+    document.getElementById('arb-annual-return').textContent = `${annualizedReturn.toFixed(1)}%`;
+    document.getElementById('arb-fees').textContent = `-$${totalFees.toFixed(2)}`;
+
+    const netProfitEl = document.getElementById('arb-net-profit');
+    netProfitEl.textContent = `$${netProfit.toFixed(2)}`;
+    netProfitEl.className = `result-value ${netProfit >= 0 ? 'profit' : 'negative'}`;
+  }
+
+  // Store rates when multi-exchange funding is fetched
+  function storeExchangeRates(fundingData) {
+    if (fundingData && fundingData.exchanges) {
+      exchangeRates = {};
+      for (const [exchange, data] of Object.entries(fundingData.exchanges)) {
+        if (data && data.rate !== undefined) {
+          exchangeRates[exchange.toLowerCase()] = data.rate;
+        }
+      }
+      // Update display after rates are loaded
+      updateExchangeRateDisplay();
+    }
+  }
+
   // Initialize all widget data
   async function initWidgets() {
     // Load static market snapshot first
@@ -1474,6 +1614,8 @@
     loadSignalAccuracy();
     // Phase 6 Week 2: Cache status indicator
     updateCacheStatus();
+    // Phase 6 Sprint 3: Arbitrage calculator
+    initArbitrageCalculator();
   }
 
   // Run on load

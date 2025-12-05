@@ -2492,4 +2492,298 @@
   color: var(--red);
 }
 
+/* Funding Arbitrage Calculator */
+.arbitrage-calculator-section {
+  margin-bottom: 48px;
+}
+.arbitrage-calculator-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.arbitrage-calculator-section .section-desc {
+  margin-bottom: 24px;
+}
+
+.arbitrage-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 1024px) {
+  .arbitrage-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arbitrage-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+}
+.arbitrage-card.calculator-card {
+  border-color: rgba(63, 185, 80, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 185, 80, 0.05) 100%);
+}
+.arbitrage-card.info-card {
+  border-color: rgba(156, 163, 175, 0.3);
+}
+
+.arbitrage-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.arbitrage-card-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+.arbitrage-card-icon {
+  font-size: 1.5rem;
+}
+
+.arbitrage-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.arb-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 640px) {
+  .arb-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.arb-form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.arb-input-wrapper {
+  display: flex;
+  align-items: center;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.arb-input-wrapper:focus-within {
+  border-color: var(--bitcoin-orange);
+}
+
+.arb-prefix {
+  padding: 0 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.arb-input-wrapper input {
+  flex: 1;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+.arb-input-wrapper input:focus {
+  outline: none;
+}
+
+.arb-form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.arb-form-group select:focus {
+  outline: none;
+  border-color: var(--bitcoin-orange);
+}
+
+.arb-exchanges {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.arb-exchange {
+  flex: 1;
+  padding: 16px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+.arb-exchange.long-exchange {
+  border-color: rgba(63, 185, 80, 0.3);
+}
+.arb-exchange.short-exchange {
+  border-color: rgba(248, 81, 73, 0.3);
+}
+.arb-exchange label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.arb-exchange select {
+  width: 100%;
+  padding: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+.exchange-rate {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.arb-exchange-arrow {
+  font-size: 1.5rem;
+  color: var(--text-muted);
+}
+@media (max-width: 640px) {
+  .arb-exchanges {
+    flex-direction: column;
+  }
+  .arb-exchange-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+.btn-calculate-arb {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-calculate-arb:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.3);
+}
+
+.arb-results {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
+
+.arb-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+.arb-result-row.main-result {
+  padding: 12px 0;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+.arb-result-row.main-result .result-label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.arb-result-row.main-result .result-value {
+  font-size: 1.5rem;
+}
+.arb-result-row.fees {
+  color: var(--text-muted);
+}
+
+.result-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+.result-value {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+.result-value.profit {
+  color: var(--green);
+}
+.result-value.negative {
+  color: var(--red);
+}
+
+/* Info Card */
+.arb-info-content {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.arb-steps {
+  margin: 0 0 20px 0;
+  padding-left: 20px;
+}
+.arb-steps li {
+  margin-bottom: 10px;
+}
+.arb-steps li strong {
+  color: var(--text-primary);
+}
+
+.arb-risk-warning {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.arb-risk-warning .warning-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.arb-risk-warning p {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.arb-assumptions {
+  padding: 16px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+}
+.arb-assumptions h4 {
+  font-size: 0.9rem;
+  margin: 0 0 12px 0;
+  color: var(--text-primary);
+}
+.arb-assumptions ul {
+  margin: 0;
+  padding-left: 18px;
+}
+.arb-assumptions li {
+  font-size: 0.8rem;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+}
+
 /*# sourceMappingURL=dashboard.css.map */

@@ -6,6 +6,7 @@
 
   const STORAGE_KEY = 'btcsai_price_alerts';
   const TRIGGERED_KEY = 'btcsai_triggered_alerts';
+  const DISCORD_WEBHOOK_KEY = 'btcsai_discord_webhook';
 
   // State
   let currentPrice = 0;
@@ -454,6 +455,97 @@
         }
       });
     });
+
+    // Discord webhook buttons
+    document.getElementById('btn-test-webhook')?.addEventListener('click', testDiscordWebhook);
+    document.getElementById('btn-save-webhook')?.addEventListener('click', saveDiscordWebhook);
+  }
+
+  // Discord Webhook Functions
+  function loadDiscordWebhook() {
+    try {
+      const saved = localStorage.getItem(DISCORD_WEBHOOK_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        const webhookInput = document.getElementById('discord-webhook-url');
+        if (webhookInput) webhookInput.value = data.url || '';
+
+        // Restore checkboxes
+        const signalsCheckbox = document.getElementById('discord-signals');
+        const fundingCheckbox = document.getElementById('discord-funding');
+        const squeezeCheckbox = document.getElementById('discord-squeeze');
+
+        if (signalsCheckbox) signalsCheckbox.checked = data.alertTypes?.includes('signals') ?? true;
+        if (fundingCheckbox) fundingCheckbox.checked = data.alertTypes?.includes('funding_spike') ?? true;
+        if (squeezeCheckbox) squeezeCheckbox.checked = data.alertTypes?.includes('squeeze') ?? false;
+      }
+    } catch (e) {
+      console.error('Error loading Discord webhook:', e);
+    }
+  }
+
+  function saveDiscordWebhook() {
+    const webhookInput = document.getElementById('discord-webhook-url');
+    const url = webhookInput?.value?.trim() || '';
+
+    const alertTypes = [];
+    if (document.getElementById('discord-signals')?.checked) alertTypes.push('signals');
+    if (document.getElementById('discord-funding')?.checked) alertTypes.push('funding_spike');
+    if (document.getElementById('discord-squeeze')?.checked) alertTypes.push('squeeze');
+
+    const data = { url, alertTypes, savedAt: new Date().toISOString() };
+    localStorage.setItem(DISCORD_WEBHOOK_KEY, JSON.stringify(data));
+
+    showToast('Discord webhook saved');
+  }
+
+  async function testDiscordWebhook() {
+    const webhookInput = document.getElementById('discord-webhook-url');
+    const statusEl = document.getElementById('webhook-status');
+    const url = webhookInput?.value?.trim();
+
+    if (!url) {
+      showToast('Please enter a webhook URL', 'error');
+      return;
+    }
+
+    // Validate URL format
+    if (!url.startsWith('https://discord.com/api/webhooks/') &&
+        !url.startsWith('https://discordapp.com/api/webhooks/')) {
+      showToast('Invalid Discord webhook URL format', 'error');
+      return;
+    }
+
+    // Show loading state
+    statusEl.className = 'webhook-status loading';
+    statusEl.textContent = 'Testing webhook...';
+
+    try {
+      const res = await fetch('/.netlify/functions/discord-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'test',
+          webhookUrl: url
+        })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        statusEl.className = 'webhook-status success';
+        statusEl.textContent = 'Webhook connected successfully!';
+        showToast('Discord webhook test successful', 'success');
+      } else {
+        statusEl.className = 'webhook-status error';
+        statusEl.textContent = data.error || 'Test failed';
+        showToast('Webhook test failed: ' + (data.error || 'Unknown error'), 'error');
+      }
+    } catch (e) {
+      statusEl.className = 'webhook-status error';
+      statusEl.textContent = 'Connection error';
+      showToast('Failed to test webhook', 'error');
+    }
   }
 
   // Initialize
@@ -463,6 +555,7 @@
     renderTriggeredAlerts();
     setupEventHandlers();
     checkNotificationPermission();
+    loadDiscordWebhook();
 
     // Fetch initial price
     await fetchPrice();

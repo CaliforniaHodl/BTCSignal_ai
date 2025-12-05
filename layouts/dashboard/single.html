@@ -267,6 +267,123 @@
       </div>
     </section>
 
+    <!-- Funding Rate Arbitrage Calculator -->
+    <section class="arbitrage-calculator-section">
+      <h2>Funding Arbitrage Calculator</h2>
+      <p class="section-desc">Calculate potential profits from funding rate spreads between exchanges. Go long on low-rate exchange, short on high-rate.</p>
+
+      <div class="arbitrage-grid">
+        <!-- Calculator Card -->
+        <div class="arbitrage-card calculator-card">
+          <div class="arbitrage-card-header">
+            <span class="arbitrage-card-icon">🧮</span>
+            <h3>Profit Calculator</h3>
+          </div>
+
+          <div class="arbitrage-form">
+            <div class="arb-form-row">
+              <div class="arb-form-group">
+                <label>Position Size (USD)</label>
+                <div class="arb-input-wrapper">
+                  <span class="arb-prefix">$</span>
+                  <input type="number" id="arb-position-size" value="10000" min="100" step="100">
+                </div>
+              </div>
+              <div class="arb-form-group">
+                <label>Holding Period</label>
+                <select id="arb-period">
+                  <option value="1">1 day (3x funding)</option>
+                  <option value="7" selected>1 week (21x funding)</option>
+                  <option value="30">30 days (90x funding)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="arb-exchanges">
+              <div class="arb-exchange long-exchange">
+                <label>Long Position Exchange</label>
+                <select id="arb-long-exchange">
+                  <option value="auto">Auto (Lowest Rate)</option>
+                  <option value="bybit">Bybit</option>
+                  <option value="okx">OKX</option>
+                  <option value="dydx">dYdX</option>
+                  <option value="bitget">Bitget</option>
+                </select>
+                <div class="exchange-rate" id="arb-long-rate">Rate: --</div>
+              </div>
+              <div class="arb-exchange-arrow">⇄</div>
+              <div class="arb-exchange short-exchange">
+                <label>Short Position Exchange</label>
+                <select id="arb-short-exchange">
+                  <option value="auto">Auto (Highest Rate)</option>
+                  <option value="bybit">Bybit</option>
+                  <option value="okx">OKX</option>
+                  <option value="dydx">dYdX</option>
+                  <option value="bitget">Bitget</option>
+                </select>
+                <div class="exchange-rate" id="arb-short-rate">Rate: --</div>
+              </div>
+            </div>
+
+            <button class="btn-calculate-arb" id="btn-calculate-arb">Calculate Profit</button>
+          </div>
+
+          <!-- Results -->
+          <div class="arb-results" id="arb-results" style="display: none;">
+            <div class="arb-result-row main-result">
+              <span class="result-label">Estimated Profit</span>
+              <span class="result-value profit" id="arb-profit">$0.00</span>
+            </div>
+            <div class="arb-result-row">
+              <span class="result-label">Rate Spread</span>
+              <span class="result-value" id="arb-spread-result">0.000%</span>
+            </div>
+            <div class="arb-result-row">
+              <span class="result-label">Annualized Return</span>
+              <span class="result-value" id="arb-annual-return">0.0%</span>
+            </div>
+            <div class="arb-result-row fees">
+              <span class="result-label">Est. Trading Fees</span>
+              <span class="result-value negative" id="arb-fees">-$0.00</span>
+            </div>
+            <div class="arb-result-row">
+              <span class="result-label">Net Profit</span>
+              <span class="result-value" id="arb-net-profit">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="arbitrage-card info-card">
+          <div class="arbitrage-card-header">
+            <span class="arbitrage-card-icon">ℹ️</span>
+            <h3>How Funding Arbitrage Works</h3>
+          </div>
+          <div class="arb-info-content">
+            <ol class="arb-steps">
+              <li><strong>Open Long Position</strong> on the exchange with the lowest (or most negative) funding rate</li>
+              <li><strong>Open Short Position</strong> on the exchange with the highest funding rate</li>
+              <li><strong>Collect the Spread</strong> - You receive funding on the short while paying less on the long</li>
+              <li><strong>Close Both Positions</strong> when the spread narrows or after your target period</li>
+            </ol>
+            <div class="arb-risk-warning">
+              <span class="warning-icon">⚠️</span>
+              <p><strong>Risk Warning:</strong> Funding arbitrage involves execution risk, exchange risk, and requires maintaining margin on both exchanges. Rates can change rapidly. Not financial advice.</p>
+            </div>
+            <div class="arb-assumptions">
+              <h4>Calculator Assumptions</h4>
+              <ul>
+                <li>Trading fees: 0.05% maker fee per trade (0.2% total round-trip)</li>
+                <li>Funding paid/received every 8 hours</li>
+                <li>Rates remain constant during holding period</li>
+                <li>No slippage on entries/exits</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Signal Accuracy Tracking (Phase 6) -->
     <section class="accuracy-section">
       <h2>Signal Accuracy Tracking</h2>
