@@ -1,25 +1,25 @@
 {
-  "timestamp": "2025-12-05T05:01:02.023Z",
+  "timestamp": "2025-12-05T09:01:03.547Z",
   "btc": {
-    "price": 92035,
-    "price24hAgo": 93361.45149439694,
-    "priceChange24h": -1.42077,
+    "price": 92115,
+    "price24hAgo": 93162.31207994027,
+    "priceChange24h": -1.12418,
     "high24h": 93577,
     "low24h": 91029,
-    "volume24h": 46947142214,
-    "marketCap": 1836522311575
+    "volume24h": 44138469762,
+    "marketCap": 1838399692218
   },
   "fearGreed": {
     "value": 28,
     "label": "Fear"
   },
   "funding": {
-    "rate": 0.0000221824570589,
-    "ratePercent": 0.00221824570589
+    "rate": 0.0000380331100083,
+    "ratePercent": 0.0038033110008300003
   },
   "openInterest": {
-    "btc": 24031.418200000036,
-    "usd": 2211731574.0370035
+    "btc": 24129.43430000005,
+    "usd": 2222682840.5445046
   },
   "longShortRatio": {
     "ratio": 1,
@@ -27,10 +27,10 @@
     "shortPercent": 50
   },
   "dominance": {
-    "btc": 57.09737858403054
+    "btc": 57.16029945203537
   },
   "hashrate": {
-    "current": 1040.8804072422831,
+    "current": 1023.41794518976,
     "unit": "EH/s",
     "history": [
       [
@@ -157,13 +157,6 @@
   },
   "ohlc": {
     "days7": [
-      [
-        1764316800000,
-        91195,
-        91671,
-        90915,
-        90915
-      ],
       [
         1764331200000,
         90949,
@@ -450,16 +443,16 @@
         92650,
         92119,
         92302
+      ],
+      [
+        1764921600000,
+        92269,
+        92492,
+        91879,
+        92241
       ]
     ],
     "days30": [
-      [
-        1762329600000,
-        102119,
-        102242,
-        101607,
-        101999
-      ],
       [
         1762344000000,
         101800,
@@ -1712,11 +1705,172 @@
         92650,
         92119,
         92302
+      ],
+      [
+        1764921600000,
+        92269,
+        92492,
+        91879,
+        92241
       ]
     ]
   },
   "global": {
-    "totalMarketCap": 3216252281410.3506,
+    "totalMarketCap": 3218172235975.5884,
     "total24hVolume": 0
+  },
+  "liquidation": {
+    "levels": [
+      {
+        "price": 100405.35,
+        "type": "short",
+        "leverage": 10,
+        "intensity": 0.8,
+        "estimatedValue": 889073136.2178019,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 98728.27526522873,
+        "type": "short",
+        "leverage": 10,
+        "intensity": 0.45695546662791214,
+        "estimatedValue": 48000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 95453.60752219365,
+        "type": "short",
+        "leverage": 10,
+        "intensity": 0.6612602239142975,
+        "estimatedValue": 47000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 95431.14,
+        "type": "short",
+        "leverage": 25,
+        "intensity": 0.6,
+        "estimatedValue": 666804852.1633514,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 93773.07,
+        "type": "short",
+        "leverage": 50,
+        "intensity": 0.4,
+        "estimatedValue": 444536568.10890096,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 92944.03499999999,
+        "type": "short",
+        "leverage": 100,
+        "intensity": 0.2,
+        "estimatedValue": 222268284.05445048,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 92766.36846551362,
+        "type": "short",
+        "leverage": 10,
+        "intensity": 0.3735300885620521,
+        "estimatedValue": 28000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 91285.965,
+        "type": "long",
+        "leverage": 100,
+        "intensity": 0.24,
+        "estimatedValue": 266721940.86534056,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 91271.44668046008,
+        "type": "long",
+        "leverage": 50,
+        "intensity": 0.6155955327255627,
+        "estimatedValue": 28000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 90456.93,
+        "type": "long",
+        "leverage": 50,
+        "intensity": 0.48,
+        "estimatedValue": 533443881.7306811,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 90302.48826072447,
+        "type": "long",
+        "leverage": 25,
+        "intensity": 0.4569316346955719,
+        "estimatedValue": 23000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 89998.6507124096,
+        "type": "long",
+        "leverage": 50,
+        "intensity": 0.6281930335387544,
+        "estimatedValue": 5000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 89224.45219618274,
+        "type": "long",
+        "leverage": 10,
+        "intensity": 0.2500738228005717,
+        "estimatedValue": 33000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 88798.86,
+        "type": "long",
+        "leverage": 25,
+        "intensity": 0.72,
+        "estimatedValue": 800165822.5960217,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 88611.03492457677,
+        "type": "long",
+        "leverage": 100,
+        "intensity": 0.6634115745291065,
+        "estimatedValue": 46000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 88522.67623194307,
+        "type": "long",
+        "leverage": 100,
+        "intensity": 0.360459965911399,
+        "estimatedValue": 40000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 86569.40058333715,
+        "type": "long",
+        "leverage": 25,
+        "intensity": 0.3740113588272877,
+        "estimatedValue": 38000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 83824.65000000001,
+        "type": "long",
+        "leverage": 10,
+        "intensity": 0.96,
+        "estimatedValue": 1066887763.4613622,
+        "exchange": "aggregate"
+      }
+    ],
+    "stats24h": {
+      "total": 111134142.02722524,
+      "long": 66680485.21633514,
+      "short": 44453656.8108901,
+      "ratio": 1.4999999999999998
+    }
   }
 }
