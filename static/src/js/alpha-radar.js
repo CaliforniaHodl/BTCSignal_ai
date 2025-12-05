@@ -344,62 +344,60 @@
     return alerts.sort((a, b) => b.amount_btc - a.amount_btc);
   }
 
-  // Render whale alerts to container
+  // Render whale alerts to container (show only latest on alpha radar)
   function renderWhaleAlerts(alerts, container, isLive) {
     if (!alerts || alerts.length === 0) {
       container.innerHTML = '<p class="no-alerts">No whale movements detected.</p>';
       return;
     }
 
-    // Add live indicator if showing live data
+    // Get the latest alert only
+    const alert = alerts[0];
+    const timeAgo = getTimeAgo(new Date(alert.timestamp));
     const liveIndicator = isLive ? '<span class="live-badge">LIVE</span>' : '';
 
-    // Render alerts (show top 5 on alpha radar, link to full page)
-    container.innerHTML = liveIndicator + alerts.slice(0, 5).map(alert => {
-      const timeAgo = getTimeAgo(new Date(alert.timestamp));
-      const typeIcon = {
-        'exchange_deposit': '📥',
-        'exchange_withdrawal': '📤',
-        'whale_transfer': '🔄',
-        'dormant_wallet': '💤'
-      }[alert.type] || '🐋';
+    const typeIcon = {
+      'exchange_deposit': '📥',
+      'exchange_withdrawal': '📤',
+      'whale_transfer': '🔄',
+      'dormant_wallet': '💤'
+    }[alert.type] || '🐋';
 
-      const typeLabel = {
-        'exchange_deposit': 'Exchange Deposit',
-        'exchange_withdrawal': 'Exchange Withdrawal',
-        'whale_transfer': 'Whale Transfer',
-        'dormant_wallet': 'Dormant Wallet'
-      }[alert.type] || 'Unknown';
+    const typeLabel = {
+      'exchange_deposit': 'Exchange Deposit',
+      'exchange_withdrawal': 'Exchange Withdrawal',
+      'whale_transfer': 'Whale Transfer',
+      'dormant_wallet': 'Dormant Wallet'
+    }[alert.type] || 'Unknown';
 
-      const confidenceClass = {
-        'high': 'confidence-high',
-        'medium': 'confidence-medium',
-        'low': 'confidence-low'
-      }[alert.confidence] || '';
+    const confidenceClass = {
+      'high': 'confidence-high',
+      'medium': 'confidence-medium',
+      'low': 'confidence-low'
+    }[alert.confidence] || '';
 
-      return `
-        <div class="whale-alert-item ${alert.type}">
-          <div class="alert-header">
-            <span class="alert-type">${typeIcon} ${typeLabel}</span>
-            <span class="alert-confidence ${confidenceClass}">${alert.confidence.toUpperCase()}</span>
-          </div>
-          <div class="alert-amount">
-            <span class="btc-amount">${alert.amount_btc.toLocaleString()} BTC</span>
-            <span class="usd-amount">$${(alert.amount_usd / 1000000).toFixed(1)}M</span>
-          </div>
-          <div class="alert-flow">
-            <span class="from">${alert.from_type}</span>
-            <span class="arrow">→</span>
-            <span class="to">${alert.to_type}</span>
-          </div>
-          <div class="alert-analysis">${alert.analysis}</div>
-          <div class="alert-footer">
-            <span class="alert-time">${timeAgo}</span>
-            <a href="https://mempool.space/tx/${alert.txid}" target="_blank" class="tx-link">View TX →</a>
-          </div>
+    container.innerHTML = liveIndicator + `
+      <div class="whale-alert-item ${alert.type}">
+        <div class="alert-header">
+          <span class="alert-type">${typeIcon} ${typeLabel}</span>
+          <span class="alert-confidence ${confidenceClass}">${alert.confidence.toUpperCase()}</span>
         </div>
-      `;
-    }).join('');
+        <div class="alert-amount">
+          <span class="btc-amount">${alert.amount_btc.toLocaleString()} BTC</span>
+          <span class="usd-amount">$${(alert.amount_usd / 1000000).toFixed(1)}M</span>
+        </div>
+        <div class="alert-flow">
+          <span class="from">${alert.from_type}</span>
+          <span class="arrow">→</span>
+          <span class="to">${alert.to_type}</span>
+        </div>
+        <div class="alert-analysis">${alert.analysis}</div>
+        <div class="alert-footer">
+          <span class="alert-time">${timeAgo}</span>
+          <a href="https://mempool.space/tx/${alert.txid}" target="_blank" class="tx-link">View TX →</a>
+        </div>
+      </div>
+    `;
   }
 
   // Helper: get time ago string
