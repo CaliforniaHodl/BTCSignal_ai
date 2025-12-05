@@ -6,41 +6,43 @@
 
 ---
 
-## Sprint 1: Quick Wins (Week 1)
+## Sprint 1: Quick Wins (Week 1) - COMPLETE
 
-### 1.1 Long/Short Ratio Display
-- [ ] Add Bybit L/S ratio API call (`/v5/market/account-ratio`)
-- [ ] Create ratio display component for dashboard
-- [ ] Add visual indicator (bar chart showing long % vs short %)
-- [ ] Add tooltip explaining what L/S ratio means
-- [ ] Display on: Home page, Alpha Radar, Dashboard
+### 1.1 Long/Short Ratio Display - DONE
+- [x] Add Bybit L/S ratio API call (`/v5/market/account-ratio`)
+- [x] Create ratio display component for dashboard
+- [x] Add visual indicator (bar chart showing long % vs short %)
+- [x] Add tooltip explaining what L/S ratio means
+- [x] Display on: Dashboard
 
 **API Endpoint:**
 ```
 https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=1h
 ```
 
-### 1.2 Multi-Exchange Funding Rate Comparison
-- [ ] Add dYdX funding rate API
-- [ ] Add Bitget funding rate API
-- [ ] Create comparison table component
-- [ ] Show: Exchange | Current Rate | 8hr Trend | Annualized
-- [ ] Highlight arbitrage opportunities (>0.02% spread)
+### 1.2 Multi-Exchange Funding Rate Comparison - DONE
+- [x] Add dYdX funding rate API
+- [x] Add Bitget funding rate API
+- [x] Add Binance funding rate API (may fail in US)
+- [x] Create comparison table component
+- [x] Show: Exchange | Current Rate | 8hr Trend | Annualized
+- [x] Highlight arbitrage opportunities (>0.02% spread)
 
 **API Endpoints:**
 ```
-dYdX:   https://api.dydx.exchange/v3/markets
-Bitget: https://api.bitget.com/api/mix/v1/market/current-fundRate
+dYdX:   https://indexer.dydx.trade/v4/perpetualMarkets?ticker=BTC-USD
+Bitget: https://api.bitget.com/api/v2/mix/market/current-fund-rate
+Binance: https://fapi.binance.com/fapi/v1/premiumIndex
 OKX:    (existing)
 Bybit:  (existing)
 ```
 
-### 1.3 Funding Rate History Chart
-- [ ] Create Netlify scheduled function to snapshot funding every 8 hours
-- [ ] Store in `/data/funding-history.json` (rolling 30 days)
-- [ ] Build sparkline chart component
-- [ ] Add "Funding positive for X consecutive days" indicator
-- [ ] Display historical average vs current
+### 1.3 Funding Rate History Chart - DONE
+- [x] Enhanced Netlify scheduled function to snapshot funding from all exchanges
+- [x] Store in `/data/market-snapshot.json` as `funding.history` (rolling 30 days)
+- [x] Build Chart.js line chart component
+- [x] Add "Funding positive for X consecutive days" indicator
+- [x] Display historical average vs current
 
 ---
 

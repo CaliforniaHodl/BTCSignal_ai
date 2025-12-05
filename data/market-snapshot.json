@@ -15,7 +15,15 @@
   },
   "funding": {
     "rate": 0.0000101865234236,
-    "ratePercent": 0.00101865234236
+    "ratePercent": 0.00101865234236,
+    "exchanges": {
+      "bybit": { "rate": 0.0001, "ratePercent": 0.01, "nextFundingTime": 0 },
+      "okx": { "rate": 0.0001, "ratePercent": 0.01, "nextFundingTime": 0 },
+      "binance": { "rate": 0.0001, "ratePercent": 0.01, "nextFundingTime": 0 },
+      "dydx": { "rate": 0.0001, "ratePercent": 0.01, "nextFundingTime": 0 },
+      "bitget": { "rate": 0.0001, "ratePercent": 0.01, "nextFundingTime": 0 }
+    },
+    "history": []
   },
   "openInterest": {
     "btc": 24296.983500000042,
@@ -24,7 +32,8 @@
   "longShortRatio": {
     "ratio": 1,
     "longPercent": 50,
-    "shortPercent": 50
+    "shortPercent": 50,
+    "source": "bybit"
   },
   "dominance": {
     "btc": 0

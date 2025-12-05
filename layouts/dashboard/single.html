@@ -88,10 +88,25 @@
           <div class="widget-header">
             <span class="widget-icon">📈</span>
             <h3>Long/Short Ratio</h3>
+            <span class="widget-tooltip" title="Shows the ratio of traders holding long vs short positions. A ratio > 1 means more longs. Data from Bybit.">ℹ️</span>
           </div>
           <div class="widget-value" id="dash-ls-value">--</div>
           <div class="widget-label" id="dash-ls-label">Loading...</div>
-          <div class="widget-sublabel">Top traders positioning</div>
+          <div class="widget-chart">
+            <div class="ls-bar-container">
+              <div class="ls-bar long" id="dash-ls-long-bar" style="width: 50%">
+                <span class="ls-bar-label" id="dash-ls-long-pct">50%</span>
+              </div>
+              <div class="ls-bar short" id="dash-ls-short-bar" style="width: 50%">
+                <span class="ls-bar-label" id="dash-ls-short-pct">50%</span>
+              </div>
+            </div>
+            <div class="ls-labels">
+              <span class="long-label">Long</span>
+              <span class="short-label">Short</span>
+            </div>
+          </div>
+          <div class="widget-sublabel">Top traders positioning (Bybit)</div>
         </div>
 
         <!-- Liquidations 24h Widget -->
@@ -136,6 +151,68 @@
           <div class="widget-value" id="dash-dom-value">--</div>
           <div class="widget-label" id="dash-dom-label">Loading...</div>
           <div class="widget-sublabel">Market share</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Multi-Exchange Funding Rate Comparison -->
+    <section class="funding-comparison-section">
+      <h2>Multi-Exchange Funding Rates</h2>
+      <p class="section-desc">Compare perpetual funding rates across major exchanges. Spread >0.02% may indicate arbitrage opportunities.</p>
+
+      <div class="funding-grid">
+        <!-- Funding Comparison Table -->
+        <div class="funding-card funding-table-card">
+          <div class="funding-card-header">
+            <span class="funding-card-icon">💰</span>
+            <h3>Exchange Comparison</h3>
+          </div>
+          <div class="funding-table-wrapper">
+            <table class="funding-table" id="funding-comparison-table">
+              <thead>
+                <tr>
+                  <th>Exchange</th>
+                  <th>Current Rate</th>
+                  <th>8h Trend</th>
+                  <th>Annualized</th>
+                  <th>Next Funding</th>
+                </tr>
+              </thead>
+              <tbody id="funding-table-body">
+                <tr><td colspan="5" class="loading-row">Loading exchange data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="funding-arbitrage" id="funding-arbitrage">
+            <span class="arbitrage-label">Max Spread:</span>
+            <span class="arbitrage-value" id="funding-spread">--</span>
+            <span class="arbitrage-opportunity" id="funding-opportunity"></span>
+          </div>
+        </div>
+
+        <!-- Funding Rate History Chart -->
+        <div class="funding-card funding-history-card">
+          <div class="funding-card-header">
+            <span class="funding-card-icon">📈</span>
+            <h3>30-Day Funding History</h3>
+          </div>
+          <div class="funding-chart-container">
+            <canvas id="fundingHistoryChart" height="200"></canvas>
+          </div>
+          <div class="funding-stats">
+            <div class="funding-stat">
+              <span class="stat-label">Avg Rate (30d)</span>
+              <span class="stat-value" id="funding-avg-30d">--</span>
+            </div>
+            <div class="funding-stat">
+              <span class="stat-label">Positive Days</span>
+              <span class="stat-value positive" id="funding-positive-days">--</span>
+            </div>
+            <div class="funding-stat">
+              <span class="stat-label">Current Streak</span>
+              <span class="stat-value" id="funding-streak">--</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>

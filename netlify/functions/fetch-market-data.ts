@@ -21,6 +21,14 @@ interface MarketSnapshot {
     ratePercent: number;
     binance?: number;
     bybit?: number;
+    exchanges: {
+      bybit: { rate: number; ratePercent: number; nextFundingTime: number };
+      okx: { rate: number; ratePercent: number; nextFundingTime: number };
+      binance: { rate: number; ratePercent: number; nextFundingTime: number };
+      dydx: { rate: number; ratePercent: number; nextFundingTime: number };
+      bitget: { rate: number; ratePercent: number; nextFundingTime: number };
+    };
+    history: Array<{ timestamp: number; rate: number }>;
   };
   openInterest: {
     btc: number;
@@ -32,6 +40,7 @@ interface MarketSnapshot {
     ratio: number;
     longPercent: number;
     shortPercent: number;
+    source: string;
   };
   dominance: {
     btc: number;
@@ -216,9 +225,20 @@ export default async (req: Request, context: Context) => {
     timestamp: new Date().toISOString(),
     btc: { price: 0, price24hAgo: 0, priceChange24h: 0, high24h: 0, low24h: 0, volume24h: 0, marketCap: 0 },
     fearGreed: { value: 50, label: 'Neutral' },
-    funding: { rate: 0, ratePercent: 0 },
+    funding: {
+      rate: 0,
+      ratePercent: 0,
+      exchanges: {
+        bybit: { rate: 0, ratePercent: 0, nextFundingTime: 0 },
+        okx: { rate: 0, ratePercent: 0, nextFundingTime: 0 },
+        binance: { rate: 0, ratePercent: 0, nextFundingTime: 0 },
+        dydx: { rate: 0, ratePercent: 0, nextFundingTime: 0 },
+        bitget: { rate: 0, ratePercent: 0, nextFundingTime: 0 },
+      },
+      history: [],
+    },
     openInterest: { btc: 0, usd: 0 },
-    longShortRatio: { ratio: 1, longPercent: 50, shortPercent: 50 },
+    longShortRatio: { ratio: 1, longPercent: 50, shortPercent: 50, source: 'okx' },
     dominance: { btc: 0 },
     hashrate: { current: 0, unit: 'EH/s', history: [] },
     ohlc: { days7: [], days30: [] },
@@ -241,6 +261,13 @@ export default async (req: Request, context: Context) => {
       // Bybit API for additional derivatives data
       bybitOiRes,
       bybitFundingRes,
+      // Additional exchange funding rates for Phase 6
+      bybitLongShortRes,
+      bitgetFundingRes,
+      dydxFundingRes,
+      binanceFundingRes,
+      // Get existing snapshot for funding history
+      existingSnapshotRes,
     ] = await Promise.allSettled([
       fetchWithTimeout('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false'),
       fetchWithTimeout('https://api.alternative.me/fng/?limit=1'),
@@ -254,6 +281,13 @@ export default async (req: Request, context: Context) => {
       // Bybit derivatives data
       fetchWithTimeout('https://api.bybit.com/v5/market/open-interest?category=linear&symbol=BTCUSDT&intervalTime=1h&limit=1'),
       fetchWithTimeout('https://api.bybit.com/v5/market/funding/history?category=linear&symbol=BTCUSDT&limit=1'),
+      // Phase 6: Multi-exchange data
+      fetchWithTimeout('https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=1h&limit=1'),
+      fetchWithTimeout('https://api.bitget.com/api/v2/mix/market/current-fund-rate?symbol=BTCUSDT&productType=USDT-FUTURES'),
+      fetchWithTimeout('https://indexer.dydx.trade/v4/perpetualMarkets?ticker=BTC-USD'),
+      fetchWithTimeout('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT'),
+      // Fetch existing snapshot to preserve funding history
+      fetchWithTimeout(`https://raw.githubusercontent.com/${process.env.GITHUB_REPO || 'jasonsutter87/BTCSignal_ai'}/master/static/data/market-snapshot.json`),
     ]);
 
     // Process BTC data from CoinGecko
@@ -425,9 +459,114 @@ export default async (req: Request, context: Context) => {
       if (data.retCode === 0 && data.result?.list?.[0]) {
         bybitFunding = parseFloat(data.result.list[0].fundingRate);
         snapshot.funding.bybit = bybitFunding;
+        snapshot.funding.exchanges.bybit = {
+          rate: bybitFunding,
+          ratePercent: bybitFunding * 100,
+          nextFundingTime: parseInt(data.result.list[0].fundingRateTimestamp) || 0,
+        };
       }
     }
     console.log('Bybit Funding:', (bybitFunding * 100).toFixed(4) + '%');
+
+    // Phase 6: Process Bybit Long/Short Ratio (more accurate than OKX)
+    if (bybitLongShortRes.status === 'fulfilled' && bybitLongShortRes.value.ok) {
+      const data = await bybitLongShortRes.value.json();
+      if (data.retCode === 0 && data.result?.list?.[0]) {
+        const buyRatio = parseFloat(data.result.list[0].buyRatio);
+        const sellRatio = parseFloat(data.result.list[0].sellRatio);
+        const ratio = sellRatio > 0 ? buyRatio / sellRatio : 1;
+        snapshot.longShortRatio = {
+          ratio: ratio,
+          longPercent: buyRatio * 100,
+          shortPercent: sellRatio * 100,
+          source: 'bybit',
+        };
+        console.log('Bybit L/S Ratio:', ratio.toFixed(2), `(${(buyRatio * 100).toFixed(1)}% Long)`);
+      }
+    }
+
+    // Phase 6: Process Bitget Funding Rate
+    if (bitgetFundingRes.status === 'fulfilled' && bitgetFundingRes.value.ok) {
+      const data = await bitgetFundingRes.value.json();
+      if (data.code === '00000' && data.data) {
+        const rate = parseFloat(data.data.fundingRate);
+        snapshot.funding.exchanges.bitget = {
+          rate: rate,
+          ratePercent: rate * 100,
+          nextFundingTime: 0,
+        };
+        console.log('Bitget Funding:', (rate * 100).toFixed(4) + '%');
+      }
+    }
+
+    // Phase 6: Process dYdX Funding Rate
+    if (dydxFundingRes.status === 'fulfilled' && dydxFundingRes.value.ok) {
+      const data = await dydxFundingRes.value.json();
+      if (data.markets && data.markets['BTC-USD']) {
+        const market = data.markets['BTC-USD'];
+        const rate = parseFloat(market.nextFundingRate || '0');
+        snapshot.funding.exchanges.dydx = {
+          rate: rate,
+          ratePercent: rate * 100,
+          nextFundingTime: 0,
+        };
+        console.log('dYdX Funding:', (rate * 100).toFixed(4) + '%');
+      }
+    }
+
+    // Phase 6: Process Binance Funding Rate (may fail in US)
+    if (binanceFundingRes.status === 'fulfilled' && binanceFundingRes.value.ok) {
+      const data = await binanceFundingRes.value.json();
+      if (data.lastFundingRate) {
+        const rate = parseFloat(data.lastFundingRate);
+        snapshot.funding.exchanges.binance = {
+          rate: rate,
+          ratePercent: rate * 100,
+          nextFundingTime: data.nextFundingTime || 0,
+        };
+        snapshot.funding.binance = rate;
+        console.log('Binance Funding:', (rate * 100).toFixed(4) + '%');
+      }
+    }
+
+    // Update OKX in exchanges object from earlier fetch
+    snapshot.funding.exchanges.okx = {
+      rate: snapshot.funding.rate,
+      ratePercent: snapshot.funding.ratePercent,
+      nextFundingTime: 0,
+    };
+
+    // Phase 6: Update Funding History (rolling 30 days)
+    let existingHistory: Array<{ timestamp: number; rate: number }> = [];
+    if (existingSnapshotRes.status === 'fulfilled' && existingSnapshotRes.value.ok) {
+      try {
+        const existingSnapshot = await existingSnapshotRes.value.json();
+        if (existingSnapshot.funding?.history) {
+          existingHistory = existingSnapshot.funding.history;
+        }
+      } catch (e) {
+        console.log('Could not parse existing snapshot for history');
+      }
+    }
+
+    // Calculate average funding rate across all exchanges
+    const allRates = [
+      snapshot.funding.exchanges.bybit.ratePercent,
+      snapshot.funding.exchanges.okx.ratePercent,
+      snapshot.funding.exchanges.bitget.ratePercent,
+      snapshot.funding.exchanges.dydx.ratePercent,
+      snapshot.funding.exchanges.binance.ratePercent,
+    ].filter(r => r !== 0);
+    const avgRate = allRates.length > 0 ? allRates.reduce((a, b) => a + b, 0) / allRates.length : snapshot.funding.ratePercent;
+
+    // Add new data point
+    const now = Date.now();
+    existingHistory.push({ timestamp: now, rate: avgRate });
+
+    // Keep only last 30 days (180 data points at 4-hour intervals)
+    const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+    snapshot.funding.history = existingHistory.filter(h => h.timestamp > thirtyDaysAgo);
+    console.log('Funding history points:', snapshot.funding.history.length);
 
     // Calculate liquidation levels based on OI and funding data
     const price = snapshot.btc.price;

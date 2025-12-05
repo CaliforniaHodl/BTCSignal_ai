@@ -283,6 +283,62 @@
   background: var(--red);
 }
 
+/* Long/Short Ratio Bar Styles */
+.ls-bar-container {
+  display: flex;
+  height: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-dark);
+}
+
+.ls-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.3s ease;
+  min-width: 30px;
+}
+.ls-bar.long {
+  background: linear-gradient(90deg, var(--green) 0%, #2e9e4e 100%);
+}
+.ls-bar.short {
+  background: linear-gradient(90deg, #d64040 0%, var(--red) 100%);
+}
+
+.ls-bar-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.ls-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.ls-labels .long-label {
+  color: var(--green);
+}
+.ls-labels .short-label {
+  color: var(--red);
+}
+
+/* Widget Tooltip */
+.widget-tooltip {
+  font-size: 0.875rem;
+  cursor: help;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+.widget-tooltip:hover {
+  opacity: 1;
+}
+
 .stats-section {
   margin-bottom: 48px;
 }
@@ -1915,6 +1971,204 @@
 .btn-back-dashboard:hover {
   border-color: var(--bitcoin-orange);
   color: var(--bitcoin-orange);
+}
+
+/* =====================================================
+   MULTI-EXCHANGE FUNDING RATE COMPARISON
+   ===================================================== */
+
+.funding-comparison-section {
+  margin-bottom: 48px;
+}
+.funding-comparison-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.funding-comparison-section .section-desc {
+  margin-bottom: 24px;
+}
+
+.funding-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+@media (max-width: 1024px) {
+  .funding-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.funding-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.funding-card.funding-table-card {
+  border-color: rgba(88, 166, 255, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(88, 166, 255, 0.05) 100%);
+}
+.funding-card.funding-history-card {
+  border-color: rgba(247, 147, 26, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.05) 100%);
+}
+
+.funding-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.funding-card-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+.funding-card-icon {
+  font-size: 1.5rem;
+}
+
+.funding-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.funding-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.funding-table th,
+.funding-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+.funding-table th {
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.funding-table td {
+  color: var(--text-primary);
+}
+.funding-table tr:last-child td {
+  border-bottom: none;
+}
+.funding-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+.funding-table .loading-row {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 24px;
+}
+.funding-table .exchange-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.funding-table .exchange-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+.funding-table .rate-positive {
+  color: var(--green);
+  font-weight: 600;
+}
+.funding-table .rate-negative {
+  color: var(--red);
+  font-weight: 600;
+}
+.funding-table .rate-neutral {
+  color: var(--text-secondary);
+}
+.funding-table .trend-up {
+  color: var(--green);
+}
+.funding-table .trend-down {
+  color: var(--red);
+}
+.funding-table .trend-flat {
+  color: var(--text-muted);
+}
+
+.funding-arbitrage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--bg-dark);
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+.funding-arbitrage .arbitrage-label {
+  color: var(--text-secondary);
+}
+.funding-arbitrage .arbitrage-value {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.funding-arbitrage .arbitrage-opportunity {
+  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.funding-arbitrage .arbitrage-opportunity.high {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+  border: 1px solid rgba(63, 185, 80, 0.3);
+}
+.funding-arbitrage .arbitrage-opportunity.low {
+  background: rgba(156, 163, 175, 0.15);
+  color: var(--text-secondary);
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.funding-chart-container {
+  height: 200px;
+  margin-bottom: 16px;
+}
+.funding-chart-container canvas {
+  max-height: 200px;
+}
+
+.funding-stats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.funding-stat {
+  text-align: center;
+}
+.funding-stat .stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.funding-stat .stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.funding-stat .stat-value.positive {
+  color: var(--green);
+}
+.funding-stat .stat-value.negative {
+  color: var(--red);
 }
 
 /*# sourceMappingURL=dashboard.css.map */

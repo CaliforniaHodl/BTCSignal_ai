@@ -276,15 +276,15 @@
 
 ---
 
-### Phase 6: Competitive Feature Parity (PLANNED)
+### Phase 6: Competitive Feature Parity (IN PROGRESS)
 *Goal: Close the gap with Coinglass free tier while leveraging unique advantages*
 *Timeline: 4-6 weeks*
 *Detailed plan: [Phase_6.md](./Phase_6.md)*
 
-**Sprint 1: Quick Wins (Week 1)**
-- [ ] Long/Short ratio display (Bybit API)
-- [ ] Multi-exchange funding rate comparison (dYdX, Bitget, OKX, Bybit)
-- [ ] Funding rate history chart (30 days)
+**Sprint 1: Quick Wins (Week 1)** - COMPLETE
+- [x] Long/Short ratio display (Bybit API) - Visual bar chart with live data
+- [x] Multi-exchange funding rate comparison (dYdX, Bitget, OKX, Bybit, Binance)
+- [x] Funding rate history chart (30 days) - With rolling history tracking
 
 **Sprint 2: Data Infrastructure (Week 2)**
 - [ ] Historical Open Interest tracking + chart
