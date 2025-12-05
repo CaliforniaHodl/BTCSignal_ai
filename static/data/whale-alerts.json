@@ -1,6 +1,18 @@
 {
-  "lastUpdated": "2025-12-05T17:01:19.103Z",
+  "lastUpdated": "2025-12-05T17:05:10.501Z",
   "alerts": [
+    {
+      "id": "whale_a0b8e6d857b1_1764954310423",
+      "timestamp": "2025-12-05T17:05:10.423Z",
+      "txid": "a0b8e6d857b17fca6f66396d0bb8c1891ed33c8c73b80a432d5f0092b349a870",
+      "type": "dormant_wallet",
+      "amount_btc": 545.79,
+      "amount_usd": 48592993,
+      "confidence": "medium",
+      "from_type": "Unknown",
+      "to_type": "Unknown",
+      "analysis": "545.79 BTC moved from single UTXO. Could be dormant wallet awakening - significant if wallet was inactive for extended period."
+    },
     {
       "id": "whale_f32b4c15d8fc_1764953102898",
       "timestamp": "2025-12-05T16:45:02.898Z",
@@ -75,7 +87,7 @@
     }
   ],
   "stats": {
-    "totalTracked24h": 6,
+    "totalTracked24h": 7,
     "largestTx24h": 545.79,
     "exchangeInflow24h": 0,
     "exchangeOutflow24h": 0
