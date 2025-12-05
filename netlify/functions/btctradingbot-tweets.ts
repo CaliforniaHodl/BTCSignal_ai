@@ -1,0 +1,209 @@
+// BTCTradingBot Twitter Posts - @BTCTradingBotAI
+// Posts daily trading signals and derivatives alerts
+import type { Config, Context } from '@netlify/functions';
+import { TwitterApi } from 'twitter-api-v2';
+import { DataProvider } from './lib/data-provider';
+import { TechnicalAnalyzer } from './lib/technical-analysis';
+import { PredictionEngine } from './lib/prediction-engine';
+import { BlogGenerator, AnalysisResult } from './lib/blog-generator';
+import { HistoricalTracker } from './lib/historical-tracker';
+import { DerivativesAnalyzer } from './lib/derivatives-analyzer';
+import { generateTradingBotTweets, generateDerivativesAlertTweet } from './lib/tweet-generator';
+
+const SYMBOL = 'BTC-USD';
+const TIMEFRAME = '1h';
+const CANDLE_LIMIT = 100;
+const CANDLE_LIMIT_24H = 24;
+
+interface ThreadTweet {
+  id: string;
+  text: string;
+}
+
+async function postThread(client: TwitterApi, tweets: string[]): Promise<ThreadTweet[]> {
+  if (tweets.length === 0) {
+    throw new Error('Thread must contain at least one tweet');
+  }
+
+  const results: ThreadTweet[] = [];
+  let previousTweetId: string | null = null;
+
+  for (const tweetText of tweets) {
+    const options: { text: string; reply?: { in_reply_to_tweet_id: string } } = {
+      text: tweetText,
+    };
+
+    if (previousTweetId) {
+      options.reply = { in_reply_to_tweet_id: previousTweetId };
+    }
+
+    const result = await client.v2.tweet(options);
+    previousTweetId = result.data.id;
+
+    results.push({
+      id: result.data.id,
+      text: result.data.text,
+    });
+  }
+
+  return results;
+}
+
+export default async (req: Request, context: Context) => {
+  console.log('BTCTradingBot: Starting tweet generation...');
+
+  // Check for Twitter credentials
+  if (!process.env.TWITTER_API_KEY || !process.env.TWITTER_API_SECRET ||
+      !process.env.TWITTER_ACCESS_TOKEN || !process.env.TWITTER_ACCESS_SECRET) {
+    console.log('Twitter credentials not configured');
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Twitter credentials not configured',
+    }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  }
+
+  try {
+    // Initialize Twitter client
+    const twitterClient = new TwitterApi({
+      appKey: process.env.TWITTER_API_KEY,
+      appSecret: process.env.TWITTER_API_SECRET,
+      accessToken: process.env.TWITTER_ACCESS_TOKEN,
+      accessSecret: process.env.TWITTER_ACCESS_SECRET,
+    });
+
+    // Initialize analysis services
+    const dataProvider = new DataProvider();
+    const technicalAnalyzer = new TechnicalAnalyzer();
+    const predictionEngine = new PredictionEngine();
+    const blogGenerator = new BlogGenerator();
+    const historicalTracker = new HistoricalTracker();
+    const derivativesAnalyzer = new DerivativesAnalyzer();
+
+    // Fetch market data
+    console.log('Fetching market data...');
+    const marketData = await dataProvider.fetchCoinbaseData(SYMBOL, TIMEFRAME, CANDLE_LIMIT);
+    const indicators = technicalAnalyzer.calculateIndicators(marketData.data);
+    const patterns = technicalAnalyzer.identifyPatterns(marketData.data, indicators);
+
+    // Calculate price metrics
+    const currentPrice = marketData.data[marketData.data.length - 1].close;
+    const startPrice = marketData.data[0].close;
+    const priceChange = ((currentPrice - startPrice) / startPrice) * 100;
+
+    const last24hData = marketData.data.slice(-CANDLE_LIMIT_24H);
+    const price24hAgo = last24hData[0].open;
+    const priceChange24h = ((currentPrice - price24hAgo) / price24hAgo) * 100;
+    const high24h = Math.max(...last24hData.map(d => d.high));
+    const low24h = Math.min(...last24hData.map(d => d.low));
+
+    // Fetch derivatives data
+    console.log('Fetching derivatives data...');
+    let derivativesData = null;
+    try {
+      derivativesData = await derivativesAnalyzer.getDerivativesData(currentPrice, priceChange24h);
+    } catch (e: any) {
+      console.error('Derivatives fetch error:', e.message);
+    }
+
+    // Generate prediction
+    const prediction = predictionEngine.predict(marketData.data, indicators, patterns, derivativesData || undefined);
+
+    // Fetch block height
+    let blockHeight: number | null = null;
+    try {
+      const blockRes = await fetch('https://mempool.space/api/blocks/tip/height');
+      if (blockRes.ok) {
+        blockHeight = parseInt(await blockRes.text(), 10);
+      }
+    } catch (e) {}
+
+    // Get historical calls
+    const historicalCalls = await historicalTracker.getLast30DaysCalls();
+
+    // Build analysis result
+    const analysis: AnalysisResult = {
+      symbol: SYMBOL,
+      timeframe: TIMEFRAME,
+      currentPrice,
+      priceChange,
+      priceChange24h,
+      high24h,
+      low24h,
+      prediction,
+      indicators,
+      patterns,
+      timestamp: new Date(),
+      derivativesData,
+      blockHeight,
+    };
+
+    // Generate tweets using shared generator
+    const tweetContent = generateTradingBotTweets(analysis, historicalCalls);
+    console.log(`Generated ${tweetContent.tweets.length} tweets`);
+
+    // Post thread
+    const threadResult = await postThread(twitterClient, tweetContent.tweets);
+    console.log(`Posted thread: ${threadResult.length} tweets`);
+
+    // Check for derivatives alerts
+    const derivativesAlerts: string[] = [];
+    if (derivativesData) {
+      const alertStatus = derivativesAnalyzer.shouldAlert(derivativesData);
+
+      if (alertStatus.squeeze) {
+        const squeezeAlert = generateDerivativesAlertTweet('squeeze', {
+          fundingRate: derivativesData.fundingRate?.fundingRate,
+        }, currentPrice);
+        if (squeezeAlert) {
+          await twitterClient.v2.tweet(squeezeAlert);
+          derivativesAlerts.push('squeeze');
+          console.log('Posted squeeze alert');
+        }
+      }
+
+      if (alertStatus.options) {
+        const optionsAlert = generateDerivativesAlertTweet('options', {
+          expiryAmount: derivativesData.optionsExpiry?.totalNotionalValue,
+        }, currentPrice);
+        if (optionsAlert) {
+          await twitterClient.v2.tweet(optionsAlert);
+          derivativesAlerts.push('options');
+          console.log('Posted options alert');
+        }
+      }
+    }
+
+    return new Response(JSON.stringify({
+      success: true,
+      account: 'BTCTradingBotAI',
+      thread: {
+        count: threadResult.length,
+        tweets: threadResult,
+      },
+      derivativesAlerts,
+      analysis: {
+        price: currentPrice,
+        direction: prediction.direction,
+        confidence: prediction.confidence,
+      },
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+  } catch (error: any) {
+    console.error('BTCTradingBot error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message,
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+};
+
+// Schedule: Daily at 9am PST (5pm UTC)
+export const config: Config = {
+  schedule: '0 17 * * *',
+};

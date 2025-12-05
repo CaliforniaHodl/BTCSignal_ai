@@ -1,8 +1,10 @@
+// Analyze and Generate Blog Post
+// This function performs BTC analysis and saves a blog post to GitHub
+// Twitter posting is handled separately by btctradingbot-tweets.ts
 import type { Config, Context } from '@netlify/functions';
 import { DataProvider } from './lib/data-provider';
 import { TechnicalAnalyzer } from './lib/technical-analysis';
 import { PredictionEngine } from './lib/prediction-engine';
-import { TwitterClient } from './lib/twitter-client';
 import { BlogGenerator, AnalysisResult } from './lib/blog-generator';
 import { HistoricalTracker } from './lib/historical-tracker';
 import { DerivativesAnalyzer } from './lib/derivatives-analyzer';
@@ -10,12 +12,12 @@ import { DerivativesAnalyzer } from './lib/derivatives-analyzer';
 const SYMBOL = 'BTC-USD';
 const TIMEFRAME = '1h';
 const CANDLE_LIMIT = 100;
-const CANDLE_LIMIT_24H = 24; // 24 x 1h = 24h for 24h high/low
+const CANDLE_LIMIT_24H = 24;
 
-// Save post to GitHub repository using Personal Access Token
+// Save post to GitHub repository
 async function savePostToGitHub(filename: string, content: string): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN; // Personal Access Token with repo scope
-  const repo = process.env.GITHUB_REPO; // format: "owner/repo"
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO;
 
   if (!token || !repo) {
     console.log('GitHub credentials not set, skipping post save');
@@ -76,11 +78,10 @@ export default async (req: Request, context: Context) => {
     // Identify patterns
     const patterns = technicalAnalyzer.identifyPatterns(marketData.data, indicators);
 
-    // Fetch derivatives data BEFORE prediction so we can use it in signal scoring
+    // Fetch derivatives data
     console.log('Fetching derivatives data...');
     let derivativesData = null;
     try {
-      // We need current price for derivatives analysis
       const currentPriceForDerivatives = marketData.data[marketData.data.length - 1].close;
       const startPriceForDerivatives = marketData.data[0].close;
       const priceChange24hForDerivatives = ((currentPriceForDerivatives - startPriceForDerivatives) / startPriceForDerivatives) * 100;
@@ -94,7 +95,7 @@ export default async (req: Request, context: Context) => {
       console.error('Failed to fetch derivatives data:', derivativesError.message);
     }
 
-    // Generate prediction (now includes derivatives data)
+    // Generate prediction
     const prediction = predictionEngine.predict(marketData.data, indicators, patterns, derivativesData || undefined);
 
     // Calculate price metrics
@@ -102,14 +103,14 @@ export default async (req: Request, context: Context) => {
     const startPrice = marketData.data[0].close;
     const priceChange = ((currentPrice - startPrice) / startPrice) * 100;
 
-    // Calculate 24h metrics (last 6 candles for 4h timeframe)
+    // Calculate 24h metrics
     const last24hData = marketData.data.slice(-CANDLE_LIMIT_24H);
     const price24hAgo = last24hData[0].open;
     const priceChange24h = ((currentPrice - price24hAgo) / price24hAgo) * 100;
     const high24h = Math.max(...last24hData.map(d => d.high));
     const low24h = Math.min(...last24hData.map(d => d.low));
 
-    // Fetch current Bitcoin block height from mempool.space
+    // Fetch current Bitcoin block height
     console.log('Fetching current block height...');
     let blockHeight: number | null = null;
     try {
@@ -126,7 +127,7 @@ export default async (req: Request, context: Context) => {
     console.log('Updating historical call results...');
     await historicalTracker.updatePendingCalls(currentPrice);
 
-    // Get historical calls for the thread
+    // Get historical calls
     const historicalCalls = await historicalTracker.getLast30DaysCalls();
     console.log(`Found ${historicalCalls.length} historical calls`);
 
@@ -147,70 +148,8 @@ export default async (req: Request, context: Context) => {
       blockHeight,
     };
 
-    // Generate thread tweets
-    const thread = blogGenerator.generateThread(analysis, historicalCalls);
-    const threadArray = blogGenerator.getThreadArray(thread);
-    console.log('Generated thread with', threadArray.length, 'tweets');
-
-    // Post thread to Twitter FIRST (so we can include tweet URL in blog post)
-    let threadResult = null;
-    let firstTweetId: string | null = null;
-    let derivativesAlerts: string[] = [];
-    if (process.env.TWITTER_API_KEY) {
-      try {
-        const twitterClient = new TwitterClient();
-        threadResult = await twitterClient.postThread(threadArray);
-        console.log('Thread posted:', threadResult.length, 'tweets');
-
-        // Capture first tweet ID for blog post link
-        if (threadResult.length > 0) {
-          firstTweetId = threadResult[0].id;
-          console.log('First tweet ID:', firstTweetId);
-        }
-
-        // Fetch derivatives data and post separate alerts if needed
-        console.log('Checking derivatives data for alerts...');
-        try {
-          const derivativesData = await derivativesAnalyzer.getDerivativesData(currentPrice, priceChange24h);
-          const alertStatus = derivativesAnalyzer.shouldAlert(derivativesData);
-
-          // Post squeeze alert as separate tweet (uses police siren emoji)
-          if (alertStatus.squeeze) {
-            const squeezeAlert = derivativesAnalyzer.generateSqueezeAlert(derivativesData, currentPrice);
-            if (squeezeAlert) {
-              console.log('Posting squeeze alert tweet...');
-              await twitterClient.tweet(squeezeAlert);
-              derivativesAlerts.push('squeeze');
-              console.log('Squeeze alert posted!');
-            }
-          }
-
-          // Post options expiry alert as separate tweet (uses bell emoji)
-          if (alertStatus.options) {
-            const optionsAlert = derivativesAnalyzer.generateOptionsAlert(derivativesData, currentPrice);
-            if (optionsAlert) {
-              console.log('Posting options expiry alert tweet...');
-              await twitterClient.tweet(optionsAlert);
-              derivativesAlerts.push('options');
-              console.log('Options expiry alert posted!');
-            }
-          }
-
-          if (derivativesAlerts.length === 0) {
-            console.log('No derivatives alerts triggered');
-          }
-        } catch (derivativesError: any) {
-          console.error('Derivatives analysis error:', derivativesError.message);
-        }
-      } catch (twitterError: any) {
-        console.error('Twitter error:', twitterError.message);
-      }
-    } else {
-      console.log('Twitter credentials not set, skipping thread');
-    }
-
-    // Generate markdown blog post with tweet URL (if available)
-    const blogMarkdown = blogGenerator.generateMarkdown(analysis, historicalCalls, firstTweetId);
+    // Generate markdown blog post (no tweet URL since Twitter is separate)
+    const blogMarkdown = blogGenerator.generateMarkdown(analysis, historicalCalls, null);
     const filename = blogGenerator.generateFilename(analysis);
     console.log('Generated blog post:', filename);
 
@@ -225,7 +164,7 @@ export default async (req: Request, context: Context) => {
         prediction.confidence,
         currentPrice,
         prediction.targetPrice,
-        prediction.stopLoss // Include stop loss for accurate tracking
+        prediction.stopLoss
       );
       await historicalTracker.addCall(newCall);
       console.log('Added new call to historical tracking');
@@ -246,15 +185,9 @@ export default async (req: Request, context: Context) => {
         sentiment: prediction.direction === 'up' ? 'bullish' : prediction.direction === 'down' ? 'bearish' : 'neutral',
         timestamp: analysis.timestamp.toISOString(),
       },
-      thread: threadResult ? {
-        count: threadResult.length,
-        tweets: threadResult,
-        content: threadArray,
-      } : null,
       post: {
         filename,
         saved: postSaved,
-        content: blogMarkdown,
       },
       historical: {
         totalCalls: historicalCalls.length,
@@ -262,7 +195,6 @@ export default async (req: Request, context: Context) => {
         losses: historicalCalls.filter(c => c.actualResult === 'loss').length,
         pending: historicalCalls.filter(c => c.actualResult === 'pending').length,
       },
-      derivativesAlerts,
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
