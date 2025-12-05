@@ -133,8 +133,8 @@ function analyzeTransaction(tx: any): WhaleAlert | null {
   const totalValueSats = tx.vout?.reduce((sum: number, out: any) => sum + (out.value || 0), 0) || 0;
   const totalValueBTC = totalValueSats / 100000000;
 
-  // Filter: minimum 1000 BTC
-  if (totalValueBTC < 1000) {
+  // Filter: minimum 500 BTC
+  if (totalValueBTC < 500) {
     return null;
   }
 
@@ -235,9 +235,9 @@ async function fetchMempoolTransactions(): Promise<any[]> {
 
     const recentTxs = await res.json();
 
-    // Filter for large transactions (value > 100B sats = 1000 BTC)
+    // Filter for large transactions (value > 50B sats = 500 BTC)
     const largeTxIds = recentTxs
-      .filter((tx: any) => tx.value > 100000000000) // 1000 BTC in satoshis
+      .filter((tx: any) => tx.value > 50000000000) // 500 BTC in satoshis
       .map((tx: any) => tx.txid);
 
     if (largeTxIds.length === 0) {
@@ -252,7 +252,7 @@ async function fetchMempoolTransactions(): Promise<any[]> {
             // Find large transactions in recent block
             return blockTxs.filter((tx: any) => {
               const totalValue = tx.vout?.reduce((sum: number, out: any) => sum + (out.value || 0), 0) || 0;
-              return totalValue > 100000000000; // 1000 BTC
+              return totalValue > 50000000000; // 500 BTC
             }).slice(0, 5);
           }
         }
@@ -289,7 +289,7 @@ async function loadExistingData(): Promise<WhaleData | null> {
 
   if (!token || !repo) return null;
 
-  const url = `https://api.github.com/repos/${repo}/contents/data/whale-alerts.json`;
+  const url = `https://api.github.com/repos/${repo}/contents/static/data/whale-alerts.json`;
 
   try {
     const res = await fetch(url, {
@@ -321,7 +321,7 @@ async function saveToGitHub(data: WhaleData): Promise<boolean> {
     return false;
   }
 
-  const path = 'data/whale-alerts.json';
+  const path = 'static/data/whale-alerts.json';
   const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
   try {
