@@ -32,7 +32,7 @@ https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&per
 ```
 dYdX:   https://indexer.dydx.trade/v4/perpetualMarkets?ticker=BTC-USD
 Bitget: https://api.bitget.com/api/v2/mix/market/current-fund-rate
-Binance: https://fapi.binance.com/fapi/v1/premiumIndex
+Binance: https://fapi.binance.us/fapi/v1/premiumIndex
 OKX:    (existing)
 Bybit:  (existing)
 ```

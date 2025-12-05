@@ -693,7 +693,7 @@
 
     // Add Binance (may fail in US)
     try {
-      const binanceRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
+      const binanceRes = await fetch('https://fapi.binance.us/fapi/v1/premiumIndex?symbol=BTCUSDT');
       const binanceData = await binanceRes.json();
       if (binanceData.lastFundingRate) {
         results.push({

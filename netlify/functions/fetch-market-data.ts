@@ -289,7 +289,7 @@ export default async (req: Request, context: Context) => {
       fetchWithTimeout('https://api.bybit.com/v5/market/account-ratio?category=linear&symbol=BTCUSDT&period=1h&limit=1'),
       fetchWithTimeout('https://api.bitget.com/api/v2/mix/market/current-fund-rate?symbol=BTCUSDT&productType=USDT-FUTURES'),
       fetchWithTimeout('https://indexer.dydx.trade/v4/perpetualMarkets?ticker=BTC-USD'),
-      fetchWithTimeout('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT'),
+      fetchWithTimeout('https://fapi.binance.us/fapi/v1/premiumIndex?symbol=BTCUSDT'),
       // Fetch existing snapshot to preserve funding history
       fetchWithTimeout(`https://raw.githubusercontent.com/${process.env.GITHUB_REPO || 'jasonsutter87/BTCSignal_ai'}/master/static/data/market-snapshot.json`),
     ]);
