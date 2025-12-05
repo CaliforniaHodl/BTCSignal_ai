@@ -28,6 +28,9 @@
     }
   }
 
+  // Expose for manual refresh after enabling admin
+  window.TradeCoachRefresh = updateUI;
+
   const unlockBtn = document.getElementById('btn-unlock');
   if (unlockBtn) {
     unlockBtn.addEventListener('click', function() {
