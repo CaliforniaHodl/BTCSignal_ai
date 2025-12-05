@@ -1,25 +1,25 @@
 {
-  "timestamp": "2025-12-05T13:00:46.041Z",
+  "timestamp": "2025-12-05T17:00:31.884Z",
   "btc": {
-    "price": 91270,
-    "price24hAgo": 92982.88420131452,
-    "priceChange24h": -1.84215,
-    "high24h": 93104,
-    "low24h": 91029,
-    "volume24h": 44084952389,
-    "marketCap": 1821046344218
+    "price": 88921,
+    "price24hAgo": 92349.05222813989,
+    "priceChange24h": -3.71206,
+    "high24h": 92650,
+    "low24h": 88421,
+    "volume24h": 49975627138,
+    "marketCap": 1773878355023
   },
   "fearGreed": {
     "value": 28,
     "label": "Fear"
   },
   "funding": {
-    "rate": 0.0000574030317803,
-    "ratePercent": 0.00574030317803
+    "rate": -0.0000118586112328,
+    "ratePercent": -0.00118586112328
   },
   "openInterest": {
-    "btc": 24365.028300000045,
-    "usd": 2223796132.9410043
+    "btc": 23796.651800000007,
+    "usd": 2116022074.7078006
   },
   "longShortRatio": {
     "ratio": 1,
@@ -27,10 +27,10 @@
     "shortPercent": 50
   },
   "dominance": {
-    "btc": 57.09368891474506
+    "btc": 56.89046053007043
   },
   "hashrate": {
-    "current": 1010.6787077498319,
+    "current": 1022.137831216849,
     "unit": "EH/s",
     "history": [
       [
@@ -157,13 +157,6 @@
   },
   "ohlc": {
     "days7": [
-      [
-        1764345600000,
-        91427,
-        92849,
-        91427,
-        92392
-      ],
       [
         1764360000000,
         92346,
@@ -450,16 +443,16 @@
         92245,
         91047,
         91392
+      ],
+      [
+        1764950400000,
+        91367,
+        91418,
+        90050,
+        90691
       ]
     ],
     "days30": [
-      [
-        1762358400000,
-        102043,
-        103656,
-        101974,
-        103656
-      ],
       [
         1762372800000,
         103746,
@@ -1712,165 +1705,172 @@
         92245,
         91047,
         91392
+      ],
+      [
+        1764950400000,
+        91367,
+        91418,
+        90050,
+        90691
       ]
     ]
   },
   "global": {
-    "totalMarketCap": 3190471751135.64,
+    "totalMarketCap": 3104066083938.5996,
     "total24hVolume": 0
   },
   "liquidation": {
     "levels": [
       {
-        "price": 99484.3,
+        "price": 96923.89000000001,
         "type": "short",
         "leverage": 10,
-        "intensity": 0.8,
-        "estimatedValue": 889518453.1764016,
+        "intensity": 0.6400000000000001,
+        "estimatedValue": 677127063.9064963,
         "exchange": "aggregate"
       },
       {
-        "price": 97400.72836871236,
+        "price": 94207.32592653252,
         "type": "short",
-        "leverage": 25,
-        "intensity": 0.38518775513661824,
-        "estimatedValue": 27000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 97279.58869063802,
-        "type": "short",
-        "leverage": 25,
-        "intensity": 0.3537986289548511,
-        "estimatedValue": 34000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 96780.36733510975,
-        "type": "short",
-        "leverage": 25,
-        "intensity": 0.2644593078082143,
-        "estimatedValue": 39000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 96552.58358916848,
-        "type": "short",
-        "leverage": 10,
-        "intensity": 0.22011065637968502,
-        "estimatedValue": 48000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 95937.15357387357,
-        "type": "short",
-        "leverage": 25,
-        "intensity": 0.27120028682689584,
+        "leverage": 100,
+        "intensity": 0.6332435002146208,
         "estimatedValue": 23000000,
         "exchange": "aggregate"
       },
       {
-        "price": 95613.04438407229,
-        "type": "short",
-        "leverage": 100,
-        "intensity": 0.23711844468933058,
-        "estimatedValue": 31000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 94555.72,
-        "type": "short",
-        "leverage": 25,
-        "intensity": 0.6,
-        "estimatedValue": 667138839.8823012,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 92912.86,
+        "price": 93333.22632626067,
         "type": "short",
         "leverage": 50,
-        "intensity": 0.4,
-        "estimatedValue": 444759226.5882008,
+        "intensity": 0.25205437223414023,
+        "estimatedValue": 49000000,
         "exchange": "aggregate"
       },
       {
-        "price": 92091.43,
+        "price": 92122.156,
         "type": "short",
+        "leverage": 25,
+        "intensity": 0.48,
+        "estimatedValue": 507845297.92987216,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 90949.97755355864,
+        "type": "short",
+        "leverage": 25,
+        "intensity": 0.3123581981904166,
+        "estimatedValue": 18000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 90779.71796195969,
+        "type": "short",
+        "leverage": 10,
+        "intensity": 0.3112435282252119,
+        "estimatedValue": 24000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 90521.57800000001,
+        "type": "short",
+        "leverage": 50,
+        "intensity": 0.32000000000000006,
+        "estimatedValue": 338563531.95324814,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 89721.28899999999,
+        "type": "short",
+        "leverage": 100,
+        "intensity": 0.16000000000000003,
+        "estimatedValue": 169281765.97662407,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 88120.711,
+        "type": "long",
         "leverage": 100,
         "intensity": 0.2,
-        "estimatedValue": 222379613.2941004,
+        "estimatedValue": 211602207.47078007,
         "exchange": "aggregate"
       },
       {
-        "price": 90448.56999999999,
-        "type": "long",
-        "leverage": 100,
-        "intensity": 0.24,
-        "estimatedValue": 266855535.95292047,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 89627.14,
+        "price": 87507.65944875107,
         "type": "long",
         "leverage": 50,
-        "intensity": 0.48,
-        "estimatedValue": 533711071.90584093,
+        "intensity": 0.24813110520363607,
+        "estimatedValue": 21000000,
         "exchange": "aggregate"
       },
       {
-        "price": 87984.28,
-        "type": "long",
-        "leverage": 25,
-        "intensity": 0.72,
-        "estimatedValue": 800566607.8587614,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 87971.23924796523,
-        "type": "long",
-        "leverage": 100,
-        "intensity": 0.6058646823053933,
-        "estimatedValue": 32000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 87071.6505052714,
-        "type": "long",
-        "leverage": 100,
-        "intensity": 0.23191290889699895,
-        "estimatedValue": 40000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 86701.01866591706,
-        "type": "long",
-        "leverage": 25,
-        "intensity": 0.5623577929268961,
-        "estimatedValue": 43000000,
-        "exchange": "aggregate"
-      },
-      {
-        "price": 84601.02148525078,
+        "price": 87320.42199999999,
         "type": "long",
         "leverage": 50,
-        "intensity": 0.5430730249896611,
-        "estimatedValue": 38000000,
+        "intensity": 0.4,
+        "estimatedValue": 423204414.94156015,
         "exchange": "aggregate"
       },
       {
-        "price": 83055.7,
+        "price": 87119.89860220364,
+        "type": "long",
+        "leverage": 50,
+        "intensity": 0.3124715683862059,
+        "estimatedValue": 19000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 86670.7295960755,
         "type": "long",
         "leverage": 10,
-        "intensity": 0.96,
-        "estimatedValue": 1067422143.8116819,
+        "intensity": 0.5635728297214144,
+        "estimatedValue": 53000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 86086.8241167325,
+        "type": "long",
+        "leverage": 50,
+        "intensity": 0.3154678938859203,
+        "estimatedValue": 45000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 85719.844,
+        "type": "long",
+        "leverage": 25,
+        "intensity": 0.6,
+        "estimatedValue": 634806622.4123402,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 84431.5914610134,
+        "type": "long",
+        "leverage": 25,
+        "intensity": 0.5333981589801333,
+        "estimatedValue": 17000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 82562.20590258017,
+        "type": "long",
+        "leverage": 50,
+        "intensity": 0.21148800497511527,
+        "estimatedValue": 46000000,
+        "exchange": "aggregate"
+      },
+      {
+        "price": 80918.11,
+        "type": "long",
+        "leverage": 10,
+        "intensity": 0.8,
+        "estimatedValue": 846408829.8831203,
         "exchange": "aggregate"
       }
     ],
     "stats24h": {
-      "total": 111189806.64705022,
-      "long": 66713883.988230124,
-      "short": 44475922.65882009,
-      "ratio": 1.4999999999999998
+      "total": 105801103.73539004,
+      "long": 42320441.49415602,
+      "short": 63480662.24123402,
+      "ratio": 0.6666666666666667
     }
   }
 }
