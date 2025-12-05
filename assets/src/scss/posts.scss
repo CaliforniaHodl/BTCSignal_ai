@@ -187,6 +187,50 @@
   color: var(--text-secondary);
 }
 
+// Load More Button
+.load-more-btn {
+  display: block;
+  width: 100%;
+  padding: $spacing-md;
+  margin-top: $spacing-md;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-weight: $font-semibold;
+  font-size: $font-base;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+// Pagination
+.posts-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md;
+  margin-top: $spacing-md;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+}
+
+.pagination-info {
+  color: var(--text-secondary);
+  font-size: $font-sm;
+}
+
+.pagination-btn {
+  @include gradient-button;
+  padding: $spacing-sm $spacing-md;
+  font-size: $font-sm;
+}
+
 // Responsive
 @include mobile {
   .posts-table {

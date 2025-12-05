@@ -65,9 +65,13 @@
   <!-- Mobile Card View -->
   <div class="posts-cards-container d-md-none">
     {{ $pages := .Pages.ByDate.Reverse }}
+    {{ $totalPosts := len $pages }}
     {{ range $index, $post := $pages }}
     {{ $isLocked := lt $index 10 }}
-    <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
+    {{ $lazyClass := "" }}
+    {{ if ge $index 8 }}{{ if lt $index 20 }}{{ $lazyClass = "lazy-post" }}{{ end }}{{ end }}
+    {{ if ge $index 20 }}{{ $lazyClass = "paginated-post" }}{{ end }}
+    <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}{{ if $lazyClass }} {{ $lazyClass }}{{ end }}" data-index="{{ $index }}">
       <div class="post-card-header">
         <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
         {{ if $isLocked }}
@@ -93,7 +97,80 @@
       </div>
     </a>
     {{ end }}
+
+    <!-- Load More Button (shows after initial 8, loads up to 20) -->
+    {{ if gt $totalPosts 8 }}
+    <button class="load-more-btn" id="load-more-btn">Load More</button>
+    {{ end }}
+
+    <!-- Pagination (shows after 20 posts are visible) -->
+    {{ if gt $totalPosts 20 }}
+    <div class="posts-pagination" id="posts-pagination">
+      <span class="pagination-info">Showing <span id="shown-count">20</span> of {{ $totalPosts }}</span>
+      <button class="pagination-btn" id="load-next-page">Load Next 20</button>
+    </div>
+    {{ end }}
   </div>
+
+  <script>
+  (function() {
+    // Only run on mobile
+    if (window.innerWidth >= 768) return;
+
+    const lazyPosts = document.querySelectorAll('.lazy-post');
+    const paginatedPosts = document.querySelectorAll('.paginated-post');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const pagination = document.getElementById('posts-pagination');
+    const loadNextBtn = document.getElementById('load-next-page');
+    const shownCount = document.getElementById('shown-count');
+
+    let lazyLoaded = false;
+    let currentPage = 0;
+    const postsPerPage = 20;
+
+    // Hide lazy posts and paginated posts initially
+    lazyPosts.forEach(p => p.style.display = 'none');
+    paginatedPosts.forEach(p => p.style.display = 'none');
+    if (pagination) pagination.style.display = 'none';
+
+    // Load More button - reveals posts 9-20
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        lazyPosts.forEach(p => p.style.display = '');
+        loadMoreBtn.style.display = 'none';
+        lazyLoaded = true;
+        if (pagination && paginatedPosts.length > 0) {
+          pagination.style.display = 'flex';
+        }
+      });
+    }
+
+    // Pagination - loads next 20 posts
+    if (loadNextBtn) {
+      loadNextBtn.addEventListener('click', function() {
+        const start = currentPage * postsPerPage;
+        const end = start + postsPerPage;
+        let shown = 0;
+
+        paginatedPosts.forEach((p, i) => {
+          if (i >= start && i < end) {
+            p.style.display = '';
+            shown++;
+          }
+        });
+
+        currentPage++;
+        const totalShown = 20 + (currentPage * postsPerPage);
+        if (shownCount) shownCount.textContent = Math.min(totalShown, 20 + paginatedPosts.length);
+
+        // Hide button if no more posts
+        if (end >= paginatedPosts.length) {
+          loadNextBtn.style.display = 'none';
+        }
+      });
+    }
+  })();
+  </script>
 
   {{ if eq (len .Pages) 0 }}
   <div class="empty-state">
