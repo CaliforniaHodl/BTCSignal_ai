@@ -191,7 +191,8 @@ const BTCSAIAccess = (function() {
     single: 0, // Permanent for that post
     hourly: 60 * 60 * 1000, // 1 hour
     daily: 24 * 60 * 60 * 1000, // 24 hours
-    weekly: 7 * 24 * 60 * 60 * 1000 // 7 days
+    weekly: 7 * 24 * 60 * 60 * 1000, // 7 days
+    monthly: 30 * 24 * 60 * 60 * 1000 // 30 days
   };
 
   // Tier prices in sats
@@ -199,7 +200,8 @@ const BTCSAIAccess = (function() {
     single: 21,
     hourly: 1000,
     daily: 10000,
-    weekly: 25000
+    weekly: 25000,
+    monthly: 50000
   };
 
   return {

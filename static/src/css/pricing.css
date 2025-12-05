@@ -104,11 +104,16 @@
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 24px;
   margin-bottom: 48px;
 }
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
+  .pricing-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 1024px) {
   .pricing-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -135,6 +140,13 @@
   border-color: var(--bitcoin-orange);
   background: linear-gradient(180deg, rgba(247, 147, 26, 0.1) 0%, var(--bg-card) 50%);
 }
+.pricing-card.monthly {
+  border-color: var(--green);
+  background: linear-gradient(180deg, rgba(63, 185, 80, 0.15) 0%, var(--bg-card) 50%);
+}
+.pricing-card.monthly:hover {
+  box-shadow: 0 8px 24px rgba(63, 185, 80, 0.3);
+}
 
 .card-badge {
   position: absolute;
@@ -152,6 +164,12 @@
 .card-badge.popular {
   background: var(--bitcoin-orange);
   border-color: var(--bitcoin-orange);
+  color: white;
+  font-weight: 600;
+}
+.card-badge.best-value {
+  background: var(--green);
+  border-color: var(--green);
   color: white;
   font-weight: 600;
 }

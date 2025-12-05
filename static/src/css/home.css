@@ -593,3 +593,129 @@
     gap: var(--spacing-xs);
   }
 }
+
+/* Comparison Table Section */
+.comparison-section {
+  margin: 64px 0;
+  padding: 48px 0;
+  border-top: 1px solid var(--border-color);
+}
+.comparison-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.comparison-section .section-desc {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin: 0 auto;
+  max-width: 800px;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+.comparison-table th,
+.comparison-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+.comparison-table thead th {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.comparison-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.comparison-table tbody tr:hover {
+  background: var(--bg-surface);
+}
+.comparison-table .our-col {
+  background: rgba(247, 147, 26, 0.1);
+  text-align: center;
+}
+.comparison-table thead th.our-col {
+  background: rgba(247, 147, 26, 0.2);
+  color: var(--bitcoin-orange);
+}
+.comparison-table td:not(:first-child) {
+  text-align: center;
+}
+.comparison-table .highlight-row {
+  background: rgba(63, 185, 80, 0.05);
+}
+.comparison-table .highlight-row td:first-child {
+  color: var(--text-primary);
+}
+
+.check-icon {
+  color: var(--green);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.x-icon {
+  color: var(--red);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.partial-icon {
+  color: var(--neutral);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.comparison-cta {
+  text-align: center;
+  margin-top: 32px;
+}
+.comparison-tagline {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.btn-cta {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: #000;
+  padding: 16px 48px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(247, 147, 26, 0.4);
+}
+
+@media (max-width: 600px) {
+  .comparison-table th,
+  .comparison-table td {
+    padding: 12px 8px;
+    font-size: 0.85rem;
+  }
+  .comparison-section h2 {
+    font-size: 1.5rem;
+  }
+}

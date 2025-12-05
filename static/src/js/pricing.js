@@ -80,7 +80,8 @@
       single: 'Single Post',
       hourly: 'Hour Pass',
       daily: 'Day Pass',
-      weekly: 'Week Pass'
+      weekly: 'Week Pass',
+      monthly: 'Month Pass'
     };
     title.textContent = 'Pay for ' + tierNames[tier];
 
