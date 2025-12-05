@@ -45,7 +45,7 @@
         <div class="overview-card dominance">
           <div class="card-header">
             <span class="card-icon">📊</span>
-            <h3>BTC Dominance</h3>
+            <h3>BTC Dominance {{ partial "tooltip.html" (dict "text" "Bitcoin's percentage of total crypto market cap. Rising dominance often signals capital flowing from altcoins to BTC (risk-off). Falling dominance suggests altcoin season.") }}</h3>
           </div>
           <div class="card-value" id="btc-dom">--</div>
           <div class="card-change" id="btc-dom-change">Loading...</div>
@@ -55,7 +55,7 @@
         <div class="overview-card stablecoin">
           <div class="card-header">
             <span class="card-icon">💵</span>
-            <h3>Stablecoin Supply</h3>
+            <h3>Stablecoin Supply {{ partial "tooltip.html" (dict "text" "Total stablecoins on exchanges. Increasing supply = dry powder ready to buy. Decreasing supply may indicate capital leaving crypto markets.") }}</h3>
           </div>
           <div class="card-value" id="stable-supply">--</div>
           <div class="card-change" id="stable-change">Loading...</div>
@@ -65,7 +65,7 @@
         <div class="overview-card fear-greed">
           <div class="card-header">
             <span class="card-icon">😱</span>
-            <h3>Fear & Greed</h3>
+            <h3>Fear & Greed {{ partial "tooltip.html" (dict "text" "Measures market sentiment from 0 (Extreme Fear) to 100 (Extreme Greed). Contrarian indicator - extreme readings often precede reversals.") }}</h3>
           </div>
           <div class="card-value" id="fear-greed">--</div>
           <div class="card-label" id="fear-greed-label">Loading...</div>
@@ -77,7 +77,7 @@
         <div class="overview-card funding">
           <div class="card-header">
             <span class="card-icon">📈</span>
-            <h3>Funding Rate</h3>
+            <h3>Funding Rate {{ partial "tooltip.html" (dict "text" "Perpetual futures funding rate. Shows whether longs or shorts are paying. Extreme funding often leads to price squeezes in the opposite direction.") }}</h3>
           </div>
           <div class="card-value" id="funding-rate">--</div>
           <div class="card-change" id="funding-bias">Loading...</div>
@@ -88,10 +88,10 @@
 
     <!-- Whale Activity Stats -->
     <section class="radar-section whale-activity">
-      <h2>🐋 Whale Activity <span class="data-source-badge" id="whale-data-source"></span></h2>
+      <h2>🐋 Whale Activity {{ partial "tooltip.html" (dict "text" "Large holder movements (>100 BTC). Whale activity often precedes significant price moves.") }} <span class="data-source-badge" id="whale-data-source"></span></h2>
       <div class="whale-grid">
         <div class="whale-card">
-          <h3>Alerts (24h)</h3>
+          <h3>Alerts (24h) {{ partial "tooltip.html" (dict "text" "Number of large transactions detected in the last 24 hours.") }}</h3>
           <div class="whale-metric">
             <span class="metric-value" id="whale-alert-count">--</span>
             <span class="metric-unit">movements</span>
@@ -99,7 +99,7 @@
           <p class="metric-note" id="alert-count-signal">Loading...</p>
         </div>
         <div class="whale-card">
-          <h3>Exchange Inflows (24h)</h3>
+          <h3>Exchange Inflows {{ partial "tooltip.html" (dict "text" "BTC moved TO exchanges. High inflows often signal selling pressure as coins are positioned to sell.") }}</h3>
           <div class="whale-metric">
             <span class="metric-value" id="exchange-inflow">--</span>
             <span class="metric-unit">BTC</span>
@@ -107,7 +107,7 @@
           <p class="metric-note" id="inflow-signal">Loading...</p>
         </div>
         <div class="whale-card">
-          <h3>Exchange Outflows (24h)</h3>
+          <h3>Exchange Outflows {{ partial "tooltip.html" (dict "text" "BTC moved FROM exchanges to cold storage. High outflows typically indicate accumulation and bullish sentiment.") }}</h3>
           <div class="whale-metric">
             <span class="metric-value" id="exchange-outflow">--</span>
             <span class="metric-unit">BTC</span>
@@ -115,7 +115,7 @@
           <p class="metric-note" id="outflow-signal">Loading...</p>
         </div>
         <div class="whale-card">
-          <h3>Largest TX (24h)</h3>
+          <h3>Largest TX {{ partial "tooltip.html" (dict "text" "The single largest BTC transaction in the last 24 hours. Giant transactions can move markets.") }}</h3>
           <div class="whale-metric">
             <span class="metric-value" id="largest-tx">--</span>
             <span class="metric-unit">BTC</span>

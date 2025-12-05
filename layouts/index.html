@@ -116,6 +116,7 @@
         <div class="sentiment-overview-header">
           <span class="sentiment-overview-icon" aria-hidden="true">😱</span>
           <h3>Fear & Greed</h3>
+          {{ partial "tooltip.html" (dict "text" "Measures market sentiment from 0 (Extreme Fear) to 100 (Extreme Greed). Extreme fear can signal buying opportunities, while extreme greed may indicate overheated markets.") }}
         </div>
         <div class="fng-meter">
           <div class="fng-value-large" id="home-fng-value">--</div>
@@ -137,6 +138,7 @@
         <div class="sentiment-overview-header">
           <span class="sentiment-overview-icon" aria-hidden="true">💰</span>
           <h3>Funding Rate</h3>
+          {{ partial "tooltip.html" (dict "text" "Perpetual futures funding rate. Positive rates mean longs pay shorts (bullish sentiment). Negative rates mean shorts pay longs (bearish sentiment). Extreme rates often precede reversals.") }}
         </div>
         <div class="funding-meter">
           <div class="funding-value-large" id="home-funding-value">--</div>
@@ -160,6 +162,7 @@
         <div class="sentiment-overview-header">
           <span class="sentiment-overview-icon" aria-hidden="true">📊</span>
           <h3>24H Volume Profile</h3>
+          {{ partial "tooltip.html" (dict "text" "Shows the ratio of buy vs sell volume over the last 24 hours. Higher buy volume indicates accumulation, while higher sell volume suggests distribution.") }}
         </div>
         <div class="volume-snapshot">
           <div class="volume-bars" id="home-volume-bars">
@@ -187,6 +190,7 @@
         <div class="sentiment-overview-header">
           <span class="sentiment-overview-icon" aria-hidden="true">🔥</span>
           <h3>Liquidation Zones</h3>
+          {{ partial "tooltip.html" (dict "text" "Price levels where leveraged positions will be forcefully closed. Large liquidation clusters act as magnets, often causing price to sweep these zones.") }}
         </div>
         <div class="liq-heatmap-thumbnail">
           <div class="liq-heatmap-chart" id="home-liq-heatmap">
@@ -216,6 +220,7 @@
         <div class="sentiment-overview-header">
           <span class="sentiment-overview-icon" aria-hidden="true">⚡</span>
           <h3>BART Risk</h3>
+          {{ partial "tooltip.html" (dict "text" "BART patterns are sudden price spikes followed by immediate reversals. High BART risk indicates conditions favorable for these manipulation moves.") }}
         </div>
         <div class="bart-risk-display">
           <div class="bart-risk-main">
@@ -245,7 +250,7 @@
       <!-- Halving Countdown -->
       <article class="narrative-card halving" role="listitem">
         <div class="narrative-icon" aria-hidden="true">⏰</div>
-        <h3>Next Halving</h3>
+        <h3>Next Halving {{ partial "tooltip.html" (dict "text" "Bitcoin's block reward is cut in half every ~4 years. Halvings reduce new supply and have historically preceded major bull runs.") }}</h3>
         <div class="countdown" id="halving-countdown" aria-label="Time until next Bitcoin halving">
           <div class="countdown-item">
             <span class="countdown-value" id="halving-days">--</span>
@@ -266,7 +271,7 @@
       <!-- Hash Rate -->
       <article class="narrative-card hashrate" role="listitem">
         <div class="narrative-icon" aria-hidden="true">⛏️</div>
-        <h3>Network Hash Rate</h3>
+        <h3>Network Hash Rate {{ partial "tooltip.html" (dict "text" "Total computational power securing the Bitcoin network. Higher hash rate means stronger security and miner confidence.") }}</h3>
         <div class="metric-display">
           <span class="metric-value" id="hash-rate">--</span>
           <span class="metric-unit">EH/s</span>
@@ -277,7 +282,7 @@
       <!-- Market Cap -->
       <article class="narrative-card mcap" role="listitem">
         <div class="narrative-icon" aria-hidden="true">💎</div>
-        <h3>Market Cap</h3>
+        <h3>Market Cap {{ partial "tooltip.html" (dict "text" "Total value of all Bitcoin in circulation (price × supply). BTC dominance shows Bitcoin's share of the total crypto market.") }}</h3>
         <div class="metric-display">
           <span class="metric-value" id="market-cap">--</span>
           <span class="metric-unit">T</span>
@@ -288,7 +293,7 @@
       <!-- ETF Flows -->
       <article class="narrative-card etf" role="listitem">
         <div class="narrative-icon" aria-hidden="true">🏦</div>
-        <h3>ETF Sentiment</h3>
+        <h3>ETF Sentiment {{ partial "tooltip.html" (dict "text" "Spot Bitcoin ETF flow tracker. Net inflows indicate institutional buying pressure, while outflows suggest institutional selling.") }}</h3>
         <div class="etf-indicator" id="etf-indicator">
           <span class="etf-status">Tracking</span>
         </div>
