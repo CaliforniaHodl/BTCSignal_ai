@@ -6,6 +6,7 @@
   'use strict';
 
   const FEATURE_KEY = 'btcsai_backtester_pro';
+  const MC_SIMULATIONS = 500;
 
   // Use shared access check
   function checkAccess() {
@@ -15,6 +16,7 @@
   // State
   let priceData = [];
   let equityChart = null;
+  let mcChart = null;
   let backtestResults = null;
 
   // DOM elements
@@ -487,6 +489,178 @@
     };
   }
 
+  // Monte Carlo Simulation
+  function runMonteCarloSimulation(data, strategy, startingCapital) {
+    const results = [];
+    const drawdowns = [];
+
+    // Calculate daily returns for volatility estimation
+    const dailyReturns = [];
+    for (let i = 1; i < data.length; i++) {
+      dailyReturns.push((data[i].close - data[i - 1].close) / data[i - 1].close);
+    }
+    const avgReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+    const volatility = Math.sqrt(dailyReturns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / dailyReturns.length);
+
+    for (let sim = 0; sim < MC_SIMULATIONS; sim++) {
+      // Randomize starting point (within first 25% of data)
+      const maxOffset = Math.floor(data.length * 0.25);
+      const startOffset = Math.floor(Math.random() * maxOffset);
+
+      // Create price series with randomized noise
+      const noisyData = data.slice(startOffset).map(candle => {
+        const noise = 1 + (Math.random() - 0.5) * volatility * 0.5;
+        return {
+          ...candle,
+          close: candle.close * noise,
+          high: candle.high * noise,
+          low: candle.low * noise,
+          open: candle.open * noise
+        };
+      });
+
+      if (noisyData.length < 50) continue;
+
+      // Recalculate indicators for noisy data
+      const noisyDataWithIndicators = calculateIndicators(noisyData);
+
+      // Run backtest
+      const simResult = runBacktest(noisyDataWithIndicators, strategy, startingCapital);
+
+      results.push(simResult.stats.totalReturn);
+      drawdowns.push(simResult.stats.maxDrawdown);
+    }
+
+    // Sort for percentile calculations
+    results.sort((a, b) => a - b);
+    drawdowns.sort((a, b) => a - b);
+
+    // Calculate statistics
+    const median = results[Math.floor(results.length / 2)];
+    const p5 = results[Math.floor(results.length * 0.05)];
+    const p25 = results[Math.floor(results.length * 0.25)];
+    const p75 = results[Math.floor(results.length * 0.75)];
+    const p95 = results[Math.floor(results.length * 0.95)];
+
+    const profitableCount = results.filter(r => r > 0).length;
+    const ruinCount = results.filter(r => r < -50).length;
+    const avgDrawdown = drawdowns.reduce((a, b) => a + b, 0) / drawdowns.length;
+
+    // Create histogram buckets
+    const minReturn = Math.floor(Math.min(...results) / 10) * 10;
+    const maxReturn = Math.ceil(Math.max(...results) / 10) * 10;
+    const bucketSize = 10;
+    const buckets = [];
+
+    for (let i = minReturn; i <= maxReturn; i += bucketSize) {
+      const count = results.filter(r => r >= i && r < i + bucketSize).length;
+      buckets.push({
+        range: `${i}% to ${i + bucketSize}%`,
+        label: `${i}%`,
+        count: count,
+        percentage: (count / results.length) * 100
+      });
+    }
+
+    return {
+      simulations: MC_SIMULATIONS,
+      median,
+      p5,
+      p25,
+      p75,
+      p95,
+      profitProbability: (profitableCount / results.length) * 100,
+      ruinProbability: (ruinCount / results.length) * 100,
+      avgMaxDrawdown: avgDrawdown,
+      distribution: buckets,
+      allResults: results
+    };
+  }
+
+  // Display Monte Carlo results
+  function displayMonteCarloResults(mcResults) {
+    document.getElementById('mc-median').textContent = mcResults.median.toFixed(1) + '%';
+    document.getElementById('mc-median').className = 'mc-value ' + (mcResults.median >= 0 ? 'positive' : 'negative');
+
+    document.getElementById('mc-5th').textContent = mcResults.p5.toFixed(1) + '%';
+    document.getElementById('mc-95th').textContent = mcResults.p95.toFixed(1) + '%';
+
+    document.getElementById('mc-profit-prob').textContent = mcResults.profitProbability.toFixed(1) + '%';
+    document.getElementById('mc-profit-prob').className = 'mc-value ' + (mcResults.profitProbability >= 50 ? 'positive' : 'negative');
+
+    document.getElementById('mc-ruin').textContent = mcResults.ruinProbability.toFixed(1) + '%';
+    document.getElementById('mc-ruin').className = 'mc-value ' + (mcResults.ruinProbability <= 5 ? 'positive' : 'negative');
+
+    document.getElementById('mc-drawdown').textContent = '-' + mcResults.avgMaxDrawdown.toFixed(1) + '%';
+
+    document.getElementById('mc-confidence-range').textContent =
+      mcResults.p5.toFixed(1) + '% to ' + mcResults.p95.toFixed(1) + '%';
+
+    // Draw distribution chart
+    drawMonteCarloChart(mcResults.distribution);
+  }
+
+  // Draw Monte Carlo distribution chart
+  function drawMonteCarloChart(distribution) {
+    const ctx = document.getElementById('mc-chart').getContext('2d');
+
+    if (mcChart) {
+      mcChart.destroy();
+    }
+
+    const colors = distribution.map(d => {
+      const midPoint = parseInt(d.label);
+      return midPoint >= 0 ? 'rgba(34, 197, 94, 0.7)' : 'rgba(239, 68, 68, 0.7)';
+    });
+
+    const borderColors = distribution.map(d => {
+      const midPoint = parseInt(d.label);
+      return midPoint >= 0 ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
+    });
+
+    mcChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: distribution.map(d => d.label),
+        datasets: [{
+          label: 'Simulations',
+          data: distribution.map(d => d.count),
+          backgroundColor: colors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: ctx => distribution[ctx[0].dataIndex].range,
+              label: ctx => {
+                const d = distribution[ctx.dataIndex];
+                return `${d.count} sims (${d.percentage.toFixed(1)}%)`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Return %', color: '#9ca3af' },
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#9ca3af' }
+          },
+          y: {
+            title: { display: true, text: 'Frequency', color: '#9ca3af' },
+            grid: { color: 'rgba(255,255,255,0.1)' },
+            ticks: { color: '#9ca3af' }
+          }
+        }
+      }
+    });
+  }
+
   // Display results
   function displayResults(results, strategy) {
     const stats = results.stats;
@@ -784,6 +958,7 @@
       'Fetching historical price data...',
       'Calculating indicators...',
       'Simulating trades...',
+      'Running Monte Carlo analysis...',
       'Analyzing results...',
       'Generating insights...'
     ];
@@ -843,6 +1018,10 @@
 
       // Display results
       displayResults(backtestResults, strategy);
+
+      // Run Monte Carlo simulation
+      const mcResults = runMonteCarloSimulation(priceData, strategy, capital);
+      displayMonteCarloResults(mcResults);
 
       // Show results
       clearInterval(loadingInterval);
