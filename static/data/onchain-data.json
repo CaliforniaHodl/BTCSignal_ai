@@ -1,0 +1,30 @@
+{
+  "lastUpdated": "2024-12-05T00:00:00.000Z",
+  "exchangeReserves": {
+    "totalBTC": 2350000,
+    "change24h": -0.3,
+    "change7d": -1.2,
+    "trend": "accumulation",
+    "exchanges": [
+      { "name": "Binance", "btc": 580000, "change24h": -0.4 },
+      { "name": "Coinbase", "btc": 420000, "change24h": -0.2 },
+      { "name": "Bitfinex", "btc": 180000, "change24h": -0.5 },
+      { "name": "Kraken", "btc": 140000, "change24h": 0.1 },
+      { "name": "OKX", "btc": 130000, "change24h": -0.3 }
+    ]
+  },
+  "mvrv": {
+    "ratio": 1.92,
+    "zone": "fair",
+    "marketCap": 1920000000000,
+    "realizedCap": 1000000000000,
+    "signal": "Market in fair value range. Normal accumulation/distribution cycle."
+  },
+  "whaleFlows": {
+    "inflow24h": 1250,
+    "outflow24h": 2100,
+    "netFlow24h": 850,
+    "flowSignal": "bullish",
+    "recentAlerts": 8
+  }
+}

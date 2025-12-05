@@ -1,0 +1,14 @@
+{
+  "lastUpdated": "2025-12-05T00:00:00.000Z",
+  "signals": [],
+  "stats": {
+    "total": 0,
+    "correct": 0,
+    "accuracy7d": 0,
+    "accuracy30d": 0,
+    "accuracyAll": 0,
+    "avgConfidence": 0,
+    "streakCurrent": 0,
+    "streakBest": 0
+  }
+}
