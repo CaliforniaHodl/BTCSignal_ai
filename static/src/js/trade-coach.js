@@ -4,6 +4,9 @@
   const FEATURE_KEY = 'trade-coach-access';
   const HISTORY_KEY = 'trade-coach-history';
 
+  // Market context cache
+  let marketContext = null;
+
   // Use shared access check
   function checkAccess() {
     return BTCSAIShared.checkAccess(FEATURE_KEY);
@@ -54,11 +57,178 @@
     });
   }
 
+  // Fetch current market context
+  async function fetchMarketContext() {
+    try {
+      // Try to get from shared market snapshot first
+      const snapshot = BTCSAIShared.getMarketSnapshot ? BTCSAIShared.getMarketSnapshot() : null;
+
+      if (snapshot) {
+        marketContext = {
+          price: snapshot.price?.current || null,
+          change24h: snapshot.price?.change24h || null,
+          high24h: snapshot.price?.high24h || null,
+          low24h: snapshot.price?.low24h || null,
+          volatility: calculateVolatilityFromRange(snapshot.price?.high24h, snapshot.price?.low24h, snapshot.price?.current),
+          trend: determineTrend(snapshot),
+          fearGreed: snapshot.fearGreed?.value || null,
+          fearGreedLabel: snapshot.fearGreed?.label || null,
+          fundingRate: snapshot.funding?.ratePercent || null
+        };
+        return marketContext;
+      }
+
+      // Fallback: fetch directly from APIs
+      const [priceRes, fgRes] = await Promise.all([
+        fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'),
+        fetch('https://api.alternative.me/fng/?limit=1').catch(() => null)
+      ]);
+
+      const priceData = await priceRes.json();
+      const fgData = fgRes ? await fgRes.json() : null;
+
+      const price = parseFloat(priceData.lastPrice);
+      const high = parseFloat(priceData.highPrice);
+      const low = parseFloat(priceData.lowPrice);
+      const change = parseFloat(priceData.priceChangePercent);
+
+      marketContext = {
+        price: price,
+        change24h: change,
+        high24h: high,
+        low24h: low,
+        volatility: calculateVolatilityFromRange(high, low, price),
+        trend: change > 2 ? 'bullish' : change < -2 ? 'bearish' : 'neutral',
+        fearGreed: fgData?.data?.[0]?.value ? parseInt(fgData.data[0].value) : null,
+        fearGreedLabel: fgData?.data?.[0]?.value_classification || null,
+        fundingRate: null
+      };
+
+      return marketContext;
+    } catch (error) {
+      console.error('Failed to fetch market context:', error);
+      return null;
+    }
+  }
+
+  function calculateVolatilityFromRange(high, low, current) {
+    if (!high || !low || !current) return 'unknown';
+    const range = ((high - low) / current) * 100;
+    if (range > 5) return 'high';
+    if (range > 2) return 'moderate';
+    return 'low';
+  }
+
+  function determineTrend(snapshot) {
+    if (!snapshot?.price?.change24h) return 'unknown';
+    const change = snapshot.price.change24h;
+    if (change > 3) return 'strong_bullish';
+    if (change > 1) return 'bullish';
+    if (change < -3) return 'strong_bearish';
+    if (change < -1) return 'bearish';
+    return 'neutral';
+  }
+
+  // Get user's trading patterns from history
+  function getUserTradingStats() {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if (history.length < 2) return null;
+
+    const stats = {
+      totalTrades: history.length,
+      avgScore: 0,
+      winningTrades: 0,
+      losingTrades: 0,
+      longBias: 0,
+      shortBias: 0,
+      commonTimeframes: {},
+      avgRiskScore: 0,
+      improvementAreas: []
+    };
+
+    let totalScore = 0;
+    let totalRiskScore = 0;
+
+    history.forEach(item => {
+      totalScore += item.analysis.overallScore;
+      totalRiskScore += item.analysis.riskScore;
+
+      if (item.trade.outcome === 'win') stats.winningTrades++;
+      if (item.trade.outcome === 'loss') stats.losingTrades++;
+      if (item.trade.direction === 'long') stats.longBias++;
+      if (item.trade.direction === 'short') stats.shortBias++;
+
+      stats.commonTimeframes[item.trade.timeframe] = (stats.commonTimeframes[item.trade.timeframe] || 0) + 1;
+    });
+
+    stats.avgScore = Math.round(totalScore / history.length);
+    stats.avgRiskScore = Math.round(totalRiskScore / history.length);
+
+    // Identify weak areas
+    const avgScores = {
+      entry: 0,
+      risk: 0,
+      logic: 0,
+      sizing: 0
+    };
+
+    history.forEach(item => {
+      avgScores.entry += item.analysis.entryScore;
+      avgScores.risk += item.analysis.riskScore;
+      avgScores.logic += item.analysis.logicScore;
+      avgScores.sizing += item.analysis.sizingScore;
+    });
+
+    Object.keys(avgScores).forEach(key => {
+      avgScores[key] = Math.round(avgScores[key] / history.length);
+    });
+
+    const weakest = Object.entries(avgScores).sort((a, b) => a[1] - b[1]);
+    if (weakest[0][1] < 60) {
+      stats.improvementAreas.push(weakest[0][0]);
+    }
+    if (weakest[1][1] < 60) {
+      stats.improvementAreas.push(weakest[1][0]);
+    }
+
+    return stats;
+  }
+
+  // Find similar historical setups
+  function findSimilarSetups(trade) {
+    const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    if (history.length < 3) return null;
+
+    // Find trades with same direction and similar timeframe
+    const similar = history.filter(item =>
+      item.trade.direction === trade.direction &&
+      item.trade.timeframe === trade.timeframe
+    );
+
+    if (similar.length < 2) return null;
+
+    const avgScore = Math.round(similar.reduce((sum, item) => sum + item.analysis.overallScore, 0) / similar.length);
+    const wins = similar.filter(item => item.trade.outcome === 'win').length;
+    const losses = similar.filter(item => item.trade.outcome === 'loss').length;
+
+    return {
+      count: similar.length,
+      avgScore: avgScore,
+      wins: wins,
+      losses: losses,
+      winRate: similar.length > 0 ? Math.round((wins / (wins + losses || 1)) * 100) : null
+    };
+  }
+
   async function analyzeTrade() {
     const btnText = document.querySelector('.btn-text');
     const btnLoading = document.querySelector('.btn-loading');
     btnText.style.display = 'none';
     btnLoading.style.display = 'inline';
+
+    // Fetch market context
+    await fetchMarketContext();
+
     const tradeData = {
       direction: document.getElementById('trade-direction').value,
       timeframe: document.getElementById('trade-timeframe').value,
@@ -91,6 +261,28 @@
   function displayAnalysis(analysis, tradeData) {
     document.querySelector('.trade-input-section').style.display = 'none';
     document.getElementById('analysis-results').style.display = 'block';
+
+    // Display market context
+    if (marketContext) {
+      document.getElementById('ctx-price').textContent = marketContext.price ? '$' + marketContext.price.toLocaleString() : '--';
+
+      var changeEl = document.getElementById('ctx-change');
+      if (marketContext.change24h !== null) {
+        changeEl.textContent = (marketContext.change24h >= 0 ? '+' : '') + marketContext.change24h.toFixed(2) + '%';
+        changeEl.className = 'context-value ' + (marketContext.change24h >= 0 ? 'positive' : 'negative');
+      }
+
+      var volEl = document.getElementById('ctx-volatility');
+      volEl.textContent = marketContext.volatility ? marketContext.volatility.toUpperCase() : '--';
+      volEl.className = 'context-value ' + (marketContext.volatility === 'high' ? 'warning' : '');
+
+      var fgEl = document.getElementById('ctx-fear-greed');
+      if (marketContext.fearGreed) {
+        fgEl.textContent = marketContext.fearGreed + ' (' + marketContext.fearGreedLabel + ')';
+        fgEl.className = 'context-value ' + (marketContext.fearGreed <= 25 ? 'negative' : marketContext.fearGreed >= 75 ? 'warning' : '');
+      }
+    }
+
     const score = analysis.overallScore;
     document.getElementById('trade-score').textContent = score;
     const scoreCircle = document.getElementById('score-circle');
@@ -107,6 +299,54 @@
     document.getElementById('psychology-content').innerHTML = '<p>' + analysis.psychology + '</p>';
     document.getElementById('alternatives-content').innerHTML = '<p>' + analysis.alternatives + '</p>';
     document.getElementById('takeaways-content').innerHTML = formatList(analysis.takeaways);
+
+    // Display user stats
+    displayUserStats();
+  }
+
+  function displayUserStats() {
+    var stats = getUserTradingStats();
+    var container = document.getElementById('user-stats-grid');
+    if (!container) return;
+
+    if (!stats || stats.totalTrades < 2) {
+      container.innerHTML = '<p class="no-stats">Complete a few analyses to see your stats</p>';
+      return;
+    }
+
+    var winRate = stats.winningTrades + stats.losingTrades > 0
+      ? Math.round((stats.winningTrades / (stats.winningTrades + stats.losingTrades)) * 100)
+      : null;
+
+    var mostUsedTf = Object.entries(stats.commonTimeframes).sort((a, b) => b[1] - a[1])[0];
+    var directionBias = stats.longBias > stats.shortBias ? 'Long' : stats.shortBias > stats.longBias ? 'Short' : 'Balanced';
+    var biasPercent = Math.round((Math.max(stats.longBias, stats.shortBias) / stats.totalTrades) * 100);
+
+    container.innerHTML = '' +
+      '<div class="stat-card">' +
+        '<span class="stat-value">' + stats.totalTrades + '</span>' +
+        '<span class="stat-label">Total Trades</span>' +
+      '</div>' +
+      '<div class="stat-card">' +
+        '<span class="stat-value">' + stats.avgScore + '</span>' +
+        '<span class="stat-label">Avg Score</span>' +
+      '</div>' +
+      (winRate !== null ? '<div class="stat-card">' +
+        '<span class="stat-value">' + winRate + '%</span>' +
+        '<span class="stat-label">Win Rate</span>' +
+      '</div>' : '') +
+      '<div class="stat-card">' +
+        '<span class="stat-value">' + directionBias + '</span>' +
+        '<span class="stat-label">Direction Bias (' + biasPercent + '%)</span>' +
+      '</div>' +
+      (mostUsedTf ? '<div class="stat-card">' +
+        '<span class="stat-value">' + mostUsedTf[0] + '</span>' +
+        '<span class="stat-label">Favorite TF</span>' +
+      '</div>' : '') +
+      (stats.improvementAreas.length > 0 ? '<div class="stat-card warning">' +
+        '<span class="stat-value">' + stats.improvementAreas[0] + '</span>' +
+        '<span class="stat-label">Focus Area</span>' +
+      '</div>' : '');
   }
 
   function formatList(items) {
@@ -121,6 +361,10 @@
     var hasTakeProfit = trade.takeProfit && trade.takeProfit > 0;
     var hasReasoning = trade.reasoning && trade.reasoning.trim().length > 0;
     var hasPositionSize = trade.positionSize && trade.positionSize > 0;
+
+    // Get user stats and similar setups
+    var userStats = getUserTradingStats();
+    var similarSetups = findSimilarSetups(trade);
 
     var stopDistancePercent = 0;
     if (hasStopLoss) {
@@ -309,6 +553,24 @@
       psychology = 'The goal is not to be right, but to manage risk so being wrong does not hurt you.';
     }
 
+    // Add market context to psychology
+    if (marketContext) {
+      if (marketContext.fearGreed && marketContext.fearGreed <= 25 && trade.direction === 'short') {
+        psychology += ' Note: Market is in Extreme Fear (' + marketContext.fearGreed + ') - shorting fear often reverses.';
+      } else if (marketContext.fearGreed && marketContext.fearGreed >= 75 && trade.direction === 'long') {
+        psychology += ' Note: Market is in Extreme Greed (' + marketContext.fearGreed + ') - be cautious with longs here.';
+      }
+      if (marketContext.volatility === 'high') {
+        psychology += ' Current volatility is HIGH - consider reducing size or widening stops.';
+      }
+    }
+
+    // Add user pattern insights
+    if (userStats && userStats.improvementAreas.length > 0) {
+      var weakArea = userStats.improvementAreas[0];
+      psychology += ' Based on your history, focus on improving your ' + weakArea + ' decisions.';
+    }
+
     var alternatives = '';
     if (trade.direction === 'long') {
       var suggestedEntry = trade.entryPrice * (1 - tfVolatility.typical / 100);
@@ -316,6 +578,22 @@
     } else {
       var suggestedEntryShort = trade.entryPrice * (1 + tfVolatility.typical / 100);
       alternatives = 'Consider limit at $' + suggestedEntryShort.toLocaleString(undefined, {maximumFractionDigits: 0}) + ' for better entry.';
+    }
+
+    // Add similar setups insight
+    if (similarSetups && similarSetups.count >= 2) {
+      alternatives += ' Similar setups (' + trade.direction + ' on ' + trade.timeframe + '): You\'ve done ' + similarSetups.count + ' similar trades with avg score ' + similarSetups.avgScore + '.';
+      if (similarSetups.winRate !== null && similarSetups.wins + similarSetups.losses >= 2) {
+        alternatives += ' Win rate: ' + similarSetups.winRate + '%.';
+      }
+    }
+
+    // Add market context to alternatives
+    if (marketContext && marketContext.price) {
+      var priceDiff = ((trade.entryPrice - marketContext.price) / marketContext.price * 100).toFixed(2);
+      if (Math.abs(priceDiff) > 1) {
+        alternatives += ' Current BTC price: $' + marketContext.price.toLocaleString() + ' (' + (priceDiff > 0 ? '+' : '') + priceDiff + '% from your entry).';
+      }
     }
 
     var takeaways = [];
@@ -332,6 +610,24 @@
     if (dollarRisk > 2500) {
       takeaways.push('Consider reducing position size');
     }
+
+    // Market context takeaways
+    if (marketContext) {
+      if (marketContext.trend === 'strong_bearish' && trade.direction === 'long') {
+        takeaways.push('Counter-trend trade: market is strongly bearish (-' + Math.abs(marketContext.change24h).toFixed(1) + '% 24h)');
+      } else if (marketContext.trend === 'strong_bullish' && trade.direction === 'short') {
+        takeaways.push('Counter-trend trade: market is strongly bullish (+' + marketContext.change24h.toFixed(1) + '% 24h)');
+      }
+      if (marketContext.volatility === 'high') {
+        takeaways.push('High volatility environment - size down or widen stops');
+      }
+    }
+
+    // User pattern takeaways
+    if (userStats && userStats.avgScore < 50 && userStats.totalTrades >= 3) {
+      takeaways.push('Your avg trade score is ' + userStats.avgScore + ' - review your process');
+    }
+
     if (takeaways.length === 0) {
       takeaways.push('Trade setup is reasonable - focus on execution discipline');
     }
@@ -347,7 +643,10 @@
       improvements: improvements,
       psychology: psychology,
       alternatives: alternatives,
-      takeaways: takeaways
+      takeaways: takeaways,
+      marketContext: marketContext,
+      userStats: userStats,
+      similarSetups: similarSetups
     };
   }
 
