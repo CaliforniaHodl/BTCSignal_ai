@@ -345,9 +345,14 @@
   // 2. EXCEPTION: If stop loss or take profit is touched, resolve immediately
   // 3. After 7 days, force resolve based on current P&L
   function determineOutcome(post, currentPrice) {
-    // If explicit result is stored, use it
-    if (post.result) {
-      return post.result.toLowerCase();
+    // If explicit result is stored (check both field names), use it
+    const storedResult = post.callResult || post.result;
+    if (storedResult) {
+      const result = storedResult.toLowerCase();
+      // If stored as pending, continue with calculation logic
+      if (result !== 'pending') {
+        return result;
+      }
     }
 
     // Use OHLC candle checking for accurate win/loss detection
