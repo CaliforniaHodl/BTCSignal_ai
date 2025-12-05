@@ -1320,3 +1320,253 @@
     font-size: $font-sm;
   }
 }
+
+// =====================================================
+// SIMULATED PORTFOLIO SECTION
+// =====================================================
+
+.portfolio-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-desc {
+    color: var(--text-muted);
+    font-size: $font-sm;
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.portfolio-overview {
+  @include grid(3, $spacing-lg);
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: $breakpoint-lg) {
+    @include grid(2, $spacing-md);
+  }
+
+  @include mobile {
+    @include grid(1, $spacing-md);
+  }
+}
+
+.portfolio-card {
+  @include card;
+  padding: $spacing-lg;
+
+  &.portfolio-balance {
+    border-color: rgba($bitcoin-orange, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.08) 100%);
+  }
+
+  &.portfolio-stats {
+    border-color: rgba($green, 0.3);
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($green, 0.05) 100%);
+  }
+
+  &.portfolio-settings {
+    border-color: rgba(var(--text-muted-rgb), 0.3);
+  }
+}
+
+.portfolio-card-header {
+  @include flex-start;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+
+  .portfolio-icon {
+    font-size: $font-xl;
+  }
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+}
+
+.portfolio-value {
+  font-size: $font-3xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+  margin-bottom: $spacing-xs;
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+.portfolio-change {
+  display: flex;
+  gap: $spacing-sm;
+  font-size: $font-sm;
+  margin-bottom: $spacing-sm;
+
+  .change-amount {
+    font-weight: $font-semibold;
+
+    &.positive {
+      color: var(--green);
+    }
+
+    &.negative {
+      color: var(--red);
+    }
+  }
+
+  .change-percent {
+    color: var(--text-muted);
+  }
+}
+
+.portfolio-start {
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.portfolio-stats-grid {
+  @include grid(3, $spacing-sm);
+
+  @include mobile {
+    @include grid(2, $spacing-sm);
+  }
+}
+
+.pstat {
+  text-align: center;
+  padding: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+
+  .pstat-value {
+    display: block;
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+  }
+
+  .pstat-label {
+    display: block;
+    font-size: $font-xs;
+    color: var(--text-muted);
+    margin-top: $spacing-xs;
+  }
+}
+
+.portfolio-setting {
+  @include flex-between;
+  padding: $spacing-sm 0;
+  border-bottom: 1px solid var(--border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .setting-label {
+    font-size: $font-sm;
+    color: var(--text-muted);
+  }
+
+  .setting-value {
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+  }
+}
+
+// Equity Curve Chart
+.portfolio-chart-section {
+  margin-bottom: $spacing-xl;
+
+  .subsection-title {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-md;
+  }
+}
+
+.portfolio-chart-container {
+  @include card;
+  padding: $spacing-lg;
+  min-height: 240px;
+
+  canvas {
+    width: 100%;
+  }
+}
+
+// Trade History Table
+.portfolio-history {
+  .subsection-title {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-md;
+  }
+}
+
+.portfolio-trades-wrapper {
+  @include card;
+  overflow-x: auto;
+}
+
+.portfolio-trades-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: $font-sm;
+
+  th, td {
+    padding: $spacing-sm $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-dark);
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+    font-size: $font-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  tr {
+    &.win {
+      background: rgba($green, 0.05);
+    }
+
+    &.loss {
+      background: rgba($red, 0.05);
+    }
+
+    &:hover {
+      background: var(--bg-dark);
+    }
+  }
+
+  td {
+    color: var(--text-primary);
+
+    &.positive {
+      color: var(--green);
+      font-weight: $font-semibold;
+    }
+
+    &.negative {
+      color: var(--red);
+      font-weight: $font-semibold;
+    }
+
+    &.no-trades {
+      text-align: center;
+      color: var(--text-muted);
+      padding: $spacing-xl;
+    }
+  }
+}

@@ -214,6 +214,10 @@
       displayStats(stats);
       renderCallsTable(posts);
       renderCalendarHeatmap(posts);
+
+      // Calculate and display simulated portfolio
+      const portfolioData = calculatePortfolio(posts);
+      displayPortfolio(portfolioData);
     } catch (e) {
       console.error('Error loading performance stats:', e);
       displayErrorStats();
@@ -629,6 +633,289 @@
     }).join('');
 
     container.innerHTML = html;
+  }
+
+  // ========================================
+  // SIMULATED PORTFOLIO TRACKER
+  // ========================================
+
+  const PORTFOLIO_CONFIG = {
+    startingCapital: 10000,
+    positionSizePercent: 0.0005, // 0.05%
+    leverage: 1
+  };
+
+  // Calculate simulated portfolio performance from posts
+  function calculatePortfolio(posts) {
+    const trades = [];
+    let balance = PORTFOLIO_CONFIG.startingCapital;
+    const equityCurve = [{ date: null, balance: balance }];
+
+    // Sort posts by date (oldest first)
+    const sortedPosts = [...posts].sort((a, b) => {
+      return new Date(a.date) - new Date(b.date);
+    });
+
+    sortedPosts.forEach(post => {
+      const outcome = determineOutcome(post, currentBtcPrice);
+
+      // Only count resolved trades (not pending)
+      if (outcome === 'pending') return;
+
+      const entryPrice = post.price;
+      const targetPrice = post.targetPrice;
+      const stopLoss = post.stopLoss;
+      const direction = (post.direction || post.sentiment || '').toLowerCase();
+
+      if (!entryPrice) return;
+
+      // Calculate position size (0.05% of current balance)
+      const positionSize = balance * PORTFOLIO_CONFIG.positionSizePercent;
+
+      // Calculate P&L based on outcome
+      let pnl = 0;
+      let exitPrice = entryPrice;
+
+      if (outcome === 'win') {
+        // Win: price hit target
+        if (targetPrice) {
+          exitPrice = targetPrice;
+          if (direction === 'up' || direction === 'bullish') {
+            // Long: profit = (exit - entry) / entry * position
+            pnl = ((targetPrice - entryPrice) / entryPrice) * positionSize;
+          } else {
+            // Short: profit = (entry - exit) / entry * position
+            pnl = ((entryPrice - targetPrice) / entryPrice) * positionSize;
+          }
+        } else {
+          // Default 2% gain if no target
+          pnl = positionSize * 0.02;
+          exitPrice = direction === 'up' || direction === 'bullish'
+            ? entryPrice * 1.02
+            : entryPrice * 0.98;
+        }
+      } else if (outcome === 'loss') {
+        // Loss: price hit stop
+        if (stopLoss) {
+          exitPrice = stopLoss;
+          if (direction === 'up' || direction === 'bullish') {
+            // Long: loss = (stop - entry) / entry * position (negative)
+            pnl = ((stopLoss - entryPrice) / entryPrice) * positionSize;
+          } else {
+            // Short: loss = (entry - stop) / entry * position (negative)
+            pnl = ((entryPrice - stopLoss) / entryPrice) * positionSize;
+          }
+        } else {
+          // Default 2% loss if no stop
+          pnl = -positionSize * 0.02;
+          exitPrice = direction === 'up' || direction === 'bullish'
+            ? entryPrice * 0.98
+            : entryPrice * 1.02;
+        }
+      }
+
+      // Update balance
+      balance += pnl;
+
+      // Record trade
+      trades.push({
+        date: post.date,
+        direction: direction,
+        entry: entryPrice,
+        exit: exitPrice,
+        pnl: pnl,
+        balance: balance,
+        outcome: outcome
+      });
+
+      // Add to equity curve
+      equityCurve.push({
+        date: post.date,
+        balance: balance
+      });
+    });
+
+    return { trades, balance, equityCurve };
+  }
+
+  // Display portfolio data
+  function displayPortfolio(portfolioData) {
+    const { trades, balance, equityCurve } = portfolioData;
+
+    // Update balance display
+    const balanceEl = document.getElementById('portfolio-balance');
+    const changeEl = document.getElementById('portfolio-change');
+
+    if (balanceEl) {
+      balanceEl.textContent = '$' + balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      balanceEl.className = 'portfolio-value ' + (balance >= PORTFOLIO_CONFIG.startingCapital ? 'positive' : 'negative');
+    }
+
+    if (changeEl) {
+      const change = balance - PORTFOLIO_CONFIG.startingCapital;
+      const changePercent = (change / PORTFOLIO_CONFIG.startingCapital) * 100;
+      const sign = change >= 0 ? '+' : '';
+      changeEl.innerHTML =
+        '<span class="change-amount ' + (change >= 0 ? 'positive' : 'negative') + '">' + sign + '$' + change.toFixed(2) + '</span>' +
+        '<span class="change-percent">(' + sign + changePercent.toFixed(2) + '%)</span>';
+    }
+
+    // Calculate stats
+    const winningTrades = trades.filter(t => t.outcome === 'win');
+    const losingTrades = trades.filter(t => t.outcome === 'loss');
+    const avgWin = winningTrades.length > 0
+      ? winningTrades.reduce((sum, t) => sum + t.pnl, 0) / winningTrades.length
+      : 0;
+    const avgLoss = losingTrades.length > 0
+      ? losingTrades.reduce((sum, t) => sum + t.pnl, 0) / losingTrades.length
+      : 0;
+    const bestTrade = trades.length > 0
+      ? Math.max(...trades.map(t => t.pnl))
+      : 0;
+
+    // Update stats
+    const statsMap = {
+      'portfolio-total-trades': trades.length,
+      'portfolio-winning-trades': winningTrades.length,
+      'portfolio-losing-trades': losingTrades.length,
+      'portfolio-avg-win': '+$' + avgWin.toFixed(2),
+      'portfolio-avg-loss': '$' + avgLoss.toFixed(2),
+      'portfolio-best-trade': '+$' + bestTrade.toFixed(2)
+    };
+
+    Object.keys(statsMap).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = statsMap[id];
+    });
+
+    // Update risk per trade
+    const riskEl = document.getElementById('portfolio-risk-per-trade');
+    if (riskEl) {
+      const risk = balance * PORTFOLIO_CONFIG.positionSizePercent;
+      riskEl.textContent = '$' + risk.toFixed(2);
+    }
+
+    // Render trade history table
+    renderPortfolioTrades(trades);
+
+    // Render equity curve chart
+    renderEquityCurve(equityCurve);
+  }
+
+  // Render portfolio trades table
+  function renderPortfolioTrades(trades) {
+    const tbody = document.getElementById('portfolio-trades-body');
+    if (!tbody) return;
+
+    if (trades.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="no-trades">No resolved trades yet</td></tr>';
+      return;
+    }
+
+    // Show most recent first (reverse)
+    const recentTrades = [...trades].reverse().slice(0, 20);
+
+    tbody.innerHTML = recentTrades.map(trade => {
+      const date = new Date(trade.date);
+      const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const dirIcon = trade.direction === 'up' || trade.direction === 'bullish' ? '📈' : '📉';
+      const pnlClass = trade.pnl >= 0 ? 'positive' : 'negative';
+      const pnlSign = trade.pnl >= 0 ? '+' : '';
+
+      return '<tr class="' + trade.outcome + '">' +
+        '<td>' + dateStr + '</td>' +
+        '<td>' + dirIcon + ' ' + (trade.direction === 'up' || trade.direction === 'bullish' ? 'Long' : 'Short') + '</td>' +
+        '<td>$' + trade.entry.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '</td>' +
+        '<td>$' + trade.exit.toLocaleString(undefined, { maximumFractionDigits: 0 }) + '</td>' +
+        '<td class="' + pnlClass + '">' + pnlSign + '$' + trade.pnl.toFixed(2) + '</td>' +
+        '<td>$' + trade.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  // Render equity curve chart
+  function renderEquityCurve(equityCurve) {
+    const canvas = document.getElementById('equityCurveChart');
+    if (!canvas || equityCurve.length < 2) return;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.parentElement.clientWidth;
+    const height = 200;
+    canvas.width = width;
+    canvas.height = height;
+
+    const padding = { top: 20, right: 20, bottom: 30, left: 60 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+
+    // Get min/max values
+    const values = equityCurve.map(p => p.balance);
+    const minVal = Math.min(...values) * 0.995;
+    const maxVal = Math.max(...values) * 1.005;
+    const range = maxVal - minVal;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw background grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + (chartHeight / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+    }
+
+    // Draw starting capital line
+    const startY = padding.top + chartHeight - ((PORTFOLIO_CONFIG.startingCapital - minVal) / range) * chartHeight;
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, startY);
+    ctx.lineTo(width - padding.right, startY);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw equity curve
+    const isPositive = equityCurve[equityCurve.length - 1].balance >= PORTFOLIO_CONFIG.startingCapital;
+    ctx.strokeStyle = isPositive ? '#22c55e' : '#ef4444';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+
+    equityCurve.forEach((point, i) => {
+      const x = padding.left + (i / (equityCurve.length - 1)) * chartWidth;
+      const y = padding.top + chartHeight - ((point.balance - minVal) / range) * chartHeight;
+
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    });
+    ctx.stroke();
+
+    // Fill area under curve
+    ctx.lineTo(padding.left + chartWidth, padding.top + chartHeight);
+    ctx.lineTo(padding.left, padding.top + chartHeight);
+    ctx.closePath();
+    ctx.fillStyle = isPositive ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)';
+    ctx.fill();
+
+    // Draw Y-axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.font = '11px system-ui';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const val = maxVal - (range / 4) * i;
+      const y = padding.top + (chartHeight / 4) * i;
+      ctx.fillText('$' + val.toLocaleString(undefined, { maximumFractionDigits: 0 }), padding.left - 5, y + 4);
+    }
+
+    // Draw X-axis label
+    ctx.textAlign = 'center';
+    ctx.fillText('Trades', width / 2, height - 5);
   }
 
   // Initialize on DOM ready
