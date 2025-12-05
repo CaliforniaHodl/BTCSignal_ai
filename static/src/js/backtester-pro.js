@@ -24,10 +24,16 @@
   const timeframeSelect = document.getElementById('timeframe-select');
   const periodSelect = document.getElementById('period-select');
   const capitalInput = document.getElementById('capital-input');
+  const slippageInput = document.getElementById('slippage-input');
+  const feeInput = document.getElementById('fee-input');
   const btnRunBacktest = document.getElementById('btn-run-backtest');
   const loadingSection = document.getElementById('backtest-loading');
   const resultsSection = document.getElementById('backtest-results');
   const premiumGate = document.getElementById('premium-gate');
+
+  // Store last results for export
+  let lastStrategy = null;
+  let lastMcResults = null;
 
   if (!strategyInput || !btnRunBacktest) return;
 
@@ -370,12 +376,14 @@
   }
 
   // Run backtest simulation
-  function runBacktest(data, strategy, startingCapital) {
+  function runBacktest(data, strategy, startingCapital, slippage = 0, fee = 0) {
     const trades = [];
     const equityCurve = [{ time: data[0].time, equity: startingCapital }];
     let equity = startingCapital;
     let currentTrade = null;
     let maxEquity = startingCapital;
+    let totalFees = 0;
+    let totalSlippage = 0;
     let maxDrawdown = 0;
 
     for (let i = 1; i < data.length; i++) {
@@ -393,18 +401,30 @@
         // Check for exit
         const exitResult = checkExit(data, i, strategy, prevCandle, currentTrade);
         if (exitResult.exit) {
-          currentTrade.exitPrice = exitResult.price;
+          // Apply slippage to exit (worse price)
+          const slippageAmt = exitResult.price * slippage;
+          const exitPrice = currentTrade.direction === 'long'
+            ? exitResult.price - slippageAmt  // Sell lower
+            : exitResult.price + slippageAmt; // Buy back higher
+
+          currentTrade.exitPrice = exitPrice;
           currentTrade.exitTime = candle.time;
           currentTrade.exitReason = exitResult.reason;
 
-          // Calculate P&L
+          // Exit fee
+          const exitFee = currentTrade.size * fee;
+          totalFees += exitFee;
+          totalSlippage += currentTrade.size * slippage;
+
+          // Calculate P&L (after slippage)
           const pnlPct = currentTrade.direction === 'long'
             ? (currentTrade.exitPrice - currentTrade.entryPrice) / currentTrade.entryPrice
             : (currentTrade.entryPrice - currentTrade.exitPrice) / currentTrade.entryPrice;
 
-          currentTrade.pnl = currentTrade.size * pnlPct;
+          currentTrade.pnl = currentTrade.size * pnlPct - exitFee;
           currentTrade.pnlPct = pnlPct * 100;
           currentTrade.rMultiple = strategy.stopLoss ? pnlPct / strategy.stopLoss : pnlPct / 0.02;
+          currentTrade.exitFee = exitFee;
 
           equity += currentTrade.pnl;
           trades.push(currentTrade);
@@ -415,13 +435,28 @@
         if (checkEntry(data, i, strategy, prevCandle)) {
           const riskAmount = equity * strategy.riskPerTrade;
           const size = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
+          const direction = strategy.direction === 'both' ? (Math.random() > 0.5 ? 'long' : 'short') : strategy.direction;
+
+          // Apply slippage to entry (worse price)
+          const slippageAmt = candle.close * slippage;
+          const entryPrice = direction === 'long'
+            ? candle.close + slippageAmt  // Buy higher
+            : candle.close - slippageAmt; // Sell lower
+
+          // Entry fee
+          const entryFee = size * fee;
+          totalFees += entryFee;
+          totalSlippage += size * slippage;
 
           currentTrade = {
-            entryPrice: candle.close,
+            entryPrice: entryPrice,
             entryTime: candle.time,
-            direction: strategy.direction === 'both' ? (Math.random() > 0.5 ? 'long' : 'short') : strategy.direction,
-            size: Math.min(size, equity * 0.5) // Max 50% per trade
+            direction: direction,
+            size: Math.min(size, equity * 0.5), // Max 50% per trade
+            entryFee: entryFee
           };
+
+          equity -= entryFee; // Deduct entry fee
         }
       }
 
@@ -484,13 +519,15 @@
         profitFactor: isFinite(profitFactor) ? profitFactor : 0,
         maxDrawdown: maxDrawdown * 100,
         sharpeRatio,
-        finalEquity: equity
+        finalEquity: equity,
+        totalFees: totalFees,
+        totalSlippage: totalSlippage
       }
     };
   }
 
   // Monte Carlo Simulation
-  function runMonteCarloSimulation(data, strategy, startingCapital) {
+  function runMonteCarloSimulation(data, strategy, startingCapital, slippage = 0, fee = 0) {
     const results = [];
     const drawdowns = [];
 
@@ -524,8 +561,8 @@
       // Recalculate indicators for noisy data
       const noisyDataWithIndicators = calculateIndicators(noisyData);
 
-      // Run backtest
-      const simResult = runBacktest(noisyDataWithIndicators, strategy, startingCapital);
+      // Run backtest with slippage and fees
+      const simResult = runBacktest(noisyDataWithIndicators, strategy, startingCapital, slippage, fee);
 
       results.push(simResult.stats.totalReturn);
       drawdowns.push(simResult.stats.maxDrawdown);
@@ -998,11 +1035,14 @@
     try {
       // Parse strategy
       const strategy = parseStrategy(strategyText);
+      lastStrategy = strategy;
 
       // Get settings
       const timeframe = timeframeSelect.value;
       const period = parseInt(periodSelect.value);
       const capital = parseFloat(capitalInput.value) || 10000;
+      const slippage = (parseFloat(slippageInput?.value) || 0.1) / 100; // Convert % to decimal
+      const fee = (parseFloat(feeInput?.value) || 0.1) / 100; // Convert % to decimal
 
       // Fetch data
       priceData = await fetchPriceData(timeframe, period);
@@ -1013,14 +1053,15 @@
       // Calculate indicators
       priceData = calculateIndicators(priceData);
 
-      // Run backtest
-      backtestResults = runBacktest(priceData, strategy, capital);
+      // Run backtest with slippage and fees
+      backtestResults = runBacktest(priceData, strategy, capital, slippage, fee);
 
       // Display results
       displayResults(backtestResults, strategy);
 
-      // Run Monte Carlo simulation
-      const mcResults = runMonteCarloSimulation(priceData, strategy, capital);
+      // Run Monte Carlo simulation with slippage and fees
+      const mcResults = runMonteCarloSimulation(priceData, strategy, capital, slippage, fee);
+      lastMcResults = mcResults;
       displayMonteCarloResults(mcResults);
 
       // Show results
@@ -1043,6 +1084,123 @@
   document.getElementById('btn-unlock')?.addEventListener('click', function() {
     // In production, this would trigger payment
     Toast.info('Backtester PRO requires 100 sats per backtest. Payment integration coming soon!');
+  });
+
+  // New backtest button
+  document.getElementById('btn-new-backtest')?.addEventListener('click', function() {
+    resultsSection.style.display = 'none';
+    document.querySelector('.strategy-input-section').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  // Export CSV
+  document.getElementById('btn-export-csv')?.addEventListener('click', function() {
+    if (!backtestResults) return;
+
+    const stats = backtestResults.stats;
+    const trades = backtestResults.trades;
+
+    // Build CSV content
+    let csv = 'BACKTEST RESULTS\n';
+    csv += 'Strategy,' + (strategyInput.value.replace(/,/g, ';').substring(0, 100)) + '\n';
+    csv += 'Generated,' + new Date().toISOString() + '\n\n';
+
+    csv += 'PERFORMANCE METRICS\n';
+    csv += 'Metric,Value\n';
+    csv += 'Total Return,' + stats.totalReturn.toFixed(2) + '%\n';
+    csv += 'Win Rate,' + stats.winRate.toFixed(2) + '%\n';
+    csv += 'Total Trades,' + stats.totalTrades + '\n';
+    csv += 'Winning Trades,' + stats.winningTrades + '\n';
+    csv += 'Losing Trades,' + stats.losingTrades + '\n';
+    csv += 'Avg Win,' + stats.avgWin.toFixed(2) + '%\n';
+    csv += 'Avg Loss,' + stats.avgLoss.toFixed(2) + '%\n';
+    csv += 'Profit Factor,' + stats.profitFactor.toFixed(2) + '\n';
+    csv += 'Max Drawdown,' + stats.maxDrawdown.toFixed(2) + '%\n';
+    csv += 'Sharpe Ratio,' + stats.sharpeRatio.toFixed(2) + '\n';
+    csv += 'Final Equity,$' + stats.finalEquity.toFixed(2) + '\n';
+    csv += 'Total Fees,$' + (stats.totalFees || 0).toFixed(2) + '\n';
+    csv += 'Total Slippage,$' + (stats.totalSlippage || 0).toFixed(2) + '\n\n';
+
+    if (lastMcResults) {
+      csv += 'MONTE CARLO ANALYSIS (' + lastMcResults.simulations + ' simulations)\n';
+      csv += 'Metric,Value\n';
+      csv += 'Median Return,' + lastMcResults.median.toFixed(2) + '%\n';
+      csv += '5th Percentile,' + lastMcResults.p5.toFixed(2) + '%\n';
+      csv += '95th Percentile,' + lastMcResults.p95.toFixed(2) + '%\n';
+      csv += 'Profit Probability,' + lastMcResults.profitProbability.toFixed(2) + '%\n';
+      csv += 'Risk of Ruin,' + lastMcResults.ruinProbability.toFixed(2) + '%\n';
+      csv += 'Avg Max Drawdown,' + lastMcResults.avgMaxDrawdown.toFixed(2) + '%\n\n';
+    }
+
+    csv += 'TRADE LOG\n';
+    csv += 'Date,Direction,Entry Price,Exit Price,P&L %,R Multiple,Exit Reason\n';
+    trades.forEach(t => {
+      csv += new Date(t.entryTime).toLocaleDateString() + ',';
+      csv += t.direction.toUpperCase() + ',';
+      csv += '$' + t.entryPrice.toFixed(2) + ',';
+      csv += '$' + t.exitPrice.toFixed(2) + ',';
+      csv += t.pnlPct.toFixed(2) + '%,';
+      csv += t.rMultiple.toFixed(2) + 'R,';
+      csv += (t.exitReason || 'N/A') + '\n';
+    });
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backtest-results-' + new Date().toISOString().split('T')[0] + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    Toast.success('CSV exported successfully');
+  });
+
+  // Export JSON
+  document.getElementById('btn-export-json')?.addEventListener('click', function() {
+    if (!backtestResults) return;
+
+    const exportData = {
+      generated: new Date().toISOString(),
+      strategy: strategyInput.value,
+      settings: {
+        timeframe: timeframeSelect.value,
+        period: periodSelect.value,
+        startingCapital: capitalInput.value,
+        slippage: slippageInput?.value || '0.1',
+        fee: feeInput?.value || '0.1'
+      },
+      stats: backtestResults.stats,
+      monteCarlo: lastMcResults ? {
+        simulations: lastMcResults.simulations,
+        median: lastMcResults.median,
+        p5: lastMcResults.p5,
+        p95: lastMcResults.p95,
+        profitProbability: lastMcResults.profitProbability,
+        ruinProbability: lastMcResults.ruinProbability,
+        avgMaxDrawdown: lastMcResults.avgMaxDrawdown
+      } : null,
+      trades: backtestResults.trades.map(t => ({
+        entryTime: t.entryTime,
+        exitTime: t.exitTime,
+        direction: t.direction,
+        entryPrice: t.entryPrice,
+        exitPrice: t.exitPrice,
+        pnl: t.pnl,
+        pnlPct: t.pnlPct,
+        rMultiple: t.rMultiple,
+        exitReason: t.exitReason
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backtest-results-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    Toast.success('JSON exported successfully');
   });
 
   // Initialize
