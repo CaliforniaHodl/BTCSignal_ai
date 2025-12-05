@@ -72,11 +72,23 @@
       "from_type": "Unknown",
       "to_type": "Unknown",
       "analysis": "524.52 BTC whale transfer detected. Destination unknown - monitor for follow-up activity."
+    },
+    {
+      "id": "whale_51e7879349b5_1764857409082",
+      "timestamp": "2025-12-04T14:10:09.082Z",
+      "txid": "51e7879349b5ddc08438dc4f73adeeba6bd6e64099a479e1b8e28c1a8c6555fb",
+      "type": "dormant_wallet",
+      "amount_btc": 4863.05,
+      "amount_usd": 451005496,
+      "confidence": "medium",
+      "from_type": "Unknown",
+      "to_type": "Unknown",
+      "analysis": "4863.05 BTC moved from single UTXO. Could be dormant wallet awakening - significant if wallet was inactive for extended period."
     }
   ],
   "stats": {
-    "totalTracked24h": 6,
-    "largestTx24h": 545.79,
+    "totalTracked24h": 7,
+    "largestTx24h": 4863.05,
     "exchangeInflow24h": 0,
     "exchangeOutflow24h": 0
   }
