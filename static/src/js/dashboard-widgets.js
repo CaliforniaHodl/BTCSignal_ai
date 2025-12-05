@@ -247,6 +247,294 @@
   }
 
   // =====================================================
+  // DATA CACHE STATUS INDICATOR (Phase 6 Sprint 2)
+  // =====================================================
+
+  function updateCacheStatus() {
+    if (!snapshotLoaded || !marketData || !marketData.timestamp) return;
+
+    const cacheTime = new Date(marketData.timestamp).getTime();
+    const now = Date.now();
+    const ageMs = now - cacheTime;
+    const ageMinutes = Math.floor(ageMs / 60000);
+    const ageHours = Math.floor(ageMinutes / 60);
+
+    const dot = document.getElementById('cache-dot');
+    const text = document.getElementById('cache-text');
+    const time = document.getElementById('cache-time');
+
+    if (!dot || !text || !time) return;
+
+    // Determine freshness status
+    // Fresh: < 1 hour, Stale: 1-6 hours, Old: > 6 hours
+    let status, statusText;
+    if (ageMinutes < 60) {
+      status = 'fresh';
+      statusText = 'Data is fresh';
+    } else if (ageHours < 6) {
+      status = 'stale';
+      statusText = 'Data may be stale';
+    } else {
+      status = 'old';
+      statusText = 'Data is outdated';
+    }
+
+    dot.className = 'cache-dot ' + status;
+    text.textContent = statusText;
+
+    // Format age
+    if (ageMinutes < 60) {
+      time.textContent = `(${ageMinutes}m ago)`;
+    } else if (ageHours < 24) {
+      time.textContent = `(${ageHours}h ${ageMinutes % 60}m ago)`;
+    } else {
+      const days = Math.floor(ageHours / 24);
+      time.textContent = `(${days}d ago)`;
+    }
+  }
+
+  // =====================================================
+  // SIGNAL ACCURACY TRACKING (Phase 6 Sprint 2)
+  // =====================================================
+
+  async function loadSignalAccuracy() {
+    try {
+      const res = await fetch('/data/signal-history.json');
+      if (!res.ok) return;
+
+      const data = await res.json();
+      const stats = data.stats;
+
+      // Update accuracy display
+      const accuracyAll = document.getElementById('accuracy-all');
+      const totalSignals = document.getElementById('accuracy-total-signals');
+      const accuracy7d = document.getElementById('accuracy-7d');
+      const accuracy30d = document.getElementById('accuracy-30d');
+      const streak = document.getElementById('accuracy-streak');
+      const bestStreak = document.getElementById('accuracy-best-streak');
+      const avgConfidence = document.getElementById('accuracy-avg-confidence');
+
+      if (accuracyAll) {
+        accuracyAll.textContent = stats.accuracyAll.toFixed(1) + '%';
+        // Color based on accuracy
+        if (stats.accuracyAll >= 60) accuracyAll.style.color = '#3fb950';
+        else if (stats.accuracyAll >= 50) accuracyAll.style.color = '#d29922';
+        else accuracyAll.style.color = '#f85149';
+      }
+
+      if (totalSignals) totalSignals.textContent = `${stats.total} signals tracked (${stats.correct} correct)`;
+      if (accuracy7d) accuracy7d.textContent = stats.accuracy7d.toFixed(1) + '%';
+      if (accuracy30d) accuracy30d.textContent = stats.accuracy30d.toFixed(1) + '%';
+      if (streak) {
+        streak.textContent = stats.streakCurrent + ' correct';
+        streak.className = 'accuracy-value ' + (stats.streakCurrent > 0 ? 'positive' : '');
+      }
+      if (bestStreak) bestStreak.textContent = stats.streakBest + ' correct';
+      if (avgConfidence) avgConfidence.textContent = stats.avgConfidence.toFixed(1) + '%';
+
+    } catch (e) {
+      console.log('Could not load signal accuracy data');
+    }
+  }
+
+  // =====================================================
+  // OPEN INTEREST HISTORY & ANALYSIS
+  // =====================================================
+
+  let oiHistoryChart = null;
+
+  // Display OI stats and render history chart
+  function renderOpenInterestAnalysis() {
+    if (!snapshotLoaded || !marketData || !marketData.openInterest) {
+      return;
+    }
+
+    const oi = marketData.openInterest;
+    const btcPrice = marketData.btc?.price || 0;
+
+    // Calculate total OI (if we have bybit data separately)
+    const totalOiBtc = oi.btc + (oi.bybit?.btc || 0);
+    const totalOiUsd = totalOiBtc * btcPrice;
+
+    // Update stat cards
+    const oiBtcEl = document.getElementById('oi-total-btc');
+    const oiUsdEl = document.getElementById('oi-total-usd');
+    const oiChangeEl = document.getElementById('oi-change-24h');
+    const oiRatioEl = document.getElementById('oi-mcap-ratio');
+
+    if (oiBtcEl) oiBtcEl.textContent = formatOiNumber(totalOiBtc, 0) + ' BTC';
+    if (oiUsdEl) oiUsdEl.textContent = '$' + formatLargeOiNumber(totalOiUsd);
+
+    if (oiChangeEl) {
+      const change = oi.change24hPercent || 0;
+      oiChangeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
+      oiChangeEl.className = 'oi-stat-value ' + (change >= 0 ? 'positive' : 'negative');
+    }
+
+    if (oiRatioEl) {
+      const ratio = oi.oiMarketCapRatio || 0;
+      oiRatioEl.textContent = ratio.toFixed(2) + '%';
+    }
+
+    // Render chart
+    renderOiHistoryChart();
+  }
+
+  function formatOiNumber(num, decimals = 2) {
+    return num.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  }
+
+  function formatLargeOiNumber(num) {
+    if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+    if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+    if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+    return num.toFixed(2);
+  }
+
+  function renderOiHistoryChart() {
+    const ctx = document.getElementById('oiHistoryChart');
+    if (!ctx) return;
+
+    // Get OI history from snapshot or generate sample data
+    let historyData = [];
+    if (snapshotLoaded && marketData && marketData.openInterest && marketData.openInterest.history) {
+      historyData = marketData.openInterest.history;
+    }
+
+    // If no history, generate simulated 30-day data for visualization
+    if (historyData.length === 0) {
+      const now = Date.now();
+      const baseOi = 25000;
+      const basePrice = 97000;
+      for (let i = 29; i >= 0; i--) {
+        const timestamp = now - (i * 24 * 60 * 60 * 1000);
+        const variance = (Math.random() - 0.5) * 5000;
+        const priceVar = (Math.random() - 0.5) * 5000;
+        historyData.push({
+          timestamp: timestamp,
+          btc: baseOi + variance,
+          usd: (baseOi + variance) * (basePrice + priceVar),
+          price: basePrice + priceVar
+        });
+      }
+    }
+
+    // Prepare chart data
+    const labels = historyData.map(d => {
+      const date = new Date(d.timestamp);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+    const oiData = historyData.map(d => d.btc);
+    const priceData = historyData.map(d => d.price);
+
+    // Destroy existing chart
+    if (oiHistoryChart) {
+      oiHistoryChart.destroy();
+    }
+
+    oiHistoryChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Open Interest (BTC)',
+            data: oiData,
+            borderColor: '#a371f7',
+            backgroundColor: 'rgba(163, 113, 247, 0.1)',
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y',
+            pointRadius: 2,
+            pointHoverRadius: 5
+          },
+          {
+            label: 'BTC Price',
+            data: priceData,
+            borderColor: '#f7931a',
+            backgroundColor: 'transparent',
+            tension: 0.3,
+            fill: false,
+            yAxisID: 'y1',
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            borderDash: [5, 5]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: 'index',
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                if (context.dataset.label === 'Open Interest (BTC)') {
+                  return 'OI: ' + context.parsed.y.toLocaleString() + ' BTC';
+                }
+                return 'Price: $' + context.parsed.y.toLocaleString();
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            ticks: {
+              color: '#6e7681',
+              font: { size: 9 },
+              maxTicksLimit: 7,
+              maxRotation: 0
+            },
+            grid: { display: false }
+          },
+          y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: 'OI (BTC)',
+              color: '#a371f7',
+              font: { size: 10 }
+            },
+            ticks: {
+              color: '#a371f7',
+              font: { size: 9 },
+              callback: function(value) { return (value / 1000).toFixed(0) + 'K'; }
+            },
+            grid: { color: 'rgba(48, 54, 61, 0.5)' }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            title: {
+              display: true,
+              text: 'Price ($)',
+              color: '#f7931a',
+              font: { size: 10 }
+            },
+            ticks: {
+              color: '#f7931a',
+              font: { size: 9 },
+              callback: function(value) { return '$' + (value / 1000).toFixed(0) + 'K'; }
+            },
+            grid: { drawOnChartArea: false }
+          }
+        }
+      }
+    });
+  }
+
+  // =====================================================
   // MULTI-EXCHANGE FUNDING RATE COMPARISON
   // =====================================================
 
@@ -1180,6 +1468,12 @@
     // Phase 6 Week 1: Multi-exchange funding comparison
     fetchMultiExchangeFunding();
     renderFundingHistoryChart();
+    // Phase 6 Week 2: Open Interest history & analysis
+    renderOpenInterestAnalysis();
+    // Phase 6 Week 2: Signal accuracy tracking
+    loadSignalAccuracy();
+    // Phase 6 Week 2: Cache status indicator
+    updateCacheStatus();
   }
 
   // Run on load

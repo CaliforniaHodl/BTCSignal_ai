@@ -20,6 +20,93 @@ interface ThreadTweet {
   text: string;
 }
 
+// Phase 6 Sprint 2: Log signal for accuracy tracking
+async function logSignalToHistory(price: number, direction: string, confidence: number, target?: number): Promise<boolean> {
+  const token = process.env.GITHUB_TOKEN;
+  const repo = process.env.GITHUB_REPO;
+
+  if (!token || !repo) {
+    console.log('GitHub credentials not set, skipping signal logging');
+    return false;
+  }
+
+  const path = 'data/signal-history.json';
+  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+  try {
+    // Get current file
+    let sha: string | undefined;
+    let history: any = {
+      lastUpdated: new Date().toISOString(),
+      signals: [],
+      stats: { total: 0, correct: 0, accuracy7d: 0, accuracy30d: 0, accuracyAll: 0, avgConfidence: 0, streakCurrent: 0, streakBest: 0 }
+    };
+
+    const getRes = await fetch(url, {
+      headers: {
+        'Authorization': `token ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    });
+
+    if (getRes.ok) {
+      const data = await getRes.json();
+      sha = data.sha;
+      history = JSON.parse(Buffer.from(data.content, 'base64').toString());
+    }
+
+    // Create new signal entry
+    const now = Date.now();
+    const signalId = new Date().toISOString().slice(0, 13).replace('T', '-').replace(':', '');
+
+    const newSignal = {
+      id: signalId,
+      timestamp: now,
+      priceAtSignal: price,
+      direction: direction.toLowerCase() as 'up' | 'down' | 'neutral',
+      confidence: confidence,
+      target: target,
+      checked: false
+    };
+
+    history.signals.push(newSignal);
+    history.lastUpdated = new Date().toISOString();
+
+    // Save updated history
+    const content = JSON.stringify(history, null, 2);
+    const body: any = {
+      message: `Log signal: ${direction} @ $${price.toLocaleString()} (${confidence}% confidence)`,
+      content: Buffer.from(content).toString('base64'),
+      branch: 'master',
+    };
+
+    if (sha) {
+      body.sha = sha;
+    }
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (res.ok) {
+      console.log(`Signal logged: ${signalId} - ${direction} @ $${price}`);
+      return true;
+    } else {
+      console.error('Failed to save signal:', await res.text());
+      return false;
+    }
+  } catch (e: any) {
+    console.error('Error logging signal:', e.message);
+    return false;
+  }
+}
+
 async function postThread(client: TwitterApi, tweets: string[]): Promise<ThreadTweet[]> {
   if (tweets.length === 0) {
     throw new Error('Thread must contain at least one tweet');
@@ -144,6 +231,15 @@ export default async (req: Request, context: Context) => {
     // Post thread
     const threadResult = await postThread(twitterClient, tweetContent.tweets);
     console.log(`Posted thread: ${threadResult.length} tweets`);
+
+    // Phase 6 Sprint 2: Log signal for accuracy tracking
+    const signalLogged = await logSignalToHistory(
+      currentPrice,
+      prediction.direction,
+      prediction.confidence,
+      prediction.targets?.primary
+    );
+    console.log(`Signal logged: ${signalLogged}`);
 
     // Check for derivatives alerts
     const derivativesAlerts: string[] = [];

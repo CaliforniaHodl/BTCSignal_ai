@@ -23,6 +23,12 @@
     <header class="dashboard-header">
       <h1>Pro Trading Dashboard</h1>
       <p class="subtitle">Real-time market intelligence & performance analytics</p>
+      <!-- Data Cache Status Indicator -->
+      <div class="cache-status" id="cache-status">
+        <span class="cache-dot" id="cache-dot"></span>
+        <span class="cache-text" id="cache-text">Checking data freshness...</span>
+        <span class="cache-time" id="cache-time"></span>
+      </div>
     </header>
 
     <!-- Market Sentiment Grid - Market Sentiment Style Widgets (3x more) -->
@@ -155,6 +161,50 @@
       </div>
     </section>
 
+    <!-- Open Interest History Section -->
+    <section class="oi-history-section">
+      <h2>Open Interest Analysis</h2>
+      <p class="section-desc">Track aggregate OI across exchanges with price overlay. Rising OI + rising price = strong trend.</p>
+
+      <div class="oi-grid">
+        <!-- OI Stats Cards -->
+        <div class="oi-stats-row">
+          <div class="oi-stat-card">
+            <span class="oi-stat-label">Total OI (BTC)</span>
+            <span class="oi-stat-value" id="oi-total-btc">--</span>
+          </div>
+          <div class="oi-stat-card">
+            <span class="oi-stat-label">Total OI (USD)</span>
+            <span class="oi-stat-value" id="oi-total-usd">--</span>
+          </div>
+          <div class="oi-stat-card">
+            <span class="oi-stat-label">24h Change</span>
+            <span class="oi-stat-value" id="oi-change-24h">--</span>
+          </div>
+          <div class="oi-stat-card">
+            <span class="oi-stat-label">OI/MCap Ratio</span>
+            <span class="oi-stat-value" id="oi-mcap-ratio">--</span>
+            <span class="oi-stat-tooltip" title="Open Interest as % of Market Cap. Higher = more leveraged market.">?</span>
+          </div>
+        </div>
+
+        <!-- OI History Chart with Price Overlay -->
+        <div class="oi-chart-card">
+          <div class="oi-chart-header">
+            <span class="oi-chart-icon">📊</span>
+            <h3>30-Day OI & Price</h3>
+          </div>
+          <div class="oi-chart-container">
+            <canvas id="oiHistoryChart" height="250"></canvas>
+          </div>
+          <div class="oi-chart-legend">
+            <span class="legend-oi"><span class="legend-dot oi"></span> Open Interest</span>
+            <span class="legend-price"><span class="legend-dot price"></span> BTC Price</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Multi-Exchange Funding Rate Comparison -->
     <section class="funding-comparison-section">
       <h2>Multi-Exchange Funding Rates</h2>
@@ -214,6 +264,52 @@
             </div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Signal Accuracy Tracking (Phase 6) -->
+    <section class="accuracy-section">
+      <h2>Signal Accuracy Tracking</h2>
+      <p class="section-desc">Public verification of our signal accuracy. Updated daily after 24-hour price checks.</p>
+
+      <div class="accuracy-grid">
+        <div class="accuracy-card accuracy-main">
+          <div class="accuracy-header">
+            <span class="accuracy-icon">🎯</span>
+            <h3>Overall Accuracy</h3>
+          </div>
+          <div class="accuracy-big-value" id="accuracy-all">--%</div>
+          <div class="accuracy-subtitle" id="accuracy-total-signals">0 signals tracked</div>
+        </div>
+
+        <div class="accuracy-card">
+          <div class="accuracy-label">7-Day Accuracy</div>
+          <div class="accuracy-value" id="accuracy-7d">--%</div>
+        </div>
+
+        <div class="accuracy-card">
+          <div class="accuracy-label">30-Day Accuracy</div>
+          <div class="accuracy-value" id="accuracy-30d">--%</div>
+        </div>
+
+        <div class="accuracy-card">
+          <div class="accuracy-label">Current Streak</div>
+          <div class="accuracy-value" id="accuracy-streak">--</div>
+        </div>
+
+        <div class="accuracy-card">
+          <div class="accuracy-label">Best Streak</div>
+          <div class="accuracy-value" id="accuracy-best-streak">--</div>
+        </div>
+
+        <div class="accuracy-card">
+          <div class="accuracy-label">Avg Confidence</div>
+          <div class="accuracy-value" id="accuracy-avg-confidence">--%</div>
+        </div>
+      </div>
+
+      <div class="accuracy-note">
+        <strong>How it works:</strong> Each signal is logged with price and direction. After 24 hours, we check if the price moved in the predicted direction. Results are publicly tracked.
       </div>
     </section>
 

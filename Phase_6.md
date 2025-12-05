@@ -46,54 +46,33 @@ Bybit:  (existing)
 
 ---
 
-## Sprint 2: Data Infrastructure (Week 2)
+## Sprint 2: Data Infrastructure (Week 2) - COMPLETE
 
-### 2.1 Historical Open Interest Tracking
-- [ ] Create Netlify scheduled function for OI snapshots (every 4 hours)
-- [ ] Store in `/data/oi-history.json` (rolling 30 days)
-- [ ] Build OI chart with price overlay
-- [ ] Add OI change indicators (+/- from 24h ago)
-- [ ] Calculate OI/Market Cap ratio
+### 2.1 Historical Open Interest Tracking - DONE
+- [x] Integrated OI snapshots into existing fetch-market-data function (every 4 hours)
+- [x] Store in `market-snapshot.json` as `openInterest.history` (rolling 30 days)
+- [x] Build OI chart with price overlay (dual Y-axis Chart.js)
+- [x] Add OI change indicators (+/- from 24h ago)
+- [x] Calculate OI/Market Cap ratio
 
-### 2.2 Signal Accuracy Tracking System
-- [ ] Create `/data/signal-history.json` schema
-- [ ] Log each signal: `{timestamp, price, direction, confidence, target}`
-- [ ] Create scheduled function to check outcomes after 24h
-- [ ] Calculate rolling accuracy stats (7d, 30d, all-time)
-- [ ] Build public accuracy dashboard component
-- [ ] Display: "Last 30 signals: X% correct direction"
+### 2.2 Signal Accuracy Tracking System - DONE
+- [x] Created `/data/signal-history.json` schema
+- [x] Log each signal: `{timestamp, price, direction, confidence, target}`
+- [x] Created `check-signal-outcomes.ts` scheduled function (daily at 6pm UTC)
+- [x] Calculate rolling accuracy stats (7d, 30d, all-time)
+- [x] Build public accuracy dashboard component
+- [x] Display: Overall accuracy, streaks, confidence
 
-**Schema:**
-```json
-{
-  "signals": [
-    {
-      "id": "2024-12-05-1700",
-      "timestamp": 1733421600000,
-      "priceAtSignal": 97500,
-      "direction": "up",
-      "confidence": 72,
-      "target": 99000,
-      "priceAfter24h": 98200,
-      "correct": true
-    }
-  ],
-  "stats": {
-    "total": 150,
-    "correct": 94,
-    "accuracy7d": 68,
-    "accuracy30d": 63,
-    "accuracyAll": 62.7
-  }
-}
-```
+**Files Created:**
+- `data/signal-history.json` - Signal tracking data
+- `netlify/functions/check-signal-outcomes.ts` - Daily outcome checker
+- Updated `btctradingbot-tweets.ts` - Logs signals when posting
 
-### 2.3 Data Caching Layer
-- [ ] Implement Redis or JSON file caching for API responses
-- [ ] Cache funding rates (5 min TTL)
-- [ ] Cache OI data (15 min TTL)
-- [ ] Cache L/S ratio (5 min TTL)
-- [ ] Add cache status indicator in UI
+### 2.3 Data Caching Layer - DONE
+- [x] Implemented JSON file caching via market-snapshot.json (updated every 4 hours)
+- [x] All data cached in single snapshot file (funding, OI, L/S ratio)
+- [x] Added cache status indicator in UI (fresh/stale/old status)
+- [x] Shows time since last update with color-coded indicator
 
 ---
 

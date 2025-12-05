@@ -33,8 +33,12 @@ interface MarketSnapshot {
   openInterest: {
     btc: number;
     usd: number;
+    change24h: number;
+    change24hPercent: number;
+    oiMarketCapRatio: number;
     binance?: { btc: number; usd: number };
     bybit?: { btc: number; usd: number };
+    history: Array<{ timestamp: number; btc: number; usd: number; price: number }>;
   };
   longShortRatio: {
     ratio: number;
@@ -237,7 +241,7 @@ export default async (req: Request, context: Context) => {
       },
       history: [],
     },
-    openInterest: { btc: 0, usd: 0 },
+    openInterest: { btc: 0, usd: 0, change24h: 0, change24hPercent: 0, oiMarketCapRatio: 0, history: [] },
     longShortRatio: { ratio: 1, longPercent: 50, shortPercent: 50, source: 'okx' },
     dominance: { btc: 0 },
     hashrate: { current: 0, unit: 'EH/s', history: [] },
@@ -567,6 +571,53 @@ export default async (req: Request, context: Context) => {
     const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
     snapshot.funding.history = existingHistory.filter(h => h.timestamp > thirtyDaysAgo);
     console.log('Funding history points:', snapshot.funding.history.length);
+
+    // Phase 6 Sprint 2: Open Interest History Tracking
+    let existingOiHistory: Array<{ timestamp: number; btc: number; usd: number; price: number }> = [];
+    if (existingSnapshotRes.status === 'fulfilled' && existingSnapshotRes.value.ok) {
+      try {
+        // Need to re-fetch since we already consumed the response for funding history
+        const existingSnapshotRes2 = await fetchWithTimeout(`https://raw.githubusercontent.com/${process.env.GITHUB_REPO || 'jasonsutter87/BTCSignal_ai'}/master/static/data/market-snapshot.json`);
+        if (existingSnapshotRes2.ok) {
+          const existingSnapshot = await existingSnapshotRes2.json();
+          if (existingSnapshot.openInterest?.history) {
+            existingOiHistory = existingSnapshot.openInterest.history;
+          }
+        }
+      } catch (e) {
+        console.log('Could not parse existing snapshot for OI history');
+      }
+    }
+
+    // Calculate total OI (OKX + Bybit)
+    const totalOiBtc = snapshot.openInterest.btc + bybitOI;
+    const totalOiUsd = totalOiBtc * snapshot.btc.price;
+
+    // Add new OI data point
+    existingOiHistory.push({
+      timestamp: now,
+      btc: totalOiBtc,
+      usd: totalOiUsd,
+      price: snapshot.btc.price
+    });
+
+    // Keep only last 30 days
+    snapshot.openInterest.history = existingOiHistory.filter(h => h.timestamp > thirtyDaysAgo);
+    console.log('OI history points:', snapshot.openInterest.history.length);
+
+    // Calculate 24h OI change
+    const twentyFourHoursAgo = now - (24 * 60 * 60 * 1000);
+    const oi24hAgo = existingOiHistory.find(h => h.timestamp <= twentyFourHoursAgo);
+    if (oi24hAgo) {
+      snapshot.openInterest.change24h = totalOiBtc - oi24hAgo.btc;
+      snapshot.openInterest.change24hPercent = ((totalOiBtc - oi24hAgo.btc) / oi24hAgo.btc) * 100;
+    }
+
+    // Calculate OI/Market Cap ratio
+    if (snapshot.btc.marketCap > 0) {
+      snapshot.openInterest.oiMarketCapRatio = (totalOiUsd / snapshot.btc.marketCap) * 100;
+    }
+    console.log('OI change 24h:', snapshot.openInterest.change24hPercent.toFixed(2) + '%');
 
     // Calculate liquidation levels based on OI and funding data
     const price = snapshot.btc.price;

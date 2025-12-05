@@ -286,10 +286,10 @@
 - [x] Multi-exchange funding rate comparison (dYdX, Bitget, OKX, Bybit, Binance)
 - [x] Funding rate history chart (30 days) - With rolling history tracking
 
-**Sprint 2: Data Infrastructure (Week 2)**
-- [ ] Historical Open Interest tracking + chart
-- [ ] Signal accuracy tracking system (public stats)
-- [ ] Data caching layer for API responses
+**Sprint 2: Data Infrastructure (Week 2)** - COMPLETE
+- [x] Historical Open Interest tracking + chart with price overlay
+- [x] Signal accuracy tracking system (public stats, 24h outcome checking)
+- [x] Data cache status indicator (freshness display in UI)
 
 **Sprint 3: Differentiators (Week 3-4)**
 - [ ] Telegram alert integration

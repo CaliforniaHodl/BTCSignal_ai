@@ -1974,6 +1974,327 @@
 }
 
 /* =====================================================
+   OPEN INTEREST HISTORY SECTION
+   ===================================================== */
+
+.oi-history-section {
+  margin-bottom: 48px;
+}
+.oi-history-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.oi-history-section .section-desc {
+  margin-bottom: 24px;
+}
+
+.oi-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.oi-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1024px) {
+  .oi-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .oi-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+}
+
+.oi-stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.oi-stat-card:hover {
+  border-color: var(--purple);
+}
+
+.oi-stat-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.oi-stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.oi-stat-value.positive {
+  color: var(--green);
+}
+.oi-stat-value.negative {
+  color: var(--red);
+}
+
+.oi-stat-tooltip {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  cursor: help;
+  opacity: 0.6;
+}
+.oi-stat-tooltip:hover {
+  opacity: 1;
+}
+
+.oi-chart-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+  border-color: rgba(163, 113, 247, 0.3);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(163, 113, 247, 0.05) 100%);
+}
+
+.oi-chart-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.oi-chart-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+.oi-chart-icon {
+  font-size: 1.5rem;
+}
+
+.oi-chart-container {
+  height: 250px;
+  margin-bottom: 16px;
+}
+.oi-chart-container canvas {
+  max-height: 250px;
+}
+
+.oi-chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.legend-oi, .legend-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.legend-dot.oi {
+  background: var(--purple);
+}
+.legend-dot.price {
+  background: var(--bitcoin-orange);
+}
+
+/* =====================================================
+   SIGNAL ACCURACY TRACKING SECTION
+   ===================================================== */
+
+.accuracy-section {
+  margin-bottom: 48px;
+}
+.accuracy-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 4px;
+}
+.accuracy-section .section-desc {
+  margin-bottom: 24px;
+}
+
+.accuracy-grid {
+  display: grid;
+  grid-template-columns: 2fr repeat(5, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1200px) {
+  .accuracy-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 767px) {
+  .accuracy-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.accuracy-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.accuracy-card:hover {
+  border-color: var(--green);
+}
+
+.accuracy-card.accuracy-main {
+  grid-row: span 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-color: rgba(63, 185, 80, 0.4);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 185, 80, 0.08) 100%);
+}
+@media (max-width: 1200px) {
+  .accuracy-card.accuracy-main {
+    grid-row: span 1;
+    grid-column: span 3;
+  }
+}
+@media (max-width: 767px) {
+  .accuracy-card.accuracy-main {
+    grid-column: span 2;
+  }
+}
+
+.accuracy-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.accuracy-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text-primary);
+}
+.accuracy-icon {
+  font-size: 1.5rem;
+}
+
+.accuracy-big-value {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--green);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.accuracy-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.accuracy-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.accuracy-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.accuracy-value.positive {
+  color: var(--green);
+}
+.accuracy-value.negative {
+  color: var(--red);
+}
+
+.accuracy-note {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+.accuracy-note strong {
+  color: var(--text-primary);
+}
+
+/* =====================================================
+   DATA CACHE STATUS INDICATOR
+   ===================================================== */
+
+.cache-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  margin-top: 12px;
+}
+
+.cache-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  animation: pulse 2s infinite;
+}
+.cache-dot.fresh {
+  background: var(--green);
+}
+.cache-dot.stale {
+  background: var(--neutral);
+  animation: none;
+}
+.cache-dot.old {
+  background: var(--red);
+  animation: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.cache-text {
+  color: var(--text-secondary);
+}
+
+.cache-time {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+/* =====================================================
    MULTI-EXCHANGE FUNDING RATE COMPARISON
    ===================================================== */
 

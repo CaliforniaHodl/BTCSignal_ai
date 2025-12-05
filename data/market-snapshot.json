@@ -27,7 +27,11 @@
   },
   "openInterest": {
     "btc": 24296.983500000042,
-    "usd": 0
+    "usd": 0,
+    "change24h": 0,
+    "change24hPercent": 0,
+    "oiMarketCapRatio": 0,
+    "history": []
   },
   "longShortRatio": {
     "ratio": 1,
