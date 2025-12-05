@@ -1,4 +1,6 @@
 import type { Config, Context } from '@netlify/functions';
+import { TwitterApi } from 'twitter-api-v2';
+import { generateSingleWhaleAlert } from './lib/tweet-generator';
 
 // Whale alert structure
 interface WhaleAlert {
@@ -375,6 +377,47 @@ async function saveToGitHub(data: WhaleData): Promise<boolean> {
   }
 }
 
+// Tweet a whale alert immediately
+async function tweetWhaleAlert(alert: WhaleAlert): Promise<{ success: boolean; tweetId?: string }> {
+  // Use whale account credentials if available, otherwise fall back to main account
+  const apiKey = process.env.WHALE_TWITTER_API_KEY || process.env.TWITTER_API_KEY;
+  const apiSecret = process.env.WHALE_TWITTER_API_SECRET || process.env.TWITTER_API_SECRET;
+  const accessToken = process.env.WHALE_TWITTER_ACCESS_TOKEN || process.env.TWITTER_ACCESS_TOKEN;
+  const accessSecret = process.env.WHALE_TWITTER_ACCESS_SECRET || process.env.TWITTER_ACCESS_SECRET;
+
+  if (!apiKey || !apiSecret || !accessToken || !accessSecret) {
+    console.log('Twitter credentials not configured, skipping tweet');
+    return { success: false };
+  }
+
+  // Only tweet high/medium confidence alerts
+  if (alert.confidence === 'low') {
+    console.log('Skipping low confidence alert');
+    return { success: false };
+  }
+
+  const tweetText = generateSingleWhaleAlert(alert);
+  if (!tweetText) {
+    return { success: false };
+  }
+
+  try {
+    const twitterClient = new TwitterApi({
+      appKey: apiKey,
+      appSecret: apiSecret,
+      accessToken: accessToken,
+      accessSecret: accessSecret,
+    });
+
+    const result = await twitterClient.v2.tweet(tweetText);
+    console.log(`🐦 Tweeted whale alert: ${alert.amount_btc} BTC - Tweet ID: ${result.data.id}`);
+    return { success: true, tweetId: result.data.id };
+  } catch (error: any) {
+    console.error('Failed to tweet whale alert:', error.message);
+    return { success: false };
+  }
+}
+
 export default async (req: Request, context: Context) => {
   console.log('🐋 Whale Tracker running...');
 
@@ -398,6 +441,7 @@ export default async (req: Request, context: Context) => {
   console.log(`Found ${transactions.length} large transactions to analyze`);
 
   const newAlerts: WhaleAlert[] = [];
+  const tweetedAlerts: { alertId: string; tweetId?: string }[] = [];
 
   for (const tx of transactions) {
     // Skip if we've already processed this tx
@@ -409,6 +453,14 @@ export default async (req: Request, context: Context) => {
     if (alert) {
       newAlerts.push(alert);
       console.log(`🚨 New whale alert: ${alert.type} - ${alert.amount_btc} BTC ($${alert.amount_usd.toLocaleString()})`);
+
+      // Tweet immediately for significant alerts (high/medium confidence)
+      if (alert.confidence !== 'low') {
+        const tweetResult = await tweetWhaleAlert(alert);
+        if (tweetResult.success) {
+          tweetedAlerts.push({ alertId: alert.id, tweetId: tweetResult.tweetId });
+        }
+      }
     }
   }
 
@@ -444,6 +496,8 @@ export default async (req: Request, context: Context) => {
     saved,
     newAlerts: newAlerts.length,
     totalAlerts: recentAlerts.length,
+    tweetedAlerts: tweetedAlerts.length,
+    tweets: tweetedAlerts,
     stats,
   }), {
     status: 200,
