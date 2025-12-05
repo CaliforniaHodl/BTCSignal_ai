@@ -1,9 +1,11 @@
-// Portfolio Simulator - Strategy Backtesting Tool
+// Portfolio Simulator - Strategy Backtesting Tool with Monte Carlo
 (function() {
   const FEATURE_KEY = 'portfolio-simulator-access';
   const HISTORY_KEY = 'portfolio-simulator-history';
+  const MC_SIMULATIONS = 1000;
   let priceData = [];
   let equityChart = null;
+  let mcChart = null;
 
   function checkAccess() {
     // Check admin mode first (bypasses all paywalls)
@@ -235,11 +237,15 @@
     // Display results
     displayResults(results, config);
 
+    // Run Monte Carlo simulation
+    const mcResults = runMonteCarloSimulation(config, priceData, { rsi, ema9, ema21, ema50 });
+    displayMonteCarloResults(mcResults);
+
     // Save simulation
     saveSimulation(config, results);
 
-    // Generate AI insights
-    generateInsights(results, config);
+    // Generate AI insights (include MC results)
+    generateInsights(results, config, mcResults);
 
     btnText.style.display = 'inline';
     btnLoading.style.display = 'none';
@@ -509,6 +515,215 @@
     };
   }
 
+  // Monte Carlo Simulation Engine
+  function runMonteCarloSimulation(config, prices, indicators) {
+    const results = [];
+    const drawdowns = [];
+    const numSims = MC_SIMULATIONS;
+
+    // Pre-calculate daily returns for resampling
+    const dailyReturns = [];
+    for (let i = 1; i < prices.length; i++) {
+      dailyReturns.push((prices[i].close - prices[i - 1].close) / prices[i - 1].close);
+    }
+
+    // Calculate return volatility for noise generation
+    const avgReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+    const volatility = Math.sqrt(dailyReturns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / dailyReturns.length);
+
+    for (let sim = 0; sim < numSims; sim++) {
+      // Randomize starting point (within first 20% of data)
+      const maxOffset = Math.floor(prices.length * 0.2);
+      const startOffset = Math.floor(Math.random() * maxOffset);
+
+      // Create price series with randomized noise
+      const noisyPrices = prices.slice(startOffset).map((p, i) => {
+        // Add small random noise to prices (simulates slippage/execution variance)
+        const noise = 1 + (Math.random() - 0.5) * volatility * 0.5;
+        return {
+          ...p,
+          close: p.close * noise,
+          high: p.high * noise,
+          low: p.low * noise,
+          open: p.open * noise
+        };
+      });
+
+      if (noisyPrices.length < 30) continue;
+
+      // Recalculate indicators for noisy data
+      const noisyRsi = calculateRSI(noisyPrices);
+      const noisyEma9 = calculateEMA(noisyPrices, 9);
+      const noisyEma21 = calculateEMA(noisyPrices, 21);
+      const noisyEma50 = calculateEMA(noisyPrices, 50);
+
+      // Run backtest with noisy data
+      const simResult = runBacktest(config, noisyPrices, {
+        rsi: noisyRsi,
+        ema9: noisyEma9,
+        ema21: noisyEma21,
+        ema50: noisyEma50
+      });
+
+      results.push(simResult.totalReturnPct);
+      drawdowns.push(simResult.maxDrawdown);
+    }
+
+    // Sort results for percentile calculations
+    results.sort((a, b) => a - b);
+    drawdowns.sort((a, b) => a - b);
+
+    // Calculate statistics
+    const median = results[Math.floor(results.length / 2)];
+    const p5 = results[Math.floor(results.length * 0.05)];
+    const p25 = results[Math.floor(results.length * 0.25)];
+    const p75 = results[Math.floor(results.length * 0.75)];
+    const p95 = results[Math.floor(results.length * 0.95)];
+
+    const profitableCount = results.filter(r => r > 0).length;
+    const ruinCount = results.filter(r => r < -50).length;
+
+    const avgDrawdown = drawdowns.reduce((a, b) => a + b, 0) / drawdowns.length;
+
+    // Create histogram buckets for distribution chart
+    const minReturn = Math.floor(Math.min(...results) / 10) * 10;
+    const maxReturn = Math.ceil(Math.max(...results) / 10) * 10;
+    const bucketSize = 10;
+    const buckets = [];
+
+    for (let i = minReturn; i <= maxReturn; i += bucketSize) {
+      const count = results.filter(r => r >= i && r < i + bucketSize).length;
+      buckets.push({
+        range: `${i}% to ${i + bucketSize}%`,
+        label: `${i}%`,
+        count: count,
+        percentage: (count / results.length) * 100
+      });
+    }
+
+    return {
+      simulations: numSims,
+      median: median,
+      p5: p5,
+      p25: p25,
+      p75: p75,
+      p95: p95,
+      profitProbability: (profitableCount / results.length) * 100,
+      ruinProbability: (ruinCount / results.length) * 100,
+      avgMaxDrawdown: avgDrawdown,
+      distribution: buckets,
+      allResults: results
+    };
+  }
+
+  function displayMonteCarloResults(mcResults) {
+    // Update summary cards
+    document.getElementById('mc-median').textContent = mcResults.median.toFixed(1) + '%';
+    document.getElementById('mc-median').className = 'mc-value ' + (mcResults.median >= 0 ? 'positive' : 'negative');
+
+    document.getElementById('mc-5th').textContent = mcResults.p5.toFixed(1) + '%';
+    document.getElementById('mc-95th').textContent = mcResults.p95.toFixed(1) + '%';
+
+    document.getElementById('mc-profit-prob').textContent = mcResults.profitProbability.toFixed(1) + '%';
+    document.getElementById('mc-profit-prob').className = 'mc-value ' + (mcResults.profitProbability >= 50 ? 'positive' : 'negative');
+
+    document.getElementById('mc-ruin').textContent = mcResults.ruinProbability.toFixed(1) + '%';
+    document.getElementById('mc-ruin').className = 'mc-value ' + (mcResults.ruinProbability <= 5 ? 'positive' : 'negative');
+
+    document.getElementById('mc-drawdown').textContent = '-' + mcResults.avgMaxDrawdown.toFixed(1) + '%';
+
+    document.getElementById('mc-confidence-range').textContent =
+      mcResults.p5.toFixed(1) + '% to ' + mcResults.p95.toFixed(1) + '%';
+
+    // Draw distribution chart
+    drawMonteCarloChart(mcResults.distribution);
+  }
+
+  function drawMonteCarloChart(distribution) {
+    const ctx = document.getElementById('mc-canvas').getContext('2d');
+
+    if (mcChart) {
+      mcChart.destroy();
+    }
+
+    // Color bars based on return (green for positive, red for negative)
+    const colors = distribution.map(d => {
+      const midPoint = parseInt(d.label);
+      if (midPoint >= 0) return 'rgba(34, 197, 94, 0.7)';
+      return 'rgba(239, 68, 68, 0.7)';
+    });
+
+    const borderColors = distribution.map(d => {
+      const midPoint = parseInt(d.label);
+      if (midPoint >= 0) return 'rgb(34, 197, 94)';
+      return 'rgb(239, 68, 68)';
+    });
+
+    mcChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: distribution.map(d => d.label),
+        datasets: [{
+          label: 'Simulations',
+          data: distribution.map(d => d.count),
+          backgroundColor: colors,
+          borderColor: borderColors,
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              title: function(context) {
+                return distribution[context[0].dataIndex].range;
+              },
+              label: function(context) {
+                const d = distribution[context.dataIndex];
+                return `${d.count} simulations (${d.percentage.toFixed(1)}%)`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Return %',
+              color: '#9ca3af'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#9ca3af'
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display: true,
+              text: 'Frequency',
+              color: '#9ca3af'
+            },
+            grid: {
+              color: 'rgba(255, 255, 255, 0.1)'
+            },
+            ticks: {
+              color: '#9ca3af'
+            }
+          }
+        }
+      }
+    });
+  }
+
   function displayResults(results, config) {
     document.querySelector('.strategy-config').style.display = 'none';
     document.getElementById('simulation-results').style.display = 'block';
@@ -653,42 +868,60 @@
     });
   }
 
-  function generateInsights(results, config) {
+  function generateInsights(results, config, mcResults) {
     const insightsEl = document.getElementById('ai-insights');
 
     let insights = [];
 
+    // Monte Carlo insights (priority)
+    if (mcResults) {
+      if (mcResults.profitProbability >= 70) {
+        insights.push('<strong>Monte Carlo Analysis:</strong> ' + mcResults.profitProbability.toFixed(0) + '% probability of profit across 1000 simulations. This strategy shows robust performance under varying market conditions.');
+      } else if (mcResults.profitProbability >= 50) {
+        insights.push('<strong>Monte Carlo Analysis:</strong> ' + mcResults.profitProbability.toFixed(0) + '% probability of profit. The strategy is moderately reliable, but results vary significantly based on timing and market conditions.');
+      } else {
+        insights.push('<strong>Monte Carlo Analysis:</strong> Only ' + mcResults.profitProbability.toFixed(0) + '% probability of profit. The strategy underperforms more often than not - consider adjusting parameters or using a different approach.');
+      }
+
+      if (mcResults.ruinProbability > 10) {
+        insights.push('<strong>Risk Warning:</strong> ' + mcResults.ruinProbability.toFixed(1) + '% risk of losing more than 50% of capital. Consider reducing position sizes to lower this risk.');
+      } else if (mcResults.ruinProbability < 2) {
+        insights.push('<strong>Risk Profile:</strong> Very low ' + mcResults.ruinProbability.toFixed(1) + '% risk of ruin. The strategy has good capital preservation characteristics.');
+      }
+
+      const spread = mcResults.p95 - mcResults.p5;
+      if (spread > 100) {
+        insights.push('Wide outcome range (' + mcResults.p5.toFixed(0) + '% to ' + mcResults.p95.toFixed(0) + '%) indicates high variance. Results are highly dependent on market conditions and timing.');
+      } else if (spread < 30) {
+        insights.push('Narrow outcome range (' + mcResults.p5.toFixed(0) + '% to ' + mcResults.p95.toFixed(0) + '%) suggests consistent, predictable results regardless of entry timing.');
+      }
+    }
+
     // Performance vs HODL
     const vsHodl = results.totalReturnPct - results.hodlReturnPct;
     if (vsHodl > 10) {
-      insights.push('Your strategy significantly outperformed buy & hold by ' + vsHodl.toFixed(1) + '%. This suggests the active trading approach added value during this period.');
+      insights.push('Your strategy outperformed buy & hold by ' + vsHodl.toFixed(1) + '%. Active trading added value during this period.');
     } else if (vsHodl < -10) {
-      insights.push('Your strategy underperformed buy & hold by ' + Math.abs(vsHodl).toFixed(1) + '%. Consider if the trading costs and complexity are justified, or if a passive approach might be better.');
-    } else {
-      insights.push('Your strategy performed similarly to buy & hold. The additional complexity may not be worth the effort unless other factors (like risk reduction) are important to you.');
+      insights.push('Strategy underperformed buy & hold by ' + Math.abs(vsHodl).toFixed(1) + '%. Consider if the complexity is justified.');
     }
 
     // Win rate analysis
     if (results.winRate > 60) {
-      insights.push('Strong ' + results.winRate.toFixed(0) + '% win rate. Consistency is a key strength of this strategy.');
+      insights.push('Strong ' + results.winRate.toFixed(0) + '% win rate shows consistent execution.');
     } else if (results.winRate < 40 && results.totalReturn > 0) {
-      insights.push('Despite a ' + results.winRate.toFixed(0) + '% win rate, the strategy is profitable. This means your winners are significantly larger than your losers - a valid approach.');
-    } else if (results.winRate < 40) {
-      insights.push('Low ' + results.winRate.toFixed(0) + '% win rate is affecting overall performance. Consider tightening entry criteria or improving exit timing.');
+      insights.push('Despite ' + results.winRate.toFixed(0) + '% win rate, the strategy profits because winners are larger than losers.');
     }
 
     // Drawdown analysis
     if (results.maxDrawdown > 30) {
-      insights.push('Max drawdown of ' + results.maxDrawdown.toFixed(1) + '% is significant. Consider reducing position sizes or adding stricter stop losses to protect capital during adverse periods.');
-    } else if (results.maxDrawdown < 15) {
-      insights.push('Well-controlled ' + results.maxDrawdown.toFixed(1) + '% maximum drawdown. Your risk management is effective.');
+      insights.push('Max drawdown of ' + results.maxDrawdown.toFixed(1) + '% is significant. Consider tighter stops or smaller positions.');
     }
 
     // Sharpe ratio
     if (results.sharpeRatio > 1) {
-      insights.push('Sharpe ratio of ' + results.sharpeRatio.toFixed(2) + ' indicates good risk-adjusted returns. The strategy generates returns efficiently relative to the volatility taken.');
+      insights.push('Sharpe ratio of ' + results.sharpeRatio.toFixed(2) + ' indicates good risk-adjusted returns.');
     } else if (results.sharpeRatio < 0.5) {
-      insights.push('Low Sharpe ratio (' + results.sharpeRatio.toFixed(2) + ') suggests the returns don\'t adequately compensate for the risk taken. Consider strategies with better risk-adjusted performance.');
+      insights.push('Low Sharpe ratio (' + results.sharpeRatio.toFixed(2) + ') - returns don\'t compensate for the risk.');
     }
 
     // Trade frequency
@@ -696,14 +929,12 @@
     const tradesPerMonth = (results.totalTrades / tradeDays) * 30;
 
     if (tradesPerMonth > 20) {
-      insights.push('High trading frequency (' + tradesPerMonth.toFixed(0) + ' trades/month). In live trading, factor in transaction costs and slippage which could significantly impact results.');
-    } else if (tradesPerMonth < 2 && results.totalTrades > 0) {
-      insights.push('Low trading frequency allows for careful position management but may miss opportunities. Consider if this matches your trading style.');
+      insights.push('High frequency (' + tradesPerMonth.toFixed(0) + ' trades/month) - factor in fees and slippage for live trading.');
     }
 
     // Profit factor
     if (results.profitFactor > 2) {
-      insights.push('Excellent profit factor of ' + results.profitFactor.toFixed(2) + '. Your winning trades significantly outweigh losses.');
+      insights.push('Excellent profit factor of ' + results.profitFactor.toFixed(2) + ' - winners significantly outweigh losses.');
     }
 
     insightsEl.innerHTML = insights.map(insight => '<p>' + insight + '</p>').join('');

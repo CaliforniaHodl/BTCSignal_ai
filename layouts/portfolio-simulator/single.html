@@ -23,14 +23,6 @@
 
   <!-- Portfolio Simulator Content -->
   <div class="premium-content" id="premium-content" style="display: none;">
-{{ partial "dev-banner.html" (dict 
-      "status" "placeholder" 
-      "todos" (slice 
-        "Integrate <code>LNbits</code> API for real Lightning payments"
-        "Add historical price data caching"
-        "Implement Monte Carlo simulation for risk analysis"
-      )
-    ) }}
 
     <header class="simulator-header">
       <h1>📊 Portfolio Simulator</h1>
@@ -274,6 +266,53 @@
             <tbody id="trade-log-body">
             </tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Monte Carlo Section -->
+      <div class="monte-carlo-section" id="monte-carlo-section">
+        <h3>Monte Carlo Analysis <span class="mc-badge">1000 simulations</span></h3>
+        <p class="section-desc">Probability distribution based on randomized entry timing and market noise</p>
+
+        <div class="mc-results-grid">
+          <div class="mc-card">
+            <span class="mc-label">Median Return</span>
+            <span class="mc-value" id="mc-median">--</span>
+          </div>
+          <div class="mc-card">
+            <span class="mc-label">5th Percentile (Worst)</span>
+            <span class="mc-value negative" id="mc-5th">--</span>
+          </div>
+          <div class="mc-card">
+            <span class="mc-label">95th Percentile (Best)</span>
+            <span class="mc-value positive" id="mc-95th">--</span>
+          </div>
+          <div class="mc-card">
+            <span class="mc-label">Probability of Profit</span>
+            <span class="mc-value" id="mc-profit-prob">--</span>
+          </div>
+          <div class="mc-card">
+            <span class="mc-label">Risk of Ruin (&gt;50% loss)</span>
+            <span class="mc-value" id="mc-ruin">--</span>
+          </div>
+          <div class="mc-card">
+            <span class="mc-label">Expected Max Drawdown</span>
+            <span class="mc-value" id="mc-drawdown">--</span>
+          </div>
+        </div>
+
+        <div class="mc-distribution">
+          <h4>Return Distribution</h4>
+          <div class="chart-container" id="mc-chart-container">
+            <canvas id="mc-canvas"></canvas>
+          </div>
+        </div>
+
+        <div class="mc-confidence">
+          <div class="confidence-range">
+            <span class="range-label">95% Confidence Interval:</span>
+            <span class="range-value" id="mc-confidence-range">--</span>
+          </div>
         </div>
       </div>
 
