@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-12-06T15:05:07.326Z",
+  "lastUpdated": "2025-12-06T15:10:04.543Z",
   "alerts": [
     {
       "id": "whale_de5c69d9d17b_1765016413103",
@@ -72,34 +72,10 @@
       "from_type": "Unknown",
       "to_type": "Unknown",
       "analysis": "524.78 BTC moved from single UTXO. Could be dormant wallet awakening - significant if wallet was inactive for extended period."
-    },
-    {
-      "id": "whale_aca4f54721d5_1764947111742",
-      "timestamp": "2025-12-05T15:05:11.742Z",
-      "txid": "aca4f54721d5f692b9b7c68d3cede3d0e2266a14ccf79e8d522de6c00c22dde4",
-      "type": "dormant_wallet",
-      "amount_btc": 524.78,
-      "amount_usd": 47840026,
-      "confidence": "medium",
-      "from_type": "Unknown",
-      "to_type": "Unknown",
-      "analysis": "524.78 BTC moved from single UTXO. Could be dormant wallet awakening - significant if wallet was inactive for extended period."
-    },
-    {
-      "id": "whale_ca28bb106012_1764947111814",
-      "timestamp": "2025-12-05T15:05:11.814Z",
-      "txid": "ca28bb1060129d2e3ddf79b470a2d6f0779b90bb4eafdc644c28fc6a73281266",
-      "type": "whale_transfer",
-      "amount_btc": 524.78,
-      "amount_usd": 47840026,
-      "confidence": "medium",
-      "from_type": "Unknown",
-      "to_type": "Unknown",
-      "analysis": "524.78 BTC whale transfer detected. Destination unknown - monitor for follow-up activity."
     }
   ],
   "stats": {
-    "totalTracked24h": 8,
+    "totalTracked24h": 6,
     "largestTx24h": 13358.54,
     "exchangeInflow24h": 0,
     "exchangeOutflow24h": 0
