@@ -1,6 +1,18 @@
 {
-  "lastUpdated": "2025-12-06T10:15:07.875Z",
+  "lastUpdated": "2025-12-06T10:20:13.347Z",
   "alerts": [
+    {
+      "id": "whale_de5c69d9d17b_1765016413103",
+      "timestamp": "2025-12-06T10:20:13.103Z",
+      "txid": "de5c69d9d17b1d140c4000d65a84bc186abfbfaa63eeecfed6f468949bdcd419",
+      "type": "whale_transfer",
+      "amount_btc": 13358.54,
+      "amount_usd": 1197649953,
+      "confidence": "medium",
+      "from_type": "Unknown",
+      "to_type": "Unknown",
+      "analysis": "13358.54 BTC whale transfer detected. Destination unknown - monitor for follow-up activity."
+    },
     {
       "id": "whale_68756eb7a8d9_1764965713928",
       "timestamp": "2025-12-05T20:15:13.928Z",
@@ -87,8 +99,8 @@
     }
   ],
   "stats": {
-    "totalTracked24h": 7,
-    "largestTx24h": 4950.47,
+    "totalTracked24h": 8,
+    "largestTx24h": 13358.54,
     "exchangeInflow24h": 0,
     "exchangeOutflow24h": 0
   }
