@@ -1,0 +1,15 @@
+{
+  "bias": "Bullish",
+  "topside": {
+    "zone": 100000,
+    "probability": 62,
+    "eta": "8-16 hours",
+    "reasoning": "Strong buying pressure with funding rates turning negative. Stop losses clustered above $100k psychological level create attractive liquidity target."
+  },
+  "bottomside": {
+    "zone": 95000,
+    "probability": 38,
+    "eta": "12-24 hours",
+    "reasoning": "Previous swing low at $95k with stops below. Less likely given current market structure but higher R:R if swept."
+  }
+}

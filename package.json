@@ -1,4 +1,17 @@
 {
+  "name": "btcsignal-ai",
+  "version": "1.0.0",
+  "description": "AI-powered Bitcoin trading signals and market analysis platform",
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:ci": "cypress run --browser chrome",
+    "test:e2e": "cypress run --spec 'cypress/e2e/**/*'",
+    "test:api": "cypress run --spec 'cypress/api/**/*'",
+    "test:unit": "cypress run --spec 'cypress/unit/**/*'",
+    "sass:build": "sass assets/src/scss:static/src/css --style=compressed --no-source-map",
+    "sass:watch": "sass assets/src/scss:static/src/css --watch"
+  },
   "dependencies": {
     "axios": "^1.13.2",
     "canvas": "^3.2.0",
@@ -8,6 +21,7 @@
     "twitter-api-v2": "^1.28.0"
   },
   "devDependencies": {
+    "cypress": "^15.7.1",
     "sass": "^1.94.2",
     "typescript": "^5.9.3"
   }

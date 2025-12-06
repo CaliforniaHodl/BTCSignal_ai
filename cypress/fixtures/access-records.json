@@ -1,0 +1,28 @@
+{
+  "records": [
+    {
+      "recoveryCode": "BTCSIG-TEST-CODE-1234",
+      "paymentHash": "test_payment_hash_abc123",
+      "tier": "daily",
+      "amountSats": 10000,
+      "purchaseDate": "2024-12-05T10:00:00Z",
+      "expiresAt": "2024-12-06T10:00:00Z",
+      "recoveryCount": 0,
+      "lastRecovery": null,
+      "activeSessionToken": "test_session_token_xyz",
+      "lastSessionUpdate": "2024-12-05T10:00:00Z"
+    },
+    {
+      "recoveryCode": "BTCSIG-EXPD-TEST-5678",
+      "paymentHash": "expired_payment_hash_def456",
+      "tier": "hourly",
+      "amountSats": 1000,
+      "purchaseDate": "2024-12-01T10:00:00Z",
+      "expiresAt": "2024-12-01T11:00:00Z",
+      "recoveryCount": 2,
+      "lastRecovery": "2024-12-01T10:30:00Z",
+      "activeSessionToken": "expired_session_token",
+      "lastSessionUpdate": "2024-12-01T10:30:00Z"
+    }
+  ]
+}

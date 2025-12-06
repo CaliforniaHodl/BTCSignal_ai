@@ -1,0 +1,85 @@
+name: Cypress Tests
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Run tests in parallel across multiple containers
+        containers: [1, 2]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: 'latest'
+          extended: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Hugo site
+        run: hugo --minify
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          # Start Hugo server in background
+          start: hugo server --port 1313 --bind 0.0.0.0
+          wait-on: 'http://localhost:1313'
+          wait-on-timeout: 120
+          browser: chrome
+          # Parallel test execution
+          parallel: true
+          record: false
+          # Split tests across containers
+          ci-build-id: ${{ github.sha }}-${{ github.workflow }}-${{ github.event_name }}
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots-${{ matrix.containers }}
+          path: cypress/screenshots
+          retention-days: 7
+
+      - name: Upload videos on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-videos-${{ matrix.containers }}
+          path: cypress/videos
+          retention-days: 7
+
+  # Summary job that requires all matrix jobs to pass
+  cypress-summary:
+    needs: cypress-run
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          if [ "${{ needs.cypress-run.result }}" == "success" ]; then
+            echo "All Cypress tests passed!"
+            exit 0
+          else
+            echo "Some Cypress tests failed"
+            exit 1
+          fi
