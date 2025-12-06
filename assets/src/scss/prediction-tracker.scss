@@ -1,0 +1,437 @@
+// =====================================================
+// PREDICTION TRACKER - 30-Day AI Predictions vs Reality
+// =====================================================
+
+@import 'shared/variables';
+
+.prediction-tracker-page {
+  padding: $spacing-xl 0;
+  min-height: 100vh;
+  background: $bg-dark;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+  }
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    color: $text-primary;
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    margin-bottom: $spacing-sm;
+  }
+
+  .subtitle {
+    color: $text-secondary;
+    font-size: $font-lg;
+  }
+}
+
+// Cycle Info Cards
+.cycle-info {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+}
+
+.cycle-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.cycle-label {
+  display: block;
+  color: $text-secondary;
+  font-size: $font-xs;
+  margin-bottom: $spacing-sm;
+}
+
+.cycle-value {
+  display: block;
+  color: $text-primary;
+  font-size: $font-xl;
+  font-weight: $font-bold;
+  font-family: monospace;
+}
+
+// Chart Section
+.chart-section {
+  margin-bottom: $spacing-xl;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+
+  h2 {
+    color: $text-primary;
+    font-size: $font-xl;
+    margin: 0;
+  }
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: $font-xs;
+  color: $text-secondary;
+
+  &.actual .legend-line {
+    background: #ffffff;
+  }
+}
+
+.legend-line {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.result-icon {
+  margin-left: $spacing-xs;
+
+  &.win { color: $bullish; }
+  &.loss { color: $bearish; }
+  &.pending { color: $neutral; }
+}
+
+.chart-wrapper {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  overflow: hidden;
+}
+
+#prediction-chart {
+  width: 100%;
+}
+
+// Predictions Section
+.predictions-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    color: $text-primary;
+    font-size: $font-xl;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.section-desc {
+  color: $text-secondary;
+  font-size: $font-sm;
+  margin-bottom: $spacing-md;
+}
+
+.predictions-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-md;
+}
+
+.prediction-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-left: 4px solid $bitcoin-orange;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  transition: transform $transition-base, box-shadow $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+
+  &.win {
+    border-left-color: $bullish;
+  }
+
+  &.loss {
+    border-left-color: $bearish;
+  }
+
+  &.pending {
+    border-left-color: $neutral;
+  }
+}
+
+.prediction-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.prediction-day {
+  color: $text-primary;
+  font-weight: $font-semibold;
+  font-size: $font-sm;
+}
+
+.prediction-date {
+  color: $text-secondary;
+  font-size: $font-xs;
+}
+
+.prediction-direction {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background: $bg-surface;
+  border-radius: $radius-md;
+
+  &.up {
+    background: $bullish-bg;
+
+    .direction-arrow,
+    .direction-text {
+      color: $bullish;
+    }
+  }
+
+  &.down {
+    background: $bearish-bg;
+
+    .direction-arrow,
+    .direction-text {
+      color: $bearish;
+    }
+  }
+}
+
+.direction-arrow {
+  font-size: $font-lg;
+}
+
+.direction-text {
+  font-weight: $font-bold;
+  font-size: $font-sm;
+}
+
+.confidence {
+  margin-left: auto;
+  color: $text-secondary;
+  font-size: $font-xs;
+}
+
+.prediction-prices {
+  margin-bottom: $spacing-md;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-xs 0;
+  font-size: $font-xs;
+}
+
+.price-label {
+  color: $text-secondary;
+}
+
+.price-value {
+  color: $text-primary;
+  font-family: monospace;
+
+  &.bullish { color: $bullish; }
+  &.bearish { color: $bearish; }
+}
+
+.prediction-result {
+  padding-top: $spacing-md;
+  border-top: 1px solid $border-color;
+  text-align: center;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+}
+
+.result-pending { color: $neutral; }
+.result-win { color: $bullish; }
+.result-loss { color: $bearish; }
+
+// Stats Section
+.stats-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    color: $text-primary;
+    font-size: $font-xl;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.stat-card {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: $font-2xl;
+  display: block;
+  margin-bottom: $spacing-sm;
+
+  .wins & { color: $bullish; }
+  .losses & { color: $bearish; }
+  .pending & { color: $neutral; }
+  .pnl & { color: $bitcoin-orange; }
+}
+
+.stat-value {
+  display: block;
+  font-size: $font-3xl;
+  font-weight: $font-bold;
+  color: $text-primary;
+  font-family: monospace;
+  margin-bottom: $spacing-xs;
+
+  &.positive { color: $bullish; }
+  &.negative { color: $bearish; }
+}
+
+.stat-label {
+  display: block;
+  color: $text-secondary;
+  font-size: $font-xs;
+}
+
+// Explainer Section
+.explainer-section {
+  background: $bg-card;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  h3 {
+    color: $text-primary;
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.explainer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+}
+
+.explainer-item {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  p {
+    color: $text-secondary;
+    font-size: $font-xs;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  strong {
+    color: $text-primary;
+  }
+}
+
+.explainer-num {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: $bitcoin-orange;
+  color: #000;
+  font-weight: $font-bold;
+  border-radius: $radius-full;
+  font-size: $font-sm;
+}
+
+// Empty/Loading States
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: $text-secondary;
+  font-size: $font-sm;
+}
+
+// Responsive
+@media (max-width: $breakpoint-lg) {
+  .cycle-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .explainer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: $breakpoint-md) {
+  .page-header h1 {
+    font-size: $font-2xl;
+  }
+
+  .cycle-info {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chart-header {
+    flex-direction: column;
+  }
+
+  .chart-legend {
+    justify-content: flex-start;
+  }
+
+  .predictions-timeline {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  .cycle-info {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .explainer-grid {
+    grid-template-columns: 1fr;
+  }
+}

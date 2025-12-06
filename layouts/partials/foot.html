@@ -4,6 +4,11 @@
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 {{ end }}
 
+{{/* Load TradingView Lightweight Charts if needed */}}
+{{ if .Params.lightweightCharts }}
+  <script defer src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+{{ end }}
+
 {{/* Load Chart.js if page needs charts */}}
 {{ if .Params.charts }}
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>

@@ -145,16 +145,25 @@
     elements.volumeBars.innerHTML = '<div class="vol-bar-container"><div class="vol-bar buy" style="width: ' + buyPct + '%"></div><div class="vol-bar sell" style="width: ' + sellPct + '%"></div></div>';
   }
 
-  // Display Liquidation Zones from static snapshot
-  function fetchLiquidationZones() {
-    if (!marketData || !marketData.btc || !marketData.btc.price) {
-      elements.liqCurrent.textContent = '--';
-      elements.liqAbove.textContent = '--';
-      elements.liqBelow.textContent = '--';
-      return;
+  // Display Liquidation Zones - with live fallback
+  async function fetchLiquidationZones() {
+    let currentPrice = marketData?.btc?.price;
+
+    // Fallback: fetch live price if snapshot is empty
+    if (!currentPrice || currentPrice === 0) {
+      try {
+        const res = await fetch('https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT');
+        const data = await res.json();
+        currentPrice = parseFloat(data.price);
+      } catch (e) {
+        console.error('Liq zones price fetch error:', e);
+        elements.liqCurrent.textContent = '--';
+        elements.liqAbove.textContent = '--';
+        elements.liqBelow.textContent = '--';
+        return;
+      }
     }
 
-    const currentPrice = marketData.btc.price;
     const longLiqZone = currentPrice * 0.95;
     const shortLiqZone = currentPrice * 1.05;
     elements.liqCurrent.textContent = '$' + currentPrice.toLocaleString(undefined, {maximumFractionDigits: 0});
@@ -169,13 +178,33 @@
     elements.liqHeatmap.innerHTML = '<div class="liq-heatmap-visual"><div class="liq-zone short-zone" title="Short liquidation zone"><div class="liq-intensity high"></div><div class="liq-intensity medium"></div><div class="liq-intensity low"></div></div><div class="liq-current-marker" style="bottom: ' + currentPct + '%"><span class="marker-line"></span></div><div class="liq-zone long-zone" title="Long liquidation zone"><div class="liq-intensity low"></div><div class="liq-intensity medium"></div><div class="liq-intensity high"></div></div></div>';
   }
 
-  // Display Quick Stats from static snapshot
-  function fetchQuickStats() {
-    if (!marketData || !marketData.btc) {
-      return;
-    }
+  // Display Quick Stats - fetch live from Binance as fallback
+  async function fetchQuickStats() {
+    // Try snapshot data first
+    const btc = marketData?.btc;
+    const hasSnapshotData = btc && btc.high24h > 0;
 
-    const btc = marketData.btc;
+    if (hasSnapshotData) {
+      displayQuickStats(btc);
+    } else {
+      // Fallback: fetch live data from CoinGecko (full market data)
+      try {
+        const res = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false');
+        const data = await res.json();
+        const md = data.market_data;
+        displayQuickStats({
+          high24h: md.high_24h?.usd,
+          low24h: md.low_24h?.usd,
+          volume24h: md.total_volume?.usd,
+          marketCap: md.market_cap?.usd
+        });
+      } catch (e) {
+        console.error('Quick stats fetch error:', e);
+      }
+    }
+  }
+
+  function displayQuickStats(btc) {
     if (elements.statHigh && btc.high24h) {
       elements.statHigh.textContent = '$' + btc.high24h.toLocaleString(undefined, {maximumFractionDigits: 0});
     }

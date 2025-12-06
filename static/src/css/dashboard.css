@@ -103,6 +103,28 @@
   color: var(--text-secondary);
 }
 
+.btn-chart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: #000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-chart-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+.btn-chart-link i {
+  font-size: 1rem;
+}
+
 .dashboard-widgets {
   margin-bottom: 48px;
 }

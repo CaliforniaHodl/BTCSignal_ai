@@ -1,0 +1,108 @@
+{{ define "main" }}
+<main class="prediction-tracker-page">
+  <div class="container">
+    <header class="page-header">
+      <h1>30-Day Prediction Tracker</h1>
+      <p class="subtitle">AI predictions vs actual BTC price - updated every signal</p>
+    </header>
+
+    <!-- Cycle Info -->
+    <div class="cycle-info">
+      <div class="cycle-card">
+        <span class="cycle-label">Current Cycle</span>
+        <span class="cycle-value" id="cycle-dates">Loading...</span>
+      </div>
+      <div class="cycle-card">
+        <span class="cycle-label">Day</span>
+        <span class="cycle-value" id="cycle-day">--/30</span>
+      </div>
+      <div class="cycle-card">
+        <span class="cycle-label">Predictions Made</span>
+        <span class="cycle-value" id="predictions-count">--</span>
+      </div>
+      <div class="cycle-card">
+        <span class="cycle-label">Cycle Accuracy</span>
+        <span class="cycle-value" id="cycle-accuracy">--%</span>
+      </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="chart-section">
+      <div class="chart-header">
+        <h2>Predictions vs Reality</h2>
+        <div class="chart-legend" id="chart-legend">
+          <div class="legend-item actual">
+            <span class="legend-line"></span>
+            <span>Actual BTC Price</span>
+          </div>
+          <!-- Dynamic prediction lines added by JS -->
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <div id="prediction-chart"></div>
+      </div>
+    </div>
+
+    <!-- Prediction Timeline -->
+    <div class="predictions-section">
+      <h2>Prediction Timeline</h2>
+      <p class="section-desc">Each line represents a prediction made on that day. Hover to see details.</p>
+
+      <div class="predictions-timeline" id="predictions-timeline">
+        <!-- Populated by JS -->
+        <div class="loading-state">Loading predictions...</div>
+      </div>
+    </div>
+
+    <!-- Accuracy Stats -->
+    <div class="stats-section">
+      <h2>Performance This Cycle</h2>
+      <div class="stats-grid">
+        <div class="stat-card wins">
+          <span class="stat-icon">&#x2714;</span>
+          <span class="stat-value" id="stat-wins">0</span>
+          <span class="stat-label">Correct Calls</span>
+        </div>
+        <div class="stat-card losses">
+          <span class="stat-icon">&#x2718;</span>
+          <span class="stat-value" id="stat-losses">0</span>
+          <span class="stat-label">Incorrect Calls</span>
+        </div>
+        <div class="stat-card pending">
+          <span class="stat-icon">&#x23F3;</span>
+          <span class="stat-value" id="stat-pending">0</span>
+          <span class="stat-label">Pending</span>
+        </div>
+        <div class="stat-card pnl">
+          <span class="stat-icon">&#x1F4B0;</span>
+          <span class="stat-value" id="stat-pnl">0%</span>
+          <span class="stat-label">Total P&L</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="explainer-section">
+      <h3>How This Works</h3>
+      <div class="explainer-grid">
+        <div class="explainer-item">
+          <span class="explainer-num">1</span>
+          <p><strong>Daily Signals:</strong> Every day at 5pm UTC, we analyze the market and make a directional call (UP or DOWN).</p>
+        </div>
+        <div class="explainer-item">
+          <span class="explainer-num">2</span>
+          <p><strong>Prediction Lines:</strong> Each call draws a line from entry price to target price. Different colors for each day's prediction.</p>
+        </div>
+        <div class="explainer-item">
+          <span class="explainer-num">3</span>
+          <p><strong>Reality Check:</strong> The white line shows actual BTC price. Compare it against our predictions in real-time.</p>
+        </div>
+        <div class="explainer-item">
+          <span class="explainer-num">4</span>
+          <p><strong>30-Day Reset:</strong> Every 30 days, the cycle resets and we start fresh with new predictions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{{ end }}

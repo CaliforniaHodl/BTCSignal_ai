@@ -1,0 +1,157 @@
+{{ define "main" }}
+<main class="chart-demo-page">
+  <div class="container">
+    <header class="page-header">
+      <h1>Interactive BTC Chart</h1>
+      <p class="subtitle">Professional charting with indicators & drawing tools</p>
+    </header>
+
+    <!-- Chart Controls -->
+    <div class="chart-controls">
+      <div class="timeframe-selector">
+        <button class="tf-btn" data-tf="15">15m</button>
+        <button class="tf-btn" data-tf="60">1H</button>
+        <button class="tf-btn active" data-tf="240">4H</button>
+        <button class="tf-btn" data-tf="D">1D</button>
+        <button class="tf-btn" data-tf="W">1W</button>
+      </div>
+
+      <div class="indicator-toggles">
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-ema9" checked>
+          <span class="toggle-text">EMA 9</span>
+          <span class="color-dot ema9"></span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-ema21" checked>
+          <span class="toggle-text">EMA 21</span>
+          <span class="color-dot ema21"></span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-ema50">
+          <span class="toggle-text">EMA 50</span>
+          <span class="color-dot ema50"></span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-bb">
+          <span class="toggle-text">Bollinger</span>
+          <span class="color-dot bb"></span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-vwap">
+          <span class="toggle-text">VWAP</span>
+          <span class="color-dot vwap"></span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-supertrend">
+          <span class="toggle-text">Supertrend</span>
+          <span class="color-dot supertrend"></span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-ichimoku">
+          <span class="toggle-text">Ichimoku</span>
+          <span class="color-dot ichimoku"></span>
+        </label>
+      </div>
+
+      <div class="tool-buttons">
+        <button class="tool-btn active" id="tool-crosshair" title="Crosshair">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+        <button class="tool-btn" id="tool-trendline" title="Trendline">
+          <i class="fas fa-chart-line"></i>
+        </button>
+        <button class="tool-btn" id="tool-horizontal" title="Horizontal Line">
+          <i class="fas fa-grip-lines"></i>
+        </button>
+        <button class="tool-btn" id="tool-fib" title="Fibonacci Retracement">
+          <i class="fas fa-wave-square"></i>
+        </button>
+        <button class="tool-btn" id="tool-clear" title="Clear Drawings">
+          <i class="fas fa-eraser"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Chart Container -->
+    <div class="chart-wrapper">
+      <div id="main-chart"></div>
+      <div class="chart-legend" id="chart-legend">
+        <span class="legend-price">--</span>
+        <span class="legend-change">--</span>
+      </div>
+    </div>
+
+    <!-- Volume Chart -->
+    <div class="volume-wrapper">
+      <div id="volume-chart"></div>
+    </div>
+
+    <!-- RSI Subchart -->
+    <div class="subchart-wrapper">
+      <div class="subchart-header">
+        <span>RSI (14)</span>
+        <span id="rsi-value" class="subchart-value">--</span>
+      </div>
+      <div id="rsi-chart"></div>
+    </div>
+
+    <!-- Stochastic RSI Subchart -->
+    <div class="subchart-wrapper">
+      <div class="subchart-header">
+        <span>Stoch RSI (14, 14, 3, 3)</span>
+        <span id="stoch-value" class="subchart-value">--</span>
+      </div>
+      <div id="stoch-chart"></div>
+    </div>
+
+    <!-- MACD Subchart -->
+    <div class="subchart-wrapper">
+      <div class="subchart-header">
+        <span>MACD (12, 26, 9)</span>
+        <span id="macd-value" class="subchart-value">--</span>
+      </div>
+      <div id="macd-chart"></div>
+    </div>
+
+    <!-- Chart Info Panel -->
+    <div class="chart-info-panel">
+      <div class="info-card">
+        <h3>Current Price</h3>
+        <div class="info-value" id="current-price">--</div>
+      </div>
+      <div class="info-card">
+        <h3>24h Change</h3>
+        <div class="info-value" id="price-change">--</div>
+      </div>
+      <div class="info-card">
+        <h3>24h High</h3>
+        <div class="info-value" id="high-24h">--</div>
+      </div>
+      <div class="info-card">
+        <h3>24h Low</h3>
+        <div class="info-value" id="low-24h">--</div>
+      </div>
+    </div>
+
+    <!-- Indicator Legend -->
+    <div class="indicator-legend">
+      <h3>Indicator Guide</h3>
+      <div class="legend-grid">
+        <div class="legend-item">
+          <span class="legend-dot supertrend"></span>
+          <strong>Supertrend:</strong> Trend-following indicator. Green = bullish, Red = bearish. Good for trailing stops.
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot ichimoku"></span>
+          <strong>Ichimoku:</strong> Tenkan (blue) + Kijun (red) + Chikou (purple). Cloud shows support/resistance.
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot stoch"></span>
+          <strong>Stoch RSI:</strong> Momentum oscillator. &lt;20 = oversold, &gt;80 = overbought. %K/%D crossovers signal entries.
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{{ end }}

@@ -79,29 +79,42 @@
     if (changeEl) changeEl.textContent = 'Network secured by miners worldwide';
   }
 
-  // Display market data from static snapshot
-  function loadMarketData() {
+  // Display market data - with live fallback
+  async function loadMarketData() {
     const mcapEl = document.getElementById('market-cap');
     const domEl = document.getElementById('btc-dominance');
 
-    if (!marketData) {
-      if (mcapEl) mcapEl.textContent = '--';
-      if (domEl) domEl.textContent = '--';
-      return;
+    let btcMcap = marketData?.btc?.marketCap;
+    let btcDom = marketData?.dominance?.btc;
+
+    // Fallback: fetch live data if snapshot is empty
+    if (!btcMcap || btcMcap === 0) {
+      try {
+        const [coinRes, globalRes] = await Promise.all([
+          fetch('https://api.coingecko.com/api/v3/coins/bitcoin?localization=false&tickers=false&community_data=false&developer_data=false&sparkline=false'),
+          fetch('https://api.coingecko.com/api/v3/global')
+        ]);
+        const coinData = await coinRes.json();
+        const globalData = await globalRes.json();
+
+        btcMcap = coinData.market_data?.market_cap?.usd;
+        btcDom = globalData.data?.market_cap_percentage?.btc;
+      } catch (e) {
+        console.error('Market data fetch error:', e);
+      }
     }
 
     // Bitcoin market cap in trillions
-    if (marketData.btc && marketData.btc.marketCap) {
-      const btcMcapTrillion = (marketData.btc.marketCap / 1e12).toFixed(2);
+    if (btcMcap) {
+      const btcMcapTrillion = (btcMcap / 1e12).toFixed(2);
       if (mcapEl) mcapEl.textContent = '$' + btcMcapTrillion;
     } else {
       if (mcapEl) mcapEl.textContent = '--';
     }
 
     // BTC Dominance
-    if (marketData.dominance && marketData.dominance.btc) {
-      const btcDominance = marketData.dominance.btc.toFixed(1);
-      if (domEl) domEl.textContent = btcDominance;
+    if (btcDom) {
+      if (domEl) domEl.textContent = btcDom.toFixed(1);
     } else {
       if (domEl) domEl.textContent = '--';
     }
