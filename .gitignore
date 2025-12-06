@@ -22,3 +22,8 @@ Thumbs.db
 
 # Security todo (contains sensitive info references)
 Todo_Readme.md
+
+# Cypress test artifacts
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
