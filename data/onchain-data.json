@@ -1,43 +1,43 @@
 {
-  "lastUpdated": "2025-12-06T08:00:12.530Z",
+  "lastUpdated": "2025-12-06T12:00:31.795Z",
   "exchangeReserves": {
-    "totalBTC": 2335604.8621784677,
-    "change24h": 0.31434351142243566,
-    "change7d": 1.3040189374494542,
+    "totalBTC": 2341410.6127882446,
+    "change24h": 0.3055478157701576,
+    "change7d": 1.6765144027799415,
     "trend": "neutral",
     "exchanges": [
       {
         "name": "Binance",
-        "btc": 586526.2431962012,
-        "change24h": -0.5390080746870787
+        "btc": 583315.3698247774,
+        "change24h": 0.3583647971481434
       },
       {
         "name": "Coinbase",
-        "btc": 412992.97549445386,
-        "change24h": 0.5979769228816707
+        "btc": 418054.78218117374,
+        "change24h": -0.12100708152323314
       },
       {
         "name": "Bitfinex",
-        "btc": 181761.34060602376,
-        "change24h": -0.9163430944205158
+        "btc": 180250.29721223982,
+        "change24h": -0.6119032416685894
       },
       {
         "name": "Kraken",
-        "btc": 140860.96340697983,
-        "change24h": 0.7110155718823004
+        "btc": 139124.0963127334,
+        "change24h": 0.07147380911857226
       },
       {
         "name": "OKX",
-        "btc": 131369.4600612824,
-        "change24h": -0.3591198184618958
+        "btc": 129786.44290610144,
+        "change24h": 0.6660519032434258
       }
     ]
   },
   "mvrv": {
     "ratio": 1.92,
     "zone": "fair",
-    "marketCap": 1788883523927,
-    "realizedCap": 930776978734.2936,
+    "marketCap": 1789174299582,
+    "realizedCap": 931289349408.4647,
     "signal": "Market in fair value range. Normal accumulation/distribution cycle."
   },
   "whaleFlows": {
@@ -45,6 +45,6 @@
     "outflow24h": 0,
     "netFlow24h": 0,
     "flowSignal": "neutral",
-    "recentAlerts": 7
+    "recentAlerts": 8
   }
 }
