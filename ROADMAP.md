@@ -412,7 +412,7 @@ Lost Access → Go to /recover/ → Enter Code → Access Restored
 
 ---
 
-### Phase 8: Comprehensive Test Suite with Cypress (IN PROGRESS)
+### Phase 8: Comprehensive Test Suite with Cypress (COMPLETE)
 *Goal: TDD the entire project with end-to-end and integration tests*
 *Priority: High (ensures stability before new features)*
 *No new features - testing existing functionality only*
@@ -689,6 +689,182 @@ jobs:
   }
 }
 ```
+
+---
+
+### Phase 9: Raspberry Pi 5 Server (Self-Hosted Backend)
+*Goal: Set up a dedicated Pi 5 server for user database, session validation, and analytics*
+*Priority: Medium (enables true backend without cloud costs)*
+*Teaching focus: Step-by-step for front-end developers learning backend*
+
+**The Why:**
+- Currently using GitHub API for access records (limited, rate-limited)
+- No real database = no analytics, no session management
+- Netlify functions are stateless = can't track users across requests
+- Pi 5 (8GB) is powerful enough for SQLite + API server
+- Self-hosted = no monthly cloud bills, full control
+
+**Hardware:**
+- Raspberry Pi 5 (8GB RAM)
+- MicroSD card (64GB+) or NVMe SSD (recommended)
+- Power supply (27W USB-C)
+- Ethernet cable (recommended for server)
+
+**Sprint 1: Ubuntu 24 LTS Setup** ⏳ PENDING
+- [ ] Download Ubuntu 24.04 LTS Desktop for Raspberry Pi
+- [ ] Flash to microSD using Raspberry Pi Imager
+- [ ] Initial boot and system configuration
+- [ ] Update system packages (`apt update && apt upgrade`)
+- [ ] Configure static IP address
+- [ ] Set up SSH for headless access
+- [ ] Create non-root user for services
+
+**Sprint 2: Tailscale VPN Setup** ⏳ PENDING
+- [ ] Install Tailscale (`curl -fsSL https://tailscale.com/install.sh | sh`)
+- [ ] Authenticate and join your tailnet
+- [ ] Enable MagicDNS for easy hostname access
+- [ ] Test connection from other devices on tailnet
+- [ ] Configure Tailscale to start on boot
+- [ ] Set up exit node (optional - route traffic through Pi)
+
+**Sprint 3: Pi-hole DNS Filtering** ⏳ PENDING
+- [ ] Install Pi-hole (`curl -sSL https://install.pi-hole.net | bash`)
+- [ ] Configure upstream DNS (Cloudflare 1.1.1.1 or Quad9)
+- [ ] Add custom blocklists for ad/tracker blocking
+- [ ] Set Pi as DNS server for tailnet devices
+- [ ] Access Pi-hole admin dashboard
+- [ ] Review query logs and blocked domains
+
+**Sprint 4: Caddy Reverse Proxy** ⏳ PENDING
+- [ ] Install Caddy (`apt install caddy`)
+- [ ] Configure Caddyfile for local services
+- [ ] Set up automatic HTTPS with Tailscale certs
+- [ ] Create reverse proxy rules for:
+  - `/api/*` → Node.js API server
+  - `/admin/*` → Pi-hole dashboard
+- [ ] Test SSL/TLS configuration
+- [ ] Enable access logging
+
+**Sprint 5: SQLite Database Setup** ⏳ PENDING
+- [ ] Install SQLite3 (`apt install sqlite3`)
+- [ ] Design database schema:
+  ```sql
+  -- Access records (replaces GitHub JSON)
+  CREATE TABLE access_records (
+    id INTEGER PRIMARY KEY,
+    recovery_code TEXT UNIQUE NOT NULL,
+    payment_hash TEXT,
+    tier TEXT NOT NULL,
+    amount_sats INTEGER,
+    purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    recovery_count INTEGER DEFAULT 0,
+    last_recovery DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
+  -- Session tokens
+  CREATE TABLE sessions (
+    id INTEGER PRIMARY KEY,
+    recovery_code TEXT NOT NULL,
+    session_token TEXT UNIQUE NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    expires_at DATETIME NOT NULL,
+    ip_hash TEXT,
+    user_agent TEXT
+  );
+
+  -- Analytics (privacy-respecting)
+  CREATE TABLE page_views (
+    id INTEGER PRIMARY KEY,
+    page_path TEXT NOT NULL,
+    visitor_hash TEXT NOT NULL,  -- SHA256(IP + daily_salt)
+    viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    referrer TEXT,
+    user_agent TEXT
+  );
+
+  -- Daily salt for IP hashing (rotates daily)
+  CREATE TABLE daily_salt (
+    date TEXT PRIMARY KEY,
+    salt TEXT NOT NULL
+  );
+  ```
+- [ ] Create database file with proper permissions
+- [ ] Test basic CRUD operations
+- [ ] Set up daily backup script
+
+**Sprint 6: Node.js API Server** ⏳ PENDING
+- [ ] Install Node.js 20 LTS (`apt install nodejs npm`)
+- [ ] Create Express.js API project
+- [ ] Implement endpoints:
+  - `POST /api/store-access` - Store new access record
+  - `POST /api/recover-access` - Validate recovery code
+  - `POST /api/validate-session` - Check session validity
+  - `POST /api/track-pageview` - Log analytics (hashed IP)
+  - `GET /api/analytics/summary` - Return aggregated stats
+- [ ] Add rate limiting middleware
+- [ ] Add CORS configuration for btcsignal.ai
+- [ ] Set up PM2 for process management
+- [ ] Configure systemd service for auto-start
+
+**Sprint 7: Cloudflare Tunnel (Optional)** ⏳ PENDING
+- [ ] Install cloudflared
+- [ ] Create tunnel for public API access
+- [ ] Configure DNS records
+- [ ] Set up access policies
+- [ ] Alternative: Keep API internal (Tailscale-only)
+
+**Sprint 8: Connect to BTCSignals Pro** ⏳ PENDING
+- [ ] Update Netlify functions to call Pi API
+- [ ] Migrate existing access records from GitHub to SQLite
+- [ ] Update client-side code to use new endpoints
+- [ ] Test full purchase → recovery flow
+- [ ] Set up monitoring and alerts
+
+**Architecture Diagram:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    BTCSignals Pro Users                      │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Netlify (Frontend)                        │
+│  - Hugo static site                                          │
+│  - Serverless functions (payment, Claude API)               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                    Tailscale VPN / Cloudflare Tunnel
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Raspberry Pi 5 Server                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │   Caddy     │  │  Pi-hole    │  │  Node.js    │         │
+│  │  (proxy)    │  │   (DNS)     │  │   (API)     │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+│                              │                               │
+│                              ▼                               │
+│                    ┌─────────────┐                          │
+│                    │   SQLite    │                          │
+│                    │ (database)  │                          │
+│                    └─────────────┘                          │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Success Criteria:**
+- [ ] Pi 5 running Ubuntu 24 LTS with remote SSH access
+- [ ] Tailscale connected and accessible from all devices
+- [ ] Pi-hole blocking ads/trackers on the network
+- [ ] Caddy serving HTTPS with valid certificates
+- [ ] SQLite database storing access records
+- [ ] API endpoints responding to BTCSignals Pro requests
+- [ ] Analytics showing unique visitor counts (privacy-respecting)
+- [ ] Automatic backups running daily
+
+**Positioning After Phase 9:**
+> "Self-hosted, privacy-respecting backend. Your data never touches third-party clouds. Zero monthly server costs."
 
 ---
 
