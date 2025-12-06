@@ -1,0 +1,126 @@
+{
+  "strategies": {
+    "rsi_oversold": {
+      "input": "Buy when RSI < 30, sell when RSI > 70, stop loss 3%",
+      "expectedParsing": {
+        "entryConditions": [{ "type": "rsi_cross_above", "value": 30 }],
+        "exitConditions": [{ "type": "rsi_above", "value": 70 }],
+        "stopLoss": 0.03,
+        "direction": "long"
+      }
+    },
+    "macd_cross": {
+      "input": "Enter when MACD crosses above signal, exit on MACD cross below",
+      "expectedParsing": {
+        "entryConditions": [{ "type": "macd_cross_above" }],
+        "exitConditions": [{ "type": "macd_cross_below" }],
+        "direction": "long"
+      }
+    },
+    "ema_cross": {
+      "input": "EMA 9 crosses above EMA 21, target 2R",
+      "expectedParsing": {
+        "entryConditions": [{ "type": "ema_cross_above", "fast": 9, "slow": 21 }],
+        "rewardRatio": 2,
+        "direction": "long"
+      }
+    },
+    "breakout": {
+      "input": "Buy on break of 20-day high, stop loss 5%",
+      "expectedParsing": {
+        "entryConditions": [{ "type": "breakout_high", "period": 20 }],
+        "stopLoss": 0.05,
+        "direction": "long"
+      }
+    },
+    "short_only": {
+      "input": "Short when RSI > 70, stop 3%",
+      "expectedParsing": {
+        "direction": "short",
+        "stopLoss": 0.03
+      }
+    },
+    "combined": {
+      "input": "Long RSI < 30, short RSI > 70, 1% risk",
+      "expectedParsing": {
+        "direction": "both",
+        "riskPerTrade": 0.01
+      }
+    }
+  },
+  "edgeCases": {
+    "empty": "",
+    "gibberish": "asdfghjkl qwerty xyz 123",
+    "xss": "<script>alert('xss')</script>",
+    "sql": "'; DROP TABLE users; --",
+    "longInput": "Buy when RSI is less than thirty and the MACD line crosses above the signal line while the price is above the 50 day exponential moving average and volume is increasing",
+    "unicodeChars": "RSI < 30 📈 买入 🚀"
+  },
+  "knownResults": {
+    "description": "Expected results for deterministic test scenarios",
+    "uptrendLong": {
+      "strategy": "Long only, always buy",
+      "expectedDirection": "positive",
+      "note": "On uptrend data, long positions should profit"
+    },
+    "downtrendShort": {
+      "strategy": "Short only, always short",
+      "expectedDirection": "positive",
+      "note": "On downtrend data, short positions should profit"
+    }
+  },
+  "indicatorTests": {
+    "rsi": {
+      "description": "RSI should be between 0 and 100",
+      "minValue": 0,
+      "maxValue": 100,
+      "oversoldThreshold": 30,
+      "overboughtThreshold": 70
+    },
+    "macd": {
+      "description": "MACD histogram can be positive or negative",
+      "signalCross": "MACD crossing above signal = bullish"
+    }
+  },
+  "statisticsValidation": {
+    "winRate": {
+      "min": 0,
+      "max": 100,
+      "unit": "percent"
+    },
+    "maxDrawdown": {
+      "min": 0,
+      "max": 100,
+      "unit": "percent"
+    },
+    "sharpeRatio": {
+      "typicalMin": -3,
+      "typicalMax": 3,
+      "goodThreshold": 1
+    },
+    "profitFactor": {
+      "min": 0,
+      "breakeven": 1,
+      "goodThreshold": 1.5
+    }
+  },
+  "monteCarloValidation": {
+    "simulations": 500,
+    "percentiles": {
+      "p5": "5th percentile (worst case)",
+      "p25": "25th percentile",
+      "p50": "Median (50th percentile)",
+      "p75": "75th percentile",
+      "p95": "95th percentile (best case)"
+    },
+    "profitProbability": {
+      "description": "Percentage of simulations that ended profitable",
+      "min": 0,
+      "max": 100
+    },
+    "ruinProbability": {
+      "description": "Percentage of simulations that lost >50%",
+      "goodThreshold": 5
+    }
+  }
+}

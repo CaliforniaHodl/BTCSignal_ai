@@ -412,12 +412,12 @@ Lost Access → Go to /recover/ → Enter Code → Access Restored
 
 ---
 
-### Phase 8: Comprehensive Test Suite with Cypress (COMPLETE)
+### Phase 8: Comprehensive Test Suite with Cypress (IN PROGRESS)
 *Goal: TDD the entire project with end-to-end and integration tests*
 *Priority: High (ensures stability before new features)*
 *No new features - testing existing functionality only*
 
-**The Problem:** ✅ SOLVED
+**The Problem:** ✅ PARTIALLY SOLVED
 - No automated tests exist → 26 test files created
 - Manual testing is time-consuming and error-prone → Automated CI pipeline
 - Regressions can slip through unnoticed → E2E tests catch regressions
@@ -472,7 +472,115 @@ Lost Access → Go to /recover/ → Enter Code → Access Restored
 - [x] **loading-states.cy.js**: Loading spinners, error fallbacks, empty states
 - [x] **accessibility.cy.js**: WCAG compliance, keyboard nav, ARIA landmarks
 
-**Test File Structure:** (26 test files, ~5,200 lines)
+---
+
+#### Phase 8 Expansion: Deep Logic & Edge Case Testing
+
+*Goal: Move beyond UI verification to test actual business logic and calculations*
+*Identified Gap: Tests verify pages load but not that calculations are correct*
+
+**Sprint 7: Backtester Pro Logic Tests** ✅ COMPLETE
+- [x] **Strategy parsing tests**: Verify natural language → conditions (54 tests)
+  - RSI conditions: "Buy when RSI < 30" → correct entry condition
+  - MACD conditions: "Sell on MACD cross" → exit recognized
+  - EMA conditions: "EMA 9 crosses EMA 21" → cross detection
+  - Breakout: "break 20-day high" → breakout entry
+  - Stop loss/take profit parsing
+  - Direction parsing (long/short/both)
+  - Edge cases: empty input, gibberish, XSS, SQL injection
+- [x] **Trade simulation tests**: Entry/exit logic
+  - Entry point detection accuracy
+  - Stop loss enforcement
+  - Take profit triggers
+  - Position sizing calculations
+  - Slippage and fees applied
+- [x] **Monte Carlo simulation tests**: Statistical validity
+  - 500 paths generated
+  - Median, P5/P95 percentiles calculated
+  - Profit/ruin probability
+  - Distribution histogram
+- [x] **Statistics calculations tests**
+  - Win rate validation (0-100%)
+  - Max drawdown validation (0-100%)
+  - Sharpe ratio calculation
+  - Profit factor calculation
+- [x] **Result accuracy tests**: Known dataset validation
+  - Uptrend/downtrend data tests
+  - Equity curve display
+
+**Test file**: `cypress/unit/backtester-logic.cy.js` (680+ lines, 54 tests)
+
+**Sprint 8: WebSocket Manager Tests** ⏳ PENDING
+- [ ] **Connection tests**: WebSocket lifecycle
+  - Binance stream connects successfully
+  - Bybit stream connects successfully
+  - Connection failure triggers reconnect
+  - Max reconnect attempts (5) respected
+- [ ] **Message handling tests**: Data parsing
+  - Price updates parsed correctly
+  - Order book data processed
+  - Malformed messages handled gracefully
+  - Rate limiting applied
+- [ ] **Error recovery tests**: Resilience
+  - Network interruption → automatic reconnect
+  - Server disconnect → backoff retry
+  - Invalid data → skip without crash
+
+**Sprint 9: Payment Flow Completion Tests** ⏳ PENDING
+- [ ] **End-to-end payment tests**: Full flow
+  - Create invoice → mock payment → webhook → access granted
+  - Verify access token generated after payment
+  - Verify recovery code created and stored
+- [ ] **Edge case tests**: Error handling
+  - Invoice expired, user tries to check
+  - Duplicate payment handling (idempotency)
+  - Network timeout during payment check
+  - Webhook arrives out of order
+- [ ] **Security tests**: Payment integrity
+  - Tampered payment hash rejected
+  - Invalid tier rejected
+  - Rate limiting on check-payment
+
+**Sprint 10: Error Scenarios & Edge Cases** ⏳ PENDING
+- [ ] **API failure tests**: Network errors
+  - 500 server errors show user-friendly message
+  - 429 rate limiting shows retry message
+  - Timeout shows connection error
+  - Invalid JSON handled gracefully
+- [ ] **Empty/null data tests**: Missing data
+  - Empty price arrays don't crash charts
+  - Null funding rates show "N/A"
+  - Missing market data shows stale indicator
+- [ ] **Input validation tests**: User input
+  - XSS attempts sanitized
+  - Negative numbers where positive expected
+  - Extremely large numbers handled
+  - Special characters in recovery codes
+
+**Sprint 11: Feature Calculation Logic** ⏳ PENDING
+- [ ] **Pattern Detector logic**: Algorithm accuracy
+  - Known chart patterns detected correctly
+  - Support/resistance levels within 2% of expected
+  - Confidence scores in valid range (0-100)
+- [ ] **Liquidity Hunter logic**: Prediction math
+  - Zone calculations match expected output
+  - Probability percentages sum correctly
+  - ETA estimates reasonable
+- [ ] **Trade Coach logic**: Scoring validation
+  - Score breakdown adds to total
+  - Risk/reward calculation correct
+  - All score components in valid range
+
+**Success Criteria (Phase 8 Expansion):**
+- [ ] Backtester Pro: Strategy parsing 90%+ accurate on test cases
+- [ ] WebSocket: Reconnection works within 30s of disconnect
+- [ ] Payment: Full flow tested with mock Lightning webhook
+- [ ] Error handling: All API failures show user-friendly messages
+- [ ] Calculations: All financial calculations verified against known values
+
+---
+
+**Test File Structure:** (26 test files → 35+ after expansion)
 ```
 cypress/
 ├── e2e/                           # 15 files
