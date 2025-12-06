@@ -9,6 +9,7 @@
     "test:e2e": "cypress run --spec 'cypress/e2e/**/*'",
     "test:api": "cypress run --spec 'cypress/api/**/*'",
     "test:unit": "cypress run --spec 'cypress/unit/**/*'",
+    "test:visual": "cypress run --spec 'cypress/visual/**/*'",
     "sass:build": "sass assets/src/scss:static/src/css --style=compressed --no-source-map",
     "sass:watch": "sass assets/src/scss:static/src/css --watch"
   },
