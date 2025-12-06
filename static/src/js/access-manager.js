@@ -6,6 +6,7 @@ const BTCSAIAccess = (function() {
   const SINGLE_POSTS_KEY = 'btcsai_unlocked_posts';
   const ADMIN_KEY = 'btcsai_admin';
   const RECOVERY_KEY = 'btcsai_recovery_code';
+  const SESSION_KEY = 'btcsai_session_token';
 
   // Admin mode check - bypasses all paywalls for development/testing
   // To enable: localStorage.setItem('btcsai_admin', 'satoshi2024')
@@ -234,6 +235,82 @@ const BTCSAIAccess = (function() {
     }
   }
 
+  // Store session token locally
+  function setSessionToken(token) {
+    try {
+      localStorage.setItem(SESSION_KEY, token);
+      return true;
+    } catch (e) {
+      console.error('Error storing session token:', e);
+      return false;
+    }
+  }
+
+  // Get stored session token
+  function getSessionToken() {
+    try {
+      return localStorage.getItem(SESSION_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Clear session token
+  function clearSessionToken() {
+    try {
+      localStorage.removeItem(SESSION_KEY);
+    } catch (e) {
+      console.error('Error clearing session token:', e);
+    }
+  }
+
+  // Validate session with server - returns false if kicked off by another device
+  async function validateSession() {
+    const recoveryCode = getRecoveryCode();
+    const sessionToken = getSessionToken();
+
+    // If no session info, can't validate - assume valid (old access)
+    if (!recoveryCode || !sessionToken) {
+      return { valid: true, reason: 'no_session_info' };
+    }
+
+    try {
+      const response = await fetch('/.netlify/functions/validate-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recoveryCode, sessionToken })
+      });
+
+      const data = await response.json();
+
+      if (!data.valid && data.kicked) {
+        // User was kicked off - clear their access
+        clearAccess();
+        clearRecoveryCode();
+        clearSessionToken();
+        return {
+          valid: false,
+          kicked: true,
+          message: data.error || 'Your access was recovered on another device'
+        };
+      }
+
+      if (!data.valid && data.expired) {
+        return {
+          valid: false,
+          expired: true,
+          message: 'Your access has expired'
+        };
+      }
+
+      return { valid: data.valid };
+    } catch (error) {
+      console.error('Session validation error:', error);
+      // On network error, assume valid to avoid false kicks
+      return { valid: true, reason: 'network_error' };
+    }
+  }
+
   // Recover access from server using recovery code or payment hash
   async function recoverAccess(recoveryCodeOrHash) {
     const isRecoveryCode = recoveryCodeOrHash.startsWith('BTCSIG-');
@@ -272,16 +349,20 @@ const BTCSAIAccess = (function() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(token));
         }
 
-        // Store the recovery code for future use
+        // Store the recovery code and session token for future use
         if (data.recoveryCode) {
           setRecoveryCode(data.recoveryCode);
+        }
+        if (data.sessionToken) {
+          setSessionToken(data.sessionToken);
         }
 
         return {
           success: true,
           tier: data.tier,
           expiresAt: data.expiresAt,
-          remainingMs: data.remainingMs
+          remainingMs: data.remainingMs,
+          sessionToken: data.sessionToken
         };
       } else {
         return {
@@ -320,7 +401,12 @@ const BTCSAIAccess = (function() {
     setRecoveryCode,
     getRecoveryCode,
     clearRecoveryCode,
-    recoverAccess
+    recoverAccess,
+    // Session functions (for single-device enforcement)
+    setSessionToken,
+    getSessionToken,
+    clearSessionToken,
+    validateSession
   };
 })();
 
@@ -330,5 +416,50 @@ if (typeof window !== 'undefined') {
 
   // Log admin status on load (helpful for debugging)
   if (BTCSAIAccess.isAdmin()) {
+  }
+
+  // Session validation on page load - check if user was kicked off
+  // Only runs if user has active access and session info
+  (async function checkSessionOnLoad() {
+    // Skip if admin mode
+    if (BTCSAIAccess.isAdmin()) return;
+
+    // Skip if no active access
+    const access = BTCSAIAccess.getAccess();
+    if (!access || !access.valid) return;
+
+    // Skip if no session token (old access before this feature)
+    const sessionToken = BTCSAIAccess.getSessionToken();
+    if (!sessionToken) return;
+
+    // Validate session
+    const result = await BTCSAIAccess.validateSession();
+
+    if (!result.valid && result.kicked) {
+      // User was kicked off - show message and redirect
+      showKickedOffModal(result.message);
+    }
+  })();
+
+  // Show kicked off modal
+  function showKickedOffModal(message) {
+    // Create modal overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:99999;display:flex;align-items:center;justify-content:center;';
+
+    const modal = document.createElement('div');
+    modal.style.cssText = 'background:#161b22;border:1px solid #f85149;border-radius:12px;padding:32px;max-width:400px;text-align:center;';
+    modal.innerHTML = `
+      <div style="font-size:3rem;margin-bottom:16px;">⚠️</div>
+      <h2 style="color:#f85149;margin-bottom:16px;">Access Revoked</h2>
+      <p style="color:#8d96a0;margin-bottom:24px;">${message || 'Your access was recovered on another device. Only one device can use a recovery code at a time.'}</p>
+      <p style="color:#8d96a0;font-size:0.9rem;margin-bottom:24px;">If this wasn't you, your recovery code may have been shared.</p>
+      <a href="/pricing/" style="display:inline-block;background:linear-gradient(135deg,#f7931a,#ff6b00);color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;">Get New Access</a>
+      <br><br>
+      <a href="/recover/" style="color:#f7931a;font-size:0.9rem;">Recover with your code →</a>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
   }
 }

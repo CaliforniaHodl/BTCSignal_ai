@@ -190,8 +190,11 @@
             const storeData = await storeResponse.json();
 
             if (storeData.success && storeData.recoveryCode) {
-              // Store recovery code locally
+              // Store recovery code and session token locally
               BTCSAIAccess.setRecoveryCode(storeData.recoveryCode);
+              if (storeData.sessionToken) {
+                BTCSAIAccess.setSessionToken(storeData.sessionToken);
+              }
 
               // Close payment modal and show recovery modal
               document.getElementById('payment-modal').style.display = 'none';

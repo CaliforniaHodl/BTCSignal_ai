@@ -11,6 +11,18 @@ interface AccessRecord {
   expiresAt: string | null;
   recoveryCount: number;
   lastRecovery: string | null;
+  activeSessionToken: string;
+  lastSessionUpdate: string;
+}
+
+// Generate unique session token - new one kicks off old devices
+function generateSessionToken(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
 }
 
 interface AccessRecordsFile {
@@ -162,9 +174,12 @@ export default async (req: Request, context: Context) => {
       }
     }
 
-    // Update recovery count (fire and forget - don't block response)
-    updateRecoveryCount(matchedRecord.recoveryCode, records).catch(err => {
-      console.error('Failed to update recovery count:', err);
+    // Generate new session token - this invalidates any other device using this code
+    const newSessionToken = generateSessionToken();
+
+    // Update recovery count and session token (fire and forget - don't block response)
+    updateRecoveryAndSession(matchedRecord.recoveryCode, newSessionToken, records).catch(err => {
+      console.error('Failed to update recovery record:', err);
     });
 
     // Calculate remaining time
@@ -179,7 +194,8 @@ export default async (req: Request, context: Context) => {
       purchaseDate: matchedRecord.purchaseDate,
       expiresAt: matchedRecord.expiresAt,
       remainingMs,
-      recoveryCode: matchedRecord.recoveryCode, // Return for localStorage storage
+      recoveryCode: matchedRecord.recoveryCode,
+      sessionToken: newSessionToken, // New session token - old devices will be kicked off
       message: 'Access recovered successfully'
     }), {
       status: 200,
@@ -242,7 +258,11 @@ async function fetchRecordsFromGitHub(): Promise<AccessRecordsFile | null> {
   }
 }
 
-async function updateRecoveryCount(recoveryCode: string, records: AccessRecordsFile): Promise<void> {
+async function updateRecoveryAndSession(
+  recoveryCode: string,
+  newSessionToken: string,
+  records: AccessRecordsFile
+): Promise<void> {
   const token = process.env.GITHUB_TOKEN;
   const repo = process.env.GITHUB_REPO;
 
@@ -272,8 +292,11 @@ async function updateRecoveryCount(recoveryCode: string, records: AccessRecordsF
 
     if (recordIndex === -1) return;
 
+    const now = new Date().toISOString();
     records.records[recordIndex].recoveryCount++;
-    records.records[recordIndex].lastRecovery = new Date().toISOString();
+    records.records[recordIndex].lastRecovery = now;
+    records.records[recordIndex].activeSessionToken = newSessionToken;
+    records.records[recordIndex].lastSessionUpdate = now;
 
     // Save updated records
     await fetch(url, {
@@ -284,7 +307,7 @@ async function updateRecoveryCount(recoveryCode: string, records: AccessRecordsF
         'Accept': 'application/vnd.github.v3+json'
       },
       body: JSON.stringify({
-        message: `Update recovery count for ${recoveryCode}`,
+        message: `Update session for ${recoveryCode}`,
         content: Buffer.from(JSON.stringify(records, null, 2)).toString('base64'),
         sha,
         branch: 'master'
@@ -292,6 +315,6 @@ async function updateRecoveryCount(recoveryCode: string, records: AccessRecordsF
     });
 
   } catch (error: any) {
-    console.error('Update recovery count error:', error.message);
+    console.error('Update recovery and session error:', error.message);
   }
 }

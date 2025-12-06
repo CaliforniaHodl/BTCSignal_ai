@@ -12,6 +12,8 @@ interface AccessRecord {
   expiresAt: string | null;
   recoveryCount: number;
   lastRecovery: string | null;
+  activeSessionToken: string; // Unique per device - only one active at a time
+  lastSessionUpdate: string;
 }
 
 interface AccessRecordsFile {
@@ -30,6 +32,16 @@ function generateRecoveryCode(): string {
   };
 
   return `BTCSIG-${generateSegment()}-${generateSegment()}-${generateSegment()}`;
+}
+
+// Generate unique session token - used to ensure only one device can use a code at a time
+function generateSessionToken(): string {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
 }
 
 // Calculate expiry based on tier
@@ -82,8 +94,9 @@ export default async (req: Request, context: Context) => {
       });
     }
 
-    // Generate unique recovery code
+    // Generate unique recovery code and session token
     const recoveryCode = generateRecoveryCode();
+    const sessionToken = generateSessionToken();
     const purchaseDate = new Date();
     const expiresAt = calculateExpiry(tier, purchaseDate);
 
@@ -95,7 +108,9 @@ export default async (req: Request, context: Context) => {
       purchaseDate: purchaseDate.toISOString(),
       expiresAt,
       recoveryCount: 0,
-      lastRecovery: null
+      lastRecovery: null,
+      activeSessionToken: sessionToken,
+      lastSessionUpdate: purchaseDate.toISOString()
     };
 
     // Save to GitHub
@@ -109,6 +124,7 @@ export default async (req: Request, context: Context) => {
     return new Response(JSON.stringify({
       success: true,
       recoveryCode,
+      sessionToken,
       tier,
       expiresAt,
       message: 'Access record stored successfully'
