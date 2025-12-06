@@ -505,7 +505,7 @@ export default async (req: Request, context: Context) => {
   });
 };
 
-// Schedule: runs every 5 minutes
-export const config: Config = {
-  schedule: '*/5 * * * *',
-};
+// Schedule: DISABLED - was running every 5 minutes
+// export const config: Config = {
+//   schedule: '*/5 * * * *',
+// };
