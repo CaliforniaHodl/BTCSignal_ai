@@ -18,7 +18,7 @@
 [functions."fetch-market-data"]
   schedule = "0 1,5,9,13,17,21 * * *"
 
-# Whale tracker - runs with market data fetch (6x daily)
-# Builds up whale alert data during site builds
-[functions."whale-tracker"]
-  schedule = "0 1,5,9,13,17,21 * * *"
+# Whale tracker - DISABLED (uncomment to re-enable)
+# Was running 6x daily - builds up whale alert data during site builds
+# [functions."whale-tracker"]
+#   schedule = "0 1,5,9,13,17,21 * * *"
