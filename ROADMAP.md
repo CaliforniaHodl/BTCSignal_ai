@@ -412,6 +412,245 @@ Lost Access → Go to /recover/ → Enter Code → Access Restored
 
 ---
 
+### Phase 8: Comprehensive Test Suite with Cypress
+*Goal: TDD the entire project with end-to-end and integration tests*
+*Priority: High (ensures stability before new features)*
+*No new features - testing existing functionality only*
+
+**The Problem:**
+- No automated tests exist
+- Manual testing is time-consuming and error-prone
+- Regressions can slip through unnoticed
+- Refactoring is risky without test coverage
+- No confidence in deployment stability
+
+**Sprint 1: Cypress Setup & Core Infrastructure**
+- [ ] Install Cypress and configure for Hugo/Netlify stack
+- [ ] Set up `cypress.config.js` with base URL and environment variables
+- [ ] Create custom commands for common actions (login, check access, etc.)
+- [ ] Set up fixtures for mock data (prices, predictions, access records)
+- [ ] Configure GitHub Actions for CI test runs
+- [ ] Add npm scripts: `test`, `test:open`, `test:ci`
+
+**Sprint 2: Critical User Flow Tests (E2E)**
+- [ ] **Homepage tests**
+  - [ ] Page loads with all sections visible
+  - [ ] BTC price ticker updates
+  - [ ] Market sentiment widgets display data
+  - [ ] Navigation links work correctly
+  - [ ] Mobile responsive layout
+
+- [ ] **Pricing page tests**
+  - [ ] All pricing tiers display correctly
+  - [ ] Purchase buttons trigger payment modal
+  - [ ] Payment modal shows QR code
+  - [ ] Copy invoice button works
+  - [ ] Access status updates after mock payment
+
+- [ ] **Recovery flow tests**
+  - [ ] /recover/ page loads
+  - [ ] Valid recovery code restores access
+  - [ ] Invalid code shows error message
+  - [ ] Payment hash recovery works
+  - [ ] Rate limiting works (after 10 attempts)
+
+- [ ] **Premium access tests**
+  - [ ] Locked content shows paywall
+  - [ ] Unlocked content displays after access granted
+  - [ ] Session validation kicks off shared codes
+  - [ ] Access expiry handled correctly
+
+**Sprint 3: Pro Tools Page Tests**
+- [ ] **Dashboard tests**
+  - [ ] All widgets load and display data
+  - [ ] Charts render correctly
+  - [ ] Tooltips appear on hover
+  - [ ] Data refreshes on interval
+
+- [ ] **Alpha Radar tests**
+  - [ ] Market overview cards display
+  - [ ] Whale activity section works
+  - [ ] Fear & Greed meter renders
+
+- [ ] **Liquidity Hunter tests**
+  - [ ] Premium gate shows for non-subscribers
+  - [ ] Predictions load after access granted
+  - [ ] Probability meters animate
+  - [ ] Refresh button updates data
+
+- [ ] **Pattern Detector tests**
+  - [ ] Chart renders with price data
+  - [ ] Timeframe buttons switch views
+  - [ ] Patterns are detected and displayed
+
+- [ ] **Trade Coach tests**
+  - [ ] Form inputs work correctly
+  - [ ] AI evaluation returns results
+  - [ ] Score breakdown displays
+
+- [ ] **Portfolio Simulator tests**
+  - [ ] Strategy presets load
+  - [ ] Custom strategy builder works
+  - [ ] Equity curve renders
+  - [ ] Stats calculate correctly
+
+- [ ] **Backtester Pro tests**
+  - [ ] Strategy input accepts text
+  - [ ] Backtest runs and shows results
+  - [ ] Trade log displays
+
+**Sprint 4: Netlify Functions API Tests**
+- [ ] **create-invoice.ts**
+  - [ ] Returns valid invoice for each tier
+  - [ ] Rejects invalid tier/amount combinations
+  - [ ] Returns QR code URL
+
+- [ ] **check-payment.ts**
+  - [ ] Returns paid status correctly
+  - [ ] Handles missing payment hash
+
+- [ ] **store-access.ts**
+  - [ ] Generates unique recovery codes
+  - [ ] Generates session tokens
+  - [ ] Stores record in GitHub
+
+- [ ] **recover-access.ts**
+  - [ ] Validates recovery codes
+  - [ ] Validates payment hashes
+  - [ ] Generates new session token (kicks old device)
+  - [ ] Rate limits requests
+
+- [ ] **validate-session.ts**
+  - [ ] Returns valid for matching session
+  - [ ] Returns kicked for mismatched session
+  - [ ] Handles expired access
+
+- [ ] **liquidity-prediction.ts**
+  - [ ] Returns prediction JSON
+  - [ ] Falls back gracefully on API errors
+
+- [ ] **Market data functions**
+  - [ ] fetch-market-data.ts returns valid data
+  - [ ] fetch-onchain-data.ts returns valid data
+  - [ ] whale-tracker.ts processes alerts
+
+**Sprint 5: Access Manager & Utilities Tests**
+- [ ] **access-manager.js unit tests**
+  - [ ] setAccess/getAccess work correctly
+  - [ ] Token verification detects tampering
+  - [ ] Tier durations calculate correctly
+  - [ ] Recovery code storage works
+  - [ ] Session token validation works
+  - [ ] Admin mode bypasses checks
+
+- [ ] **shared.js utility tests**
+  - [ ] formatPrice formats correctly
+  - [ ] fetchBTCPrice returns number
+  - [ ] Toast notifications display
+
+- [ ] **pricing.js tests**
+  - [ ] Payment flow initiates correctly
+  - [ ] Recovery modal displays code
+  - [ ] Session token stored after purchase
+
+**Sprint 6: Visual & Regression Tests**
+- [ ] Set up Percy or Cypress visual testing
+- [ ] Capture baseline screenshots for all pages
+- [ ] Test dark/light theme switching
+- [ ] Test mobile viewport layouts
+- [ ] Test loading/error states
+
+**Test File Structure:**
+```
+cypress/
+├── e2e/
+│   ├── homepage.cy.js
+│   ├── pricing.cy.js
+│   ├── recovery.cy.js
+│   ├── dashboard.cy.js
+│   ├── alpha-radar.cy.js
+│   ├── liquidity-hunter.cy.js
+│   ├── pattern-detector.cy.js
+│   ├── trade-coach.cy.js
+│   ├── portfolio-simulator.cy.js
+│   └── backtester-pro.cy.js
+├── api/
+│   ├── create-invoice.cy.js
+│   ├── check-payment.cy.js
+│   ├── store-access.cy.js
+│   ├── recover-access.cy.js
+│   └── validate-session.cy.js
+├── unit/
+│   ├── access-manager.cy.js
+│   └── shared.cy.js
+├── fixtures/
+│   ├── prices.json
+│   ├── predictions.json
+│   ├── access-records.json
+│   └── market-data.json
+├── support/
+│   ├── commands.js
+│   └── e2e.js
+└── cypress.config.js
+```
+
+**Custom Commands:**
+```javascript
+// Grant premium access for testing
+cy.grantAccess(tier, duration)
+
+// Clear all access
+cy.clearAccess()
+
+// Mock API responses
+cy.mockMarketData()
+cy.mockPaymentSuccess()
+
+// Check premium content visibility
+cy.shouldShowPaywall()
+cy.shouldShowContent()
+```
+
+**Success Criteria:**
+- [ ] 80%+ code coverage on critical paths
+- [ ] All E2E tests pass in CI
+- [ ] Tests run in under 5 minutes
+- [ ] Visual regression baseline established
+- [ ] No flaky tests (retry logic implemented)
+- [ ] Documentation for running tests locally
+
+**CI/CD Integration:**
+```yaml
+# .github/workflows/test.yml
+name: Cypress Tests
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cypress-io/github-action@v5
+        with:
+          build: npm run build
+          start: npm run serve
+          wait-on: 'http://localhost:1313'
+```
+
+**npm Scripts:**
+```json
+{
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:ci": "cypress run --record",
+    "test:e2e": "cypress run --spec 'cypress/e2e/**/*'",
+    "test:api": "cypress run --spec 'cypress/api/**/*'"
+  }
+}
+```
+
+---
+
 ## Tech Stack (CURRENT)
 
 - **Frontend**: Hugo static site generator
