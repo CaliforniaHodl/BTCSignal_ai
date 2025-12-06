@@ -5,6 +5,7 @@ const BTCSAIAccess = (function() {
   const STORAGE_KEY = 'btcsai_access';
   const SINGLE_POSTS_KEY = 'btcsai_unlocked_posts';
   const ADMIN_KEY = 'btcsai_admin';
+  const RECOVERY_KEY = 'btcsai_recovery_code';
 
   // Admin mode check - bypasses all paywalls for development/testing
   // To enable: localStorage.setItem('btcsai_admin', 'satoshi2024')
@@ -204,6 +205,102 @@ const BTCSAIAccess = (function() {
     monthly: 50000
   };
 
+  // Store recovery code locally
+  function setRecoveryCode(code) {
+    try {
+      localStorage.setItem(RECOVERY_KEY, code);
+      return true;
+    } catch (e) {
+      console.error('Error storing recovery code:', e);
+      return false;
+    }
+  }
+
+  // Get stored recovery code
+  function getRecoveryCode() {
+    try {
+      return localStorage.getItem(RECOVERY_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Clear recovery code
+  function clearRecoveryCode() {
+    try {
+      localStorage.removeItem(RECOVERY_KEY);
+    } catch (e) {
+      console.error('Error clearing recovery code:', e);
+    }
+  }
+
+  // Recover access from server using recovery code or payment hash
+  async function recoverAccess(recoveryCodeOrHash) {
+    const isRecoveryCode = recoveryCodeOrHash.startsWith('BTCSIG-');
+
+    try {
+      const response = await fetch('/.netlify/functions/recover-access', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+          isRecoveryCode
+            ? { recoveryCode: recoveryCodeOrHash }
+            : { paymentHash: recoveryCodeOrHash }
+        )
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Restore access locally
+        const duration = TIER_DURATIONS[data.tier];
+        if (duration && data.remainingMs > 0) {
+          // Calculate new timestamp based on remaining time
+          const newExpiry = Date.now() + data.remainingMs;
+          const newTimestamp = newExpiry - duration;
+          const salt = generateSalt(newTimestamp, duration);
+
+          const token = {
+            tier: data.tier,
+            timestamp: newTimestamp,
+            duration: duration,
+            salt: salt,
+            purchasedAt: new Date(data.purchaseDate).getTime(),
+            recoveredAt: Date.now()
+          };
+
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(token));
+        }
+
+        // Store the recovery code for future use
+        if (data.recoveryCode) {
+          setRecoveryCode(data.recoveryCode);
+        }
+
+        return {
+          success: true,
+          tier: data.tier,
+          expiresAt: data.expiresAt,
+          remainingMs: data.remainingMs
+        };
+      } else {
+        return {
+          success: false,
+          error: data.error,
+          expired: data.expired,
+          notFound: data.notFound,
+          rateLimited: data.rateLimited
+        };
+      }
+    } catch (error) {
+      console.error('Recovery error:', error);
+      return {
+        success: false,
+        error: 'Network error. Please try again.'
+      };
+    }
+  }
+
   return {
     getAccess,
     setAccess,
@@ -218,7 +315,12 @@ const BTCSAIAccess = (function() {
     // Admin functions
     isAdmin,
     enableAdmin,
-    disableAdmin
+    disableAdmin,
+    // Recovery functions
+    setRecoveryCode,
+    getRecoveryCode,
+    clearRecoveryCode,
+    recoverAccess
   };
 })();
 

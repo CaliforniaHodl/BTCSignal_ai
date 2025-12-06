@@ -383,6 +383,198 @@
   color: var(--red);
 }
 
+// Recovery Code Modal
+.recovery-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 10001;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-md;
+}
+
+.recovery-content {
+  max-width: 450px;
+  text-align: center;
+}
+
+.recovery-header {
+  margin-bottom: $spacing-lg;
+
+  .recovery-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: $spacing-sm;
+  }
+
+  h3 {
+    color: var(--text-primary);
+    font-size: $font-xl;
+    margin: 0;
+  }
+}
+
+.recovery-body {
+  text-align: left;
+}
+
+.recovery-warning {
+  background: rgba($bitcoin-orange, 0.15);
+  border: 1px solid var(--bitcoin-orange);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.recovery-code-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-dark);
+  border: 2px dashed var(--border-color);
+  border-radius: $radius-md;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    color: var(--green);
+    letter-spacing: 0.1em;
+  }
+}
+
+.btn-copy-code {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $spacing-sm;
+  border-radius: $radius-sm;
+  transition: background $transition-base;
+
+  .copy-icon {
+    font-size: $font-xl;
+  }
+
+  &:hover {
+    background: var(--bg-card);
+  }
+}
+
+.recovery-details {
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+
+  p {
+    margin: $spacing-xs 0;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+
+    strong {
+      color: var(--text-primary);
+    }
+
+    span {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.recovery-tips {
+  background: var(--bg-card);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+  text-align: left;
+
+  p {
+    margin: 0 0 $spacing-sm;
+    font-size: $font-sm;
+    color: var(--text-primary);
+  }
+
+  ul {
+    margin: 0;
+    padding-left: $spacing-lg;
+
+    li {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-xs;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.recovery-actions {
+  display: flex;
+  gap: $spacing-md;
+
+  @include mobile {
+    flex-direction: column;
+  }
+}
+
+.btn-download-code {
+  flex: 1;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    color: var(--bitcoin-orange);
+  }
+}
+
+.btn-continue {
+  flex: 1;
+  padding: $spacing-md;
+  border: none;
+  border-radius: $radius-md;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &.primary {
+    @include gradient-button;
+
+    &:hover {
+      transform: scale(1.02);
+      box-shadow: $shadow-glow;
+    }
+  }
+}
+
+// Recover link in FAQ
+.recover-link {
+  color: var(--bitcoin-orange);
+  text-decoration: none;
+  font-weight: $font-semibold;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 // FAQ Section
 .pricing-faq {
   margin-bottom: $spacing-2xl;
@@ -567,5 +759,349 @@
 
   a {
     color: var(--bitcoin-orange);
+  }
+}
+
+// =====================================================
+// RECOVER PAGE STYLES
+// =====================================================
+
+.recover-page {
+  @include section-padding;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.recover-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+
+  .recover-page-icon {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: $spacing-md;
+  }
+
+  h1 {
+    font-size: $font-3xl;
+    @include gradient-text;
+    margin-bottom: $spacing-sm;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: $font-lg;
+  }
+}
+
+// Current Access Status
+.current-access-status {
+  margin-bottom: $spacing-xl;
+}
+
+.access-status-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+  padding: $spacing-lg;
+  text-align: center;
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-muted);
+    margin-bottom: $spacing-md;
+  }
+}
+
+.status-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+
+  .status-icon {
+    font-size: $font-2xl;
+  }
+
+  .status-text {
+    font-size: $font-lg;
+    color: var(--text-secondary);
+
+    &.active {
+      color: var(--green);
+      font-weight: $font-semibold;
+    }
+
+    &.expired {
+      color: var(--red);
+    }
+  }
+}
+
+.stored-code {
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid var(--border-color);
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-muted);
+    margin-bottom: $spacing-sm;
+  }
+
+  code {
+    display: inline-block;
+    background: var(--bg-dark);
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-md;
+    font-family: 'Courier New', monospace;
+    font-size: $font-base;
+    color: var(--green);
+    letter-spacing: 0.05em;
+    margin-right: $spacing-sm;
+  }
+}
+
+.btn-copy-stored {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $font-lg;
+  vertical-align: middle;
+}
+
+// Recovery Form Section
+.recovery-form-section {
+  margin-bottom: $spacing-2xl;
+}
+
+.recovery-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+
+  h2 {
+    font-size: $font-xl;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  .form-desc {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    margin-bottom: $spacing-xl;
+
+    code {
+      background: var(--bg-dark);
+      padding: 0.2em 0.4em;
+      border-radius: $radius-sm;
+      font-size: 0.9em;
+    }
+  }
+}
+
+.recovery-form {
+  .input-group {
+    margin-bottom: $spacing-lg;
+
+    label {
+      display: block;
+      font-size: $font-sm;
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+      margin-bottom: $spacing-sm;
+    }
+
+    input {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: $radius-md;
+      padding: $spacing-md;
+      font-size: $font-base;
+      color: var(--text-primary);
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.05em;
+
+      &:focus {
+        outline: none;
+        border-color: var(--bitcoin-orange);
+      }
+
+      &::placeholder {
+        color: var(--text-muted);
+        font-family: inherit;
+        letter-spacing: normal;
+      }
+    }
+
+    .input-hint {
+      font-size: $font-xs;
+      color: var(--text-muted);
+      margin-top: $spacing-sm;
+    }
+  }
+}
+
+.btn-recover {
+  width: 100%;
+  @include gradient-button;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-base;
+  font-weight: $font-semibold;
+  border: none;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover:not(:disabled) {
+    transform: scale(1.02);
+    box-shadow: $shadow-glow;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+}
+
+// Recovery Result
+.recovery-result {
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+
+  &.success {
+    background: rgba($green, 0.15);
+    border: 1px solid var(--green);
+  }
+
+  &.error {
+    background: rgba($red, 0.15);
+    border: 1px solid var(--red);
+    color: var(--red);
+  }
+}
+
+.success-message {
+  text-align: center;
+
+  .success-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: $spacing-sm;
+  }
+
+  h3 {
+    color: var(--green);
+    margin-bottom: $spacing-md;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin: $spacing-xs 0;
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  .redirect-notice {
+    margin-top: $spacing-md;
+    font-size: $font-sm;
+    color: var(--text-muted);
+  }
+}
+
+// Help Section
+.recovery-help {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+    color: var(--text-primary);
+  }
+}
+
+.help-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+
+    code {
+      background: var(--bg-dark);
+      padding: 0.2em 0.4em;
+      border-radius: $radius-sm;
+      font-size: 0.85em;
+    }
+  }
+
+  ul {
+    margin: 0;
+    padding-left: $spacing-lg;
+
+    li {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-xs;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// CTA Section
+.recover-cta {
+  text-align: center;
+  padding: $spacing-xl;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+
+  p {
+    color: var(--text-muted);
+    margin-bottom: $spacing-md;
+  }
+}
+
+.btn-pricing {
+  display: inline-block;
+  @include gradient-button;
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-md;
+  text-decoration: none;
+  font-weight: $font-semibold;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: $shadow-glow;
   }
 }

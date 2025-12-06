@@ -152,6 +152,43 @@
     </div>
   </div>
 
+  <!-- Recovery Code Modal -->
+  <div class="recovery-modal" id="recovery-modal">
+    <div class="modal-content recovery-content">
+      <div class="recovery-header">
+        <span class="recovery-icon">🔐</span>
+        <h3>Save Your Recovery Code</h3>
+      </div>
+      <div class="recovery-body">
+        <p class="recovery-warning">
+          <strong>Important:</strong> Save this code to restore your access on any device or after clearing browser data.
+        </p>
+        <div class="recovery-code-display">
+          <code id="recovery-code-text">BTCSIG-XXXX-XXXX-XXXX</code>
+          <button class="btn-copy-code" id="btn-copy-recovery" title="Copy code">
+            <span class="copy-icon">📋</span>
+          </button>
+        </div>
+        <div class="recovery-details">
+          <p><strong>Tier:</strong> <span id="recovery-tier">--</span></p>
+          <p><strong>Expires:</strong> <span id="recovery-expires">--</span></p>
+        </div>
+        <div class="recovery-tips">
+          <p>💡 <strong>Tips:</strong></p>
+          <ul>
+            <li>Screenshot this code</li>
+            <li>Save it to your notes app</li>
+            <li>Keep your Lightning payment hash as backup</li>
+          </ul>
+        </div>
+      </div>
+      <div class="recovery-actions">
+        <button class="btn-download-code" id="btn-download-recovery">Download as Text</button>
+        <button class="btn-continue primary" id="btn-continue-access">I've Saved It - Continue</button>
+      </div>
+    </div>
+  </div>
+
   <!-- FAQ Section -->
   <section class="pricing-faq">
     <h2>Frequently Asked Questions</h2>
@@ -170,7 +207,11 @@
       </div>
       <div class="faq-item">
         <h3>Is my access tied to this device?</h3>
-        <p>Yes, access is stored locally in your browser. Don't clear your browser data or you'll lose access.</p>
+        <p>Access is stored locally, but you'll receive a <strong>recovery code</strong> after purchase. Save it to restore access on any device or after clearing browser data.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Lost your access?</h3>
+        <p>Use your recovery code or Lightning payment hash to restore access. <a href="/recover/" class="recover-link">Recover Access →</a></p>
       </div>
     </div>
   </section>

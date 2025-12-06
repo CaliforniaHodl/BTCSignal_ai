@@ -164,32 +164,153 @@
 
         if (data.paid) {
           clearInterval(pollInterval);
+          paymentStatus.innerHTML = '<span class="status-success">✅ Payment confirmed! Generating recovery code...</span>';
 
-          // Grant access
+          // Grant access locally
           if (tier === 'single') {
             // For single posts, we'd need the post ID - handled separately
-            paymentStatus.innerHTML = '<span class="status-success">✅ Payment confirmed! Post unlocked.</span>';
           } else {
             // Time-based access
             const duration = BTCSAIAccess.TIER_DURATIONS[tier];
             BTCSAIAccess.setAccess(tier, duration);
-            paymentStatus.innerHTML = '<span class="status-success">✅ Payment confirmed! Access granted.</span>';
+          }
+
+          // Store access record and get recovery code
+          try {
+            const storeResponse = await fetch('/.netlify/functions/store-access', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                paymentHash: paymentHash,
+                tier: tier,
+                amountSats: amount
+              })
+            });
+
+            const storeData = await storeResponse.json();
+
+            if (storeData.success && storeData.recoveryCode) {
+              // Store recovery code locally
+              BTCSAIAccess.setRecoveryCode(storeData.recoveryCode);
+
+              // Close payment modal and show recovery modal
+              document.getElementById('payment-modal').style.display = 'none';
+              showRecoveryModal(storeData.recoveryCode, tier, storeData.expiresAt, paymentHash);
+            } else {
+              // Still grant access but warn about recovery
+              console.warn('Failed to get recovery code:', storeData.error);
+              paymentStatus.innerHTML = '<span class="status-success">✅ Access granted! (Recovery code unavailable)</span>';
+              setTimeout(function() {
+                document.getElementById('payment-modal').style.display = 'none';
+                window.location.reload();
+              }, 2000);
+            }
+          } catch (storeError) {
+            console.error('Store access error:', storeError);
+            // Still grant access but warn
+            paymentStatus.innerHTML = '<span class="status-success">✅ Access granted!</span>';
+            setTimeout(function() {
+              document.getElementById('payment-modal').style.display = 'none';
+              window.location.reload();
+            }, 2000);
           }
 
           // Update status display
           updateAccessStatus();
-
-          // Close modal after delay
-          setTimeout(function() {
-            document.getElementById('payment-modal').style.display = 'none';
-            // Reload to apply access
-            window.location.reload();
-          }, 2000);
         }
       } catch (error) {
         console.error('Payment check error:', error);
       }
     }, 5000);
+  }
+
+  // Show recovery code modal
+  function showRecoveryModal(recoveryCode, tier, expiresAt, paymentHash) {
+    const modal = document.getElementById('recovery-modal');
+    const codeText = document.getElementById('recovery-code-text');
+    const tierDisplay = document.getElementById('recovery-tier');
+    const expiresDisplay = document.getElementById('recovery-expires');
+    const btnCopy = document.getElementById('btn-copy-recovery');
+    const btnDownload = document.getElementById('btn-download-recovery');
+    const btnContinue = document.getElementById('btn-continue-access');
+
+    // Display recovery code
+    codeText.textContent = recoveryCode;
+
+    // Display tier
+    const tierNames = {
+      single: 'Single Post',
+      hourly: 'Hour Pass',
+      daily: 'Day Pass',
+      weekly: 'Week Pass',
+      monthly: 'Month Pass'
+    };
+    tierDisplay.textContent = tierNames[tier] || tier;
+
+    // Display expiry
+    if (expiresAt) {
+      const expiry = new Date(expiresAt);
+      expiresDisplay.textContent = expiry.toLocaleDateString() + ' at ' + expiry.toLocaleTimeString();
+    } else {
+      expiresDisplay.textContent = 'Never (permanent access)';
+    }
+
+    // Show modal
+    modal.style.display = 'flex';
+
+    // Copy button handler
+    btnCopy.onclick = function() {
+      navigator.clipboard.writeText(recoveryCode);
+      btnCopy.innerHTML = '<span class="copy-icon">✓</span>';
+      setTimeout(function() {
+        btnCopy.innerHTML = '<span class="copy-icon">📋</span>';
+      }, 2000);
+    };
+
+    // Download button handler
+    btnDownload.onclick = function() {
+      const content = [
+        'BTC Signal AI - Recovery Code',
+        '================================',
+        '',
+        'Recovery Code: ' + recoveryCode,
+        'Tier: ' + (tierNames[tier] || tier),
+        'Purchased: ' + new Date().toISOString(),
+        'Expires: ' + (expiresAt || 'Never'),
+        '',
+        'Payment Hash (backup): ' + paymentHash,
+        '',
+        '================================',
+        'Keep this file safe!',
+        'Use your recovery code at: https://btcsignal.ai/recover/'
+      ].join('\n');
+
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'btcsignal-recovery-' + recoveryCode.split('-')[1] + '.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    // Continue button handler
+    btnContinue.onclick = function() {
+      modal.style.display = 'none';
+      window.location.reload();
+    };
+
+    // Allow clicking outside to close (but warn first)
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        if (confirm('Have you saved your recovery code? You will need it to restore access later.')) {
+          modal.style.display = 'none';
+          window.location.reload();
+        }
+      }
+    };
   }
 
   // Initialize

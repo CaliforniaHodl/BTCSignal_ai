@@ -1,0 +1,90 @@
+{{ define "main" }}
+<div class="container recover-page">
+  <header class="recover-header">
+    <span class="recover-page-icon">🔐</span>
+    <h1>Recover Your Access</h1>
+    <p class="subtitle">Lost your access? No problem. Enter your recovery code or Lightning payment hash to restore it.</p>
+  </header>
+
+  <!-- Current Access Status -->
+  <section class="current-access-status" id="current-access-section">
+    <div class="access-status-card">
+      <h3>Current Access Status</h3>
+      <div class="status-display" id="status-display">
+        <span class="status-icon" id="recover-status-icon">🔒</span>
+        <span class="status-text" id="recover-status-text">No active access</span>
+      </div>
+      <div class="stored-code" id="stored-code-section" style="display: none;">
+        <p>Your stored recovery code:</p>
+        <code id="stored-recovery-code">--</code>
+        <button class="btn-copy-stored" id="btn-copy-stored" title="Copy code">📋</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recovery Form -->
+  <section class="recovery-form-section">
+    <div class="recovery-form-card">
+      <h2>Enter Recovery Code</h2>
+      <p class="form-desc">Your recovery code was displayed after purchase. It looks like: <code>BTCSIG-XXXX-XXXX-XXXX</code></p>
+
+      <form id="recovery-form" class="recovery-form">
+        <div class="input-group">
+          <label for="recovery-input">Recovery Code or Payment Hash</label>
+          <input
+            type="text"
+            id="recovery-input"
+            placeholder="BTCSIG-XXXX-XXXX-XXXX or payment hash"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <p class="input-hint">Enter your recovery code (BTCSIG-...) or Lightning payment hash from your wallet</p>
+        </div>
+
+        <button type="submit" class="btn-recover" id="btn-recover">
+          <span class="btn-text">Recover Access</span>
+          <span class="btn-loading" style="display: none;">Verifying...</span>
+        </button>
+      </form>
+
+      <div class="recovery-result" id="recovery-result" style="display: none;">
+        <div class="result-content"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Help Section -->
+  <section class="recovery-help">
+    <h2>Need Help?</h2>
+    <div class="help-grid">
+      <div class="help-item">
+        <h3>Where's my recovery code?</h3>
+        <p>Your recovery code was displayed in a modal after your Lightning payment was confirmed. If you downloaded the text file, it will be named <code>btcsignal-recovery-XXXX.txt</code>.</p>
+      </div>
+      <div class="help-item">
+        <h3>Using Payment Hash</h3>
+        <p>If you lost your recovery code, you can use your Lightning payment hash. Open your wallet, find the transaction to BTC Signal AI, and copy the payment hash/preimage.</p>
+      </div>
+      <div class="help-item">
+        <h3>Still can't recover?</h3>
+        <p>If neither method works, your access record may not have been saved. Unfortunately, we cannot manually verify purchases. Consider purchasing again - it supports our service!</p>
+      </div>
+      <div class="help-item">
+        <h3>Prevention Tips</h3>
+        <ul>
+          <li>Always save your recovery code after purchase</li>
+          <li>Download the text file backup</li>
+          <li>Keep your wallet transaction history</li>
+          <li>Don't clear browser data while access is active</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="recover-cta">
+    <p>Don't have an account yet?</p>
+    <a href="/pricing/" class="btn-pricing">View Pricing Plans →</a>
+  </section>
+</div>
+{{ end }}
