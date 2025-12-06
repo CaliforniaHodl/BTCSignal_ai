@@ -868,6 +868,1089 @@ jobs:
 
 ---
 
+### Phase 10: Product Polish & Launch Readiness
+*Goal: Address critical issues, improve quality, and prepare for market launch*
+*Priority: High (based on December 2025 product assessment)*
+*Assessment Score: 6.5/10 → Target: 8.5/10*
+
+**Sprint 1: Critical Blockers** ⏳ PENDING
+- [ ] Fix `fetch-market-data.ts` - BTC price showing 0, OHLC empty, volume24h = 0
+- [ ] Debug Netlify function logs for market data pipeline
+- [ ] Verify API keys (Binance, CoinGecko, Coinbase)
+- [ ] Check cron schedule for data refresh
+- [ ] Re-enable whale tracker in `netlify.toml` (currently commented out)
+- [ ] Add data freshness timestamp to UI ("Last updated: X minutes ago")
+
+**Sprint 2: Accessibility Fixes (WCAG Compliance)** ⏳ PENDING
+- [ ] Remove all `outline: none` from SCSS (6 locations in premium-features.scss)
+- [ ] Fix newsletter form focus removal (_footer.scss:63)
+- [ ] Fix hardcoded `tabindex="9"` - breaks tab order
+- [ ] Use existing `focus-visible` mixin consistently
+- [ ] Add proper ARIA labels to mobile menu
+- [ ] Replace `alert()` and `confirm()` dialogs with accessible modals
+
+**Sprint 3: Code Quality Cleanup** ⏳ PENDING
+- [ ] Remove/guard 30 console.log statements (`if (DEBUG) console.log(...)`)
+- [ ] Fix `--btc-orange` typo → `--bitcoin-orange` (2 locations)
+- [ ] Add h5 to typography (currently missing between h4 and h6)
+- [ ] Fix invalid `/pro-tools/dashboard/` link → `/dashboard/`
+- [ ] Add proper error messages (replace "Error. Please try again.")
+- [ ] Add loading states to all data-fetching components
+
+**Sprint 4: Trust & Transparency Features** ⏳ PENDING
+- [ ] Create public signal history page (all past signals with outcomes)
+- [ ] Add signal accuracy tracker (public stats dashboard)
+- [ ] Publish win/loss transparency metrics
+- [ ] Add "Powered by Claude" badge for AI features
+- [ ] Reframe "AI-powered" → "AI-assisted" for formula-based features
+- [ ] Remove or justify fictional discount percentages
+
+**Sprint 5: Quick Win Features** ⏳ PENDING
+- [ ] Add CSV export for data (competitors charge $800 for this)
+- [ ] Simple read-only API for power users
+- [ ] Webhook alerts for advanced users
+- [ ] Historical signal log (public page)
+- [ ] Telegram/Discord community links
+
+**Sprint 6: Testing Foundation** ⏳ PENDING
+- [ ] Set up Jest for unit tests
+- [ ] Unit tests for `technical-analysis.ts` (RSI, MACD, BB calculations)
+- [ ] Unit tests for `prediction-engine.ts` (signal generation)
+- [ ] Unit tests for `derivatives-analyzer.ts` (funding rate calcs)
+- [ ] Integration tests for API fetchers (Binance, Bybit, CoinGecko fallbacks)
+- [ ] Integration tests for payment flow (LNbits)
+- [ ] Integration tests for access control (premium gating)
+- [ ] E2E tests for critical paths (dashboard loads, payment-to-access)
+- [ ] Add MSW (Mock Service Worker) for API mocking
+- [ ] GitHub Actions CI pipeline on every PR
+
+**Assessment Findings Summary:**
+| Category | Current | Target |
+|----------|---------|--------|
+| Technical Implementation | 7/10 | 8/10 |
+| Data Integrity | 4/10 | 9/10 |
+| Feature Completeness | 7/10 | 8/10 |
+| UI/UX | 6/10 | 8/10 |
+| Business Model | 8/10 | 8/10 |
+| AI Claims Accuracy | 5/10 | 7/10 |
+| Code Quality | 6/10 | 8/10 |
+| Market Positioning | 8/10 | 9/10 |
+
+**What's Working (Keep):**
+- Real APIs (Binance, Bybit, OKX, CoinGecko, Mempool.space, Coinbase, Kraken)
+- Real Technical Analysis (RSI, MACD, Bollinger Bands, EMA/SMA, ATR)
+- Real AI Integration (Claude claude-sonnet-4-20250514 + OpenAI GPT-4)
+- Real Payments (LNbits Lightning integration)
+- Real Auto-Content (11+ posts auto-generated, daily tweets)
+- Real Backtester (Monte Carlo simulations, slippage modeling, NLP parsing)
+
+**What Needs Honesty (Fix Marketing):**
+- "AI Pattern Detector" = Heuristic geometric rules, not trained ML
+- "AI-Powered Signals" = Mostly formula-based calculations
+- "AI Liquidity Hunter" = Claude analyzing metrics, not predictive AI
+
+**Success Criteria:**
+- [ ] BTC price displays live data (not 0)
+- [ ] All accessibility violations fixed
+- [ ] Zero console.logs in production build
+- [ ] Public signal accuracy page live
+- [ ] 80%+ test coverage on critical paths
+- [ ] CI pipeline blocks broken builds
+
+**Positioning After Phase 10:**
+> "The transparent, Bitcoin-native alternative to institutional tools. Every signal tracked, every claim verifiable, 16x cheaper than Glassnode."
+
+---
+
+### Phase 11: Nostr Authentication & Identity
+*Goal: Replace recovery codes with cryptographic identity using Nostr keys*
+*Priority: Medium (after core polish complete)*
+*Philosophy: No email. No password. No KYC. Just math.*
+
+**Why Nostr:**
+- Same cryptographic primitives as Bitcoin (secp256k1)
+- Users already have keys if they're Bitcoiners
+- Cross-device by default (sign anywhere with nsec)
+- No recovery codes needed - npub IS the identity
+- Pseudonymous, not anonymous (can verify reputation)
+- Native to Bitcoin culture
+
+**Sprint 1: Core Nostr Auth** ⏳ PENDING
+- [ ] Install `nostr-tools` dependency
+- [ ] Create NIP-07 signing flow (nos2x, Alby, Flamingo support)
+- [ ] Implement challenge-response authentication
+- [ ] Create `netlify/functions/nostr-auth.ts` endpoint
+- [ ] Verify signatures server-side
+- [ ] Store access records by npub (not recovery code)
+- [ ] Issue JWT session token after successful auth
+
+**Sprint 2: Purchase Flow Integration** ⏳ PENDING
+- [ ] Add "Connect Nostr" button to pricing page
+- [ ] Prompt Nostr connection before showing invoice
+- [ ] Link payment hash to npub on successful payment
+- [ ] Update `/recover/` page to support "Login with Nostr"
+- [ ] Migrate existing recovery code users (optional npub linking)
+
+**Sprint 3: User Experience** ⏳ PENDING
+- [ ] Add Nostr extension detection (prompt install if missing)
+- [ ] Support multiple NIP-07 extensions (nos2x, Alby, Flamingo, Spring)
+- [ ] Show connected npub in user status area
+- [ ] Add "Disconnect" option
+- [ ] Handle extension permission denials gracefully
+- [ ] Mobile support via NIP-46 (Nostr Connect) - optional
+
+**Sprint 4: Documentation & Marketing** ⏳ PENDING
+- [ ] Update FAQ: "Why do you use Nostr for login?"
+- [ ] Update FAQ: "What if I don't have a Nostr account?"
+- [ ] Update FAQ: "Is my npub public?"
+- [ ] Add Nostr explanation section to pricing page
+- [ ] Create `/learn/nostr-auth/` education article
+- [ ] Update payment flow copy to explain Nostr benefits
+
+**Sprint 5: Advanced Features** ⏳ PENDING
+- [ ] Verify user's Nostr profile (NIP-05 verification)
+- [ ] Show subscriber badge on user's Nostr profile (NIP-58)
+- [ ] Publish signals to Nostr relay (premium subscribers only)
+- [ ] Gate access to private relay for paid users
+- [ ] Zap integration (tips via Lightning + Nostr)
+
+**Technical Architecture:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        USER BROWSER                          │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
+│  │   nos2x     │ OR │    Alby     │ OR │  Flamingo   │     │
+│  │ (extension) │    │ (extension) │    │ (extension) │     │
+│  └──────┬──────┘    └──────┬──────┘    └──────┬──────┘     │
+│         └──────────────────┼──────────────────┘             │
+│                            ▼                                 │
+│                    window.nostr.signEvent()                  │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     NETLIFY FUNCTION                         │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  nostr-auth.ts                                       │   │
+│  │  1. Generate challenge                               │   │
+│  │  2. Receive signed event                             │   │
+│  │  3. Verify signature (nostr-tools)                   │   │
+│  │  4. Look up access by npub                           │   │
+│  │  5. Return JWT session token                         │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      DATA STORAGE                            │
+│  {                                                           │
+│    "npub": "npub1abc123...",                                │
+│    "tier": "yearly",                                         │
+│    "payment_hash": "lnbc...",                               │
+│    "purchased_at": "2025-12-05T00:00:00Z",                  │
+│    "expires_at": "2026-12-05T00:00:00Z"                     │
+│  }                                                           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Auth Flow:**
+```
+1. User clicks "Login with Nostr"
+2. Extension popup: "BTCSignal wants to read your public key"
+3. User approves → JS gets npub
+4. Server sends challenge string
+5. Extension popup: "Sign this message?"
+6. User approves → JS gets signed event
+7. Server verifies signature
+8. Server checks: does this npub have active access?
+9. Yes → issue JWT, grant access
+   No → redirect to pricing page
+```
+
+**Purchase Flow:**
+```
+1. User clicks "Buy Yearly Pass"
+2. Prompt: "Connect with Nostr" (or continue without)
+3. User connects → npub captured
+4. Lightning invoice displayed
+5. User pays invoice
+6. Server: store {npub, tier, payment_hash, expiry}
+7. User returns later → "Login with Nostr" → instant access
+```
+
+**FAQ Content to Add:**
+
+**Q: Why do you use Nostr for login?**
+> We're Bitcoin-native, so we use Bitcoin-native auth. Nostr uses the same cryptography as Bitcoin (secp256k1 keys). No email, no password, no KYC - just sign a message with your keys. If you can use a Lightning wallet, you can use Nostr.
+
+**Q: What if I don't have a Nostr account?**
+> You can still purchase access and use a recovery code. But we recommend setting up Nostr - it takes 2 minutes with Alby (browser extension) and you'll have a censorship-resistant identity that works across hundreds of apps.
+
+**Q: Is my npub public?**
+> Your npub (public key) is like a Bitcoin address - it's meant to be shared. We only store your npub, never your nsec (private key). We can't post as you, access your DMs, or do anything except verify you are who you claim to be.
+
+**Dependencies:**
+- `nostr-tools` - Core Nostr library (signing, verification)
+- NIP-07 - Browser extension standard
+- NIP-42 - Authentication event kind (22242)
+- NIP-46 - Nostr Connect (mobile support, optional)
+
+**Success Criteria:**
+- [ ] Users can purchase and authenticate with only Nostr keys
+- [ ] No email or recovery code required for new users
+- [ ] Existing recovery code users can link npub
+- [ ] FAQ explains Nostr auth clearly
+- [ ] Pricing page explains the "why" of Nostr
+- [ ] Works with nos2x, Alby, and Flamingo extensions
+
+**Positioning After Phase 11:**
+> "The only Bitcoin signal platform with Nostr-native auth. No email. No password. No KYC. Just your keys."
+
+---
+
+### Phase 12: Production Hardening & Quality Assurance
+*Goal: 98%+ test coverage, honest AI branding, flawless accessibility, perfect PageSpeed*
+*Priority: High (final polish before public launch)*
+*Standard: If it's not tested, it doesn't ship. If it's not accessible, it doesn't ship.*
+
+**Sprint 1: Test Coverage Expansion (60% → 98%)** ⏳ PENDING
+*Target: +35% coverage, 98%+ on all critical paths*
+
+**Unit Tests - New:**
+- [ ] `technical-analysis.ts` - RSI, MACD, BB, EMA, SMA, ATR calculations
+- [ ] `prediction-engine.ts` - Signal generation logic, confidence scoring
+- [ ] `derivatives-analyzer.ts` - Funding rate calculations, OI analysis
+- [ ] `blog-generator.ts` - Post generation, markdown output
+- [ ] `access-manager.ts` - Token validation, tier checking, expiry logic
+- [ ] `price-formatter.ts` - Currency formatting, locale handling
+- [ ] `date-utils.ts` - Timestamp parsing, relative time, timezone handling
+
+**Integration Tests - New:**
+- [ ] API fallback chains (Binance → Coinbase → Kraken)
+- [ ] Payment flow end-to-end (invoice → payment → access)
+- [ ] Recovery code generation and redemption
+- [ ] Nostr auth challenge-response cycle
+- [ ] WebSocket reconnection logic
+- [ ] Rate limiting enforcement
+- [ ] Cache invalidation
+
+**E2E Tests - New:**
+- [ ] Full purchase flow (pricing → invoice → payment → dashboard access)
+- [ ] Recovery flow (lost access → enter code → restored)
+- [ ] Nostr login flow (connect → sign → access)
+- [ ] All premium feature paywalls
+- [ ] Mobile responsive flows (320px - 768px)
+- [ ] Dark/light theme persistence
+- [ ] Alert creation and triggering
+
+**Edge Case Tests:**
+- [ ] Empty data arrays (don't crash charts)
+- [ ] Null/undefined API responses
+- [ ] Expired tokens (graceful redirect)
+- [ ] Invalid recovery codes (helpful error)
+- [ ] Network timeouts (retry with backoff)
+- [ ] Malformed WebSocket messages
+- [ ] XSS injection attempts (sanitized)
+- [ ] SQL injection attempts (rejected)
+- [ ] Extremely large numbers (formatted correctly)
+- [ ] Negative prices (rejected/flagged)
+
+**Test Infrastructure:**
+- [ ] Add code coverage reporting (Istanbul/nyc)
+- [ ] Set coverage threshold: 98% lines, 95% branches
+- [ ] Add coverage badge to README
+- [ ] Block PRs below threshold in CI
+- [ ] Add test timing reports
+- [ ] Parallelize test execution
+
+---
+
+**Sprint 2: AI Branding Audit & Correction** ⏳ PENDING
+*Standard: If Claude/GPT doesn't generate it, don't call it "AI"*
+
+**Rename "AI" → Accurate Labels:**
+| Current Name | Actual Tech | New Name |
+|--------------|-------------|----------|
+| AI Pattern Detector | Geometric heuristics | Pattern Scanner |
+| AI-Powered Signals | Formula calculations | Technical Signals |
+| AI Liquidity Hunter | Claude analysis | AI-Assisted Liquidity Analysis |
+| AI Trade Ideas | Claude generation | AI-Generated Trade Ideas ✓ |
+| AI Chart Analysis | Claude vision | AI Chart Analysis ✓ |
+| AI Backtester | NLP + simulation | AI-Assisted Backtester |
+
+**Files to Update:**
+- [ ] Homepage hero copy
+- [ ] Navigation menu labels
+- [ ] Pro Tools dashboard headings
+- [ ] Individual tool page titles and descriptions
+- [ ] Meta descriptions (SEO)
+- [ ] Open Graph tags
+- [ ] JSON-LD structured data
+- [ ] Marketing comparison tables
+- [ ] Pricing page feature lists
+- [ ] Footer links
+
+**Add Transparency:**
+- [ ] Add "How it works" section to each tool
+- [ ] Clarify: "Pattern detection uses geometric algorithms"
+- [ ] Clarify: "Signals combine RSI, MACD, and volume analysis"
+- [ ] Clarify: "AI insights powered by Claude claude-sonnet-4-20250514"
+- [ ] Add "Powered by Claude" badge where AI is actually used
+- [ ] Remove "AI" from features that are pure formulas
+
+---
+
+**Sprint 3: SEO Overhaul** ⏳ PENDING
+*Target: 90+ Lighthouse SEO score, proper indexing*
+
+**Technical SEO:**
+- [ ] Audit all meta titles (50-60 chars, keyword-rich)
+- [ ] Audit all meta descriptions (150-160 chars, compelling)
+- [ ] Fix duplicate title tags
+- [ ] Fix missing H1 tags
+- [ ] Ensure single H1 per page
+- [ ] Fix heading hierarchy (H1 → H2 → H3, no skips)
+- [ ] Add alt text to all images
+- [ ] Compress all images (WebP where supported)
+- [ ] Add width/height to prevent CLS
+
+**Structured Data (JSON-LD):**
+- [ ] Organization schema (homepage)
+- [ ] WebSite schema with SearchAction
+- [ ] Article schema (blog posts, learn articles)
+- [ ] FAQPage schema (FAQ sections)
+- [ ] Product schema (pricing tiers)
+- [ ] BreadcrumbList schema (all pages)
+- [ ] Review/Rating schema (testimonials)
+
+**Indexing & Crawling:**
+- [ ] Submit sitemap.xml to Google Search Console
+- [ ] Submit sitemap.xml to Bing Webmaster Tools
+- [ ] Verify robots.txt allows critical paths
+- [ ] Block admin/dev pages in robots.txt
+- [ ] Add canonical URLs to all pages
+- [ ] Fix any orphan pages (no internal links)
+- [ ] Add internal linking strategy (related content)
+
+**robots.txt Updates:**
+```
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /.netlify/
+Disallow: /recover/
+Sitemap: https://btcsignal.ai/sitemap.xml
+```
+
+**Performance SEO:**
+- [ ] Core Web Vitals: LCP < 2.5s
+- [ ] Core Web Vitals: FID < 100ms
+- [ ] Core Web Vitals: CLS < 0.1
+- [ ] Enable text compression (gzip/brotli)
+- [ ] Set proper cache headers
+
+---
+
+**Sprint 4: Accessibility Lockdown (WCAG 2.1 AA)** ⏳ PENDING
+*Target: Zero violations, 100% keyboard navigable*
+
+**Critical Fixes:**
+- [ ] Remove ALL `outline: none` (use focus-visible instead)
+- [ ] Fix all color contrast violations (4.5:1 minimum)
+- [ ] Add skip-to-content link
+- [ ] Ensure all interactive elements are focusable
+- [ ] Fix tab order (remove hardcoded tabindex)
+- [ ] Add focus trap to modals
+- [ ] Ensure modals close on Escape key
+
+**ARIA Improvements:**
+- [ ] Add `aria-label` to icon-only buttons
+- [ ] Add `aria-expanded` to dropdown toggles
+- [ ] Add `aria-live` regions for dynamic content
+- [ ] Add `role="alert"` to error messages
+- [ ] Add `aria-describedby` for form validation
+- [ ] Add landmark roles (main, nav, aside, footer)
+- [ ] Add `aria-current="page"` to active nav items
+
+**Form Accessibility:**
+- [ ] Associate all labels with inputs (`for`/`id`)
+- [ ] Add error messages linked to inputs
+- [ ] Mark required fields with `aria-required`
+- [ ] Add input validation feedback
+- [ ] Ensure form errors are announced
+
+**Replace Browser Dialogs:**
+- [ ] Replace `alert()` with accessible toast component
+- [ ] Replace `confirm()` with accessible modal
+- [ ] Replace `prompt()` with accessible input modal
+- [ ] Ensure all custom dialogs trap focus
+- [ ] Ensure all custom dialogs have close buttons
+
+**Testing:**
+- [ ] Test with VoiceOver (macOS)
+- [ ] Test with NVDA (Windows)
+- [ ] Test keyboard-only navigation
+- [ ] Run axe-core automated tests
+- [ ] Run WAVE automated tests
+- [ ] Add a11y tests to CI pipeline
+
+---
+
+**Sprint 5: CSS Cleanup & Optimization** ⏳ PENDING
+*Target: Zero unused CSS, consistent design tokens*
+
+**Variable Audit:**
+- [ ] Fix `--btc-orange` → `--bitcoin-orange` (2 locations)
+- [ ] Audit all color variables for consistency
+- [ ] Remove duplicate variable definitions
+- [ ] Document all design tokens
+- [ ] Ensure dark/light mode coverage for all variables
+
+**Typography:**
+- [ ] Add missing `h5` styles
+- [ ] Audit font-size scale (consistent ratios)
+- [ ] Ensure responsive font sizes
+- [ ] Check line-height accessibility (1.5+ for body)
+- [ ] Audit font-weight usage
+
+**Cleanup:**
+- [ ] Remove unused CSS classes (PurgeCSS audit)
+- [ ] Remove duplicate selectors
+- [ ] Consolidate media queries
+- [ ] Remove `!important` where possible
+- [ ] Fix specificity issues
+- [ ] Remove vendor prefixes handled by autoprefixer
+
+**Organization:**
+- [ ] Ensure BEM or consistent naming convention
+- [ ] Split large SCSS files (>500 lines)
+- [ ] Document component styles
+- [ ] Create style guide page (internal)
+
+---
+
+**Sprint 6: PageSpeed Optimization** ⏳ PENDING
+*Target: 90+ Lighthouse Performance score (mobile & desktop)*
+
+**JavaScript:**
+- [ ] Remove/guard all console.log statements
+- [ ] Enable code splitting (lazy load non-critical JS)
+- [ ] Defer non-critical scripts
+- [ ] Minify all JavaScript
+- [ ] Tree-shake unused code
+- [ ] Audit bundle size (target: <200KB gzipped)
+
+**CSS:**
+- [ ] Inline critical CSS
+- [ ] Defer non-critical CSS
+- [ ] Minify all CSS
+- [ ] Remove unused CSS (PurgeCSS)
+- [ ] Audit CSS bundle size
+
+**Images:**
+- [ ] Convert to WebP format
+- [ ] Add responsive srcset
+- [ ] Lazy load below-fold images
+- [ ] Add width/height attributes (prevent CLS)
+- [ ] Compress all images (85% quality)
+- [ ] Use CDN for image delivery
+
+**Fonts:**
+- [ ] Subset fonts (only used characters)
+- [ ] Use `font-display: swap`
+- [ ] Preload critical fonts
+- [ ] Self-host fonts (no Google Fonts latency)
+
+**Caching:**
+- [ ] Set long cache TTL for static assets
+- [ ] Use content hashing for cache busting
+- [ ] Configure Netlify edge caching
+- [ ] Add service worker for offline support (optional)
+
+**Monitoring:**
+- [ ] Set up Lighthouse CI
+- [ ] Block deploys below 90 score
+- [ ] Add Web Vitals tracking (real user metrics)
+
+---
+
+**Sprint 7: Redirects & URL Hygiene** ⏳ PENDING
+*Target: Zero 404s, clean URL structure*
+
+**Redirect Rules (_redirects or netlify.toml):**
+- [ ] Audit all existing redirects
+- [ ] Add redirects for old/changed URLs
+- [ ] Redirect non-www to www (or vice versa)
+- [ ] Redirect HTTP to HTTPS
+- [ ] Handle trailing slash consistency
+- [ ] Add 404 → custom 404 page
+
+**URL Fixes:**
+- [ ] Fix `/pro-tools/dashboard/` → `/dashboard/` (or update links)
+- [ ] Audit all internal links for broken URLs
+- [ ] Fix any orphan pages
+- [ ] Ensure consistent URL casing (lowercase)
+- [ ] Remove URL parameters from canonical URLs
+
+**404 Page:**
+- [ ] Create custom 404 page
+- [ ] Add search functionality
+- [ ] Add popular links
+- [ ] Add "Report broken link" option
+- [ ] Track 404 hits for fixing
+
+---
+
+**Sprint 8: Robots.txt & Security Headers** ⏳ PENDING
+*Target: Secure, properly crawled, no leaks*
+
+**robots.txt:**
+```
+User-agent: *
+Allow: /
+Allow: /learn/
+Allow: /posts/
+Allow: /pricing/
+Allow: /faq/
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /.netlify/
+Disallow: /recover/
+Disallow: /embed/
+Disallow: /*?*
+
+# Crawl-delay for polite bots
+Crawl-delay: 1
+
+Sitemap: https://btcsignal.ai/sitemap.xml
+```
+
+**Security Headers (netlify.toml):**
+```toml
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.coingecko.com https://api.binance.com"
+```
+
+**Additional Security:**
+- [ ] Enable HSTS (Strict-Transport-Security)
+- [ ] Review CSP for all external resources
+- [ ] Add Subresource Integrity (SRI) for CDN scripts
+- [ ] Audit for exposed secrets in source
+- [ ] Review API key exposure in client-side code
+
+---
+
+**Success Criteria:**
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Test Coverage | ~60% | 98%+ |
+| Lighthouse Performance | ~70 | 90+ |
+| Lighthouse Accessibility | ~80 | 100 |
+| Lighthouse SEO | ~85 | 100 |
+| Lighthouse Best Practices | ~85 | 100 |
+| WCAG Violations | 3 critical | 0 |
+| Console Errors (prod) | 30+ logs | 0 |
+| Broken Links | Unknown | 0 |
+| 404 Rate | Unknown | <0.1% |
+
+**Quality Gates (CI/CD):**
+- [ ] Test coverage ≥98% or build fails
+- [ ] Lighthouse Performance ≥90 or build fails
+- [ ] Lighthouse Accessibility =100 or build fails
+- [ ] Zero axe-core violations or build fails
+- [ ] Zero console.log in production bundle
+- [ ] Bundle size <200KB gzipped or warning
+
+**Positioning After Phase 12:**
+> "Enterprise-grade quality. 98% test coverage. Perfect accessibility. Sub-2-second loads. We don't ship broken software."
+
+---
+
+### Phase 13: Learn Hub Content Expansion (+15%)
+*Goal: Expand educational content library by 15%, improve SEO footprint, establish authority*
+*Priority: Medium (content marketing for organic growth)*
+*Current: 7 articles → Target: 15+ articles*
+
+**Why Content Expansion:**
+- SEO long-tail traffic (each article = ranking opportunity)
+- Establishes expertise and trust
+- Reduces support questions (self-serve education)
+- Converts readers to paid users
+- Differentiates from competitors (they don't educate)
+
+**Current Learn Articles (7):**
+1. What is SFP (Swing Failure Pattern)
+2. What is a liquidity grab
+3. Market structure basics
+4. Order block explanation
+5. Fair value gap guide
+6. RSI divergence guide
+7. Support & resistance guide
+
+---
+
+**Sprint 1: Bitcoin Fundamentals (Fits Brand)** ⏳ PENDING
+- [ ] **Lightning Network Explained** - How instant BTC payments work (ties to your payment system)
+- [ ] **What is Nostr?** - Decentralized identity for Bitcoiners (ties to Phase 11 auth)
+- [ ] **Bitcoin Halving Cycles** - Historical impact on price, next halving prep
+- [ ] **On-Chain Metrics 101** - MVRV, SOPR, NVT explained simply
+
+**Sprint 2: Trading Mechanics** ⏳ PENDING
+- [ ] **Funding Rates Explained** - What they are, why they matter, how to read them
+- [ ] **Liquidation Mechanics** - How leveraged positions get liquidated, cascade effects
+- [ ] **Open Interest Analysis** - Reading OI for market sentiment
+- [ ] **Long/Short Ratios** - What they tell you (and what they don't)
+
+**Sprint 3: Technical Analysis Depth** ⏳ PENDING
+- [ ] **MACD Deep Dive** - Beyond basics, divergences, histogram reading
+- [ ] **Bollinger Bands Strategy** - Squeeze setups, mean reversion
+- [ ] **Volume Profile Trading** - POC, value areas, volume nodes
+- [ ] **EMA vs SMA** - When to use each, crossover strategies
+
+**Sprint 4: Risk & Psychology** ⏳ PENDING
+- [ ] **Position Sizing Guide** - Kelly criterion, fixed fractional, risk per trade
+- [ ] **Risk/Reward Ratios** - Why 2R+ matters, calculating expectancy
+- [ ] **Trading Psychology** - FOMO, revenge trading, discipline
+- [ ] **Drawdown Management** - Surviving losing streaks, when to stop
+
+**Sprint 5: Platform Guides** ⏳ PENDING
+- [ ] **How to Read the Liquidation Map** - Your tool, explained
+- [ ] **Using the Pattern Scanner** - Getting the most from pattern detection
+- [ ] **Backtester Pro Tutorial** - Writing strategies in natural language
+- [ ] **Trade Coach Best Practices** - How to get useful AI feedback
+
+---
+
+**Content Standards:**
+
+**Structure (every article):**
+```markdown
+# [Title]
+
+## TL;DR
+[3-bullet summary for skimmers]
+
+## What is [Topic]?
+[Simple explanation, no jargon]
+
+## Why It Matters for Bitcoin Trading
+[Practical application]
+
+## How to Use It
+[Step-by-step or examples]
+
+## Common Mistakes
+[What to avoid]
+
+## Key Takeaways
+[Bullet summary]
+
+## Related Articles
+[Internal links to other learn content]
+```
+
+**SEO Requirements:**
+- [ ] Target keyword in title, H1, first paragraph
+- [ ] Meta description with keyword (150-160 chars)
+- [ ] Alt text on all images
+- [ ] Internal links to related articles (3+ per article)
+- [ ] External links to authoritative sources (1-2 per article)
+- [ ] FAQ schema for question-based articles
+- [ ] 1,500-2,500 words per article
+
+**Quality Requirements:**
+- [ ] No AI slop - Claude assists, human reviews
+- [ ] Accurate technical information (verify formulas)
+- [ ] Bitcoin-only examples (no altcoin references)
+- [ ] Consistent voice and tone
+- [ ] Mobile-readable (short paragraphs, clear headings)
+
+---
+
+**Content Calendar:**
+
+| Week | Articles | Sprint |
+|------|----------|--------|
+| 1 | Lightning Network, Nostr | Sprint 1 |
+| 2 | Halving Cycles, On-Chain Metrics | Sprint 1 |
+| 3 | Funding Rates, Liquidations | Sprint 2 |
+| 4 | Open Interest, Long/Short | Sprint 2 |
+| 5 | MACD, Bollinger Bands | Sprint 3 |
+| 6 | Volume Profile, EMA vs SMA | Sprint 3 |
+| 7 | Position Sizing, R/R Ratios | Sprint 4 |
+| 8 | Psychology, Drawdowns | Sprint 4 |
+| 9 | Platform guides (4 articles) | Sprint 5 |
+
+---
+
+**Keyword Targets:**
+
+| Article | Primary Keyword | Monthly Search |
+|---------|-----------------|----------------|
+| Lightning Network Explained | "lightning network bitcoin" | 8,100 |
+| What is Nostr | "nostr explained" | 2,400 |
+| Bitcoin Halving | "bitcoin halving" | 90,500 |
+| Funding Rates | "crypto funding rates" | 4,400 |
+| Liquidation Mechanics | "crypto liquidation" | 6,600 |
+| MACD Trading | "macd trading strategy" | 12,100 |
+| Position Sizing | "position sizing trading" | 3,600 |
+| Trading Psychology | "trading psychology" | 9,900 |
+
+---
+
+**Internal Linking Strategy:**
+
+```
+Homepage
+    └── Learn Hub (/learn/)
+            ├── Fundamentals
+            │   ├── Lightning Network → links to Pricing (pay with LN)
+            │   ├── Nostr → links to Login/Auth
+            │   ├── Halving → links to Dashboard (halving countdown)
+            │   └── On-Chain → links to Alpha Radar
+            │
+            ├── Trading Mechanics
+            │   ├── Funding Rates → links to Dashboard (funding display)
+            │   ├── Liquidations → links to Liquidation Map
+            │   ├── Open Interest → links to Alpha Radar
+            │   └── Long/Short → links to Dashboard
+            │
+            ├── Technical Analysis
+            │   ├── MACD → links to Pattern Scanner
+            │   ├── Bollinger → links to Backtester (BB strategy)
+            │   ├── Volume Profile → links to Pattern Scanner
+            │   └── EMA/SMA → links to Backtester (EMA cross)
+            │
+            ├── Risk Management
+            │   ├── Position Sizing → links to Trade Coach
+            │   ├── R/R Ratios → links to Trade Coach
+            │   ├── Psychology → links to Trade Coach
+            │   └── Drawdowns → links to Backtester (max DD stat)
+            │
+            └── Platform Guides
+                ├── Liquidation Map Guide → links to tool
+                ├── Pattern Scanner Guide → links to tool
+                ├── Backtester Guide → links to tool
+                └── Trade Coach Guide → links to tool
+```
+
+---
+
+**Success Criteria:**
+
+| Metric | Current | Target |
+|--------|---------|--------|
+| Total Articles | 7 | 20+ |
+| Organic Traffic | ? | +50% in 90 days |
+| Avg Time on Page | ? | >3 minutes |
+| Internal Links/Article | ~1 | 5+ |
+| Articles Ranking Page 1 | ? | 5+ |
+
+**Content Quality Gates:**
+- [ ] Every article reviewed for accuracy
+- [ ] Every article has 5+ internal links
+- [ ] Every article has proper schema markup
+- [ ] Every article scores 90+ on Yoast/RankMath SEO
+- [ ] No duplicate content (check with Copyscape)
+
+**Positioning After Phase 13:**
+> "The Bitcoin trading education hub. Free guides that actually teach. No upsells, no fluff, just signal."
+
+---
+
+### Phase 14: Scale & Professionalize
+*Goal: Invest in professional design, infrastructure, and mobile app*
+*Priority: After product-market fit signals (paying users, positive feedback)*
+*Prerequisite: Phases 10-13 complete, revenue covering costs*
+
+**Why Wait Until Now:**
+- Don't polish a broken product (Phase 10 fixes that)
+- Don't pay for infra you don't need yet (free tiers are fine)
+- Don't build mobile until web is proven
+- Invest when you have traction, not hope
+
+---
+
+**Sprint 1: Professional Design (Figma → Production)** ⏳ PENDING
+*Investment: Designer hourly rate*
+
+**Designer Handoff Prep:**
+- [ ] Document all existing components (buttons, cards, forms, modals)
+- [ ] Export current color palette and typography
+- [ ] List all pages/screens needing design
+- [ ] Identify highest-impact pages (homepage, pricing, dashboard)
+- [ ] Create design brief with brand guidelines
+
+**Figma Deliverables to Request:**
+- [ ] Design system (colors, typography, spacing, components)
+- [ ] Homepage redesign
+- [ ] Pricing page redesign
+- [ ] Pro Tools dashboard redesign
+- [ ] Mobile responsive variants (320px, 768px, 1024px+)
+- [ ] Dark/light mode variants
+- [ ] Loading states and micro-interactions
+- [ ] Empty states and error states
+- [ ] Icon set (consistent style)
+
+**Implementation Workflow:**
+- [ ] Designer delivers Figma → Dev inspects with Figma Dev Mode
+- [ ] Extract CSS variables (colors, spacing, fonts)
+- [ ] Build/update component library
+- [ ] Implement page-by-page
+- [ ] Designer reviews implementation
+- [ ] Iterate until pixel-perfect
+
+---
+
+**Sprint 2: Netlify Pro Upgrade** ⏳ PENDING
+*Investment: ~$19/month (Pro) or ~$99/month (Business)*
+
+**Free Tier Limitations Hit:**
+- [ ] Build minutes exceeded (300/month free)
+- [ ] Bandwidth exceeded (100GB/month free)
+- [ ] Serverless function limits (125k/month free)
+- [ ] Need team collaboration features
+- [ ] Need analytics beyond basic
+
+**Pro Features to Enable:**
+- [ ] Increased build minutes (25,000/month)
+- [ ] Background functions (up to 15 min runtime)
+- [ ] Analytics Pro (real user metrics)
+- [ ] Forms Pro (if using Netlify Forms)
+- [ ] Password-protected previews
+- [ ] Build plugins (cache optimization)
+
+**Business Features (if needed):**
+- [ ] SAML SSO (if team grows)
+- [ ] Audit logs
+- [ ] 99.99% SLA
+- [ ] Priority support
+
+**Optimization After Upgrade:**
+- [ ] Enable build caching (faster deploys)
+- [ ] Set up deploy previews for PRs
+- [ ] Configure branch deploys (staging environment)
+- [ ] Set up Netlify Analytics dashboard
+- [ ] Monitor function usage and optimize
+
+---
+
+**Sprint 3: Twitter/X Premium** ⏳ PENDING
+*Investment: ~$8/month (Basic) or ~$16/month (Premium) or ~$1000/month (Verified Org)*
+
+**Why Premium:**
+- [ ] Blue checkmark (credibility for financial product)
+- [ ] Longer posts (4,000 chars vs 280)
+- [ ] Edit tweets (fix typos in signal posts)
+- [ ] Bookmark folders (organize research)
+- [ ] Higher reply ranking (visibility)
+- [ ] Media Studio access (schedule posts)
+
+**Twitter/X Strategy:**
+- [ ] Automate daily signal posts (@BTCSignal_ai)
+- [ ] Thread breakdowns of market analysis
+- [ ] Educational content from Learn Hub
+- [ ] Engage with Bitcoin Twitter community
+- [ ] Reply to relevant BTC discussions
+- [ ] Avoid shilling - provide value first
+
+**API Access (if automating):**
+- [ ] Basic API ($100/month) - 10k tweets/month read, 1.5k posts
+- [ ] Pro API ($5,000/month) - only if heavy automation needed
+- [ ] Use free tier first, upgrade when limited
+
+**Content Calendar:**
+- [ ] Daily: Auto-post morning signal + key level
+- [ ] 2x/week: Educational thread (from Learn Hub)
+- [ ] Weekly: Market recap + accuracy report
+- [ ] As needed: Breaking market moves
+
+---
+
+**Sprint 4: Paid API Access** ⏳ PENDING
+*Investment: Varies by provider*
+
+**Current Free Tier Limits:**
+
+| API | Free Limit | Paid Tier | When to Upgrade |
+|-----|------------|-----------|-----------------|
+| CoinGecko | 30 calls/min | $129/mo (Analyst) | When rate limited |
+| Binance | 1200/min | VIP tiers | Probably never need |
+| Bybit | 120/min | VIP tiers | Probably never need |
+| Mempool.space | Unlimited | Donate | Support the project |
+| Alternative.me | Unlimited | N/A | Free forever |
+
+**CoinGecko Pro Benefits:**
+- [ ] Higher rate limits (500 calls/min)
+- [ ] Historical data access
+- [ ] DEX data (not needed - BTC only)
+- [ ] Priority support
+- [ ] No attribution required
+
+**When to Upgrade:**
+- [ ] Monitor 429 (rate limit) errors in logs
+- [ ] If >10% of requests fail, upgrade
+- [ ] Start with CoinGecko (most used)
+- [ ] Binance/Bybit free tiers are generous
+
+**Caching Strategy (Delay Upgrade):**
+- [ ] Cache responses aggressively (5-15 min TTL)
+- [ ] Deduplicate API calls across users
+- [ ] Use WebSocket where available (Binance)
+- [ ] Stagger refresh times (not all at :00)
+
+---
+
+**Sprint 5: Build Time Optimization** ⏳ PENDING
+*Goal: <2 min builds (currently ~5 min?)*
+
+**Hugo Optimizations:**
+- [ ] Enable Hugo caching (`--cacheDir`)
+- [ ] Use `hugo --gc` to clean unused cache
+- [ ] Minimize template complexity
+- [ ] Lazy load images (don't process at build)
+- [ ] Split large content sections
+
+**Netlify Build Optimizations:**
+- [ ] Enable build caching plugin
+- [ ] Cache node_modules between builds
+- [ ] Cache Hugo resources folder
+- [ ] Use `npm ci` instead of `npm install`
+- [ ] Skip unnecessary build steps in preview
+
+**CI/CD Optimizations:**
+- [ ] Run tests in parallel
+- [ ] Only run affected tests on PR
+- [ ] Cache test fixtures
+- [ ] Skip visual tests on draft PRs
+- [ ] Use Turborepo/nx if monorepo grows
+
+**Monitoring:**
+- [ ] Track build times over time
+- [ ] Alert if build exceeds 5 minutes
+- [ ] Review Netlify build logs for bottlenecks
+
+---
+
+**Sprint 6: React Native Migration** ⏳ PENDING
+*Investment: Time + Apple Developer ($99/year) + Google Play ($25 one-time)*
+*Timeline: 2-3 months for MVP*
+
+**Why React Native:**
+- Single codebase for iOS + Android
+- Can share logic with web (if refactor web to React)
+- Large ecosystem (libraries, talent)
+- Expo for faster development
+- OTA updates (bypass app store for fixes)
+
+**Migration Strategy:**
+
+**Option A: Full Rewrite (Recommended)**
+```
+Current: Hugo (static) + Netlify Functions
+    ↓
+New Web: Next.js + React (SSR/SSG)
+    ↓
+Mobile: React Native (shared components)
+```
+
+**Option B: Mobile-Only Native**
+```
+Keep: Hugo + Netlify (web)
+Add: React Native app (separate codebase)
+Share: API layer only
+```
+
+**Recommended: Option A** - More work upfront, but unified codebase.
+
+**Phase 1: Web Refactor (Next.js)**
+- [ ] Set up Next.js project
+- [ ] Migrate static pages (Hugo → Next.js SSG)
+- [ ] Migrate dynamic pages (Hugo JS → React components)
+- [ ] Keep Netlify Functions (or migrate to Next.js API routes)
+- [ ] Ensure parity with Hugo site
+- [ ] Redirect old URLs
+
+**Phase 2: Shared Component Library**
+- [ ] Extract UI components (buttons, cards, charts)
+- [ ] Create shared design tokens (colors, spacing)
+- [ ] Build shared hooks (useAuth, useMarketData)
+- [ ] Publish as internal package or monorepo
+
+**Phase 3: React Native App**
+- [ ] Initialize with Expo
+- [ ] Implement auth flow (Nostr signing)
+- [ ] Implement core screens:
+  - Dashboard (market overview)
+  - Liquidation Map
+  - Price Alerts (push notifications)
+  - Pattern Scanner
+  - Trade Coach
+- [ ] Platform-specific: Push notifications, biometrics, widgets
+
+**Phase 4: App Store Submission**
+- [ ] Apple Developer account ($99/year)
+- [ ] Google Play Developer account ($25)
+- [ ] App Store screenshots and metadata
+- [ ] Privacy policy (required)
+- [ ] App review compliance (no "financial advice" claims)
+- [ ] TestFlight beta testing
+- [ ] Submit and iterate on review feedback
+
+**React Native Tech Stack:**
+- [ ] Expo (managed workflow)
+- [ ] React Navigation (routing)
+- [ ] Zustand or Jotai (state management)
+- [ ] React Query (data fetching)
+- [ ] NativeWind (Tailwind for RN) or styled-components
+- [ ] react-native-svg (charts)
+- [ ] expo-notifications (push)
+- [ ] expo-secure-store (Nostr keys)
+
+---
+
+**Investment Summary:**
+
+| Item | Monthly Cost | One-Time Cost |
+|------|--------------|---------------|
+| Designer | $500-2000 (project) | - |
+| Netlify Pro | $19 | - |
+| Twitter Premium | $16 | - |
+| CoinGecko Pro | $129 | - |
+| Apple Developer | $8.25 | - |
+| Google Play | - | $25 |
+| **Total (ongoing)** | **~$172/month** | **$25** |
+
+*Break-even: 4 yearly subscribers at 400k sats ($160) covers infra*
+
+---
+
+**Success Criteria:**
+
+| Metric | Target |
+|--------|--------|
+| Design system documented | 100% of components |
+| Build time | <2 minutes |
+| API error rate | <1% (429s) |
+| Mobile app | Published on both stores |
+| App rating | 4.5+ stars |
+| Mobile DAU | 100+ within 30 days of launch |
+
+**Positioning After Phase 14:**
+> "Professional-grade Bitcoin intelligence. Web + mobile. Designed for traders, built for scale."
+
+---
+
 ## Tech Stack (CURRENT)
 
 - **Frontend**: Hugo static site generator
