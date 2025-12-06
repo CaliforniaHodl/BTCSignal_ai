@@ -1,10 +1,12 @@
-# BTC Signal AI
+# BTCSignals Pro
 
-AI-powered Bitcoin trading signals and market analysis platform built with Hugo static site generator.
+Bitcoin trading signals and market analysis platform built with Hugo static site generator.
 
 ## Overview
 
-BTC Signal AI provides real-time Bitcoin market analysis, trading signals, and premium tools powered by Claude AI. The platform uses Lightning Network for micropayments, allowing users to access content starting at just 21 sats.
+BTCSignals Pro provides real-time Bitcoin market analysis, trading signals, and premium tools. The platform uses Lightning Network for micropayments, allowing users to access content starting at just 21 sats.
+
+**Note:** Select premium features (Trade Coach, Chart Analysis) use Claude AI for enhanced analysis. Core signal generation uses traditional technical indicators and on-chain metrics.
 
 **Live Site:** [btcsignal.ai](https://btcsignal.ai) (or your deployed URL)
 
@@ -96,7 +98,7 @@ bitcoin-twitter-bot/
 **JS:** `paywall.js`
 
 **Features:**
-- Full AI-generated analysis content
+- Full analysis content
 - Price section with current price and change
 - Prediction card (direction, confidence, targets)
 - Technical indicators (RSI, MACD, Bollinger Bands)
