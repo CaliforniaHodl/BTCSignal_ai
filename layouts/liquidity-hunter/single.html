@@ -23,16 +23,6 @@
 
   <!-- Liquidity Hunter Content -->
   <div class="premium-content" id="premium-content" style="display: none;">
-{{ partial "dev-banner.html" (dict 
-      "status" "simulation" 
-      "todos" (slice 
-        "Integrate <code>LNbits</code> API for real Lightning payments"
-        "Fetch real liquidity pool data from exchange APIs"
-        "Implement order book depth analysis"
-        "Add WebSocket for real-time liquidity updates"
-      )
-    ) }}
-
     <header class="hunter-header">
       <h1>🎯 Liquidity Hunter</h1>
       <p class="subtitle">Data-driven liquidity sweep predictions</p>
