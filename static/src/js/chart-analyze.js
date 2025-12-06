@@ -139,11 +139,21 @@
       // Convert file to base64
       const base64 = await fileToBase64(file);
 
+      // Include auth headers for server-side validation
+      const authHeaders = {};
+      if (typeof BTCSAIAccess !== 'undefined') {
+        const recoveryCode = BTCSAIAccess.getRecoveryCode();
+        const sessionToken = BTCSAIAccess.getSessionToken();
+        if (recoveryCode) authHeaders['X-Recovery-Code'] = recoveryCode;
+        if (sessionToken) authHeaders['X-Session-Token'] = sessionToken;
+      }
+
       // Call API
       const response = await fetch('/.netlify/functions/analyze-chart', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders
         },
         body: JSON.stringify({
           image: base64,
@@ -152,6 +162,10 @@
       });
 
       const data = await response.json();
+
+      if (response.status === 401) {
+        throw new Error('Authentication required. Please purchase access.');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Analysis failed');

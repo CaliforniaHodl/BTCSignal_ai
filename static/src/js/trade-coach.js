@@ -241,11 +241,31 @@
       notes: document.getElementById('trade-notes').value
     };
     try {
+      // Include auth headers for server-side validation
+      const authHeaders = {};
+      if (typeof BTCSAIAccess !== 'undefined') {
+        const recoveryCode = BTCSAIAccess.getRecoveryCode();
+        const sessionToken = BTCSAIAccess.getSessionToken();
+        if (recoveryCode) authHeaders['X-Recovery-Code'] = recoveryCode;
+        if (sessionToken) authHeaders['X-Session-Token'] = sessionToken;
+      }
+
       const res = await fetch('/.netlify/functions/trade-coach', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders
+        },
         body: JSON.stringify(tradeData)
       });
+
+      if (res.status === 401) {
+        Toast.error('Authentication required. Please purchase access.');
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
       const analysis = await res.json();
       displayAnalysis(analysis, tradeData);
       saveToHistory(tradeData, analysis);
@@ -294,10 +314,12 @@
     document.getElementById('risk-score').style.width = analysis.riskScore + '%';
     document.getElementById('logic-score').style.width = analysis.logicScore + '%';
     document.getElementById('sizing-score').style.width = analysis.sizingScore + '%';
+    // Escape text content from API responses to prevent XSS
+    var escape = typeof SecurityUtils !== 'undefined' ? SecurityUtils.escapeHtml : function(s) { return s; };
     document.getElementById('strengths-content').innerHTML = formatList(analysis.strengths);
     document.getElementById('improvements-content').innerHTML = formatList(analysis.improvements);
-    document.getElementById('psychology-content').innerHTML = '<p>' + analysis.psychology + '</p>';
-    document.getElementById('alternatives-content').innerHTML = '<p>' + analysis.alternatives + '</p>';
+    document.getElementById('psychology-content').innerHTML = '<p>' + escape(analysis.psychology) + '</p>';
+    document.getElementById('alternatives-content').innerHTML = '<p>' + escape(analysis.alternatives) + '</p>';
     document.getElementById('takeaways-content').innerHTML = formatList(analysis.takeaways);
 
     // Display user stats
@@ -351,7 +373,9 @@
 
   function formatList(items) {
     if (!items || items.length === 0) return '<p>None identified</p>';
-    return '<ul>' + items.map(function(item) { return '<li>' + item + '</li>'; }).join('') + '</ul>';
+    // Escape each item to prevent XSS from API responses
+    var escape = typeof SecurityUtils !== 'undefined' ? SecurityUtils.escapeHtml : function(s) { return s; };
+    return '<ul>' + items.map(function(item) { return '<li>' + escape(item) + '</li>'; }).join('') + '</ul>';
   }
 
   function generateFallbackAnalysis(trade) {

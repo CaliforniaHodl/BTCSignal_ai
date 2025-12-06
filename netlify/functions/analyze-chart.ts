@@ -1,4 +1,5 @@
 import type { Context } from '@netlify/functions';
+import { validateAuth, extractAuthHeaders, unauthorizedResponse, checkRateLimit, rateLimitedResponse } from './utils/auth';
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
 
@@ -15,12 +16,41 @@ Be specific with price levels when visible. If the chart quality is poor or uncl
 Keep analysis professional and actionable for traders.`;
 
 export default async (req: Request, context: Context) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Recovery-Code, X-Session-Token'
+      }
+    });
+  }
+
   // Only allow POST
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
       status: 405,
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+
+  // SECURITY: Validate session before allowing Claude API usage
+  const { recoveryCode, sessionToken } = extractAuthHeaders(req);
+  if (recoveryCode && sessionToken) {
+    const auth = await validateAuth(recoveryCode, sessionToken);
+    if (!auth.authenticated) {
+      return unauthorizedResponse(auth.error || 'Unauthorized');
+    }
+
+    // Rate limit by recovery code (30 requests/minute)
+    const rateCheck = checkRateLimit(`analyze-chart:${recoveryCode}`);
+    if (!rateCheck.allowed) {
+      return rateLimitedResponse();
+    }
+  } else {
+    return unauthorizedResponse('Authentication required. Please purchase access.');
   }
 
   try {

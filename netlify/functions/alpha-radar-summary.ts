@@ -1,7 +1,37 @@
 import type { Context } from '@netlify/functions';
 import Anthropic from '@anthropic-ai/sdk';
+import { validateAuth, extractAuthHeaders, unauthorizedResponse, checkRateLimit, rateLimitedResponse } from './utils/auth';
 
 export default async (req: Request, context: Context) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Recovery-Code, X-Session-Token'
+      }
+    });
+  }
+
+  // SECURITY: Validate session before allowing Claude API usage
+  const { recoveryCode, sessionToken } = extractAuthHeaders(req);
+  if (recoveryCode && sessionToken) {
+    const auth = await validateAuth(recoveryCode, sessionToken);
+    if (!auth.authenticated) {
+      return unauthorizedResponse(auth.error || 'Unauthorized');
+    }
+
+    // Rate limit by recovery code (30 requests/minute)
+    const rateCheck = checkRateLimit(`alpha-radar:${recoveryCode}`);
+    if (!rateCheck.allowed) {
+      return rateLimitedResponse();
+    }
+  } else {
+    return unauthorizedResponse('Authentication required. Please purchase access.');
+  }
+
   try {
     // Fetch market data
     const [globalRes, fgRes, fundingRes, priceRes] = await Promise.all([

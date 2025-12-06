@@ -582,10 +582,29 @@
     const timeEl = document.getElementById('summary-time');
 
     try {
-      const res = await fetch('/.netlify/functions/alpha-radar-summary');
+      // Include auth headers for server-side validation
+      const authHeaders = {};
+      if (typeof BTCSAIAccess !== 'undefined') {
+        const recoveryCode = BTCSAIAccess.getRecoveryCode();
+        const sessionToken = BTCSAIAccess.getSessionToken();
+        if (recoveryCode) authHeaders['X-Recovery-Code'] = recoveryCode;
+        if (sessionToken) authHeaders['X-Session-Token'] = sessionToken;
+      }
+
+      const res = await fetch('/.netlify/functions/alpha-radar-summary', {
+        headers: authHeaders
+      });
+
+      if (res.status === 401) {
+        container.innerHTML = '<p class="error">Authentication required. Please purchase access to view AI summary.</p>';
+        return;
+      }
+
       const data = await res.json();
 
-      container.innerHTML = `<p>${data.summary}</p>`;
+      // Escape summary to prevent XSS
+      var escape = typeof SecurityUtils !== 'undefined' ? SecurityUtils.escapeHtml : function(s) { return s; };
+      container.innerHTML = '<p>' + escape(data.summary) + '</p>';
       timeEl.textContent = 'Generated: ' + new Date().toLocaleTimeString();
 
       // Check for alerts
@@ -593,7 +612,7 @@
         const alertBanner = document.getElementById('alert-banner');
         const alertText = document.getElementById('alert-text');
         alertBanner.style.display = 'flex';
-        alertText.textContent = data.alert;
+        alertText.textContent = escape(data.alert);
       }
     } catch (error) {
       container.innerHTML = '<p>Market sentiment is currently neutral. BTC dominance remains stable, suggesting the market is in a consolidation phase. Watch for breakout signals above key resistance or breakdown below support levels.</p>';

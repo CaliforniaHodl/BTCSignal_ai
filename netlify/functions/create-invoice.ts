@@ -5,7 +5,7 @@ const LNBITS_URL = process.env.LNBITS_URL || 'https://legend.lnbits.com';
 const LNBITS_API_KEY = process.env.LNBITS_API_KEY || '';
 
 interface InvoiceRequest {
-  tier: 'single' | 'hourly' | 'daily' | 'weekly';
+  tier: 'single' | 'hourly' | 'daily' | 'weekly' | 'monthly';
   amount: number;
   postId?: string; // For single post purchases
 }
@@ -22,12 +22,13 @@ export default async (req: Request, context: Context) => {
     const body: InvoiceRequest = await req.json();
     const { tier, amount, postId } = body;
 
-    // Validate tier and amount
+    // Validate tier and amount - MUST match store-access.ts VALID_TIERS
     const validTiers: Record<string, number> = {
       single: 21,
       hourly: 1000,
       daily: 20000,
-      weekly: 100000
+      weekly: 100000,
+      monthly: 500000
     };
 
     if (!validTiers[tier] || validTiers[tier] !== amount) {
@@ -39,10 +40,11 @@ export default async (req: Request, context: Context) => {
 
     // Create memo based on tier
     const memos: Record<string, string> = {
-      single: 'BTC Signal AI - Single Post',
-      hourly: 'BTC Signal AI - 1 Hour Pass',
-      daily: 'BTC Signal AI - Day Pass',
-      weekly: 'BTC Signal AI - Week Pass'
+      single: 'BTCSignals Pro - Single Post',
+      hourly: 'BTCSignals Pro - 1 Hour Pass',
+      daily: 'BTCSignals Pro - Day Pass',
+      weekly: 'BTCSignals Pro - Week Pass',
+      monthly: 'BTCSignals Pro - Month Pass'
     };
 
     // Create invoice via LNbits

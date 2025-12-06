@@ -3,6 +3,19 @@ import type { Context } from '@netlify/functions';
 // Store access record after successful payment
 // Generates recovery code and persists to GitHub
 
+// LNbits configuration for payment verification
+const LNBITS_URL = process.env.LNBITS_URL || 'https://legend.lnbits.com';
+const LNBITS_API_KEY = process.env.LNBITS_API_KEY || '';
+
+// Valid tier pricing - MUST match create-invoice.ts
+const VALID_TIERS: Record<string, number> = {
+  single: 21,
+  hourly: 1000,
+  daily: 20000,
+  weekly: 100000,
+  monthly: 500000
+};
+
 interface AccessRecord {
   recoveryCode: string;
   paymentHash: string;
@@ -44,6 +57,47 @@ function generateSessionToken(): string {
   return token;
 }
 
+// Verify payment with LNbits and return actual amount paid
+async function verifyPayment(paymentHash: string): Promise<{ verified: boolean; amountSats: number; memo: string }> {
+  try {
+    const response = await fetch(`${LNBITS_URL}/api/v1/payments/${paymentHash}`, {
+      method: 'GET',
+      headers: {
+        'X-Api-Key': LNBITS_API_KEY
+      }
+    });
+
+    if (!response.ok) {
+      return { verified: false, amountSats: 0, memo: '' };
+    }
+
+    const data = await response.json();
+
+    // LNbits returns amount in millisats, convert to sats
+    // Also verify the payment is actually paid
+    if (data.paid === true) {
+      return {
+        verified: true,
+        amountSats: Math.floor(data.amount / 1000), // millisats to sats
+        memo: data.memo || ''
+      };
+    }
+
+    return { verified: false, amountSats: 0, memo: '' };
+  } catch (error) {
+    console.error('Payment verification error:', error);
+    return { verified: false, amountSats: 0, memo: '' };
+  }
+}
+
+// Determine tier from amount paid (source of truth)
+function getTierFromAmount(amountSats: number): string | null {
+  for (const [tier, price] of Object.entries(VALID_TIERS)) {
+    if (price === amountSats) return tier;
+  }
+  return null;
+}
+
 // Calculate expiry based on tier
 function calculateExpiry(tier: string, purchaseDate: Date): string | null {
   const durations: Record<string, number> = {
@@ -82,10 +136,39 @@ export default async (req: Request, context: Context) => {
   }
 
   try {
-    const { paymentHash, tier, amountSats } = await req.json();
+    const { paymentHash } = await req.json();
 
-    if (!paymentHash || !tier || !amountSats) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+    if (!paymentHash) {
+      return new Response(JSON.stringify({ error: 'Missing payment hash' }), {
+        status: 400,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
+    // SECURITY: Verify payment with LNbits - DO NOT trust client-provided tier/amount
+    const payment = await verifyPayment(paymentHash);
+
+    if (!payment.verified) {
+      return new Response(JSON.stringify({ error: 'Payment not verified or not paid' }), {
+        status: 402,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
+
+    // Determine tier from actual amount paid (source of truth)
+    const tier = getTierFromAmount(payment.amountSats);
+
+    if (!tier) {
+      return new Response(JSON.stringify({
+        error: 'Invalid payment amount',
+        amountPaid: payment.amountSats
+      }), {
         status: 400,
         headers: {
           'Content-Type': 'application/json',
@@ -104,7 +187,7 @@ export default async (req: Request, context: Context) => {
       recoveryCode,
       paymentHash,
       tier,
-      amountSats,
+      amountSats: payment.amountSats, // Use verified amount, not client-provided
       purchaseDate: purchaseDate.toISOString(),
       expiresAt,
       recoveryCount: 0,

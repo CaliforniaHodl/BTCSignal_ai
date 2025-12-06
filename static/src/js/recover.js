@@ -95,7 +95,7 @@
     resultContent.innerHTML = message;
   }
 
-  // Build success message
+  // Build success message (XSS-safe)
   function buildSuccessMessage(result) {
     const tierNames = {
       single: 'Single Post',
@@ -104,6 +104,9 @@
       weekly: 'Week Pass',
       monthly: 'Month Pass'
     };
+
+    // Sanitize tier value - only allow known values
+    const safeTier = tierNames[result.tier] || 'Unknown';
 
     let expiryText = 'Never';
     if (result.expiresAt) {
@@ -115,7 +118,7 @@
       <div class="success-message">
         <span class="success-icon">✅</span>
         <h3>Access Restored!</h3>
-        <p><strong>Tier:</strong> ${tierNames[result.tier] || result.tier}</p>
+        <p><strong>Tier:</strong> ${safeTier}</p>
         <p><strong>Expires:</strong> ${expiryText}</p>
         <p class="redirect-notice">Redirecting to dashboard in 3 seconds...</p>
       </div>

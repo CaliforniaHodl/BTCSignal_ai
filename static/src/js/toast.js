@@ -36,8 +36,10 @@
       info: 'ℹ'
     };
 
+    // Escape message to prevent XSS
+    var safeMessage = typeof SecurityUtils !== 'undefined' ? SecurityUtils.escapeHtml(message) : message;
     toast.innerHTML = '<span class="toast-icon" aria-hidden="true">' + (iconMap[type] || 'ℹ') + '</span>' +
-      '<span class="toast-message">' + message + '</span>' +
+      '<span class="toast-message">' + safeMessage + '</span>' +
       '<button class="toast-close" aria-label="Dismiss notification" type="button">&times;</button>';
 
     container.appendChild(toast);
@@ -81,8 +83,10 @@
     overlay.setAttribute('aria-modal', 'true');
     overlay.setAttribute('aria-labelledby', 'confirm-title');
 
+    // Escape message to prevent XSS
+    var safeConfirmMsg = typeof SecurityUtils !== 'undefined' ? SecurityUtils.escapeHtml(message) : message;
     overlay.innerHTML = '<div class="confirm-modal">' +
-      '<p id="confirm-title" class="confirm-message">' + message + '</p>' +
+      '<p id="confirm-title" class="confirm-message">' + safeConfirmMsg + '</p>' +
       '<div class="confirm-buttons">' +
       '<button class="confirm-btn confirm-btn-cancel" type="button">Cancel</button>' +
       '<button class="confirm-btn confirm-btn-confirm" type="button">Continue</button>' +
