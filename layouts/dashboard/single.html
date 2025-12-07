@@ -37,8 +37,8 @@
             <h3>Fear & Greed Index</h3>
             {{ partial "tooltip.html" (dict "text" "Measures market sentiment from 0 (Extreme Fear) to 100 (Extreme Greed). Extreme fear can indicate buying opportunities, while extreme greed may signal an overheated market.") }}
           </div>
-          <div class="widget-value" id="dash-fng-value">--</div>
-          <div class="widget-label" id="dash-fng-label">Loading...</div>
+          <div class="widget-value" id="dash-fng-value"><span class="skeleton-stat"></span></div>
+          <div class="widget-label" id="dash-fng-label"><span class="skeleton-text skeleton-text-sm"></span></div>
           <div class="widget-chart">
             <div class="fng-gradient-bar">
               <div class="fng-indicator" id="dash-fng-indicator" style="left: 50%"></div>
@@ -53,8 +53,8 @@
             <h3>BTC Funding Rate</h3>
             {{ partial "tooltip.html" (dict "text" "Perpetual futures funding rate. Positive = longs pay shorts (bullish market). Negative = shorts pay longs (bearish). Extreme rates often precede reversals.") }}
           </div>
-          <div class="widget-value" id="dash-funding-value">--</div>
-          <div class="widget-label" id="dash-funding-label">Loading...</div>
+          <div class="widget-value" id="dash-funding-value"><span class="skeleton-stat"></span></div>
+          <div class="widget-label" id="dash-funding-label"><span class="skeleton-text skeleton-text-sm"></span></div>
           <div class="widget-sublabel">8h perpetual rate</div>
         </div>
 

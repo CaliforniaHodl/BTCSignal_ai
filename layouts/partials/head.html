@@ -45,8 +45,10 @@
   <link rel="stylesheet" href="{{ "src/css/single-post.css" | relURL }}">
 {{ end }}
 
+<!-- Critical: Access manager loads sync for paywall check -->
 <script src="{{ "src/js/access-manager.js" | relURL }}"></script>
-<script src="{{ "src/js/toast.js" | relURL }}"></script>
+<!-- Toast can defer - only used after user interactions -->
+<script defer src="{{ "src/js/toast.js" | relURL }}"></script>
 
 <!-- canonical -->
 {{ if not .Params.canonical }}
@@ -67,4 +69,5 @@
 <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6/jquery.inputmask.min.js"></script>
 <script defer type="text/javascript" src="{{ "src/js/site.js" | relURL }}"></script>
-<script src="https://kit.fontawesome.com/902c9ed551.js" crossorigin="anonymous"></script>
+<!-- Font Awesome - defer for performance -->
+<script defer src="https://kit.fontawesome.com/902c9ed551.js" crossorigin="anonymous"></script>

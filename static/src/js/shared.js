@@ -4,6 +4,95 @@
 const BTCSAIShared = (function() {
   'use strict';
 
+  // ========== DATA CACHE LAYER ==========
+  // localStorage-based caching with TTL for API responses
+
+  const CACHE_PREFIX = 'btcsai_cache_';
+  const DEFAULT_TTL = 30000; // 30 seconds default
+
+  /**
+   * Get cached data if not expired
+   * @param {string} key - Cache key
+   * @returns {any|null} - Cached data or null if expired/missing
+   */
+  function getCached(key) {
+    try {
+      const cached = localStorage.getItem(CACHE_PREFIX + key);
+      if (!cached) return null;
+
+      const { data, expiry } = JSON.parse(cached);
+      if (Date.now() > expiry) {
+        localStorage.removeItem(CACHE_PREFIX + key);
+        return null;
+      }
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Set cache with TTL
+   * @param {string} key - Cache key
+   * @param {any} data - Data to cache
+   * @param {number} ttl - Time to live in ms (default 30s)
+   */
+  function setCache(key, data, ttl = DEFAULT_TTL) {
+    try {
+      const cacheItem = {
+        data: data,
+        expiry: Date.now() + ttl
+      };
+      localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheItem));
+    } catch (e) {
+      // localStorage might be full or disabled
+      console.warn('BTCSAIShared: Cache write failed:', e.message);
+    }
+  }
+
+  /**
+   * Clear all BTCSAIShared cache entries
+   */
+  function clearCache() {
+    Object.keys(localStorage)
+      .filter(key => key.startsWith(CACHE_PREFIX))
+      .forEach(key => localStorage.removeItem(key));
+  }
+
+  /**
+   * Fetch with caching - wraps fetch with localStorage cache
+   * @param {string} url - URL to fetch
+   * @param {Object} options - { ttl: ms, cacheKey: string, transform: fn }
+   * @returns {Promise<any>}
+   */
+  async function fetchWithCache(url, options = {}) {
+    const cacheKey = options.cacheKey || url;
+    const ttl = options.ttl || DEFAULT_TTL;
+    const transform = options.transform || (d => d);
+
+    // Check cache first
+    const cached = getCached(cacheKey);
+    if (cached !== null) {
+      return cached;
+    }
+
+    // Fetch fresh data
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      let data = await res.json();
+      data = transform(data);
+
+      // Cache the result
+      setCache(cacheKey, data, ttl);
+      return data;
+    } catch (e) {
+      console.error('BTCSAIShared: Fetch error:', url, e);
+      return null;
+    }
+  }
+
   // ========== ACCESS CONTROL ==========
 
   /**
@@ -27,55 +116,86 @@ const BTCSAIShared = (function() {
     return false;
   }
 
-  // ========== PRICE FETCHING ==========
+  // ========== PRICE FETCHING (CACHED) ==========
+
+  const PRICE_CACHE_TTL = 15000; // 15 seconds for price data
+  const OHLC_CACHE_TTL = 60000;  // 60 seconds for OHLC data
 
   /**
-   * Fetch current BTC price from various sources
+   * Fetch current BTC price from various sources (with caching)
    * @param {string} source - 'coinbase', 'binance', or 'kraken'
+   * @param {boolean} forceRefresh - Skip cache and fetch fresh
    * @returns {Promise<number|null>}
    */
-  async function fetchBTCPrice(source = 'coinbase') {
+  async function fetchBTCPrice(source = 'coinbase', forceRefresh = false) {
+    const cacheKey = 'btc_price_' + source;
+
+    // Check cache first (unless forcing refresh)
+    if (!forceRefresh) {
+      const cached = getCached(cacheKey);
+      if (cached !== null) return cached;
+    }
+
     try {
+      let price = null;
+
       switch (source) {
         case 'binance':
           const binanceRes = await fetch('https://api.binance.us/api/v3/ticker/price?symbol=BTCUSDT');
           const binanceData = await binanceRes.json();
-          return parseFloat(binanceData.price);
+          price = parseFloat(binanceData.price);
+          break;
 
         case 'kraken':
           const krakenRes = await fetch('https://api.kraken.com/0/public/Ticker?pair=XBTUSD');
           const krakenData = await krakenRes.json();
           if (krakenData.result && krakenData.result.XXBTZUSD) {
-            return parseFloat(krakenData.result.XXBTZUSD.c[0]);
+            price = parseFloat(krakenData.result.XXBTZUSD.c[0]);
           }
-          return null;
+          break;
 
         case 'coinbase':
         default:
           const coinbaseRes = await fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot');
           const coinbaseData = await coinbaseRes.json();
-          return parseFloat(coinbaseData.data.amount);
+          price = parseFloat(coinbaseData.data.amount);
       }
+
+      // Cache the result
+      if (price !== null) {
+        setCache(cacheKey, price, PRICE_CACHE_TTL);
+      }
+      return price;
     } catch (e) {
       console.error('BTCSAIShared: Price fetch error:', e);
-      return null;
+      // Return stale cache if available
+      return getCached(cacheKey);
     }
   }
 
   /**
-   * Fetch OHLC price data from Binance
+   * Fetch OHLC price data from Binance (with caching)
    * @param {string} timeframe - '15m', '1h', '4h', '1d'
    * @param {number} limit - Number of candles
+   * @param {boolean} forceRefresh - Skip cache and fetch fresh
    * @returns {Promise<Array>}
    */
-  async function fetchOHLCData(timeframe = '1h', limit = 100) {
+  async function fetchOHLCData(timeframe = '1h', limit = 100, forceRefresh = false) {
+    const cacheKey = `ohlc_${timeframe}_${limit}`;
+
+    // Check cache first (unless forcing refresh)
+    if (!forceRefresh) {
+      const cached = getCached(cacheKey);
+      if (cached !== null) return cached;
+    }
+
     try {
       const res = await fetch(
         `https://api.binance.us/api/v3/klines?symbol=BTCUSDT&interval=${timeframe}&limit=${limit}`
       );
       const data = await res.json();
 
-      return data.map(candle => ({
+      const ohlc = data.map(candle => ({
         time: candle[0],
         open: parseFloat(candle[1]),
         high: parseFloat(candle[2]),
@@ -83,9 +203,14 @@ const BTCSAIShared = (function() {
         close: parseFloat(candle[4]),
         volume: parseFloat(candle[5])
       }));
+
+      // Cache the result
+      setCache(cacheKey, ohlc, OHLC_CACHE_TTL);
+      return ohlc;
     } catch (e) {
       console.error('BTCSAIShared: OHLC fetch error:', e);
-      return [];
+      // Return stale cache if available
+      return getCached(cacheKey) || [];
     }
   }
 
@@ -363,10 +488,16 @@ const BTCSAIShared = (function() {
   // ========== PUBLIC API ==========
 
   return {
+    // Cache utilities
+    getCached,
+    setCache,
+    clearCache,
+    fetchWithCache,
+
     // Access control
     checkAccess,
 
-    // Price fetching
+    // Price fetching (cached)
     fetchBTCPrice,
     fetchOHLCData,
 
