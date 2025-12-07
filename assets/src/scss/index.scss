@@ -1266,3 +1266,143 @@
     font-size: $font-2xl;
   }
 }
+
+// ==================================================
+// FREE TOOLS SECTION
+// ==================================================
+
+.free-tools-section {
+  margin: $spacing-3xl 0;
+  padding: $spacing-2xl;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($green, 0.05) 100%);
+  border: 1px solid rgba($green, 0.3);
+  border-radius: $radius-xl;
+
+  h2 {
+    @include flex-center;
+    gap: $spacing-md;
+    flex-wrap: wrap;
+    margin-bottom: $spacing-sm;
+    font-size: $font-2xl;
+  }
+}
+
+.free-badge-large {
+  background: $green;
+  color: #000;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-full;
+  font-size: $font-sm;
+  font-weight: $font-bold;
+}
+
+.free-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: $spacing-md;
+  margin: $spacing-xl 0;
+}
+
+.free-tool-card {
+  @include card;
+  padding: $spacing-lg;
+  text-align: center;
+  text-decoration: none;
+  position: relative;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: $green;
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+
+  .tool-icon {
+    font-size: $font-3xl;
+    display: block;
+    margin-bottom: $spacing-sm;
+  }
+
+  h3 {
+    font-size: $font-base;
+    color: var(--text-primary);
+    margin-bottom: $spacing-xs;
+  }
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .tool-badge {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    font-size: $font-xs;
+    padding: 2px $spacing-xs;
+    border-radius: $radius-sm;
+    font-weight: $font-semibold;
+
+    &.free {
+      background: rgba($green, 0.2);
+      color: $green;
+    }
+  }
+}
+
+.free-tools-cta {
+  text-align: center;
+  margin-top: $spacing-lg;
+
+  .btn-secondary {
+    display: inline-block;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    padding: $spacing-md $spacing-xl;
+    border-radius: $radius-md;
+    text-decoration: none;
+    font-weight: $font-semibold;
+    border: 1px solid var(--border-color);
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $green;
+      color: $green;
+    }
+  }
+
+  .tools-note {
+    margin-top: $spacing-sm;
+    font-size: $font-sm;
+    color: var(--text-muted);
+  }
+}
+
+@include mobile {
+  .free-tools-section {
+    padding: $spacing-lg;
+    margin: $spacing-2xl 0;
+  }
+
+  .free-tools-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-sm;
+  }
+
+  .free-tool-card {
+    padding: $spacing-md;
+
+    .tool-icon {
+      font-size: $font-2xl;
+    }
+
+    h3 {
+      font-size: $font-sm;
+    }
+
+    p {
+      font-size: $font-xs;
+    }
+  }
+}
