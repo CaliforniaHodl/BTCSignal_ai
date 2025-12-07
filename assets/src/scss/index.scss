@@ -203,6 +203,70 @@
   margin: $spacing-sm 0 0;
 }
 
+// Signal Accuracy Card
+.accuracy-card {
+  border-color: rgba($green, 0.3);
+}
+
+.accuracy-display {
+  @include flex-column;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+}
+
+.accuracy-rate {
+  font-size: $font-3xl;
+  font-weight: $font-bold;
+  line-height: 1;
+
+  &.good {
+    color: var(--bullish);
+  }
+
+  &.neutral {
+    color: var(--neutral);
+  }
+
+  &.poor {
+    color: var(--bearish);
+  }
+}
+
+.accuracy-label {
+  font-size: $font-xs;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.accuracy-stats {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  font-size: $font-sm;
+}
+
+.accuracy-stat {
+  font-weight: $font-semibold;
+
+  &.win {
+    color: var(--bullish);
+  }
+
+  &.loss {
+    color: var(--bearish);
+  }
+}
+
+.accuracy-divider {
+  color: var(--text-muted);
+}
+
+.accuracy-total {
+  color: var(--text-muted);
+  font-size: $font-xs;
+}
+
 // Pro Tools CTA Card
 .cta-card {
   background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.1) 100%);

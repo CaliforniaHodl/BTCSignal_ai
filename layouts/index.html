@@ -83,6 +83,41 @@
         </div>
       </article>
 
+      <!-- Signal Accuracy Card -->
+      {{ $posts := where .Site.RegularPages "Section" "posts" }}
+      {{ $wins := 0 }}
+      {{ $losses := 0 }}
+      {{ range $posts }}
+        {{ if eq .Params.callResult "win" }}
+          {{ $wins = add $wins 1 }}
+        {{ else if eq .Params.callResult "loss" }}
+          {{ $losses = add $losses 1 }}
+        {{ end }}
+      {{ end }}
+      {{ $total := len $posts }}
+      {{ $decided := add $wins $losses }}
+      {{ $winRate := 0.0 }}
+      {{ if gt $decided 0 }}
+        {{ $winRate = mul (div (float $wins) (float $decided)) 100 }}
+      {{ end }}
+      <article class="hero-feature-card accuracy-card">
+        <div class="hero-feature-icon" aria-hidden="true">🎯</div>
+        <div class="hero-feature-content">
+          <h3>Signal Accuracy</h3>
+          <div class="accuracy-display">
+            <span class="accuracy-rate {{ if ge $winRate 60 }}good{{ else if ge $winRate 40 }}neutral{{ else }}poor{{ end }}">{{ printf "%.0f" $winRate }}%</span>
+            <span class="accuracy-label">Win Rate</span>
+          </div>
+          <div class="accuracy-stats">
+            <span class="accuracy-stat win">{{ $wins }}W</span>
+            <span class="accuracy-divider">-</span>
+            <span class="accuracy-stat loss">{{ $losses }}L</span>
+            <span class="accuracy-total">({{ $total }} signals)</span>
+          </div>
+          <a href="/signal-history/" class="hero-feature-link">View Full History →</a>
+        </div>
+      </article>
+
       <!-- Pro Tools CTA Card -->
       <article class="hero-feature-card cta-card">
         <div class="hero-feature-icon" aria-hidden="true">⚡</div>
