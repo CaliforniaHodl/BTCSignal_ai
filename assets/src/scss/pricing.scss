@@ -1105,3 +1105,139 @@
     box-shadow: $shadow-glow;
   }
 }
+
+// =====================================================
+// FREE VS PRO COMPARISON TABLE
+// =====================================================
+
+.comparison-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    text-align: center;
+    margin-bottom: $spacing-sm;
+    color: var(--text-primary);
+  }
+
+  .comparison-subtitle {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.comparison-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: $spacing-lg;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  th, td {
+    padding: $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  thead {
+    background: var(--bg-dark);
+
+    th {
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+
+      &.free-col {
+        text-align: center;
+        color: var(--text-secondary);
+        width: 100px;
+      }
+
+      &.pro-col {
+        text-align: center;
+        color: $bitcoin-orange;
+        width: 120px;
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      transition: background $transition-base;
+
+      &:hover {
+        background: rgba($bitcoin-orange, 0.05);
+      }
+
+      &.section-header {
+        background: var(--bg-dark);
+
+        td {
+          font-weight: $font-bold;
+          color: $bitcoin-orange;
+          font-size: $font-sm;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          padding: $spacing-sm $spacing-md;
+        }
+
+        &:hover {
+          background: var(--bg-dark);
+        }
+      }
+    }
+
+    td {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+
+      &:first-child {
+        color: var(--text-primary);
+      }
+
+      &.free-col, &.pro-col {
+        text-align: center;
+      }
+    }
+  }
+
+  .check-green {
+    color: $bullish;
+    font-weight: $font-bold;
+  }
+
+  .x-red {
+    color: $bearish;
+    opacity: 0.5;
+  }
+}
+
+.comparison-cta {
+  text-align: center;
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-md;
+  }
+
+  .btn-secondary {
+    display: inline-block;
+    padding: $spacing-sm $spacing-lg;
+    background: transparent;
+    border: 2px solid $bitcoin-orange;
+    border-radius: $radius-md;
+    color: $bitcoin-orange;
+    text-decoration: none;
+    font-weight: $font-semibold;
+    transition: all $transition-base;
+
+    &:hover {
+      background: $bitcoin-orange;
+      color: #000;
+    }
+  }
+}
