@@ -1,0 +1,108 @@
+{{ define "main" }}
+<div class="container signal-history-page">
+  <header class="signal-history-header">
+    <h1>{{ .Title }}</h1>
+    <p class="description">{{ .Description }}</p>
+  </header>
+
+  <!-- Stats Summary -->
+  {{ $posts := where .Site.RegularPages "Section" "posts" }}
+  {{ $wins := 0 }}
+  {{ $losses := 0 }}
+  {{ $pending := 0 }}
+  {{ range $posts }}
+    {{ if eq .Params.callResult "win" }}
+      {{ $wins = add $wins 1 }}
+    {{ else if eq .Params.callResult "loss" }}
+      {{ $losses = add $losses 1 }}
+    {{ else }}
+      {{ $pending = add $pending 1 }}
+    {{ end }}
+  {{ end }}
+  {{ $total := len $posts }}
+  {{ $decided := add $wins $losses }}
+  {{ $winRate := 0.0 }}
+  {{ if gt $decided 0 }}
+    {{ $winRate = mul (div (float $wins) (float $decided)) 100 }}
+  {{ end }}
+
+  <section class="signal-stats" aria-label="Signal performance statistics">
+    <div class="stat-card">
+      <span class="stat-value">{{ $total }}</span>
+      <span class="stat-label">Total Signals</span>
+    </div>
+    <div class="stat-card win">
+      <span class="stat-value">{{ $wins }}</span>
+      <span class="stat-label">Wins</span>
+    </div>
+    <div class="stat-card loss">
+      <span class="stat-value">{{ $losses }}</span>
+      <span class="stat-label">Losses</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ printf "%.1f" $winRate }}%</span>
+      <span class="stat-label">Win Rate</span>
+    </div>
+    <div class="stat-card pending">
+      <span class="stat-value">{{ $pending }}</span>
+      <span class="stat-label">Pending</span>
+    </div>
+  </section>
+
+  <!-- Signal Table -->
+  <section class="signal-table-section">
+    <table class="signal-table" aria-label="Historical signal data">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Direction</th>
+          <th>Confidence</th>
+          <th>Entry Price</th>
+          <th>Target</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{ range $posts.ByDate.Reverse }}
+        <tr class="signal-row {{ .Params.direction }} {{ .Params.callResult }}">
+          <td>
+            <a href="{{ .Permalink }}">{{ .Date.Format "Jan 02, 2006" }}</a>
+          </td>
+          <td>
+            <span class="direction-badge {{ .Params.direction }}">
+              {{ if eq .Params.direction "up" }}📈 LONG{{ else if eq .Params.direction "down" }}📉 SHORT{{ else }}➡️ HOLD{{ end }}
+            </span>
+          </td>
+          <td>
+            <span class="confidence">{{ .Params.confidence }}%</span>
+          </td>
+          <td>${{ lang.FormatNumber 0 .Params.price }}</td>
+          <td>
+            {{ if .Params.targetPrice }}
+              ${{ lang.FormatNumber 0 .Params.targetPrice }}
+            {{ else }}
+              --
+            {{ end }}
+          </td>
+          <td>
+            {{ if eq .Params.callResult "win" }}
+              <span class="result-badge win">✅ WIN</span>
+            {{ else if eq .Params.callResult "loss" }}
+              <span class="result-badge loss">❌ LOSS</span>
+            {{ else }}
+              <span class="result-badge pending">⏳ PENDING</span>
+            {{ end }}
+          </td>
+        </tr>
+        {{ end }}
+      </tbody>
+    </table>
+  </section>
+
+  <footer class="signal-history-footer">
+    <p class="disclaimer">
+      Past performance does not guarantee future results. Signals are for informational purposes only and should not be considered financial advice.
+    </p>
+  </footer>
+</div>
+{{ end }}

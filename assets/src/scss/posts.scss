@@ -250,3 +250,195 @@
     display: none;
   }
 }
+
+// =====================================================
+// SIGNAL HISTORY PAGE
+// =====================================================
+
+.signal-history-page {
+  @include section-padding;
+}
+
+.signal-history-header {
+  text-align: center;
+  margin-bottom: $spacing-xl;
+
+  h1 {
+    font-size: $font-3xl;
+    @include gradient-text;
+    margin-bottom: $spacing-sm;
+  }
+
+  .description {
+    color: var(--text-secondary);
+  }
+}
+
+// Stats Cards
+.signal-stats {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  @include card;
+  padding: $spacing-md $spacing-lg;
+  text-align: center;
+  min-width: 100px;
+
+  .stat-value {
+    display: block;
+    font-size: $font-2xl;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+  }
+
+  .stat-label {
+    font-size: $font-xs;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &.win .stat-value {
+    color: var(--bullish);
+  }
+
+  &.loss .stat-value {
+    color: var(--bearish);
+  }
+
+  &.pending .stat-value {
+    color: var(--neutral);
+  }
+}
+
+// Signal Table
+.signal-table-section {
+  overflow-x: auto;
+}
+
+.signal-table {
+  width: 100%;
+  border-collapse: collapse;
+  @include card;
+
+  th, td {
+    padding: $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  th {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+    font-size: $font-sm;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  td {
+    color: var(--text-primary);
+  }
+
+  tbody tr:hover {
+    background: var(--bg-card-hover);
+  }
+
+  a {
+    color: var(--bitcoin-orange);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.direction-badge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-weight: $font-semibold;
+  font-size: $font-sm;
+
+  &.up {
+    background: rgba($bullish, 0.15);
+    color: var(--bullish);
+  }
+
+  &.down {
+    background: rgba($bearish, 0.15);
+    color: var(--bearish);
+  }
+
+  &.hold {
+    background: rgba($neutral, 0.15);
+    color: var(--neutral);
+  }
+}
+
+.confidence {
+  font-weight: $font-semibold;
+}
+
+.result-badge {
+  display: inline-block;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-weight: $font-semibold;
+  font-size: $font-sm;
+
+  &.win {
+    background: rgba($bullish, 0.15);
+    color: var(--bullish);
+  }
+
+  &.loss {
+    background: rgba($bearish, 0.15);
+    color: var(--bearish);
+  }
+
+  &.pending {
+    background: rgba($neutral, 0.15);
+    color: var(--neutral);
+  }
+}
+
+.signal-history-footer {
+  margin-top: $spacing-xl;
+  text-align: center;
+
+  .disclaimer {
+    color: var(--text-muted);
+    font-size: $font-sm;
+    font-style: italic;
+  }
+}
+
+// Mobile responsive
+@include mobile {
+  .signal-stats {
+    gap: $spacing-sm;
+  }
+
+  .stat-card {
+    padding: $spacing-sm $spacing-md;
+    min-width: 80px;
+
+    .stat-value {
+      font-size: $font-lg;
+    }
+  }
+
+  .signal-table {
+    th, td {
+      padding: $spacing-sm;
+      font-size: $font-sm;
+    }
+  }
+}
