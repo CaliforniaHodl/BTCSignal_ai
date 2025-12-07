@@ -1,0 +1,208 @@
+{{ define "main" }}
+<div class="free-tool-page hodl-waves-page">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="tool-header">
+      <div class="tool-badge free-badge">Free Tool</div>
+      <h1>HODL Waves</h1>
+      <p class="tool-subtitle">Bitcoin's age distribution reveals long-term holder conviction</p>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics-row">
+      <div class="metric-card">
+        <span class="metric-icon">💎</span>
+        <span class="metric-value" id="hodl-1y">--</span>
+        <span class="metric-label">Held 1+ Years</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-icon">🏛️</span>
+        <span class="metric-value" id="hodl-2y">--</span>
+        <span class="metric-label">Held 2+ Years</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-icon">🦣</span>
+        <span class="metric-value" id="hodl-5y">--</span>
+        <span class="metric-label">Held 5+ Years</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-icon">🔥</span>
+        <span class="metric-value" id="active-supply">--</span>
+        <span class="metric-label">Active (< 1mo)</span>
+      </div>
+    </div>
+
+    <!-- HODL Waves Chart -->
+    <div class="card chart-card">
+      <div class="chart-header">
+        <h2>HODL Waves Over Time</h2>
+        <div class="chart-controls">
+          <button class="time-btn active" data-range="1y">1Y</button>
+          <button class="time-btn" data-range="2y">2Y</button>
+          <button class="time-btn" data-range="5y">5Y</button>
+          <button class="time-btn" data-range="all">All</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="hodl-chart"></canvas>
+      </div>
+      <p class="chart-note">
+        <span class="note-icon">ℹ️</span>
+        Data approximated from on-chain analysis. Shows percentage of total supply in each age band.
+      </p>
+    </div>
+
+    <!-- Current Distribution -->
+    <div class="card">
+      <h2>Current Supply Distribution</h2>
+      <div class="distribution-grid" id="distribution-grid">
+        <!-- Distribution bars will be populated by JS -->
+      </div>
+    </div>
+
+    <!-- Market Insight -->
+    <div class="card insight-card">
+      <div class="insight-header">
+        <span class="insight-icon" id="insight-icon">📊</span>
+        <h3 id="insight-title">Loading...</h3>
+      </div>
+      <p id="insight-text">Analyzing HODL wave patterns...</p>
+    </div>
+
+    <!-- Cycle Comparison -->
+    <div class="card">
+      <h2>Historical Cycle Comparison</h2>
+      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+        Long-term holder behavior changes predictably through market cycles
+      </p>
+      <div class="cycle-comparison">
+        <div class="cycle-item">
+          <h4>2017 Peak</h4>
+          <div class="cycle-stat">
+            <span class="stat-label">1Y+ Holders</span>
+            <span class="stat-value">42%</span>
+          </div>
+          <div class="cycle-stat">
+            <span class="stat-label">Market Phase</span>
+            <span class="stat-value phase-top">Distribution</span>
+          </div>
+        </div>
+        <div class="cycle-item">
+          <h4>2018 Bottom</h4>
+          <div class="cycle-stat">
+            <span class="stat-label">1Y+ Holders</span>
+            <span class="stat-value">58%</span>
+          </div>
+          <div class="cycle-stat">
+            <span class="stat-label">Market Phase</span>
+            <span class="stat-value phase-bottom">Accumulation</span>
+          </div>
+        </div>
+        <div class="cycle-item">
+          <h4>2021 Peak</h4>
+          <div class="cycle-stat">
+            <span class="stat-label">1Y+ Holders</span>
+            <span class="stat-value">54%</span>
+          </div>
+          <div class="cycle-stat">
+            <span class="stat-label">Market Phase</span>
+            <span class="stat-value phase-top">Distribution</span>
+          </div>
+        </div>
+        <div class="cycle-item current">
+          <h4>Now</h4>
+          <div class="cycle-stat">
+            <span class="stat-label">1Y+ Holders</span>
+            <span class="stat-value" id="current-1y-holders">--</span>
+          </div>
+          <div class="cycle-stat">
+            <span class="stat-label">Market Phase</span>
+            <span class="stat-value" id="current-phase">Analyzing...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Educational Section -->
+    <div class="education-section card">
+      <h2>Understanding HODL Waves</h2>
+      <div class="education-grid">
+        <div class="education-item">
+          <span class="edu-icon">📈</span>
+          <h3>What Are HODL Waves?</h3>
+          <p>HODL waves show the age distribution of all Bitcoin. Each "wave" represents BTC that hasn't moved on-chain for a specific time period.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">🎯</span>
+          <h3>Why It Matters</h3>
+          <p>When long-term holders start selling, it often signals market tops. When they accumulate during dips, it signals conviction and potential bottoms.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">💡</span>
+          <h3>Reading the Chart</h3>
+          <p>Older coins (warmer colors) at the top, newer coins (cooler colors) at the bottom. Growing warm bands = accumulation. Shrinking = distribution.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">⚠️</span>
+          <h3>Key Signals</h3>
+          <p><strong>Bullish:</strong> 1Y+ band expanding during price drops.<br><strong>Bearish:</strong> Old coins moving for first time in years (smart money selling).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Age Band Legend -->
+    <div class="card legend-card">
+      <h2>Age Band Reference</h2>
+      <div class="legend-grid">
+        <div class="legend-item">
+          <span class="legend-color" style="background: #ff6b6b;"></span>
+          <span class="legend-label">< 24h (Hot Money)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #ffa94d;"></span>
+          <span class="legend-label">1d - 1w</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #ffd43b;"></span>
+          <span class="legend-label">1w - 1m</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #a9e34b;"></span>
+          <span class="legend-label">1m - 3m</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #69db7c;"></span>
+          <span class="legend-label">3m - 6m</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #38d9a9;"></span>
+          <span class="legend-label">6m - 12m</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #4dabf7;"></span>
+          <span class="legend-label">1y - 2y</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #748ffc;"></span>
+          <span class="legend-label">2y - 3y</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #9775fa;"></span>
+          <span class="legend-label">3y - 5y</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color" style="background: #da77f2;"></span>
+          <span class="legend-label">5y+ (Diamond Hands)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <h2>Want Real-Time On-Chain Alerts?</h2>
+      <p>Get notified when whale wallets move or long-term holders start selling.</p>
+      <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
+    </div>
+  </div>
+</div>
+{{ end }}
