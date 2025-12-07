@@ -101,7 +101,9 @@
     const amount = parseFloat(document.getElementById('amount').value);
 
     if (!startDateStr || !endDateStr || !amount || amount <= 0) {
-      alert('Please fill in all fields with valid values');
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Please fill in all fields with valid values');
+      }
       return;
     }
 
@@ -109,7 +111,9 @@
     const endDate = new Date(endDateStr);
 
     if (startDate >= endDate) {
-      alert('Start date must be before end date');
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Start date must be before end date');
+      }
       return;
     }
 
@@ -136,7 +140,9 @@
 
     } catch (e) {
       console.error('DCA calculation error:', e);
-      alert('Error calculating DCA. Please try again.');
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Error calculating DCA. Please try again.');
+      }
     } finally {
       document.getElementById('calculate-btn').textContent = 'Calculate Returns';
       document.getElementById('calculate-btn').disabled = false;

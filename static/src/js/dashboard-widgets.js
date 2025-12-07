@@ -1519,7 +1519,9 @@
 
     const resultsEl = document.getElementById('arb-results');
     if (!resultsEl || Object.keys(exchangeRates).length === 0) {
-      alert('Please wait for funding rate data to load.');
+      if (typeof Toast !== 'undefined') {
+        Toast.warning('Please wait for funding rate data to load.');
+      }
       return;
     }
 

@@ -104,7 +104,9 @@
     const price = parseFloat(document.getElementById('purchase-price').value);
 
     if (!date || !sats || sats <= 0) {
-      alert('Please enter a valid date and amount');
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Please enter a valid date and amount');
+      }
       return;
     }
 

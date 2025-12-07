@@ -308,7 +308,12 @@
     // Allow clicking outside to close (but warn first)
     modal.onclick = function(e) {
       if (e.target === modal) {
-        if (confirm('Have you saved your recovery code? You will need it to restore access later.')) {
+        if (typeof Toast !== 'undefined' && Toast.confirm) {
+          Toast.confirm('Have you saved your recovery code? You will need it to restore access later.', function() {
+            modal.style.display = 'none';
+            window.location.reload();
+          });
+        } else {
           modal.style.display = 'none';
           window.location.reload();
         }

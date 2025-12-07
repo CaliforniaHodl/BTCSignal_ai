@@ -67,10 +67,11 @@
       unlockBtn.addEventListener('click', async () => {
         // For demo, simulate payment success
         // In production, integrate with Lightning payment
-        const confirmed = confirm('Demo Mode: Click OK to simulate successful payment (50 sats)');
-        if (confirmed) {
-          localStorage.setItem(CONFIG.accessKey, 'true');
-          checkAccess();
+        if (typeof Toast !== 'undefined' && Toast.confirm) {
+          Toast.confirm('Demo Mode: Click OK to simulate successful payment (50 sats)', () => {
+            localStorage.setItem(CONFIG.accessKey, 'true');
+            checkAccess();
+          });
         }
       });
     }

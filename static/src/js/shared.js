@@ -4,6 +4,32 @@
 const BTCSAIShared = (function() {
   'use strict';
 
+  // ========== DEBUG MODE ==========
+  // Set to false for production to suppress console.log
+  const DEBUG = window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1' ||
+                localStorage.getItem('BTCSAI_DEBUG') === 'true';
+
+  /**
+   * Debug logging - only outputs in development
+   * @param {...any} args - Arguments to log
+   */
+  function debug(...args) {
+    if (DEBUG) {
+      console.log('[BTCSAI]', ...args);
+    }
+  }
+
+  /**
+   * Debug warning - only outputs in development
+   * @param {...any} args - Arguments to log
+   */
+  function debugWarn(...args) {
+    if (DEBUG) {
+      console.warn('[BTCSAI]', ...args);
+    }
+  }
+
   // ========== DATA CACHE LAYER ==========
   // localStorage-based caching with TTL for API responses
 
@@ -46,7 +72,7 @@ const BTCSAIShared = (function() {
       localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(cacheItem));
     } catch (e) {
       // localStorage might be full or disabled
-      console.warn('BTCSAIShared: Cache write failed:', e.message);
+      debugWarn('Cache write failed:', e.message);
     }
   }
 
@@ -88,7 +114,7 @@ const BTCSAIShared = (function() {
       setCache(cacheKey, data, ttl);
       return data;
     } catch (e) {
-      console.error('BTCSAIShared: Fetch error:', url, e);
+      debugWarn('Fetch error:', url, e.message);
       return null;
     }
   }
@@ -167,7 +193,7 @@ const BTCSAIShared = (function() {
       }
       return price;
     } catch (e) {
-      console.error('BTCSAIShared: Price fetch error:', e);
+      debugWarn('Price fetch error:', e.message);
       // Return stale cache if available
       return getCached(cacheKey);
     }
@@ -208,7 +234,7 @@ const BTCSAIShared = (function() {
       setCache(cacheKey, ohlc, OHLC_CACHE_TTL);
       return ohlc;
     } catch (e) {
-      console.error('BTCSAIShared: OHLC fetch error:', e);
+      debugWarn('OHLC fetch error:', e.message);
       // Return stale cache if available
       return getCached(cacheKey) || [];
     }
@@ -237,10 +263,10 @@ const BTCSAIShared = (function() {
         const res = await fetch('/data/market-snapshot.json');
         if (res.ok) {
           marketSnapshot = await res.json();
-          console.log('BTCSAIShared: Market snapshot loaded:', marketSnapshot.timestamp);
+          debug('Market snapshot loaded:', marketSnapshot.timestamp);
         }
       } catch (e) {
-        console.error('BTCSAIShared: Snapshot load error:', e);
+        debugWarn('Snapshot load error:', e.message);
       }
       snapshotLoading = false;
       return marketSnapshot;
@@ -526,7 +552,11 @@ const BTCSAIShared = (function() {
 
     // Utilities
     debounce,
-    throttle
+    throttle,
+
+    // Debug logging (only outputs in development)
+    debug,
+    debugWarn
   };
 })();
 

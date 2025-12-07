@@ -338,9 +338,11 @@
     // Clear history button
     if (elements.clearBtn) {
       elements.clearBtn.addEventListener('click', () => {
-        if (confirm('Clear all BART history data? This cannot be undone.')) {
-          window.BartDetector.clearHistory();
-          updateAll();
+        if (typeof Toast !== 'undefined' && Toast.confirm) {
+          Toast.confirm('Clear all BART history data? This cannot be undone.', () => {
+            window.BartDetector.clearHistory();
+            updateAll();
+          });
         }
       });
     }
