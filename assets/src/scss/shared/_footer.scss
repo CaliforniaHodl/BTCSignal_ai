@@ -78,6 +78,76 @@ footer {
   margin: $spacing-md 0 0;
 }
 
+// Community Links Section
+.footer-community {
+  padding: $spacing-xl $spacing-lg;
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+
+  h3 {
+    font-size: $font-lg;
+    color: var(--text-primary);
+    margin: 0 0 $spacing-md;
+  }
+}
+
+.community-links {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.community-link {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  text-decoration: none;
+  font-weight: $font-medium;
+  font-size: $font-sm;
+  transition: all $transition-base;
+  border: 1px solid var(--border-color);
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+
+  i {
+    font-size: $font-lg;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  // Brand colors on hover
+  &.twitter:hover {
+    background: rgba(29, 161, 242, 0.15);
+    border-color: #1da1f2;
+    color: #1da1f2;
+  }
+
+  &.telegram:hover {
+    background: rgba(0, 136, 204, 0.15);
+    border-color: #0088cc;
+    color: #0088cc;
+  }
+
+  &.discord:hover {
+    background: rgba(88, 101, 242, 0.15);
+    border-color: #5865f2;
+    color: #5865f2;
+  }
+
+  &.github:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--text-primary);
+    color: var(--text-primary);
+  }
+}
+
 // Footer Content
 .footer-content {
   max-width: 1200px;
