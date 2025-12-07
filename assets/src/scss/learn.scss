@@ -12,7 +12,7 @@
 
 .learn-header {
   text-align: center;
-  margin-bottom: $spacing-2xl;
+  margin-bottom: $spacing-xl;
 
   h1 {
     font-size: $font-4xl;
@@ -22,6 +22,92 @@
   .subtitle {
     color: var(--text-secondary);
     font-size: $font-lg;
+  }
+}
+
+// Category Filter
+.category-filter {
+  margin-bottom: $spacing-lg;
+  text-align: center;
+
+  .filter-label {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  .filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+  }
+
+  .filter-btn {
+    padding: $spacing-xs $spacing-md;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-full;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: var(--bitcoin-orange);
+      color: var(--bitcoin-orange);
+    }
+
+    &.active {
+      background: var(--bitcoin-orange);
+      border-color: var(--bitcoin-orange);
+      color: #000;
+      font-weight: $font-semibold;
+    }
+  }
+
+  .filter-count {
+    color: var(--text-muted);
+    font-size: $font-sm;
+  }
+}
+
+// Search Box
+.search-box {
+  max-width: 400px;
+  margin: 0 auto $spacing-xl;
+  position: relative;
+
+  .search-input {
+    width: 100%;
+    padding: $spacing-sm $spacing-lg $spacing-sm $spacing-md;
+    padding-right: 40px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-full;
+    color: var(--text-primary);
+    font-size: $font-base;
+    transition: all $transition-base;
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--bitcoin-orange);
+      box-shadow: 0 0 0 3px rgba($bitcoin-orange, 0.2);
+    }
+  }
+
+  .search-icon {
+    position: absolute;
+    right: $spacing-md;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
   }
 }
 

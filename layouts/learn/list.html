@@ -5,9 +5,47 @@
     <p class="subtitle">Free educational resources for Bitcoin traders</p>
   </header>
 
-  <section class="articles-grid">
+  <!-- Category Filter -->
+  <div class="category-filter">
+    <div class="filter-label">Filter by category:</div>
+    <div class="filter-buttons">
+      <button class="filter-btn active" data-category="all">All</button>
+      {{- $categories := slice -}}
+      {{- range .Pages -}}
+        {{- if .Params.category -}}
+          {{- $categories = $categories | append .Params.category -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $uniqueCategories := uniq $categories -}}
+      {{- range $uniqueCategories -}}
+      <button class="filter-btn" data-category="{{ . }}">
+        {{- if eq . "fundamentals" }}Fundamentals
+        {{- else if eq . "technical" }}Technical Analysis
+        {{- else if eq . "derivatives" }}Derivatives
+        {{- else if eq . "risk-management" }}Risk Management
+        {{- else if eq . "risk" }}Risk Management
+        {{- else if eq . "advanced" }}Advanced
+        {{- else if eq . "strategies" }}Strategies
+        {{- else if eq . "sentiment" }}Sentiment
+        {{- else if eq . "psychology" }}Psychology
+        {{- else if eq . "on-chain" }}On-Chain
+        {{- else }}{{ . | title }}
+        {{- end -}}
+      </button>
+      {{- end }}
+    </div>
+    <div class="filter-count"><span id="article-count">{{ len .Pages }}</span> articles</div>
+  </div>
+
+  <!-- Search Box -->
+  <div class="search-box">
+    <input type="text" id="article-search" placeholder="Search articles..." class="search-input" />
+    <span class="search-icon">🔍</span>
+  </div>
+
+  <section class="articles-grid" id="articles-grid">
     {{ range .Pages.ByDate.Reverse }}
-    <a href="{{ .Permalink }}" class="article-card">
+    <a href="{{ .Permalink }}" class="article-card" data-category="{{ .Params.category | default "uncategorized" }}" data-title="{{ .Title | lower }}" data-tags="{{ delimit .Params.tags " " | lower }}">
       <div class="article-icon">
         {{/* Use frontmatter icon if available, otherwise match by title */}}
         {{ if .Params.icon }}
@@ -58,4 +96,63 @@
     </div>
   </section>
 </div>
+
+<script>
+(function() {
+  'use strict';
+
+  var filterButtons = document.querySelectorAll('.filter-btn');
+  var searchInput = document.getElementById('article-search');
+  var articleCards = document.querySelectorAll('.article-card');
+  var articleCount = document.getElementById('article-count');
+  var currentCategory = 'all';
+  var currentSearch = '';
+
+  // Filter by category
+  filterButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      filterButtons.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      currentCategory = this.dataset.category;
+      filterArticles();
+    });
+  });
+
+  // Search filter
+  searchInput.addEventListener('input', function() {
+    currentSearch = this.value.toLowerCase().trim();
+    filterArticles();
+  });
+
+  function filterArticles() {
+    var visibleCount = 0;
+
+    articleCards.forEach(function(card) {
+      var category = card.dataset.category;
+      var title = card.dataset.title;
+      var tags = card.dataset.tags;
+
+      // Category match (treat 'risk' and 'risk-management' as same)
+      var categoryMatch = currentCategory === 'all' ||
+        category === currentCategory ||
+        (currentCategory === 'risk-management' && category === 'risk') ||
+        (currentCategory === 'risk' && category === 'risk-management');
+
+      // Search match
+      var searchMatch = currentSearch === '' ||
+        title.indexOf(currentSearch) !== -1 ||
+        tags.indexOf(currentSearch) !== -1;
+
+      if (categoryMatch && searchMatch) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    articleCount.textContent = visibleCount;
+  }
+})();
+</script>
 {{ end }}
