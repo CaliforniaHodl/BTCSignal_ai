@@ -1,0 +1,749 @@
+// =====================================================
+// FREE TOOLS - Shared styles for free tool pages
+// =====================================================
+
+@import 'shared/variables';
+
+.free-tool-page {
+  padding: $spacing-xl 0;
+  min-height: 100vh;
+  background: var(--bg-dark);
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+  }
+}
+
+// Page Header
+.tool-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+
+  h1 {
+    color: var(--text-primary);
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    margin-bottom: $spacing-sm;
+
+    @media (max-width: $breakpoint-md) {
+      font-size: $font-2xl;
+    }
+  }
+
+  .tool-subtitle {
+    color: var(--text-secondary);
+    font-size: $font-lg;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+// Free Badge
+.free-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: $spacing-md;
+}
+
+// Card
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+
+  h2 {
+    color: var(--text-primary);
+    font-size: $font-xl;
+    font-weight: $font-semibold;
+    margin-bottom: $spacing-md;
+  }
+
+  h3 {
+    color: var(--text-primary);
+    font-size: $font-lg;
+    font-weight: $font-semibold;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+// Form Controls
+.form-group {
+  margin-bottom: $spacing-md;
+
+  label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    font-weight: $font-medium;
+    margin-bottom: $spacing-xs;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-size: $font-base;
+  transition: border-color $transition-base;
+
+  &:focus {
+    outline: none;
+    border-color: $bitcoin-orange;
+  }
+
+  &::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-lg;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-base;
+  font-weight: $font-semibold;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, $bitcoin-orange 0%, darken($bitcoin-orange, 10%) 100%);
+  color: #000;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba($bitcoin-orange, 0.4);
+  }
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.preset-buttons {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.preset-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: $spacing-xs $spacing-sm;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  font-size: $font-xs;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: $bitcoin-orange;
+    color: $bitcoin-orange;
+  }
+}
+
+// =====================================================
+// DCA CALCULATOR
+// =====================================================
+
+.dca-calculator-page {
+  .calculator-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+  }
+
+  .result-item {
+    background: var(--bg-dark);
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    text-align: center;
+  }
+
+  .result-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-xs;
+    margin-bottom: $spacing-xs;
+  }
+
+  .result-value {
+    display: block;
+    color: var(--text-primary);
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    font-family: monospace;
+
+    &.highlight {
+      color: $bitcoin-orange;
+      font-size: $font-xl;
+    }
+
+    &.btc {
+      color: $bitcoin-orange;
+    }
+
+    &.positive {
+      color: $bullish;
+    }
+
+    &.negative {
+      color: $bearish;
+    }
+  }
+
+  .comparison-section {
+    margin-top: $spacing-lg;
+    padding-top: $spacing-lg;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+  }
+
+  .comparison-item {
+    background: var(--bg-dark);
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    text-align: center;
+  }
+
+  .comp-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-xs;
+    margin-bottom: $spacing-xs;
+  }
+
+  .comp-value {
+    display: block;
+    color: var(--text-primary);
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    font-family: monospace;
+
+    &.positive {
+      color: $bullish;
+    }
+
+    &.negative {
+      color: $bearish;
+    }
+  }
+
+  .chart-section {
+    margin-bottom: $spacing-lg;
+  }
+
+  .chart-container {
+    height: 400px;
+    margin-bottom: $spacing-md;
+
+    @media (max-width: $breakpoint-md) {
+      height: 300px;
+    }
+  }
+
+  .chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+
+    &.btc-price {
+      background: $bitcoin-orange;
+    }
+
+    &.portfolio {
+      background: $bullish;
+    }
+
+    &.invested {
+      background: #6b7280;
+    }
+  }
+}
+
+// Education Section
+.education-section {
+  margin-bottom: $spacing-lg;
+
+  .education-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .education-item {
+    text-align: center;
+    padding: $spacing-md;
+
+    .edu-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: $spacing-sm;
+    }
+
+    h3 {
+      margin-bottom: $spacing-xs;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+// CTA Section
+.cta-section {
+  text-align: center;
+  padding: $spacing-2xl;
+  background: linear-gradient(135deg, rgba($bitcoin-orange, 0.1) 0%, rgba($bitcoin-orange, 0.05) 100%);
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+
+  h2 {
+    color: var(--text-primary);
+    font-size: $font-xl;
+    margin-bottom: $spacing-sm;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-lg;
+  }
+}
+
+// =====================================================
+// FEE ESTIMATOR
+// =====================================================
+
+.fee-estimator-page {
+  .fee-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .fee-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-lg;
+    padding: $spacing-lg;
+    text-align: center;
+    transition: all $transition-base;
+
+    &.fastest {
+      border-color: $bullish;
+    }
+
+    &.medium {
+      border-color: $bitcoin-orange;
+    }
+
+    &.slow {
+      border-color: var(--text-secondary);
+    }
+  }
+
+  .fee-priority {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: $spacing-xs;
+  }
+
+  .fee-value {
+    display: block;
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+    font-family: monospace;
+    margin-bottom: $spacing-xs;
+  }
+
+  .fee-unit {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-xs;
+  }
+
+  .fee-time {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    margin-top: $spacing-sm;
+  }
+
+  .fee-cost {
+    display: block;
+    color: $bitcoin-orange;
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    margin-top: $spacing-xs;
+  }
+
+  .mempool-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .mempool-stat {
+    background: var(--bg-dark);
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    text-align: center;
+  }
+
+  .stat-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: $font-xs;
+    margin-bottom: $spacing-xs;
+  }
+
+  .stat-value {
+    display: block;
+    color: var(--text-primary);
+    font-size: $font-lg;
+    font-weight: $font-bold;
+    font-family: monospace;
+  }
+
+  .calculator-card {
+    margin-bottom: $spacing-lg;
+  }
+
+  .calc-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+    flex-wrap: wrap;
+
+    label {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+      white-space: nowrap;
+    }
+
+    input {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .result {
+      color: $bitcoin-orange;
+      font-weight: $font-bold;
+      font-family: monospace;
+    }
+  }
+
+  .recommendation {
+    background: linear-gradient(135deg, rgba($bullish, 0.1) 0%, rgba($bullish, 0.05) 100%);
+    border: 1px solid rgba($bullish, 0.3);
+    border-radius: $radius-md;
+    padding: $spacing-md;
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+
+    .rec-icon {
+      font-size: 1.5rem;
+    }
+
+    .rec-text {
+      flex: 1;
+
+      strong {
+        display: block;
+        color: $bullish;
+        margin-bottom: $spacing-xs;
+      }
+
+      span {
+        color: var(--text-secondary);
+        font-size: $font-sm;
+      }
+    }
+  }
+}
+
+// =====================================================
+// SATS CONVERTER
+// =====================================================
+
+.sats-converter-page {
+  .converter-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .converter-card {
+    h2 {
+      margin-bottom: $spacing-lg;
+    }
+  }
+
+  .conversion-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+
+    .currency-label {
+      min-width: 60px;
+      color: var(--text-secondary);
+      font-weight: $font-medium;
+    }
+
+    input {
+      flex: 1;
+      font-size: $font-lg;
+      padding: $spacing-md;
+    }
+  }
+
+  .swap-icon {
+    display: flex;
+    justify-content: center;
+    padding: $spacing-md;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+  }
+
+  .live-price {
+    text-align: center;
+    padding: $spacing-md;
+    background: var(--bg-dark);
+    border-radius: $radius-md;
+    margin-top: $spacing-md;
+
+    .price-label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: $font-xs;
+      margin-bottom: $spacing-xs;
+    }
+
+    .price-value {
+      color: $bitcoin-orange;
+      font-size: $font-xl;
+      font-weight: $font-bold;
+      font-family: monospace;
+    }
+  }
+
+  .stack-tracker {
+    h3 {
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  .stack-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .stack-list {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: $spacing-md;
+  }
+
+  .stack-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-sm;
+    background: var(--bg-dark);
+    border-radius: $radius-sm;
+    margin-bottom: $spacing-xs;
+    font-size: $font-sm;
+
+    .stack-date {
+      color: var(--text-secondary);
+    }
+
+    .stack-amount {
+      color: $bitcoin-orange;
+      font-family: monospace;
+    }
+
+    .stack-price {
+      color: var(--text-secondary);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: $bearish;
+      cursor: pointer;
+      padding: $spacing-xs;
+    }
+  }
+
+  .stack-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+    padding-top: $spacing-md;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .summary-item {
+    text-align: center;
+
+    .sum-label {
+      display: block;
+      color: var(--text-secondary);
+      font-size: $font-xs;
+      margin-bottom: $spacing-xs;
+    }
+
+    .sum-value {
+      color: var(--text-primary);
+      font-size: $font-lg;
+      font-weight: $font-bold;
+      font-family: monospace;
+
+      &.positive {
+        color: $bullish;
+      }
+
+      &.negative {
+        color: $bearish;
+      }
+    }
+  }
+
+  .fun-stats {
+    margin-top: $spacing-lg;
+  }
+
+  .fun-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .fun-stat {
+    background: var(--bg-dark);
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    text-align: center;
+
+    .fun-icon {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: $spacing-xs;
+    }
+
+    .fun-value {
+      display: block;
+      color: $bitcoin-orange;
+      font-size: $font-lg;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-xs;
+    }
+
+    .fun-label {
+      color: var(--text-secondary);
+      font-size: $font-xs;
+    }
+  }
+}

@@ -26,7 +26,19 @@
           <li role="none"><a href="/" role="menuitem">Home</a></li>
           <li role="none"><a href="/posts/" role="menuitem">Analysis</a></li>
           <li role="none"><a href="/how-it-works/" role="menuitem">How It Works</a></li>
-          <li role="none"><a href="/learn/" role="menuitem">Learn</a></li>
+          <li class="nav-dropdown" role="none">
+            <button class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="free-tools-menu" role="menuitem">
+              Free Tools
+              <span class="sr-only">, submenu</span>
+            </button>
+            <ul class="dropdown-menu" id="free-tools-menu" role="menu" aria-label="Free Tools submenu">
+              <li role="none"><a href="/dca-calculator/" role="menuitem"><span aria-hidden="true">🧮</span> DCA Calculator</a></li>
+              <li role="none"><a href="/fee-estimator/" role="menuitem"><span aria-hidden="true">⚡</span> Fee Estimator</a></li>
+              <li role="none"><a href="/sats-converter/" role="menuitem"><span aria-hidden="true">💰</span> Sats Converter</a></li>
+              <li role="none"><a href="/learn/" role="menuitem"><span aria-hidden="true">📚</span> Learn Hub</a></li>
+              <li role="none"><a href="/learn/glossary/" role="menuitem"><span aria-hidden="true">📖</span> Glossary</a></li>
+            </ul>
+          </li>
           <li class="nav-dropdown" role="none">
             <button class="dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="pro-tools-menu" role="menuitem">
               Pro Tools
@@ -122,81 +134,101 @@
     }
   })();
 
-  // Accessible dropdown menu with keyboard support
+  // Accessible dropdown menu with keyboard support (handles multiple dropdowns)
   (function() {
-    var dropdown = document.querySelector('.nav-dropdown');
-    var toggle = dropdown ? dropdown.querySelector('.dropdown-toggle') : null;
-    var menu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
+    var dropdowns = document.querySelectorAll('.nav-dropdown');
 
-    if (!toggle || !menu) return;
+    dropdowns.forEach(function(dropdown) {
+      var toggle = dropdown.querySelector('.dropdown-toggle');
+      var menu = dropdown.querySelector('.dropdown-menu');
 
-    var menuItems = menu.querySelectorAll('a[role="menuitem"]');
-    var isOpen = false;
+      if (!toggle || !menu) return;
 
-    function openMenu() {
-      isOpen = true;
-      toggle.setAttribute('aria-expanded', 'true');
-      dropdown.classList.add('is-open');
-    }
+      var menuItems = menu.querySelectorAll('a[role="menuitem"]');
 
-    function closeMenu() {
-      isOpen = false;
-      toggle.setAttribute('aria-expanded', 'false');
-      dropdown.classList.remove('is-open');
-    }
-
-    // Toggle on click/Enter/Space
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
-        menuItems[0].focus();
+      function openMenu() {
+        // Close other dropdowns first
+        dropdowns.forEach(function(d) {
+          if (d !== dropdown) {
+            d.classList.remove('is-open');
+            var t = d.querySelector('.dropdown-toggle');
+            if (t) t.setAttribute('aria-expanded', 'false');
+          }
+        });
+        toggle.setAttribute('aria-expanded', 'true');
+        dropdown.classList.add('is-open');
       }
-    });
 
-    toggle.addEventListener('keydown', function(e) {
-      if (e.key === 'ArrowDown' || e.key === 'Down') {
+      function closeMenu() {
+        toggle.setAttribute('aria-expanded', 'false');
+        dropdown.classList.remove('is-open');
+      }
+
+      function isOpen() {
+        return dropdown.classList.contains('is-open');
+      }
+
+      // Toggle on click/Enter/Space
+      toggle.addEventListener('click', function(e) {
         e.preventDefault();
-        openMenu();
-        menuItems[0].focus();
-      } else if (e.key === 'Escape' || e.key === 'Esc') {
-        closeMenu();
-        toggle.focus();
-      }
-    });
+        if (isOpen()) {
+          closeMenu();
+        } else {
+          openMenu();
+          if (menuItems.length > 0) menuItems[0].focus();
+        }
+      });
 
-    // Keyboard navigation within menu
-    menuItems.forEach(function(item, index) {
-      item.addEventListener('keydown', function(e) {
+      toggle.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowDown' || e.key === 'Down') {
           e.preventDefault();
-          menuItems[(index + 1) % menuItems.length].focus();
-        } else if (e.key === 'ArrowUp' || e.key === 'Up') {
-          e.preventDefault();
-          menuItems[(index - 1 + menuItems.length) % menuItems.length].focus();
+          openMenu();
+          if (menuItems.length > 0) menuItems[0].focus();
         } else if (e.key === 'Escape' || e.key === 'Esc') {
           closeMenu();
           toggle.focus();
-        } else if (e.key === 'Tab') {
-          closeMenu();
+        }
+      });
+
+      // Keyboard navigation within menu
+      menuItems.forEach(function(item, index) {
+        item.addEventListener('keydown', function(e) {
+          if (e.key === 'ArrowDown' || e.key === 'Down') {
+            e.preventDefault();
+            menuItems[(index + 1) % menuItems.length].focus();
+          } else if (e.key === 'ArrowUp' || e.key === 'Up') {
+            e.preventDefault();
+            menuItems[(index - 1 + menuItems.length) % menuItems.length].focus();
+          } else if (e.key === 'Escape' || e.key === 'Esc') {
+            closeMenu();
+            toggle.focus();
+          } else if (e.key === 'Tab') {
+            closeMenu();
+          }
+        });
+      });
+    });
+
+    // Close all dropdowns on click outside
+    document.addEventListener('click', function(e) {
+      dropdowns.forEach(function(dropdown) {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove('is-open');
+          var toggle = dropdown.querySelector('.dropdown-toggle');
+          if (toggle) toggle.setAttribute('aria-expanded', 'false');
         }
       });
     });
 
-    // Close on click outside
-    document.addEventListener('click', function(e) {
-      if (!dropdown.contains(e.target)) {
-        closeMenu();
-      }
-    });
-
-    // Close on focus outside
+    // Close all dropdowns on focus outside
     document.addEventListener('focusin', function(e) {
-      if (!dropdown.contains(e.target)) {
-        closeMenu();
-      }
+      dropdowns.forEach(function(dropdown) {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove('is-open');
+          var toggle = dropdown.querySelector('.dropdown-toggle');
+          if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
     });
   })();
 

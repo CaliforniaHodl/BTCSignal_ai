@@ -28,7 +28,21 @@
       <li><a href="/">Home</a></li>
       <li><a href="/posts/">Analysis</a></li>
       <li><a href="/how-it-works/">How It Works</a></li>
-      <li><a href="/learn/">Learn</a></li>
+      <li class="mobile-dropdown">
+        <button class="mobile-dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="mobile-free-tools-menu">
+          Free Tools
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" height="14" width="14">
+            <path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/>
+          </svg>
+        </button>
+        <ul id="mobile-free-tools-menu" class="mobile-dropdown-menu d-none" role="menu">
+          <li><a href="/dca-calculator/"><span>🧮</span> DCA Calculator</a></li>
+          <li><a href="/fee-estimator/"><span>⚡</span> Fee Estimator</a></li>
+          <li><a href="/sats-converter/"><span>💰</span> Sats Converter</a></li>
+          <li><a href="/learn/"><span>📚</span> Learn Hub</a></li>
+          <li><a href="/learn/glossary/"><span>📖</span> Glossary</a></li>
+        </ul>
+      </li>
       <li class="mobile-dropdown">
         <button class="mobile-dropdown-toggle" aria-expanded="false" aria-haspopup="true" aria-controls="mobile-pro-tools-menu">
           Pro Tools
@@ -98,17 +112,34 @@
     }
   });
 
-  // Pro Tools dropdown toggle
-  var dropdownToggle = document.querySelector('.mobile-dropdown-toggle');
-  var dropdownMenu = document.querySelector('.mobile-dropdown-menu');
+  // Dropdown toggles for all mobile dropdowns
+  var dropdownToggles = document.querySelectorAll('.mobile-dropdown-toggle');
 
-  if (dropdownToggle && dropdownMenu) {
-    dropdownToggle.addEventListener('click', function(e) {
+  dropdownToggles.forEach(function(toggle) {
+    toggle.addEventListener('click', function(e) {
       e.preventDefault();
-      dropdownMenu.classList.toggle('d-none');
-      dropdownToggle.classList.toggle('active');
+      var menuId = toggle.getAttribute('aria-controls');
+      var menu = document.getElementById(menuId);
+
+      if (menu) {
+        // Close other dropdowns
+        dropdownToggles.forEach(function(otherToggle) {
+          if (otherToggle !== toggle) {
+            var otherId = otherToggle.getAttribute('aria-controls');
+            var otherMenu = document.getElementById(otherId);
+            if (otherMenu) otherMenu.classList.add('d-none');
+            otherToggle.classList.remove('active');
+            otherToggle.setAttribute('aria-expanded', 'false');
+          }
+        });
+
+        // Toggle current dropdown
+        menu.classList.toggle('d-none');
+        toggle.classList.toggle('active');
+        toggle.setAttribute('aria-expanded', menu.classList.contains('d-none') ? 'false' : 'true');
+      }
     });
-  }
+  });
 
   // Close menu when clicking a link
   var navLinks = document.querySelectorAll('#mobile-nav a');

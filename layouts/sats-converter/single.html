@@ -1,0 +1,143 @@
+{{ define "main" }}
+<div class="free-tool-page sats-converter-page">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="tool-header">
+      <div class="tool-badge free-badge">Free Tool</div>
+      <h1>💰 Sats Converter</h1>
+      <p class="tool-subtitle">Convert between Bitcoin, Satoshis, and USD instantly</p>
+    </div>
+
+    <!-- Converter Section -->
+    <div class="converter-section">
+      <!-- Converter Card -->
+      <div class="card converter-card">
+        <h2>Quick Convert</h2>
+
+        <div class="conversion-row">
+          <span class="currency-label">USD</span>
+          <input type="number" id="usd-input" class="form-control" placeholder="0.00" step="0.01" />
+        </div>
+
+        <div class="swap-icon">⇅</div>
+
+        <div class="conversion-row">
+          <span class="currency-label">BTC</span>
+          <input type="number" id="btc-input" class="form-control" placeholder="0.00000000" step="0.00000001" />
+        </div>
+
+        <div class="swap-icon">⇅</div>
+
+        <div class="conversion-row">
+          <span class="currency-label">SATS</span>
+          <input type="number" id="sats-input" class="form-control" placeholder="0" step="1" />
+        </div>
+
+        <div class="live-price">
+          <span class="price-label">Live BTC Price</span>
+          <span class="price-value" id="live-price">$--</span>
+        </div>
+      </div>
+
+      <!-- Stack Tracker -->
+      <div class="card">
+        <h2>Stack Tracker</h2>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+          Track your Bitcoin purchases and see your stack grow. Data is stored locally in your browser.
+        </p>
+
+        <div class="stack-tracker">
+          <div class="stack-input-row">
+            <input type="date" id="purchase-date" class="form-control" />
+            <input type="number" id="purchase-amount" class="form-control" placeholder="Sats" step="1" />
+            <input type="number" id="purchase-price" class="form-control" placeholder="Price $" step="0.01" />
+            <button id="add-purchase" class="btn btn-primary">Add</button>
+          </div>
+
+          <div class="stack-list" id="stack-list">
+            <!-- Purchases will be listed here -->
+          </div>
+
+          <div class="stack-summary">
+            <div class="summary-item">
+              <span class="sum-label">Total Stack</span>
+              <span class="sum-value" id="total-stack">0 sats</span>
+            </div>
+            <div class="summary-item">
+              <span class="sum-label">Total Invested</span>
+              <span class="sum-value" id="total-invested">$0</span>
+            </div>
+            <div class="summary-item">
+              <span class="sum-label">Current Value</span>
+              <span class="sum-value" id="current-value">$0</span>
+            </div>
+            <div class="summary-item">
+              <span class="sum-label">Unrealized P&L</span>
+              <span class="sum-value" id="pnl">$0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fun Stats -->
+    <div class="card fun-stats">
+      <h2>Fun Stats</h2>
+      <div class="fun-stat-grid">
+        <div class="fun-stat">
+          <span class="fun-icon">🎯</span>
+          <span class="fun-value" id="btc-percent">0%</span>
+          <span class="fun-label">of 1 BTC owned</span>
+        </div>
+        <div class="fun-stat">
+          <span class="fun-icon">🌍</span>
+          <span class="fun-value" id="world-rank">Top --</span>
+          <span class="fun-label">% of world population*</span>
+        </div>
+        <div class="fun-stat">
+          <span class="fun-icon">📅</span>
+          <span class="fun-value" id="days-to-coin">-- days</span>
+          <span class="fun-label">to 1 BTC at current rate**</span>
+        </div>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 0.75rem; text-align: center; margin-top: 1rem;">
+        * Based on BTC distribution estimates. ** Assumes consistent DCA at current rate.
+      </p>
+    </div>
+
+    <!-- Educational Section -->
+    <div class="education-section card">
+      <h2>Bitcoin Units Explained</h2>
+      <div class="education-grid">
+        <div class="education-item">
+          <span class="edu-icon">₿</span>
+          <h3>Bitcoin (BTC)</h3>
+          <p>The standard unit. There will only ever be 21 million Bitcoin in existence.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">⚡</span>
+          <h3>Satoshi (sat)</h3>
+          <p>The smallest unit of Bitcoin. 1 BTC = 100,000,000 sats. Named after Bitcoin's creator.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">💎</span>
+          <h3>Stack Sats</h3>
+          <p>"Stacking sats" means accumulating small amounts of Bitcoin over time. Every sat counts!</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">🔢</span>
+          <h3>Why Sats?</h3>
+          <p>As Bitcoin's value grows, pricing in sats makes transactions more intuitive. 10,000 sats feels better than 0.0001 BTC.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <h2>Ready to Level Up Your Bitcoin Game?</h2>
+      <p>Get professional trading tools, signals, and market analysis with our Pro Tools.</p>
+      <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
+    </div>
+  </div>
+</div>
+{{ end }}

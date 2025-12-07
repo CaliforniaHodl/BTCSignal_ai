@@ -1,0 +1,153 @@
+{{ define "main" }}
+<div class="free-tool-page dca-calculator-page">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="tool-header">
+      <div class="tool-badge free-badge">Free Tool</div>
+      <h1>🧮 Bitcoin DCA Calculator</h1>
+      <p class="tool-subtitle">See how dollar cost averaging into Bitcoin would have performed with real historical data</p>
+    </div>
+
+    <!-- Calculator Section -->
+    <div class="calculator-section">
+      <div class="calculator-grid">
+        <!-- Input Panel -->
+        <div class="input-panel card">
+          <h2>Configure Your DCA</h2>
+
+          <div class="form-group">
+            <label for="start-date">Start Date</label>
+            <input type="date" id="start-date" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label for="end-date">End Date</label>
+            <input type="date" id="end-date" class="form-control" />
+          </div>
+
+          <div class="form-group">
+            <label for="frequency">Purchase Frequency</label>
+            <select id="frequency" class="form-control">
+              <option value="daily">Daily</option>
+              <option value="weekly" selected>Weekly</option>
+              <option value="biweekly">Bi-weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="amount">Amount per Purchase ($)</label>
+            <input type="number" id="amount" class="form-control" value="100" min="1" step="1" />
+          </div>
+
+          <div class="preset-buttons">
+            <button class="preset-btn" data-preset="1y">Last 1 Year</button>
+            <button class="preset-btn" data-preset="4y">Last 4 Years</button>
+            <button class="preset-btn" data-preset="2020">Since 2020</button>
+          </div>
+
+          <button id="calculate-btn" class="btn btn-primary btn-block">
+            Calculate Returns
+          </button>
+        </div>
+
+        <!-- Results Panel -->
+        <div class="results-panel card">
+          <h2>Results</h2>
+
+          <div class="results-grid" id="results-grid">
+            <div class="result-item">
+              <span class="result-label">Total Invested</span>
+              <span class="result-value" id="total-invested">$0</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Current Value</span>
+              <span class="result-value highlight" id="current-value">$0</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Total BTC</span>
+              <span class="result-value btc" id="total-btc">0 BTC</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Average Cost</span>
+              <span class="result-value" id="avg-cost">$0</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">ROI</span>
+              <span class="result-value" id="roi">0%</span>
+            </div>
+            <div class="result-item">
+              <span class="result-label">Purchases Made</span>
+              <span class="result-value" id="purchases">0</span>
+            </div>
+          </div>
+
+          <!-- Lump Sum Comparison -->
+          <div class="comparison-section" id="comparison-section" style="display: none;">
+            <h3>vs Lump Sum Investment</h3>
+            <div class="comparison-grid">
+              <div class="comparison-item">
+                <span class="comp-label">If invested all at start</span>
+                <span class="comp-value" id="lump-sum-value">$0</span>
+              </div>
+              <div class="comparison-item">
+                <span class="comp-label">DCA Advantage</span>
+                <span class="comp-value" id="dca-advantage">$0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div class="chart-section card">
+        <h2>Portfolio Growth</h2>
+        <div class="chart-container">
+          <canvas id="dca-chart"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot btc-price"></span> BTC Price</span>
+          <span class="legend-item"><span class="legend-dot portfolio"></span> Portfolio Value</span>
+          <span class="legend-item"><span class="legend-dot invested"></span> Total Invested</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Educational Section -->
+    <div class="education-section card">
+      <h2>What is Dollar Cost Averaging?</h2>
+      <div class="education-grid">
+        <div class="education-item">
+          <span class="edu-icon">📅</span>
+          <h3>Regular Investments</h3>
+          <p>DCA involves investing a fixed amount at regular intervals, regardless of price. This removes the stress of timing the market.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">📉</span>
+          <h3>Buy More When Low</h3>
+          <p>When prices drop, your fixed amount buys more Bitcoin. This automatically lowers your average cost over time.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">🧘</span>
+          <h3>Emotional Discipline</h3>
+          <p>DCA removes emotional decision-making. You invest consistently through bull and bear markets alike.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon">🏆</span>
+          <h3>Historically Effective</h3>
+          <p>Over any 4+ year period in Bitcoin's history, DCA investors have seen positive returns.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <h2>Ready to Start Your Bitcoin Journey?</h2>
+      <p>Learn more about Bitcoin trading strategies and market analysis with our Pro Tools.</p>
+      <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ end }}
