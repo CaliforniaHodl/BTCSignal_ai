@@ -875,123 +875,138 @@ jobs:
 
 ---
 
-### Phase 9: Raspberry Pi 5 Server (Self-Hosted Backend)
-*Goal: Set up a dedicated Pi 5 server for user database, session validation, and analytics*
-*Priority: Medium (enables true backend without cloud costs)*
-*Teaching focus: Step-by-step for front-end developers learning backend*
+### Phase 9: Turso Database + Analytics ⏳ PENDING
+*Goal: Real database for access records, sessions, and analytics*
+*Priority: HIGH (enables tracking Phase 8.5 free tools conversion)*
+*Timeline: 1-2 days*
 
 **The Why:**
 - Currently using GitHub API for access records (limited, rate-limited)
 - No real database = no analytics, no session management
-- Netlify functions are stateless = can't track users across requests
-- Pi 5 (8GB) is powerful enough for SQLite + API server
-- Self-hosted = no monthly cloud bills, full control
+- Need to track free tools usage → Pro conversion
+- Turso = SQLite at the edge, generous free tier, works with Netlify
 
-**Hardware:**
-- Raspberry Pi 5 (8GB RAM)
-- MicroSD card (64GB+) or NVMe SSD (recommended)
-- Power supply (27W USB-C)
-- Ethernet cable (recommended for server)
+**Why Turso (not self-hosted Pi):**
+- 10 min setup vs days of infrastructure
+- Edge-distributed (fast globally)
+- Free tier: 9GB storage, 500M row reads/month
+- SQLite syntax (familiar)
+- No hardware to maintain, no uptime concerns
 
-**Sprint 1: Ubuntu 24 LTS Setup** ⏳ PENDING
-- [ ] Download Ubuntu 24.04 LTS Desktop for Raspberry Pi
-- [ ] Flash to microSD using Raspberry Pi Imager
-- [ ] Initial boot and system configuration
-- [ ] Update system packages (`apt update && apt upgrade`)
-- [ ] Configure static IP address
-- [ ] Set up SSH for headless access
-- [ ] Create non-root user for services
+---
 
-**Sprint 2: Tailscale VPN Setup** ⏳ PENDING
-- [ ] Install Tailscale (`curl -fsSL https://tailscale.com/install.sh | sh`)
-- [ ] Authenticate and join your tailnet
-- [ ] Enable MagicDNS for easy hostname access
-- [ ] Test connection from other devices on tailnet
-- [ ] Configure Tailscale to start on boot
-- [ ] Set up exit node (optional - route traffic through Pi)
+**Sprint 1: Turso Setup** ⏳ PENDING
+- [ ] Create Turso account (turso.tech)
+- [ ] Install Turso CLI (`brew install tursodatabase/tap/turso`)
+- [ ] Create database: `turso db create btcsignal`
+- [ ] Get connection URL and auth token
+- [ ] Add to Netlify environment variables:
+  - `TURSO_DATABASE_URL`
+  - `TURSO_AUTH_TOKEN`
 
-**Sprint 3: Pi-hole DNS Filtering** ⏳ PENDING
-- [ ] Install Pi-hole (`curl -sSL https://install.pi-hole.net | bash`)
-- [ ] Configure upstream DNS (Cloudflare 1.1.1.1 or Quad9)
-- [ ] Add custom blocklists for ad/tracker blocking
-- [ ] Set Pi as DNS server for tailnet devices
-- [ ] Access Pi-hole admin dashboard
-- [ ] Review query logs and blocked domains
+**Sprint 2: Database Schema** ⏳ PENDING
+- [ ] Create tables via Turso CLI or shell:
+```sql
+-- Access records (replaces GitHub JSON)
+CREATE TABLE access_records (
+  id INTEGER PRIMARY KEY,
+  recovery_code TEXT UNIQUE NOT NULL,
+  payment_hash TEXT,
+  tier TEXT NOT NULL,
+  amount_sats INTEGER,
+  purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  recovery_count INTEGER DEFAULT 0,
+  last_recovery DATETIME,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-**Sprint 4: Caddy Reverse Proxy** ⏳ PENDING
-- [ ] Install Caddy (`apt install caddy`)
-- [ ] Configure Caddyfile for local services
-- [ ] Set up automatic HTTPS with Tailscale certs
-- [ ] Create reverse proxy rules for:
-  - `/api/*` → Node.js API server
-  - `/admin/*` → Pi-hole dashboard
-- [ ] Test SSL/TLS configuration
-- [ ] Enable access logging
+-- Session tokens
+CREATE TABLE sessions (
+  id INTEGER PRIMARY KEY,
+  recovery_code TEXT NOT NULL,
+  session_token TEXT UNIQUE NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  ip_hash TEXT,
+  user_agent TEXT
+);
 
-**Sprint 5: SQLite Database Setup** ⏳ PENDING
-- [ ] Install SQLite3 (`apt install sqlite3`)
-- [ ] Design database schema:
-  ```sql
-  -- Access records (replaces GitHub JSON)
-  CREATE TABLE access_records (
-    id INTEGER PRIMARY KEY,
-    recovery_code TEXT UNIQUE NOT NULL,
-    payment_hash TEXT,
-    tier TEXT NOT NULL,
-    amount_sats INTEGER,
-    purchased_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME NOT NULL,
-    recovery_count INTEGER DEFAULT 0,
-    last_recovery DATETIME,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  );
+-- Analytics (privacy-respecting)
+CREATE TABLE page_views (
+  id INTEGER PRIMARY KEY,
+  page_path TEXT NOT NULL,
+  visitor_hash TEXT NOT NULL,
+  viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  referrer TEXT,
+  tool_name TEXT
+);
 
-  -- Session tokens
-  CREATE TABLE sessions (
-    id INTEGER PRIMARY KEY,
-    recovery_code TEXT NOT NULL,
-    session_token TEXT UNIQUE NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    expires_at DATETIME NOT NULL,
-    ip_hash TEXT,
-    user_agent TEXT
-  );
+-- Free tool usage tracking
+CREATE TABLE tool_usage (
+  id INTEGER PRIMARY KEY,
+  tool_name TEXT NOT NULL,
+  visitor_hash TEXT NOT NULL,
+  used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  session_id TEXT
+);
 
-  -- Analytics (privacy-respecting)
-  CREATE TABLE page_views (
-    id INTEGER PRIMARY KEY,
-    page_path TEXT NOT NULL,
-    visitor_hash TEXT NOT NULL,  -- SHA256(IP + daily_salt)
-    viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    referrer TEXT,
-    user_agent TEXT
-  );
+-- Conversion funnel
+CREATE TABLE conversions (
+  id INTEGER PRIMARY KEY,
+  visitor_hash TEXT NOT NULL,
+  from_tool TEXT,
+  to_tier TEXT NOT NULL,
+  converted_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
 
-  -- Daily salt for IP hashing (rotates daily)
-  CREATE TABLE daily_salt (
-    date TEXT PRIMARY KEY,
-    salt TEXT NOT NULL
-  );
-  ```
-- [ ] Create database file with proper permissions
-- [ ] Test basic CRUD operations
-- [ ] Set up daily backup script
+**Sprint 3: Migrate Access Records** ⏳ PENDING
+- [ ] Export existing access records from GitHub API
+- [ ] Write migration script to insert into Turso
+- [ ] Update Netlify functions to use Turso:
+  - `store-access.js` → INSERT to Turso
+  - `recover-access.js` → SELECT from Turso
+  - `check-payment.js` → UPDATE in Turso
+- [ ] Install `@libsql/client` in Netlify functions
+- [ ] Test full payment → recovery flow
 
-**Sprint 6: Node.js API Server** ⏳ PENDING
-- [ ] Install Node.js 20 LTS (`apt install nodejs npm`)
-- [ ] Create Express.js API project
-- [ ] Implement endpoints:
-  - `POST /api/store-access` - Store new access record
-  - `POST /api/recover-access` - Validate recovery code
-  - `POST /api/validate-session` - Check session validity
-  - `POST /api/track-pageview` - Log analytics (hashed IP)
-  - `GET /api/analytics/summary` - Return aggregated stats
-- [ ] Add rate limiting middleware
-- [ ] Add CORS configuration for btcsignal.ai
-- [ ] Set up PM2 for process management
-- [ ] Configure systemd service for auto-start
+**Sprint 4: Analytics Tracking** ⏳ PENDING
+- [ ] Create `track-pageview.js` Netlify function
+- [ ] Create `track-tool-usage.js` Netlify function
+- [ ] Add lightweight tracking to free tools (no external scripts)
+- [ ] Hash IP addresses for privacy (SHA256 + daily rotation)
+- [ ] Track: page views, tool opens, time on page
 
-**Sprint 7: Cloudflare Tunnel (Optional)** ⏳ PENDING
+**Sprint 5: Analytics Dashboard** ⏳ PENDING
+- [ ] Create `/admin/analytics/` page (protected)
+- [ ] Show metrics:
+  - Daily/weekly/monthly visitors
+  - Most used free tools
+  - Free → Pro conversion rate
+  - Popular learn articles
+  - Referrer sources
+- [ ] Simple charts with Chart.js
+
+---
+
+**Success Metrics:**
+| Metric | Target |
+|--------|--------|
+| Setup time | < 2 hours |
+| Query latency | < 50ms |
+| Free tier usage | < 10% of limits |
+| Conversion tracking | Working |
+
+**Archived: Raspberry Pi Self-Hosted Option**
+*Moved to future consideration. Pi server still viable if:*
+- *Want zero cloud dependency*
+- *Learning infrastructure is a goal*
+- *Need custom services beyond database*
+
+---
+
+**Sprint 6: (Future) Cloudflare Tunnel for Pi** ⏳ ARCHIVED
 - [ ] Install cloudflared
 - [ ] Create tunnel for public API access
 - [ ] Configure DNS records
