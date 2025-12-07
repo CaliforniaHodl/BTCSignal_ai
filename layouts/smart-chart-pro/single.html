@@ -33,14 +33,14 @@
           <span class="pro-badge">PRO</span>
         </div>
         <div class="header-actions">
-          <button class="btn-icon" id="btn-screenshot" title="Screenshot">📷</button>
-          <button class="btn-icon" id="btn-fullscreen" title="Fullscreen">⛶</button>
-          <button class="btn-icon" id="btn-settings" title="Settings">⚙️</button>
+          <button class="btn-icon" id="btn-screenshot" title="Screenshot" aria-label="Take screenshot">📷</button>
+          <button class="btn-icon" id="btn-fullscreen" title="Fullscreen" aria-label="Toggle fullscreen">⛶</button>
+          <button class="btn-icon" id="btn-settings" title="Settings" aria-label="Open settings">⚙️</button>
         </div>
       </div>
 
       <!-- Price Display -->
-      <div class="symbol-bar">
+      <div class="symbol-bar" role="status" aria-live="polite" aria-label="Live Bitcoin price">
         <div class="symbol-display">
           <span class="symbol-label">BTC/USDT</span>
         </div>
@@ -55,28 +55,28 @@
     <div class="chart-pro-layout">
       <!-- Left Sidebar: Drawing Tools -->
       <div class="tools-sidebar">
-        <div class="tool-group">
-          <button class="tool-btn" data-tool="crosshair" title="Crosshair">+</button>
-          <button class="tool-btn" data-tool="trendline" title="Trend Line">╱</button>
-          <button class="tool-btn" data-tool="horizontal" title="Horizontal Line">─</button>
-          <button class="tool-btn" data-tool="vertical" title="Vertical Line">│</button>
-          <button class="tool-btn" data-tool="ray" title="Ray">→</button>
+        <div class="tool-group" role="group" aria-label="Line tools">
+          <button class="tool-btn" data-tool="crosshair" title="Crosshair" aria-label="Crosshair tool">+</button>
+          <button class="tool-btn" data-tool="trendline" title="Trend Line" aria-label="Trend line tool">╱</button>
+          <button class="tool-btn" data-tool="horizontal" title="Horizontal Line" aria-label="Horizontal line tool">─</button>
+          <button class="tool-btn" data-tool="vertical" title="Vertical Line" aria-label="Vertical line tool">│</button>
+          <button class="tool-btn" data-tool="ray" title="Ray" aria-label="Ray tool">→</button>
         </div>
-        <div class="tool-group">
-          <button class="tool-btn" data-tool="fib-retrace" title="Fibonacci Retracement">F</button>
-          <button class="tool-btn" data-tool="fib-extension" title="Fibonacci Extension">FE</button>
-          <button class="tool-btn" data-tool="channel" title="Parallel Channel">▭</button>
-          <button class="tool-btn" data-tool="pitchfork" title="Pitchfork">⑂</button>
+        <div class="tool-group" role="group" aria-label="Fibonacci tools">
+          <button class="tool-btn" data-tool="fib-retrace" title="Fibonacci Retracement" aria-label="Fibonacci retracement">F</button>
+          <button class="tool-btn" data-tool="fib-extension" title="Fibonacci Extension" aria-label="Fibonacci extension">FE</button>
+          <button class="tool-btn" data-tool="channel" title="Parallel Channel" aria-label="Parallel channel">▭</button>
+          <button class="tool-btn" data-tool="pitchfork" title="Pitchfork" aria-label="Pitchfork tool">⑂</button>
         </div>
-        <div class="tool-group">
-          <button class="tool-btn" data-tool="rectangle" title="Rectangle">□</button>
-          <button class="tool-btn" data-tool="circle" title="Circle">○</button>
-          <button class="tool-btn" data-tool="text" title="Text">T</button>
-          <button class="tool-btn" data-tool="arrow" title="Arrow">↗</button>
+        <div class="tool-group" role="group" aria-label="Shape tools">
+          <button class="tool-btn" data-tool="rectangle" title="Rectangle" aria-label="Rectangle tool">□</button>
+          <button class="tool-btn" data-tool="circle" title="Circle" aria-label="Circle tool">○</button>
+          <button class="tool-btn" data-tool="text" title="Text" aria-label="Text tool">T</button>
+          <button class="tool-btn" data-tool="arrow" title="Arrow" aria-label="Arrow tool">↗</button>
         </div>
-        <div class="tool-group">
-          <button class="tool-btn" data-tool="measure" title="Price Range">↕</button>
-          <button class="tool-btn danger" data-tool="delete-all" title="Delete All">🗑</button>
+        <div class="tool-group" role="group" aria-label="Utility tools">
+          <button class="tool-btn" data-tool="measure" title="Price Range" aria-label="Measure price range">↕</button>
+          <button class="tool-btn danger" data-tool="delete-all" title="Delete All" aria-label="Delete all drawings">🗑</button>
         </div>
       </div>
 
@@ -93,10 +93,10 @@
             <button class="tf-tab" data-tf="W">1W</button>
             <button class="tf-tab" data-tf="M">1M</button>
           </div>
-          <div class="chart-type-tabs">
-            <button class="type-tab active" data-type="candles" title="Candlesticks">🕯️</button>
-            <button class="type-tab" data-type="line" title="Line">📈</button>
-            <button class="type-tab" data-type="heikin" title="Heikin Ashi">HA</button>
+          <div class="chart-type-tabs" role="group" aria-label="Chart type">
+            <button class="type-tab active" data-type="candles" title="Candlesticks" aria-label="Candlestick chart">🕯️</button>
+            <button class="type-tab" data-type="line" title="Line" aria-label="Line chart">📈</button>
+            <button class="type-tab" data-type="heikin" title="Heikin Ashi" aria-label="Heikin Ashi chart">HA</button>
           </div>
         </div>
 
