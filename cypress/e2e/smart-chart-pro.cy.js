@@ -76,9 +76,9 @@ describe('Smart Chart Pro', () => {
   });
 
   // =====================================================
-  // PRO CONTENT - HEADER & SYMBOL BAR
+  // PRO CONTENT - HEADER & PRICE BAR
   // =====================================================
-  describe('Pro Content - Header & Symbols', () => {
+  describe('Pro Content - Header & Price', () => {
     beforeEach(() => {
       cy.window().then((win) => {
         win.localStorage.setItem('smart-chart-pro-access', 'true');
@@ -99,27 +99,13 @@ describe('Smart Chart Pro', () => {
       cy.get('#btn-settings').should('exist');
     });
 
-    it('should display 4 symbol options', () => {
-      cy.get('.symbol-btn').should('have.length', 4);
-      cy.get('.symbol-btn[data-symbol="BTCUSDT"]').should('exist');
-      cy.get('.symbol-btn[data-symbol="ETHUSDT"]').should('exist');
-      cy.get('.symbol-btn[data-symbol="SOLUSDT"]').should('exist');
-      cy.get('.symbol-btn[data-symbol="XRPUSDT"]').should('exist');
-    });
-
-    it('should have BTC selected by default', () => {
-      cy.get('.symbol-btn[data-symbol="BTCUSDT"]').should('have.class', 'active');
+    it('should display BTC/USDT symbol label', () => {
+      cy.get('.symbol-label').should('contain', 'BTC/USDT');
     });
 
     it('should display price in header', () => {
       cy.get('#header-price').should('exist');
       cy.get('#header-change').should('exist');
-    });
-
-    it('should switch symbols when clicked', () => {
-      cy.get('.symbol-btn[data-symbol="ETHUSDT"]').click();
-      cy.get('.symbol-btn[data-symbol="ETHUSDT"]').should('have.class', 'active');
-      cy.get('.symbol-btn[data-symbol="BTCUSDT"]').should('not.have.class', 'active');
     });
   });
 

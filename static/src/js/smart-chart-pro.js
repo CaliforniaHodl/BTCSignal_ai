@@ -121,7 +121,6 @@
     setupChartHandlers();
     setupIndicatorToggles();
     setupTimeframeHandlers();
-    setupSymbolHandlers();
     setupDrawingTools();
     setupAlerts();
 
@@ -681,17 +680,6 @@
         document.querySelectorAll('.tf-tab').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         CONFIG.timeframe = btn.dataset.tf;
-        loadChartData();
-      });
-    });
-  }
-
-  function setupSymbolHandlers() {
-    document.querySelectorAll('.symbol-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.symbol-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        CONFIG.symbol = btn.dataset.symbol;
         loadChartData();
       });
     });
