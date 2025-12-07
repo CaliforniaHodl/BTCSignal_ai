@@ -1802,6 +1802,100 @@
     return num.toLocaleString();
   }
 
+  // =====================================================
+  // CSV EXPORT FUNCTIONALITY
+  // =====================================================
+
+  function exportToCSV() {
+    if (!marketData) {
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Market data not loaded. Please wait and try again.');
+      }
+      return;
+    }
+
+    // Build CSV data
+    const rows = [
+      ['BTC Signal AI - Market Data Export'],
+      ['Generated', new Date().toISOString()],
+      ['Data Timestamp', marketData.timestamp || 'N/A'],
+      [''],
+      ['=== BTC Price Data ==='],
+      ['Metric', 'Value'],
+      ['Current Price', marketData.btc?.price || 'N/A'],
+      ['24h Change %', marketData.btc?.priceChange24h || 'N/A'],
+      ['24h High', marketData.btc?.high24h || 'N/A'],
+      ['24h Low', marketData.btc?.low24h || 'N/A'],
+      ['24h Volume USD', marketData.btc?.volume24h || 'N/A'],
+      ['Market Cap USD', marketData.btc?.marketCap || 'N/A'],
+      [''],
+      ['=== Market Sentiment ==='],
+      ['Metric', 'Value'],
+      ['Fear & Greed Index', marketData.fearGreed?.value || 'N/A'],
+      ['Fear & Greed Label', marketData.fearGreed?.label || 'N/A'],
+      ['BTC Dominance %', marketData.dominance?.btc || 'N/A'],
+      [''],
+      ['=== Derivatives Data ==='],
+      ['Metric', 'Value'],
+      ['Funding Rate %', marketData.funding?.ratePercent || 'N/A'],
+      ['Open Interest BTC', marketData.openInterest?.btc || 'N/A'],
+      ['Open Interest USD', marketData.openInterest?.usd || 'N/A'],
+      ['OI 24h Change %', marketData.openInterest?.change24hPercent || 'N/A'],
+      ['Long/Short Ratio', marketData.longShortRatio?.ratio || 'N/A'],
+      ['Long %', marketData.longShortRatio?.longPercent || 'N/A'],
+      ['Short %', marketData.longShortRatio?.shortPercent || 'N/A'],
+      [''],
+      ['=== On-Chain Data ==='],
+      ['Metric', 'Value'],
+      ['Hash Rate EH/s', marketData.hashrate?.current || 'N/A'],
+      [''],
+      ['=== Exchange Funding Rates ==='],
+      ['Exchange', 'Rate %'],
+    ];
+
+    // Add exchange funding rates if available
+    if (marketData.funding?.exchanges) {
+      const exchanges = marketData.funding.exchanges;
+      if (exchanges.bybit) rows.push(['Bybit', exchanges.bybit.ratePercent]);
+      if (exchanges.okx) rows.push(['OKX', exchanges.okx.ratePercent]);
+      if (exchanges.binance) rows.push(['Binance', exchanges.binance.ratePercent]);
+      if (exchanges.bitget) rows.push(['Bitget', exchanges.bitget.ratePercent]);
+      if (exchanges.dydx) rows.push(['dYdX', exchanges.dydx.ratePercent]);
+    }
+
+    // Convert to CSV string
+    const csvContent = rows.map(row => row.map(cell => {
+      // Escape quotes and wrap in quotes if contains comma
+      const str = String(cell);
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return '"' + str.replace(/"/g, '""') + '"';
+      }
+      return str;
+    }).join(',')).join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'btcsignal-market-data-' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    if (typeof Toast !== 'undefined') {
+      Toast.success('Market data exported to CSV');
+    }
+  }
+
+  // Setup export button
+  const exportBtn = document.getElementById('btn-export-csv');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportToCSV);
+  }
+
   // Run on load
   initWidgets();
 

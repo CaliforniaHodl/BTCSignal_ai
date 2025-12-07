@@ -55,6 +55,56 @@
   }
 }
 
+.dashboard-header-actions {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+  flex-wrap: wrap;
+
+  .btn-chart-link,
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-md;
+    font-weight: $font-medium;
+    font-size: $font-sm;
+    transition: all $transition-fast;
+    cursor: pointer;
+  }
+
+  .btn-chart-link {
+    background: var(--bg-card);
+    color: var(--bitcoin-orange);
+    border: 1px solid var(--bitcoin-orange);
+    text-decoration: none;
+
+    &:hover {
+      background: var(--bitcoin-orange);
+      color: var(--bg-dark);
+    }
+  }
+
+  .btn-export {
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+
+    &:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: var(--text-secondary);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba($bitcoin-orange, 0.3);
+      outline-offset: 2px;
+    }
+  }
+}
+
 // Dashboard Widgets Section
 .dashboard-widgets {
   margin-bottom: $spacing-2xl;
