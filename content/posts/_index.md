@@ -1,7 +1,7 @@
 ---
 title: "Analysis History"
-PageTitle: "Bitcoin Analysis History - Daily BTC Market Reports | BTC Signal AI"
-description: "Browse our archive of AI-generated Bitcoin analysis. Daily technical analysis, price predictions, and market insights powered by Claude AI."
+PageTitle: "Browse Daily BTC Market Analysis & Signals | BTC Signals Pro"
+description: "Daily AI-generated Bitcoin analysis. Technical analysis, price predictions, and market insights from our signal archive."
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin analysis, BTC daily analysis, crypto market reports, AI trading analysis'

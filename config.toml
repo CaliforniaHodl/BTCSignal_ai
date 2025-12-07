@@ -1,14 +1,14 @@
 baseURL = 'https://btctradingsignalai.netlify.app/'
 languageCode = 'en-us'
-title = 'BTC Signal - Bitcoin On-Chain Data & Technical Analysis'
+title = 'BTC Signals Pro - Bitcoin On-Chain Data & Technical Analysis'
 
 [params]
-CompanyName = 'BTC Signal'
+CompanyName = 'BTC Signals Pro'
 repoName = 'bitcoin-twitter-bot'
 description = 'Bitcoin on-chain metrics, technical analysis, and market signals. Real-time BTC data including funding rates, open interest, liquidations, and more. Pay with Lightning.'
 tagline = 'Data-Driven Bitcoin Signals'
 twitter = '@BTCSignal_ai'
-author = 'BTC Signal'
+author = 'BTC Signals Pro'
 keywords = 'Bitcoin, BTC, trading signals, technical analysis, on-chain data, cryptocurrency, liquidations, funding rates, open interest, Lightning Network'
 
 [environments.development]

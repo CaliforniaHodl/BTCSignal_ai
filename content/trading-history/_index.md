@@ -1,7 +1,7 @@
 ---
 title: "Trading History"
-PageTitle: "Simulated Trading History - Track Signal Performance | BTC Signal AI"
-description: "View complete trading history from our simulated portfolio. Track every trade, P&L, and equity curve following BTC Signal AI signals."
+PageTitle: "Track Our Signal Performance & P&L | BTC Signals Pro"
+description: "View complete trading history from our simulated portfolio. Every trade, P&L, and equity curve - full transparency."
 layout: "single"
 priority: 0.7
 css: ['dashboard.scss']

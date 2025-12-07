@@ -1,7 +1,7 @@
 ---
 title: "Backtester PRO"
-PageTitle: "AI Backtester PRO - Custom Strategy Testing | BTC Signal AI"
-description: "AI-powered backtesting for custom trading strategies. Describe your strategy in plain English and get detailed backtest results with equity curves, trade logs, and optimization suggestions."
+PageTitle: "Test Your BTC Strategy in Plain English | BTC Signals Pro"
+description: "Describe your trading strategy in plain English. Get backtest results with equity curves, trade logs, and AI optimization suggestions."
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin backtesting, crypto strategy tester, trading strategy backtest, AI trading analysis, custom strategy testing'

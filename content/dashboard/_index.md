@@ -1,7 +1,7 @@
 ---
 title: "Premium Dashboard"
-PageTitle: "Premium Bitcoin Dashboard - Performance Metrics & Liquidation Watchlist | BTC Signal AI"
-description: "Track your Bitcoin trading performance with real-time metrics, win rate analytics, and liquidation level monitoring. Premium dashboard for serious BTC traders."
+PageTitle: "Track Your BTC Trading Performance in Real-Time | BTC Signals Pro"
+description: "Monitor win rates, liquidation levels, and key metrics. A premium dashboard built for serious Bitcoin traders."
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin dashboard, BTC trading metrics, liquidation watchlist, crypto performance tracker'

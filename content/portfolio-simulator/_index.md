@@ -1,7 +1,7 @@
 ---
 title: "Portfolio Simulator"
-PageTitle: "Portfolio Simulator - Backtest BTC Trading Strategies | BTC Signal AI"
-description: "Simulate Bitcoin trading strategies with historical data. Test 'what if' scenarios, see equity curves, and optimize your trading approach before risking real capital."
+PageTitle: "Test BTC Strategies Before Risking Real Capital | BTC Signals Pro"
+description: "Simulate Bitcoin trading strategies with historical data. Test 'what if' scenarios and see equity curves before you trade."
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin portfolio simulator, BTC strategy backtester, crypto trading simulator, what if trading scenarios'

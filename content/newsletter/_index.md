@@ -1,8 +1,8 @@
 ---
 draft: true
 title: "Premium Newsletter"
-PageTitle: "Bitcoin Analysis Newsletter - Weekly Deep Dives | BTC Signal AI"
-description: "Subscribe to our premium Bitcoin analysis newsletter. Get weekly deep dives, market forecasts, and exclusive trade setups delivered to your inbox."
+PageTitle: "Get Weekly BTC Deep Dives & Trade Setups | BTC Signals Pro"
+description: "Weekly Bitcoin analysis, market forecasts, and exclusive trade setups delivered to your inbox. Premium insights for serious traders."
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin newsletter, crypto newsletter, BTC analysis newsletter, weekly crypto report, Bitcoin market analysis'

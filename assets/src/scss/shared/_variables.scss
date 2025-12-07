@@ -53,6 +53,7 @@ $spacing-md: 16px;
 $spacing-lg: 24px;
 $spacing-xl: 32px;
 $spacing-2xl: 48px;
+$spacing-3xl: 64px;
 
 // Border radius
 $radius-sm: 4px;
@@ -129,6 +130,8 @@ $shadow-glow: 0 4px 15px rgba($bitcoin-orange, 0.4);
   --spacing-md: #{$spacing-md};
   --spacing-lg: #{$spacing-lg};
   --spacing-xl: #{$spacing-xl};
+  --spacing-2xl: #{$spacing-2xl};
+  --spacing-3xl: #{$spacing-3xl};
 
   // Radius
   --radius-sm: #{$radius-sm};
