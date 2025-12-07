@@ -10,8 +10,14 @@ describe('Free Tools - Deep Testing', () => {
   // =====================================================
   describe('Smart Chart - Calculations & Logic', () => {
     beforeEach(() => {
+      // Intercept Binance API calls
+      cy.intercept('GET', '**/api.binance.us/**').as('binanceApi');
       cy.visit('/smart-chart/');
-      cy.wait(2000); // Wait for data to load
+      // Wait for actual API response instead of arbitrary timeout
+      cy.wait('@binanceApi', { timeout: 10000 }).then(() => {
+        // Also wait for RSI display to populate (indicates data processing complete)
+        cy.get('#rsi-display').should('not.contain', '--');
+      });
     });
 
     describe('EMA Calculation Accuracy', () => {
@@ -141,6 +147,37 @@ describe('Free Tools - Deep Testing', () => {
         cy.get('h1').should('contain', 'Smart Chart');
       });
     });
+
+    describe('Error UI States', () => {
+      it('should show loading state placeholders initially', () => {
+        // Block API to keep loading state
+        cy.intercept('GET', '**/api.binance.us/**', { delay: 5000, statusCode: 200, body: {} }).as('slowApi');
+        cy.visit('/smart-chart/');
+        // Should show loading placeholders
+        cy.get('#rsi-display').should('contain', '--');
+        cy.get('#current-price').should('contain', '--');
+      });
+
+      it('should display fallback values when API fails', () => {
+        cy.intercept('GET', '**/api.binance.us/**', { statusCode: 500 }).as('binanceFail');
+        cy.visit('/smart-chart/');
+        cy.wait('@binanceFail');
+        // Should show dash placeholders or cached data, not crash
+        cy.get('.signal-card').should('exist');
+        cy.get('#signal-display').should('exist');
+      });
+
+      it('should not display NaN or undefined in UI on error', () => {
+        cy.intercept('GET', '**/api.binance.us/**', { statusCode: 500 }).as('binanceFail');
+        cy.visit('/smart-chart/');
+        cy.wait('@binanceFail');
+        // Check that no NaN or undefined appears in key displays
+        cy.get('#rsi-display').invoke('text').should('not.contain', 'NaN');
+        cy.get('#rsi-display').invoke('text').should('not.contain', 'undefined');
+        cy.get('#current-price').invoke('text').should('not.contain', 'NaN');
+        cy.get('#overall-score').invoke('text').should('not.contain', 'NaN');
+      });
+    });
   });
 
   // =====================================================
@@ -237,8 +274,12 @@ describe('Free Tools - Deep Testing', () => {
   // =====================================================
   describe('Fee Estimator - Data Validation', () => {
     beforeEach(() => {
+      // Intercept mempool.space API calls
+      cy.intercept('GET', '**/mempool.space/**').as('mempoolApi');
       cy.visit('/fee-estimator/');
-      cy.wait(1500); // Wait for API data
+      // Wait for API response and data to render
+      cy.wait('@mempoolApi', { timeout: 10000 });
+      cy.get('#fee-fastest').should('not.contain', '--');
     });
 
     describe('Fee Rate Validation', () => {
@@ -289,9 +330,9 @@ describe('Free Tools - Deep Testing', () => {
       it('should update custom cost when tx size changes', () => {
         cy.get('#calc-custom').invoke('text').then((originalText) => {
           cy.get('#tx-size').clear().type('500');
-          cy.wait(500);
-          cy.get('#calc-custom').invoke('text').then((newText) => {
-            // Cost should change with different tx size
+          // Wait for the calculated value to change instead of arbitrary timeout
+          cy.get('#calc-custom').should(($el) => {
+            const newText = $el.text();
             if (originalText !== '--' && newText !== '--') {
               expect(newText).to.not.equal(originalText);
             }
@@ -301,11 +342,12 @@ describe('Free Tools - Deep Testing', () => {
 
       it('should show higher cost for larger transactions', () => {
         cy.get('#tx-size').clear().type('250');
-        cy.wait(500);
-        cy.get('#calc-custom').invoke('text').then((smallText) => {
+        // Wait for calculation to complete by checking value is not default
+        cy.get('#calc-custom').should('not.contain', '--').invoke('text').then((smallText) => {
           cy.get('#tx-size').clear().type('1000');
-          cy.wait(500);
-          cy.get('#calc-custom').invoke('text').then((largeText) => {
+          // Wait for recalculation with larger value
+          cy.get('#calc-custom').should(($el) => {
+            const largeText = $el.text();
             if (smallText !== '--' && largeText !== '--') {
               const small = parseInt(smallText.split(' ')[0].replace(/,/g, ''));
               const large = parseInt(largeText.split(' ')[0].replace(/,/g, ''));
@@ -326,6 +368,31 @@ describe('Free Tools - Deep Testing', () => {
         cy.get('#fee-fastest').should('exist');
       });
     });
+
+    describe('Error UI States', () => {
+      it('should show loading placeholders initially', () => {
+        cy.intercept('GET', '**/mempool.space/**', { delay: 5000, statusCode: 200, body: {} }).as('slowApi');
+        cy.visit('/fee-estimator/');
+        cy.get('#fee-fastest').should('contain', '--');
+      });
+
+      it('should not show NaN values on API timeout', () => {
+        cy.intercept('GET', '**/mempool.space/**', { statusCode: 504 }).as('timeoutApi');
+        cy.visit('/fee-estimator/');
+        cy.wait('@timeoutApi');
+        cy.get('#fee-fastest').invoke('text').should('not.contain', 'NaN');
+        cy.get('#mempool-size').invoke('text').should('not.contain', 'NaN');
+        cy.get('#pending-txs').invoke('text').should('not.contain', 'undefined');
+      });
+
+      it('should display recommendation section even on error', () => {
+        cy.intercept('GET', '**/mempool.space/**', { statusCode: 500 }).as('apiFail');
+        cy.visit('/fee-estimator/');
+        cy.wait('@apiFail');
+        // Recommendation section should still exist with fallback
+        cy.get('#rec-title').should('exist');
+      });
+    });
   });
 
   // =====================================================
@@ -333,8 +400,12 @@ describe('Free Tools - Deep Testing', () => {
   // =====================================================
   describe('Sats Converter - Conversion Accuracy', () => {
     beforeEach(() => {
+      // Intercept price API (likely CoinGecko or similar)
+      cy.intercept('GET', '**/api.coingecko.com/**').as('priceApi');
+      cy.intercept('GET', '**/api.binance.us/**').as('binancePrice');
       cy.visit('/sats-converter/');
-      cy.wait(1500); // Wait for price data
+      // Wait for price to load - check live price display
+      cy.get('#live-price').should('not.contain', '--').and('not.be.empty');
     });
 
     describe('Conversion Logic', () => {
@@ -414,6 +485,34 @@ describe('Free Tools - Deep Testing', () => {
         cy.get('.converter-card').should('exist');
       });
     });
+
+    describe('Error UI States', () => {
+      it('should handle price API failure gracefully', () => {
+        cy.intercept('GET', '**/api.coingecko.com/**', { statusCode: 500 }).as('priceFail');
+        cy.intercept('GET', '**/api.binance.us/**', { statusCode: 500 }).as('binanceFail');
+        cy.visit('/sats-converter/');
+        // Page should load without crashing
+        cy.get('h1').should('contain', 'Sats Converter');
+        cy.get('.converter-card').should('exist');
+      });
+
+      it('should still allow BTC/sats conversion without price', () => {
+        cy.intercept('GET', '**/api.coingecko.com/**', { statusCode: 500 }).as('priceFail');
+        cy.intercept('GET', '**/api.binance.us/**', { statusCode: 500 }).as('binanceFail');
+        cy.visit('/sats-converter/');
+        // BTC to sats conversion doesn't need price
+        cy.get('#btc-input').clear().type('1');
+        cy.get('#sats-input').should('have.value', '100000000');
+      });
+
+      it('should not show NaN in price display on error', () => {
+        cy.intercept('GET', '**/api.coingecko.com/**', { statusCode: 500 }).as('priceFail');
+        cy.intercept('GET', '**/api.binance.us/**', { statusCode: 500 }).as('binanceFail');
+        cy.visit('/sats-converter/');
+        cy.get('#live-price').invoke('text').should('not.contain', 'NaN');
+        cy.get('#live-price').invoke('text').should('not.contain', 'undefined');
+      });
+    });
   });
 
   // =====================================================
@@ -422,7 +521,9 @@ describe('Free Tools - Deep Testing', () => {
   describe('HODL Waves - Data Accuracy', () => {
     beforeEach(() => {
       cy.visit('/hodl-waves/');
-      cy.wait(1000);
+      // Wait for chart and metrics to render with actual data
+      cy.get('#hodl-1y').should('not.contain', '--');
+      cy.get('#hodl-chart').should('be.visible');
     });
 
     describe('Percentage Validation', () => {
@@ -473,7 +574,8 @@ describe('Free Tools - Deep Testing', () => {
 
       it('should update chart when time range changes', () => {
         cy.get('.time-btn[data-range="2y"]').click();
-        cy.wait(500);
+        // Wait for button to become active (indicates chart update triggered)
+        cy.get('.time-btn[data-range="2y"]').should('have.class', 'active');
         cy.get('#hodl-chart').should('be.visible');
       });
     });
@@ -494,8 +596,13 @@ describe('Free Tools - Deep Testing', () => {
   // =====================================================
   describe('Difficulty Ribbon - Mining Data', () => {
     beforeEach(() => {
+      // Intercept blockchain.info or similar mining data API
+      cy.intercept('GET', '**/blockchain.info/**').as('blockchainApi');
+      cy.intercept('GET', '**/mempool.space/**').as('mempoolApi');
       cy.visit('/difficulty-ribbon/');
-      cy.wait(2000); // Wait for API data
+      // Wait for mining metrics to populate
+      cy.get('#current-difficulty').should('not.contain', '--');
+      cy.get('#ribbon-signal-title').should('not.contain', 'Loading');
     });
 
     describe('Difficulty Values', () => {
@@ -550,6 +657,188 @@ describe('Free Tools - Deep Testing', () => {
       it('should show historical prices', () => {
         cy.get('.signal-price').first().invoke('text').then((text) => {
           expect(text).to.match(/~?\$[\d,]+/);
+        });
+      });
+    });
+  });
+
+  // =====================================================
+  // KEYBOARD NAVIGATION TESTS
+  // =====================================================
+  describe('Keyboard Navigation - Free Tools', () => {
+
+    describe('Smart Chart Keyboard Navigation', () => {
+      beforeEach(() => {
+        cy.visit('/smart-chart/');
+      });
+
+      it('should tab through timeframe buttons', () => {
+        cy.get('body').tab();
+        // Should eventually reach timeframe tabs
+        cy.focused().should('exist');
+        // Tab through to find interactive elements
+        for (let i = 0; i < 10; i++) {
+          cy.focused().tab();
+        }
+        cy.get('.tf-tab').first().focus();
+        cy.focused().should('have.class', 'tf-tab');
+      });
+
+      it('should activate timeframe with Enter key', () => {
+        cy.get('.tf-tab[data-tf="240"]').focus();
+        cy.focused().type('{enter}');
+        cy.get('.tf-tab[data-tf="240"]').should('have.class', 'active');
+      });
+
+      it('should activate timeframe with Space key', () => {
+        cy.get('.tf-tab[data-tf="60"]').focus();
+        cy.focused().type(' ');
+        cy.get('.tf-tab[data-tf="60"]').should('have.class', 'active');
+      });
+
+      it('should toggle checkboxes with Space key', () => {
+        cy.get('#show-emas').focus();
+        cy.focused().type(' ');
+        cy.get('#show-emas').should('not.be.checked');
+        cy.focused().type(' ');
+        cy.get('#show-emas').should('be.checked');
+      });
+    });
+
+    describe('DCA Calculator Keyboard Navigation', () => {
+      beforeEach(() => {
+        cy.visit('/dca-calculator/');
+      });
+
+      it('should tab through form inputs in logical order', () => {
+        cy.get('#start-date').focus();
+        cy.focused().should('have.attr', 'id', 'start-date');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'id', 'end-date');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'id', 'frequency');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'id', 'amount');
+      });
+
+      it('should submit form with Enter on calculate button', () => {
+        cy.get('#amount').clear().type('100');
+        cy.get('#calculate-btn').focus();
+        cy.focused().type('{enter}');
+        // Results should update
+        cy.get('#total-invested').should('not.be.empty');
+      });
+
+      it('should navigate select dropdown with arrow keys', () => {
+        cy.get('#frequency').focus();
+        cy.focused().type('{downarrow}');
+        // Should cycle through options
+        cy.get('#frequency').should('exist');
+      });
+    });
+
+    describe('Fee Estimator Keyboard Navigation', () => {
+      beforeEach(() => {
+        cy.visit('/fee-estimator/');
+      });
+
+      it('should allow keyboard input in tx size field', () => {
+        cy.get('#tx-size').focus();
+        cy.focused().clear().type('500');
+        cy.get('#tx-size').should('have.value', '500');
+      });
+
+      it('should tab to fee cards', () => {
+        cy.get('#tx-size').focus();
+        // Tab through the page
+        cy.focused().tab();
+        cy.focused().should('exist');
+      });
+    });
+
+    describe('Sats Converter Keyboard Navigation', () => {
+      beforeEach(() => {
+        cy.visit('/sats-converter/');
+      });
+
+      it('should tab between conversion inputs', () => {
+        cy.get('#usd-input').focus();
+        cy.focused().should('have.attr', 'id', 'usd-input');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'id', 'btc-input');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'id', 'sats-input');
+      });
+
+      it('should trigger conversion on input change via keyboard', () => {
+        cy.get('#usd-input').focus();
+        cy.focused().clear().type('100');
+        // Conversion should happen automatically
+        cy.get('#btc-input').invoke('val').should('not.be.empty');
+      });
+
+      it('should submit add purchase with Enter', () => {
+        cy.get('#purchase-amount').focus();
+        cy.focused().clear().type('10000');
+        cy.get('#add-purchase').focus();
+        cy.focused().type('{enter}');
+        cy.get('#total-stack').invoke('text').should('contain', '10,000');
+      });
+    });
+
+    describe('HODL Waves Keyboard Navigation', () => {
+      beforeEach(() => {
+        cy.visit('/hodl-waves/');
+      });
+
+      it('should navigate time range buttons with Tab', () => {
+        cy.get('.time-btn[data-range="1y"]').focus();
+        cy.focused().should('have.attr', 'data-range', '1y');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'data-range', '2y');
+      });
+
+      it('should activate time range with Enter', () => {
+        cy.get('.time-btn[data-range="2y"]').focus();
+        cy.focused().type('{enter}');
+        cy.get('.time-btn[data-range="2y"]').should('have.class', 'active');
+      });
+    });
+
+    describe('Difficulty Ribbon Keyboard Navigation', () => {
+      beforeEach(() => {
+        cy.visit('/difficulty-ribbon/');
+      });
+
+      it('should navigate time range buttons with Tab', () => {
+        cy.get('.time-btn[data-range="6m"]').focus();
+        cy.focused().should('have.attr', 'data-range', '6m');
+        cy.focused().tab();
+        cy.focused().should('have.attr', 'data-range', '1y');
+      });
+
+      it('should activate time range with Space', () => {
+        cy.get('.time-btn[data-range="1y"]').focus();
+        cy.focused().type(' ');
+        cy.get('.time-btn[data-range="1y"]').should('have.class', 'active');
+      });
+    });
+
+    describe('Skip Link / Focus Management', () => {
+      const freeToolPages = [
+        '/smart-chart/',
+        '/dca-calculator/',
+        '/fee-estimator/',
+        '/sats-converter/',
+        '/hodl-waves/',
+        '/difficulty-ribbon/'
+      ];
+
+      freeToolPages.forEach((page) => {
+        it(`${page} should have visible focus indicators`, () => {
+          cy.visit(page);
+          cy.get('button, a, input, select').first().focus();
+          cy.focused().should('have.css', 'outline').and('not.equal', 'none');
         });
       });
     });
