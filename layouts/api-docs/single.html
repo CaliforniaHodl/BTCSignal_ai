@@ -1,0 +1,14 @@
+{{ define "main" }}
+<div class="container learn-page">
+  <article class="learn-content">
+    <header class="learn-header">
+      <h1>{{ .Title }}</h1>
+      <p class="learn-description">{{ .Description }}</p>
+    </header>
+
+    <div class="learn-body api-docs-body">
+      {{ .Content }}
+    </div>
+  </article>
+</div>
+{{ end }}
