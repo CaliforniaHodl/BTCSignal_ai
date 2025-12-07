@@ -5,11 +5,13 @@
     <p class="subtitle">Free educational resources for Bitcoin traders</p>
   </header>
 
-  <!-- Category Filter -->
-  <div class="category-filter">
-    <div class="filter-label">Filter by category:</div>
-    <div class="filter-buttons">
-      <button class="filter-btn active" data-category="all">All</button>
+  <!-- Filters -->
+  <div class="learn-filters">
+    <!-- Category Filter -->
+    <div class="category-filter">
+      <div class="filter-label">Category:</div>
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-category="all">All</button>
       {{- $categories := slice -}}
       {{- range .Pages -}}
         {{- if .Params.category -}}
@@ -34,7 +36,20 @@
       </button>
       {{- end }}
     </div>
-    <div class="filter-count"><span id="article-count">{{ len .Pages }}</span> articles</div>
+  </div>
+
+  <!-- Difficulty Filter -->
+  <div class="difficulty-filter">
+    <div class="filter-label">Level:</div>
+    <div class="filter-buttons">
+      <button class="diff-btn active" data-difficulty="all">All</button>
+      <button class="diff-btn" data-difficulty="beginner">Beginner</button>
+      <button class="diff-btn" data-difficulty="intermediate">Intermediate</button>
+      <button class="diff-btn" data-difficulty="advanced">Advanced</button>
+    </div>
+  </div>
+
+  <div class="filter-count"><span id="article-count">{{ len .Pages }}</span> articles</div>
   </div>
 
   <!-- Search Box -->
@@ -45,7 +60,7 @@
 
   <section class="articles-grid" id="articles-grid">
     {{ range .Pages.ByDate.Reverse }}
-    <a href="{{ .Permalink }}" class="article-card" data-category="{{ .Params.category | default "uncategorized" }}" data-title="{{ .Title | lower }}" data-tags="{{ delimit .Params.tags " " | lower }}">
+    <a href="{{ .Permalink }}" class="article-card" data-category="{{ .Params.category | default "uncategorized" }}" data-difficulty="{{ .Params.difficulty | default "intermediate" }}" data-title="{{ .Title | lower }}" data-tags="{{ delimit .Params.tags " " | lower }}">
       <div class="article-icon">
         {{/* Use frontmatter icon if available, otherwise match by title */}}
         {{ if .Params.icon }}
@@ -77,11 +92,9 @@
       <p class="article-desc">{{ .Description }}</p>
       <div class="article-meta">
         <span class="read-time">{{ .ReadingTime }} min read</span>
-        <span class="article-tags">
-          {{ range first 2 .Params.tags }}
-          <span class="tag">{{ . }}</span>
-          {{ end }}
-        </span>
+        {{ if .Params.difficulty }}
+        <span class="difficulty-badge difficulty-{{ .Params.difficulty }}">{{ .Params.difficulty | title }}</span>
+        {{ end }}
       </div>
     </a>
     {{ end }}
@@ -101,19 +114,31 @@
 (function() {
   'use strict';
 
-  var filterButtons = document.querySelectorAll('.filter-btn');
+  var categoryButtons = document.querySelectorAll('.filter-btn');
+  var difficultyButtons = document.querySelectorAll('.diff-btn');
   var searchInput = document.getElementById('article-search');
   var articleCards = document.querySelectorAll('.article-card');
   var articleCount = document.getElementById('article-count');
   var currentCategory = 'all';
+  var currentDifficulty = 'all';
   var currentSearch = '';
 
   // Filter by category
-  filterButtons.forEach(function(btn) {
+  categoryButtons.forEach(function(btn) {
     btn.addEventListener('click', function() {
-      filterButtons.forEach(function(b) { b.classList.remove('active'); });
+      categoryButtons.forEach(function(b) { b.classList.remove('active'); });
       this.classList.add('active');
       currentCategory = this.dataset.category;
+      filterArticles();
+    });
+  });
+
+  // Filter by difficulty
+  difficultyButtons.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      difficultyButtons.forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      currentDifficulty = this.dataset.difficulty;
       filterArticles();
     });
   });
@@ -129,6 +154,7 @@
 
     articleCards.forEach(function(card) {
       var category = card.dataset.category;
+      var difficulty = card.dataset.difficulty;
       var title = card.dataset.title;
       var tags = card.dataset.tags;
 
@@ -138,12 +164,15 @@
         (currentCategory === 'risk-management' && category === 'risk') ||
         (currentCategory === 'risk' && category === 'risk-management');
 
+      // Difficulty match
+      var difficultyMatch = currentDifficulty === 'all' || difficulty === currentDifficulty;
+
       // Search match
       var searchMatch = currentSearch === '' ||
         title.indexOf(currentSearch) !== -1 ||
         tags.indexOf(currentSearch) !== -1;
 
-      if (categoryMatch && searchMatch) {
+      if (categoryMatch && difficultyMatch && searchMatch) {
         card.style.display = '';
         visibleCount++;
       } else {

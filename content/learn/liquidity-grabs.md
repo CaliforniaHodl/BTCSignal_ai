@@ -6,6 +6,7 @@ slug: "liquidity-grabs"
 tags: ["education", "liquidity", "smart-money"]
 icon: "💧"
 category: "fundamentals"
+difficulty: "advanced"
 priority: 0.5
 css: ['learn.scss']
 ---

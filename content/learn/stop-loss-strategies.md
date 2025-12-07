@@ -6,6 +6,7 @@ slug: "stop-loss-strategies"
 tags: ["education", "stop-loss", "risk-management", "trading", "strategy"]
 icon: "🛡️"
 category: "risk-management"
+difficulty: "beginner"
 priority: 0.7
 css: ['learn.scss']
 ---

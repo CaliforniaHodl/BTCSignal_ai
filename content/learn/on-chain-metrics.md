@@ -6,6 +6,7 @@ slug: "on-chain-metrics"
 tags: ["education", "on-chain", "analytics", "blockchain", "fundamentals"]
 icon: "⛓️"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.6
 css: ['learn.scss']
 ---

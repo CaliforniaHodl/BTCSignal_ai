@@ -6,6 +6,7 @@ slug: "dollar-cost-averaging"
 tags: ["education", "dca", "investing", "strategy", "accumulation"]
 icon: "📈"
 category: "strategies"
+difficulty: "beginner"
 priority: 0.7
 css: ['learn.scss']
 ---

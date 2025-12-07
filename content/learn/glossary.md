@@ -6,6 +6,7 @@ slug: "glossary"
 tags: ["education", "glossary", "bitcoin", "trading", "terminology"]
 icon: "📖"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.8
 css: ['learn.scss']
 ---

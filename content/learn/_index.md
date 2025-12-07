@@ -1,10 +1,10 @@
 ---
 title: "Learn Trading"
-PageTitle: "Learn Bitcoin Trading - 17 Free Educational Guides | BTC Signal AI"
-description: "Master Bitcoin trading with 17 free educational resources covering technical analysis, indicators, risk management, trading psychology, and professional strategies."
+PageTitle: "Learn Bitcoin Trading - 35+ Free Educational Guides | BTC Signal AI"
+description: "Master Bitcoin trading with 35+ free educational resources covering technical analysis, indicators, risk management, on-chain metrics, and professional strategies."
 seoimage: 'og-image.png'
 image: 'og-image.png'
-keywords: 'learn Bitcoin trading, BTC trading education, crypto trading course, market structure, smart money concepts, RSI, MACD, Bollinger Bands, risk management, trading psychology'
+keywords: 'learn Bitcoin trading, BTC trading education, crypto trading course, market structure, smart money concepts, RSI, MACD, Bollinger Bands, risk management, trading psychology, on-chain analysis'
 type: "learn"
 layout: "list"
 css: ['learn.scss']

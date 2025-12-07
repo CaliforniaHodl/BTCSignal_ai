@@ -6,6 +6,7 @@ slug: "support-resistance"
 tags: ["education", "support-resistance", "trading-basics", "key-levels"]
 icon: "🛡️"
 category: "technical"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

@@ -6,6 +6,7 @@ slug: "fair-value-gaps"
 tags: ["education", "fvg", "smart-money", "imbalance"]
 icon: "📐"
 category: "fundamentals"
+difficulty: "advanced"
 priority: 0.5
 css: ['learn.scss']
 ---

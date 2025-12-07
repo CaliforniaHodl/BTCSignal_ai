@@ -6,6 +6,7 @@ slug: "trading-psychology"
 tags: ["education", "psychology", "trading-mindset", "discipline"]
 icon: "🧠"
 category: "psychology"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

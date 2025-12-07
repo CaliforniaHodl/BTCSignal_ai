@@ -25,51 +25,95 @@
   }
 }
 
-// Category Filter
-.category-filter {
+// Learn Filters Container
+.learn-filters {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
   margin-bottom: $spacing-lg;
+  padding: $spacing-lg;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xl;
+  }
+}
+
+// Category & Difficulty Filters
+.category-filter,
+.difficulty-filter {
   text-align: center;
 
   .filter-label {
     color: var(--text-secondary);
     font-size: $font-sm;
     margin-bottom: $spacing-sm;
+    font-weight: $font-medium;
   }
 
   .filter-buttons {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: $spacing-sm;
-    margin-bottom: $spacing-sm;
+    gap: $spacing-xs;
+  }
+}
+
+.filter-btn,
+.diff-btn {
+  padding: $spacing-xs $spacing-md;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-full;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    color: var(--bitcoin-orange);
   }
 
-  .filter-btn {
-    padding: $spacing-xs $spacing-md;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: $radius-full;
-    color: var(--text-secondary);
-    font-size: $font-sm;
-    cursor: pointer;
-    transition: all $transition-base;
+  &.active {
+    background: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+    color: #000;
+    font-weight: $font-semibold;
+  }
+}
 
-    &:hover {
-      border-color: var(--bitcoin-orange);
-      color: var(--bitcoin-orange);
-    }
-
-    &.active {
-      background: var(--bitcoin-orange);
-      border-color: var(--bitcoin-orange);
-      color: #000;
-      font-weight: $font-semibold;
-    }
+// Difficulty-specific button colors when active
+.diff-btn {
+  &[data-difficulty="beginner"].active {
+    background: $green;
+    border-color: $green;
   }
 
-  .filter-count {
-    color: var(--text-muted);
-    font-size: $font-sm;
+  &[data-difficulty="intermediate"].active {
+    background: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+  }
+
+  &[data-difficulty="advanced"].active {
+    background: $red;
+    border-color: $red;
+  }
+}
+
+.filter-count {
+  color: var(--text-muted);
+  font-size: $font-sm;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    margin-left: auto;
   }
 }
 
@@ -166,6 +210,34 @@
   padding: $spacing-xs $spacing-sm;
   border-radius: $radius-sm;
   font-size: $font-xs;
+}
+
+// Difficulty Badges
+.difficulty-badge {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+  font-weight: $font-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.difficulty-beginner {
+  background: rgba($green, 0.2);
+  color: $green;
+  border: 1px solid rgba($green, 0.3);
+}
+
+.difficulty-intermediate {
+  background: rgba($bitcoin-orange, 0.2);
+  color: $bitcoin-orange;
+  border: 1px solid rgba($bitcoin-orange, 0.3);
+}
+
+.difficulty-advanced {
+  background: rgba($red, 0.2);
+  color: $red;
+  border: 1px solid rgba($red, 0.3);
 }
 
 // Learn CTA

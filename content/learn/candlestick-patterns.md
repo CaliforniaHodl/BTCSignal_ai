@@ -6,6 +6,7 @@ slug: "candlestick-patterns"
 tags: ["education", "candlestick-patterns", "price-action", "reversals"]
 icon: "🕯️"
 category: "technical"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

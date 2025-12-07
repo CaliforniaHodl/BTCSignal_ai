@@ -6,6 +6,7 @@ slug: "position-sizing"
 tags: ["education", "position-sizing", "risk-management", "trading", "strategy"]
 icon: "📐"
 category: "risk-management"
+difficulty: "beginner"
 priority: 0.6
 css: ['learn.scss']
 ---

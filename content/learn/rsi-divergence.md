@@ -6,6 +6,7 @@ slug: "rsi-divergence"
 tags: ["education", "rsi", "divergence", "indicators"]
 icon: "📈"
 category: "technical"
+difficulty: "intermediate"
 priority: 0.5
 css: ['learn.scss']
 ---

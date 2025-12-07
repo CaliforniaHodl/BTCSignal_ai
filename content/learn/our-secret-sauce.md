@@ -6,6 +6,7 @@ slug: "our-secret-sauce"
 tags: ["education", "algorithms", "technical-analysis", "transparency"]
 icon: "🧪"
 category: "advanced"
+difficulty: "intermediate"
 priority: 0.9
 css: ['learn.scss']
 ---

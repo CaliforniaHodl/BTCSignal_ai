@@ -6,6 +6,7 @@ slug: "bart-patterns"
 tags: ["education", "bart-patterns", "manipulation", "technical-analysis"]
 icon: "⚡"
 category: "advanced"
+difficulty: "advanced"
 priority: 0.5
 css: ['learn.scss']
 ---

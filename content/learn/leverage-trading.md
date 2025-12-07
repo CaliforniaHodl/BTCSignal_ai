@@ -6,6 +6,7 @@ slug: "leverage-trading"
 tags: ["education", "leverage", "futures", "perpetuals", "risk-management"]
 icon: "⚡"
 category: "derivatives"
+difficulty: "intermediate"
 priority: 0.6
 css: ['learn.scss']
 ---

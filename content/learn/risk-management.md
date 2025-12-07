@@ -6,6 +6,7 @@ slug: "risk-management"
 tags: ["education", "risk-management", "position-sizing", "trading-psychology"]
 icon: "⚠️"
 category: "risk"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

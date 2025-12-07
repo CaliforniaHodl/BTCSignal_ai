@@ -6,6 +6,7 @@ slug: "macd-trading"
 tags: ["education", "macd", "indicators", "momentum"]
 icon: "📉"
 category: "technical"
+difficulty: "intermediate"
 priority: 0.5
 css: ['learn.scss']
 ---

@@ -6,6 +6,7 @@ slug: "whale-watching"
 tags: ["education", "whales", "on-chain", "analytics", "smart-money"]
 icon: "🐋"
 category: "on-chain"
+difficulty: "intermediate"
 priority: 0.5
 css: ['learn.scss']
 ---

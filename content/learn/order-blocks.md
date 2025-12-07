@@ -6,6 +6,7 @@ slug: "order-blocks"
 tags: ["education", "order-blocks", "smart-money", "institutional"]
 icon: "🏛️"
 category: "fundamentals"
+difficulty: "advanced"
 priority: 0.5
 css: ['learn.scss']
 ---

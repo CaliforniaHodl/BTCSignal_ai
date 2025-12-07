@@ -6,6 +6,7 @@ slug: "bitcoin-dominance"
 tags: ["education", "bitcoin-dominance", "altcoins", "market-cycles", "sentiment"]
 icon: "👑"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

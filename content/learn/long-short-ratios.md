@@ -6,6 +6,7 @@ slug: "long-short-ratios"
 tags: ["education", "long-short-ratio", "sentiment", "derivatives", "positioning"]
 icon: "⚖️"
 category: "sentiment"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

@@ -6,6 +6,7 @@ slug: "swing-failure-pattern"
 tags: ["education", "sfp", "reversal", "trading-patterns"]
 icon: "🔄"
 category: "technical"
+difficulty: "advanced"
 priority: 0.5
 css: ['learn.scss']
 ---

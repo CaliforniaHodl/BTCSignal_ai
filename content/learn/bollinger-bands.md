@@ -6,6 +6,7 @@ slug: "bollinger-bands"
 tags: ["education", "bollinger-bands", "indicators", "volatility"]
 icon: "📏"
 category: "technical"
+difficulty: "intermediate"
 priority: 0.5
 css: ['learn.scss']
 ---

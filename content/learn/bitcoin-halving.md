@@ -6,6 +6,7 @@ slug: "bitcoin-halving"
 tags: ["education", "halving", "bitcoin", "fundamentals", "cycles"]
 icon: "⏳"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.7
 css: ['learn.scss']
 ---

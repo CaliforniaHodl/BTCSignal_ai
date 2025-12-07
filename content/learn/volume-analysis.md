@@ -6,6 +6,7 @@ slug: "volume-analysis"
 tags: ["education", "volume", "orderflow", "trading-basics"]
 icon: "📊"
 category: "technical"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

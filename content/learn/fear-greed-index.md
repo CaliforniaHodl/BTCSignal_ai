@@ -6,6 +6,7 @@ slug: "fear-greed-index"
 tags: ["education", "sentiment", "fear-greed", "contrarian-trading"]
 icon: "😱"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

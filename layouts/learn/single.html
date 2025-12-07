@@ -13,6 +13,9 @@
     <div class="article-meta">
       <span class="date">{{ .Date.Format "January 2, 2006" }}</span>
       <span class="read-time">{{ .ReadingTime }} min read</span>
+      {{ if .Params.difficulty }}
+      <span class="difficulty-badge difficulty-{{ .Params.difficulty }}">{{ .Params.difficulty | title }}</span>
+      {{ end }}
       <span class="tags">
         {{ range .Params.tags }}
         <span class="tag">{{ . }}</span>

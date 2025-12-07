@@ -6,6 +6,7 @@ slug: "liquidation-mechanics"
 tags: ["education", "liquidations", "leverage", "risk-management", "futures"]
 icon: "💥"
 category: "derivatives"
+difficulty: "intermediate"
 priority: 0.6
 css: ['learn.scss']
 ---

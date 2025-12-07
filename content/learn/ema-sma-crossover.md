@@ -6,6 +6,7 @@ slug: "ema-sma-crossover"
 tags: ["education", "moving-averages", "ema", "sma", "trend-following"]
 icon: "〰️"
 category: "technical"
+difficulty: "intermediate"
 priority: 0.5
 css: ['learn.scss']
 ---

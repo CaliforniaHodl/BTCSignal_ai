@@ -6,6 +6,7 @@ slug: "funding-rates"
 tags: ["education", "funding-rates", "perpetual-futures", "derivatives"]
 icon: "💰"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---

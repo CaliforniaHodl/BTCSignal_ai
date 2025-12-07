@@ -6,6 +6,7 @@ slug: "open-interest"
 tags: ["education", "open-interest", "derivatives", "futures", "trading"]
 icon: "📊"
 category: "derivatives"
+difficulty: "intermediate"
 priority: 0.6
 css: ['learn.scss']
 ---

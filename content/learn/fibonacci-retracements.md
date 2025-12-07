@@ -6,6 +6,7 @@ slug: "fibonacci-retracements"
 tags: ["education", "fibonacci", "retracements", "key-levels"]
 icon: "🔢"
 category: "technical"
+difficulty: "intermediate"
 priority: 0.5
 css: ['learn.scss']
 ---

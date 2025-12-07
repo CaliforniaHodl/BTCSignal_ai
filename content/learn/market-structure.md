@@ -6,6 +6,7 @@ slug: "market-structure"
 tags: ["education", "market-structure", "trading-basics"]
 icon: "📊"
 category: "fundamentals"
+difficulty: "beginner"
 priority: 0.5
 css: ['learn.scss']
 ---
