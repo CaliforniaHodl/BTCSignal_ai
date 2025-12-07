@@ -1,146 +1,220 @@
-/**
- * Difficulty Ribbon - Bitcoin Mining Indicator
- * Shows difficulty moving averages and miner capitulation signals
- */
-
+// Difficulty Ribbon - Bitcoin mining difficulty analysis
 (function() {
   'use strict';
 
-  let difficultyChart = null;
-  let hashrateChart = null;
-  let currentRange = '1y';
+  var MEMPOOL_API = 'https://mempool.space/api/v1';
+  var ribbonChart = null;
+  var hashrateChart = null;
 
-  // MA periods for the ribbon
-  const maPeriods = [9, 14, 25, 40, 60, 90, 128, 200];
-  const maColors = ['#ffd43b', '#a9e34b', '#69db7c', '#38d9a9', '#4dabf7', '#748ffc', '#9775fa', '#da77f2'];
-
-  document.addEventListener('DOMContentLoaded', init);
-
-  async function init() {
-    setupEventListeners();
-    await fetchMiningData();
-  }
-
-  function setupEventListeners() {
-    document.querySelectorAll('.time-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        currentRange = this.dataset.range;
-        fetchMiningData();
-      });
-    });
-  }
-
-  async function fetchMiningData() {
-    try {
-      // Fetch difficulty data from mempool.space
-      const diffRes = await fetch('https://mempool.space/api/v1/mining/difficulty-adjustments');
-      const diffData = await diffRes.json();
-
-      // Fetch hashrate data
-      const hashRes = await fetch('https://mempool.space/api/v1/mining/hashrate/1y');
-      const hashData = await hashRes.json();
-
-      updateMetrics(diffData, hashData);
-      drawDifficultyChart(diffData);
-      drawHashrateChart(hashData);
-      analyzeRibbon(diffData);
-
-    } catch (error) {
-      console.error('Error fetching mining data:', error);
-      displayFallbackData();
-    }
-  }
-
-  function updateMetrics(diffData, hashData) {
-    // Current difficulty
-    if (diffData && diffData.length > 0) {
-      const latest = diffData[0];
-      const difficulty = latest.difficulty;
-      const diffFormatted = formatDifficulty(difficulty);
-      document.getElementById('current-difficulty').textContent = diffFormatted;
-
-      // Last adjustment
-      const change = latest.difficultyChange;
-      const changeEl = document.getElementById('difficulty-change');
-      changeEl.textContent = (change >= 0 ? '+' : '') + change.toFixed(2) + '%';
-      changeEl.className = 'metric-value ' + (change >= 0 ? 'positive' : 'negative');
-
-      // Next adjustment estimate (roughly 2016 blocks from last)
-      const blocksUntilAdj = 2016 - (latest.height % 2016);
-      const daysUntil = Math.round(blocksUntilAdj * 10 / 60 / 24);
-      document.getElementById('next-adjustment').textContent = '~' + daysUntil + ' days';
-    }
-
-    // Hash rate
-    if (hashData && hashData.hashrates && hashData.hashrates.length > 0) {
-      const latestHash = hashData.hashrates[hashData.hashrates.length - 1];
-      const hashrate = latestHash.avgHashrate / 1e18; // Convert to EH/s
-      document.getElementById('hash-rate').textContent = hashrate.toFixed(1);
-    }
-  }
-
+  // Format large numbers
   function formatDifficulty(diff) {
-    if (diff >= 1e12) return (diff / 1e12).toFixed(2) + 'T';
-    if (diff >= 1e9) return (diff / 1e9).toFixed(2) + 'B';
-    if (diff >= 1e6) return (diff / 1e6).toFixed(2) + 'M';
+    if (diff >= 1e12) {
+      return (diff / 1e12).toFixed(2) + 'T';
+    } else if (diff >= 1e9) {
+      return (diff / 1e9).toFixed(2) + 'B';
+    }
     return diff.toLocaleString();
   }
 
-  function drawDifficultyChart(data) {
-    const ctx = document.getElementById('difficulty-chart');
-    if (!ctx) return;
-
-    if (difficultyChart) {
-      difficultyChart.destroy();
+  function formatHashrate(hash) {
+    if (hash >= 1e18) {
+      return (hash / 1e18).toFixed(2) + ' EH/s';
+    } else if (hash >= 1e15) {
+      return (hash / 1e15).toFixed(2) + ' PH/s';
     }
+    return hash.toLocaleString() + ' H/s';
+  }
 
-    // Process data for ribbon
-    const processedData = processRibbonData(data);
+  // Fetch difficulty adjustments from mempool.space
+  function fetchDifficultyAdjustments() {
+    return fetch(MEMPOOL_API + '/difficulty-adjustments')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Failed to fetch difficulty');
+        return response.json();
+      })
+      .catch(function(error) {
+        console.error('Error fetching difficulty:', error);
+        return null;
+      });
+  }
 
-    // Filter by range
-    const filtered = filterByRange(processedData, currentRange);
+  // Fetch hashrate history
+  function fetchHashrateHistory() {
+    return fetch(MEMPOOL_API + '/mining/hashrate/1y')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Failed to fetch hashrate');
+        return response.json();
+      })
+      .catch(function(error) {
+        console.error('Error fetching hashrate:', error);
+        return null;
+      });
+  }
 
-    const labels = filtered.map(d => {
-      const date = new Date(d.timestamp * 1000);
-      return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+  // Calculate moving average
+  function calculateMA(data, period) {
+    var result = [];
+    for (var i = 0; i < data.length; i++) {
+      if (i < period - 1) {
+        result.push(null);
+      } else {
+        var sum = 0;
+        for (var j = 0; j < period; j++) {
+          sum += data[i - j];
+        }
+        result.push(sum / period);
+      }
+    }
+    return result;
+  }
+
+  // Determine ribbon signal
+  function getRibbonSignal(difficulty, ma128, ma200) {
+    if (!ma128 || !ma200) {
+      return { status: 'Neutral', class: 'neutral' };
+    }
+    
+    if (ma128 < ma200 * 0.98) {
+      return { status: 'Buy Signal', class: 'bullish' };
+    } else if (ma128 > ma200 * 1.02) {
+      return { status: 'No Signal', class: 'neutral' };
+    } else {
+      return { status: 'Watch', class: 'warning' };
+    }
+  }
+
+  // Update metrics display
+  function updateMetrics(adjustments) {
+    if (!adjustments || adjustments.length === 0) return;
+    
+    var latest = adjustments[0];
+    var previous = adjustments[1];
+    
+    // Current difficulty
+    document.getElementById('current-difficulty').textContent = formatDifficulty(latest.difficulty);
+    
+    // Last adjustment
+    var changePercent = ((latest.difficulty - previous.difficulty) / previous.difficulty) * 100;
+    var changeEl = document.getElementById('difficulty-change');
+    changeEl.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%';
+    changeEl.className = 'metric-value ' + (changePercent >= 0 ? 'positive' : 'negative');
+    
+    // Next adjustment (approximately 2016 blocks from latest)
+    var blocksRemaining = 2016 - (latest.height % 2016);
+    var minutesRemaining = blocksRemaining * 10;
+    var daysRemaining = Math.floor(minutesRemaining / 1440);
+    document.getElementById('next-adjustment').textContent = '~' + daysRemaining + ' days';
+    
+    // Calculate ribbon signal
+    var difficulties = adjustments.slice(0, 30).map(function(a) { return a.difficulty; }).reverse();
+    var ma128 = calculateMA(difficulties, 9); // Approximation for 128-day
+    var ma200 = calculateMA(difficulties, 14); // Approximation for 200-day
+    
+    var signal = getRibbonSignal(
+      difficulties[difficulties.length - 1],
+      ma128[ma128.length - 1],
+      ma200[ma200.length - 1]
+    );
+    
+    document.getElementById('ribbon-signal').textContent = signal.status;
+    document.getElementById('ribbon-signal').className = 'metric-value ' + signal.class;
+    
+    // Update signal card
+    document.getElementById('signal-status').textContent = signal.status;
+    document.getElementById('signal-status').className = signal.class;
+    
+    if (signal.status === 'Buy Signal') {
+      document.getElementById('signal-explanation').textContent = 
+        'The difficulty ribbon is showing a potential buy signal. Short-term difficulty MA has crossed below long-term MA, ' +
+        'historically indicating miner capitulation and often preceding major price rallies.';
+    } else if (signal.status === 'Watch') {
+      document.getElementById('signal-explanation').textContent = 
+        'Difficulty MAs are converging. Watch for potential crossover which could signal miner stress ' +
+        'and a potential buying opportunity.';
+    } else {
+      document.getElementById('signal-explanation').textContent = 
+        'No capitulation signal currently. Difficulty is trending normally with healthy miner participation. ' +
+        'The network remains strong with consistent hash rate.';
+    }
+  }
+
+  // Create difficulty ribbon chart
+  function createRibbonChart(adjustments, months) {
+    var ctx = document.getElementById('ribbon-chart').getContext('2d');
+    
+    // Filter to time range
+    var cutoff = new Date();
+    cutoff.setMonth(cutoff.getMonth() - months);
+    
+    var filtered = adjustments.filter(function(a) {
+      return new Date(a.time * 1000) >= cutoff;
+    }).reverse();
+    
+    var labels = filtered.map(function(a) {
+      return new Date(a.time * 1000).toLocaleDateString();
     });
-
-    // Create datasets for each MA
-    const datasets = maPeriods.map((period, i) => ({
-      label: period + 'D MA',
-      data: filtered.map(d => d.mas[period] || null),
-      borderColor: maColors[i],
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      pointRadius: 0,
-      tension: 0.3
-    }));
-
-    // Add raw difficulty line
-    datasets.unshift({
-      label: 'Difficulty',
-      data: filtered.map(d => d.difficulty),
-      borderColor: '#f7931a',
-      backgroundColor: 'transparent',
-      borderWidth: 2,
-      pointRadius: 0,
-      tension: 0.3,
-      borderDash: [5, 5]
-    });
-
-    difficultyChart = new Chart(ctx, {
+    var difficulties = filtered.map(function(a) { return a.difficulty; });
+    
+    // Calculate MAs
+    var ma128 = calculateMA(difficulties, Math.min(9, Math.floor(filtered.length / 3)));
+    var ma200 = calculateMA(difficulties, Math.min(14, Math.floor(filtered.length / 2)));
+    
+    if (ribbonChart) {
+      ribbonChart.destroy();
+    }
+    
+    ribbonChart = new Chart(ctx, {
       type: 'line',
-      data: { labels, datasets },
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Difficulty',
+            data: difficulties,
+            borderColor: '#f7931a',
+            backgroundColor: 'rgba(247, 147, 26, 0.1)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            borderWidth: 2
+          },
+          {
+            label: '128-day MA',
+            data: ma128,
+            borderColor: '#3fb950',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            borderDash: [5, 5]
+          },
+          {
+            label: '200-day MA',
+            data: ma200,
+            borderColor: '#f85149',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4,
+            pointRadius: 0,
+            borderDash: [5, 5]
+          }
+        ]
+      },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: false
+          },
           tooltip: {
             mode: 'index',
             intersect: false,
+            backgroundColor: 'rgba(22, 27, 34, 0.95)',
+            titleColor: '#e6edf3',
+            bodyColor: '#8d96a0',
+            borderColor: '#30363d',
+            borderWidth: 1,
             callbacks: {
               label: function(context) {
                 return context.dataset.label + ': ' + formatDifficulty(context.parsed.y);
@@ -150,76 +224,97 @@
         },
         scales: {
           x: {
-            grid: { color: 'rgba(255,255,255,0.1)' },
-            ticks: { color: '#9ca3af', maxTicksLimit: 12 }
+            grid: {
+              color: 'rgba(48, 54, 61, 0.5)'
+            },
+            ticks: {
+              color: '#8d96a0',
+              maxTicksLimit: 6
+            }
           },
           y: {
-            grid: { color: 'rgba(255,255,255,0.1)' },
+            grid: {
+              color: 'rgba(48, 54, 61, 0.5)'
+            },
             ticks: {
-              color: '#9ca3af',
-              callback: function(value) { return formatDifficulty(value); }
+              color: '#8d96a0',
+              callback: function(value) {
+                return formatDifficulty(value);
+              }
             }
           }
-        },
-        interaction: { mode: 'index', intersect: false }
+        }
       }
     });
   }
 
-  function drawHashrateChart(data) {
-    const ctx = document.getElementById('hashrate-chart');
-    if (!ctx || !data.hashrates) return;
-
+  // Create hashrate chart
+  function createHashrateChart(data) {
+    if (!data || !data.hashrates) return;
+    
+    var ctx = document.getElementById('hashrate-chart').getContext('2d');
+    
+    var labels = data.hashrates.map(function(h) {
+      return new Date(h.timestamp * 1000).toLocaleDateString();
+    });
+    var hashrates = data.hashrates.map(function(h) { return h.avgHashrate; });
+    
     if (hashrateChart) {
       hashrateChart.destroy();
     }
-
-    const filtered = data.hashrates.slice(-365); // Last year
-
-    const labels = filtered.map(d => {
-      const date = new Date(d.timestamp * 1000);
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    });
-
-    const hashrates = filtered.map(d => d.avgHashrate / 1e18); // EH/s
-
+    
     hashrateChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels,
+        labels: labels,
         datasets: [{
-          label: 'Hash Rate (EH/s)',
+          label: 'Hash Rate',
           data: hashrates,
-          borderColor: '#f7931a',
-          backgroundColor: 'rgba(247, 147, 26, 0.1)',
+          borderColor: '#0ea5e9',
+          backgroundColor: 'rgba(14, 165, 233, 0.1)',
           fill: true,
-          tension: 0.3,
-          pointRadius: 0
+          tension: 0.4,
+          pointRadius: 0,
+          borderWidth: 2
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { display: false },
+          legend: {
+            display: false
+          },
           tooltip: {
+            backgroundColor: 'rgba(22, 27, 34, 0.95)',
+            titleColor: '#e6edf3',
+            bodyColor: '#8d96a0',
             callbacks: {
               label: function(context) {
-                return context.parsed.y.toFixed(1) + ' EH/s';
+                return formatHashrate(context.parsed.y);
               }
             }
           }
         },
         scales: {
           x: {
-            grid: { color: 'rgba(255,255,255,0.1)' },
-            ticks: { color: '#9ca3af', maxTicksLimit: 10 }
+            grid: {
+              color: 'rgba(48, 54, 61, 0.5)'
+            },
+            ticks: {
+              color: '#8d96a0',
+              maxTicksLimit: 6
+            }
           },
           y: {
-            grid: { color: 'rgba(255,255,255,0.1)' },
+            grid: {
+              color: 'rgba(48, 54, 61, 0.5)'
+            },
             ticks: {
-              color: '#9ca3af',
-              callback: function(value) { return value.toFixed(0) + ' EH/s'; }
+              color: '#8d96a0',
+              callback: function(value) {
+                return formatHashrate(value);
+              }
             }
           }
         }
@@ -227,99 +322,53 @@
     });
   }
 
-  function processRibbonData(data) {
-    if (!data || data.length === 0) return [];
-
-    // Sort by time ascending
-    const sorted = [...data].sort((a, b) => a.time - b.time);
-
-    // Calculate MAs for each data point
-    return sorted.map((d, i) => {
-      const mas = {};
-      maPeriods.forEach(period => {
-        if (i >= period - 1) {
-          const slice = sorted.slice(i - period + 1, i + 1);
-          const avg = slice.reduce((sum, x) => sum + x.difficulty, 0) / period;
-          mas[period] = avg;
+  // Handle time range buttons
+  function setupTimeButtons(adjustments) {
+    var buttons = document.querySelectorAll('.time-btn');
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        buttons.forEach(function(b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        
+        var range = btn.dataset.range;
+        var months;
+        switch(range) {
+          case '1y': months = 12; break;
+          case '2y': months = 24; break;
+          case '4y': months = 48; break;
+          default: months = 24;
         }
+        
+        createRibbonChart(adjustments, months);
       });
-
-      return {
-        timestamp: d.time,
-        difficulty: d.difficulty,
-        mas
-      };
     });
   }
 
-  function filterByRange(data, range) {
-    const now = Date.now() / 1000;
-    const ranges = {
-      '6m': 180 * 24 * 60 * 60,
-      '1y': 365 * 24 * 60 * 60,
-      '2y': 730 * 24 * 60 * 60,
-      'all': Infinity
-    };
-
-    const cutoff = now - (ranges[range] || ranges['1y']);
-    return data.filter(d => d.timestamp >= cutoff);
+  // Initialize
+  function init() {
+    Promise.all([
+      fetchDifficultyAdjustments(),
+      fetchHashrateHistory()
+    ]).then(function(results) {
+      var adjustments = results[0];
+      var hashrate = results[1];
+      
+      if (adjustments) {
+        updateMetrics(adjustments);
+        createRibbonChart(adjustments, 24);
+        setupTimeButtons(adjustments);
+      }
+      
+      if (hashrate) {
+        createHashrateChart(hashrate);
+      }
+    });
   }
 
-  function analyzeRibbon(data) {
-    const banner = document.getElementById('signal-banner');
-    const icon = document.getElementById('ribbon-signal-icon');
-    const title = document.getElementById('ribbon-signal-title');
-    const desc = document.getElementById('ribbon-signal-desc');
-
-    if (!data || data.length < 2) {
-      title.textContent = 'Insufficient Data';
-      desc.textContent = 'Unable to analyze difficulty ribbon.';
-      return;
-    }
-
-    // Check recent difficulty changes
-    const recentChanges = data.slice(0, 5);
-    const negativeCount = recentChanges.filter(d => d.difficultyChange < 0).length;
-    const avgChange = recentChanges.reduce((sum, d) => sum + d.difficultyChange, 0) / recentChanges.length;
-
-    // Determine signal
-    if (negativeCount >= 3 || avgChange < -5) {
-      // Miner capitulation
-      banner.className = 'card signal-banner bullish';
-      icon.textContent = '🟢';
-      title.textContent = 'Potential Buy Signal';
-      desc.textContent = 'Difficulty has seen multiple negative adjustments. Historically, this indicates miner capitulation - often a good accumulation zone.';
-    } else if (negativeCount >= 2 || avgChange < -2) {
-      // Stress
-      banner.className = 'card signal-banner caution';
-      icon.textContent = '🟡';
-      title.textContent = 'Miner Stress Detected';
-      desc.textContent = 'Some negative difficulty adjustments observed. Miners may be under pressure. Watch for further capitulation signals.';
-    } else if (avgChange > 5) {
-      // Strong growth
-      banner.className = 'card signal-banner neutral';
-      icon.textContent = '📈';
-      title.textContent = 'Strong Mining Growth';
-      desc.textContent = 'Difficulty is increasing significantly. Hash rate is expanding as miners remain profitable. No capitulation signal.';
-    } else {
-      // Normal
-      banner.className = 'card signal-banner neutral';
-      icon.textContent = '📊';
-      title.textContent = 'Normal Mining Conditions';
-      desc.textContent = 'Difficulty adjustments are within normal range. No significant miner stress or capitulation detected.';
-    }
+  // Start when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-
-  function displayFallbackData() {
-    document.getElementById('current-difficulty').textContent = '~95T';
-    document.getElementById('difficulty-change').textContent = '+2.5%';
-    document.getElementById('next-adjustment').textContent = '~7 days';
-    document.getElementById('hash-rate').textContent = '~650';
-
-    const title = document.getElementById('ribbon-signal-title');
-    const desc = document.getElementById('ribbon-signal-desc');
-    title.textContent = 'Data Temporarily Unavailable';
-    desc.textContent = 'Unable to fetch live mining data. Please refresh to try again.';
-  }
-
 })();

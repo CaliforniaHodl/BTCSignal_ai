@@ -1,15 +1,15 @@
 {{ define "main" }}
 <div class="free-tool-page fee-estimator-page">
   <div class="container">
-    <!-- Page Header -->
-    <div class="tool-header">
-      <div class="tool-badge free-badge">Free Tool</div>
-      <h1>⚡ Bitcoin Fee Estimator</h1>
-      <p class="tool-subtitle">Real-time mempool analysis for optimal transaction timing</p>
-    </div>
+    <!-- Header -->
+    <header class="tool-header">
+      <span class="free-badge">100% Free</span>
+      <h1><span class="tool-icon" aria-hidden="true">⚡</span> {{ .Title }}</h1>
+      <p class="tool-subtitle">Real-time Bitcoin transaction fee recommendations based on mempool analysis</p>
+    </header>
 
-    <!-- Fee Cards -->
-    <div class="fee-grid">
+    <!-- Fee Tiers -->
+    <div class="fee-grid" id="fee-grid">
       <div class="fee-card fastest">
         <span class="fee-priority">Fastest</span>
         <span class="fee-value" id="fee-fastest">--</span>
@@ -46,95 +46,75 @@
           <span class="stat-value" id="pending-txs">--</span>
         </div>
         <div class="mempool-stat">
-          <span class="stat-label">Total Fees in Mempool</span>
-          <span class="stat-value" id="total-fees">-- BTC</span>
-        </div>
-      </div>
-
-      <!-- Recommendation -->
-      <div class="recommendation" id="recommendation">
-        <span class="rec-icon">💡</span>
-        <div class="rec-text">
-          <strong id="rec-title">Analyzing mempool...</strong>
-          <span id="rec-desc">Checking current network conditions</span>
+          <span class="stat-label">Last Block</span>
+          <span class="stat-value" id="last-block">--</span>
         </div>
       </div>
     </div>
 
     <!-- Fee Calculator -->
     <div class="card calculator-card">
-      <h2>Calculate Your Fee</h2>
+      <h2>Fee Calculator</h2>
       <div class="calc-row">
         <label for="tx-size">Transaction Size:</label>
-        <input type="number" id="tx-size" class="form-control" value="250" min="100" max="10000" />
+        <input type="number" id="tx-size" class="form-control" value="250" min="100" max="10000" style="max-width: 150px;">
         <span>vBytes</span>
       </div>
       <div class="calc-row">
-        <label>Typical TX (~250 vB):</label>
-        <span class="result" id="calc-typical">--</span>
+        <label>Estimated Fees:</label>
+        <span class="result" id="calc-result">Enter transaction size</span>
       </div>
-      <div class="calc-row">
-        <label>Custom TX:</label>
-        <span class="result" id="calc-custom">--</span>
-      </div>
-      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 1rem;">
-        * Standard P2PKH transactions are ~250 vBytes. SegWit transactions are typically smaller (~140 vB).
+      <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 1rem;">
+        Typical transaction: 250 vB (1 input, 2 outputs) | Larger transactions use more vBytes
       </p>
     </div>
 
-    <!-- Fee Chart -->
-    <div class="card chart-section">
-      <h2>Fee History (24h)</h2>
-      <div class="chart-container">
-        <canvas id="fee-chart"></canvas>
+    <!-- Recommendation -->
+    <div class="card" id="recommendation-card">
+      <div class="recommendation">
+        <span class="rec-icon" aria-hidden="true">💡</span>
+        <div class="rec-text">
+          <strong id="rec-title">Loading recommendations...</strong>
+          <span id="rec-text">Analyzing current mempool conditions</span>
+        </div>
       </div>
     </div>
 
-    <!-- Educational Section -->
-    <div class="education-section card">
+    <!-- Education Section -->
+    <div class="card education-section">
       <h2>How Bitcoin Fees Work</h2>
       <div class="education-grid">
         <div class="education-item">
-          <span class="edu-icon">📦</span>
+          <span class="edu-icon" aria-hidden="true">📦</span>
           <h3>Block Space</h3>
-          <p>Bitcoin blocks have limited space (~4MB). Miners prioritize transactions with higher fees per byte.</p>
+          <p>Bitcoin blocks have limited space (~1MB). Miners prioritize transactions that pay higher fees per byte.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">⏱️</span>
+          <span class="edu-icon" aria-hidden="true">⏱️</span>
           <h3>Confirmation Time</h3>
-          <p>Higher fees = faster confirmation. During high demand, low-fee transactions may wait hours or days.</p>
+          <p>Higher fees = faster confirmation. Pay more for urgent transactions, less for those that can wait.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">📊</span>
+          <span class="edu-icon" aria-hidden="true">📊</span>
           <h3>Mempool Dynamics</h3>
-          <p>The mempool holds unconfirmed transactions. When it's full, fees spike. When empty, fees drop.</p>
+          <p>Fees fluctuate based on demand. Weekend/night transactions often cost less than peak hours.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">💡</span>
-          <h3>Best Time to Send</h3>
-          <p>Fees are typically lowest on weekends and during early morning hours (UTC). Plan non-urgent transactions accordingly.</p>
+          <span class="edu-icon" aria-hidden="true">💰</span>
+          <h3>Save Money</h3>
+          <p>Non-urgent? Use economy fees. Need it fast? Pay premium. Our tool shows real-time optimal rates.</p>
         </div>
       </div>
-    </div>
-
-    <!-- Data Source -->
-    <div class="card" style="text-align: center;">
-      <p style="color: var(--text-secondary); margin: 0;">
-        Data powered by <a href="https://mempool.space" target="_blank" rel="noopener noreferrer" style="color: var(--bitcoin-orange);">mempool.space</a> API
-      </p>
-      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;">
-        Last updated: <span id="last-updated">--</span>
-      </p>
     </div>
 
     <!-- CTA Section -->
     <div class="cta-section">
-      <h2>Want More Bitcoin Intelligence?</h2>
-      <p>Get real-time trading signals, liquidation data, and on-chain analytics with our Pro Tools.</p>
+      <h2>Track More Than Just Fees</h2>
+      <p>Get real-time whale alerts, liquidation maps, and market signals</p>
       <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/src/js/fee-estimator.js"></script>
 {{ end }}

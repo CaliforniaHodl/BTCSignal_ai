@@ -1,247 +1,117 @@
-// Bitcoin DCA Calculator
-// Calculates dollar cost averaging returns with real historical data
-
+// DCA Calculator - Dollar Cost Averaging Simulator
 (function() {
   'use strict';
 
-  let chart = null;
-  let currentBTCPrice = 0;
-  let historicalPrices = {};
+  // Cache DOM elements
+  const startDateInput = document.getElementById('start-date');
+  const endDateInput = document.getElementById('end-date');
+  const frequencySelect = document.getElementById('frequency');
+  const amountInput = document.getElementById('amount');
+  const calculateBtn = document.getElementById('calculate-btn');
+  const resultsSection = document.getElementById('dca-results');
+  const chartSection = document.getElementById('chart-section');
+  const presetButtons = document.querySelectorAll('.preset-btn');
 
-  // Initialize
-  document.addEventListener('DOMContentLoaded', init);
+  let dcaChart = null;
+  let priceCache = {};
 
-  async function init() {
-    setDefaultDates();
-    await fetchCurrentPrice();
-    setupEventListeners();
-  }
-
-  function setDefaultDates() {
-    const endDate = document.getElementById('end-date');
-    const startDate = document.getElementById('start-date');
-
+  // Set default dates
+  function initializeDates() {
     const today = new Date();
-    const oneYearAgo = new Date();
+    const oneYearAgo = new Date(today);
     oneYearAgo.setFullYear(today.getFullYear() - 1);
-
-    endDate.value = formatDateForInput(today);
-    startDate.value = formatDateForInput(oneYearAgo);
-
-    // Set min/max dates
-    startDate.min = '2013-04-28'; // CoinGecko BTC data starts around here
-    startDate.max = formatDateForInput(today);
-    endDate.min = '2013-04-28';
-    endDate.max = formatDateForInput(today);
+    
+    endDateInput.value = today.toISOString().split('T')[0];
+    startDateInput.value = oneYearAgo.toISOString().split('T')[0];
+    
+    // Set max date to today
+    endDateInput.max = today.toISOString().split('T')[0];
+    startDateInput.max = today.toISOString().split('T')[0];
+    
+    // Set min date to 2010 (Bitcoin's early days)
+    startDateInput.min = '2010-07-17';
+    endDateInput.min = '2010-07-17';
   }
 
-  function formatDateForInput(date) {
-    return date.toISOString().split('T')[0];
-  }
-
-  async function fetchCurrentPrice() {
-    try {
-      const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-      const data = await res.json();
-      currentBTCPrice = data.bitcoin.usd;
-    } catch (e) {
-      console.error('Failed to fetch current price:', e);
-      currentBTCPrice = 100000; // Fallback
-    }
-  }
-
-  function setupEventListeners() {
-    document.getElementById('calculate-btn').addEventListener('click', calculateDCA);
-
-    // Preset buttons
-    document.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.addEventListener('click', function() {
-        applyPreset(this.dataset.preset);
+  // Preset button handlers
+  function setupPresets() {
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const preset = btn.dataset.preset;
+        const today = new Date();
+        let startDate = new Date(today);
+        
+        switch(preset) {
+          case '1y':
+            startDate.setFullYear(today.getFullYear() - 1);
+            break;
+          case '2y':
+            startDate.setFullYear(today.getFullYear() - 2);
+            break;
+          case '4y':
+            startDate.setFullYear(today.getFullYear() - 4);
+            break;
+          case 'halving':
+            // Last halving was April 2024
+            startDate = new Date('2024-04-20');
+            break;
+        }
+        
+        startDateInput.value = startDate.toISOString().split('T')[0];
+        endDateInput.value = today.toISOString().split('T')[0];
+        
+        // Highlight active preset
+        presetButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
       });
     });
-
-    // Enter key on inputs
-    document.querySelectorAll('.input-panel input').forEach(input => {
-      input.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') calculateDCA();
-      });
-    });
   }
 
-  function applyPreset(preset) {
-    const endDate = document.getElementById('end-date');
-    const startDate = document.getElementById('start-date');
-    const today = new Date();
-
-    endDate.value = formatDateForInput(today);
-
-    switch(preset) {
-      case '1y':
-        const oneYear = new Date();
-        oneYear.setFullYear(today.getFullYear() - 1);
-        startDate.value = formatDateForInput(oneYear);
-        break;
-      case '4y':
-        const fourYears = new Date();
-        fourYears.setFullYear(today.getFullYear() - 4);
-        startDate.value = formatDateForInput(fourYears);
-        break;
-      case '2020':
-        startDate.value = '2020-01-01';
-        break;
+  // Fetch historical BTC prices from CoinGecko
+  async function fetchPriceHistory(startDate, endDate) {
+    const cacheKey = `${startDate}_${endDate}`;
+    if (priceCache[cacheKey]) {
+      return priceCache[cacheKey];
     }
 
-    calculateDCA();
-  }
-
-  async function calculateDCA() {
-    const startDateStr = document.getElementById('start-date').value;
-    const endDateStr = document.getElementById('end-date').value;
-    const frequency = document.getElementById('frequency').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-
-    if (!startDateStr || !endDateStr || !amount || amount <= 0) {
-      if (typeof Toast !== 'undefined') {
-        Toast.error('Please fill in all fields with valid values');
-      }
-      return;
-    }
-
-    const startDate = new Date(startDateStr);
-    const endDate = new Date(endDateStr);
-
-    if (startDate >= endDate) {
-      if (typeof Toast !== 'undefined') {
-        Toast.error('Start date must be before end date');
-      }
-      return;
-    }
-
-    // Show loading
-    document.getElementById('calculate-btn').textContent = 'Calculating...';
-    document.getElementById('calculate-btn').disabled = true;
-
+    const start = Math.floor(new Date(startDate).getTime() / 1000);
+    const end = Math.floor(new Date(endDate).getTime() / 1000);
+    
     try {
-      // Fetch historical prices
-      const prices = await fetchHistoricalPrices(startDate, endDate);
-
-      if (!prices || prices.length === 0) {
-        throw new Error('No price data available');
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=usd&from=${start}&to=${end}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch price data');
       }
-
-      // Calculate DCA
-      const results = performDCACalculation(prices, startDate, endDate, frequency, amount);
-
-      // Display results
-      displayResults(results);
-
-      // Draw chart
-      drawChart(results);
-
-    } catch (e) {
-      console.error('DCA calculation error:', e);
-      if (typeof Toast !== 'undefined') {
-        Toast.error('Error calculating DCA. Please try again.');
-      }
-    } finally {
-      document.getElementById('calculate-btn').textContent = 'Calculate Returns';
-      document.getElementById('calculate-btn').disabled = false;
+      
+      const data = await response.json();
+      const prices = {};
+      
+      // Convert to daily prices
+      data.prices.forEach(([timestamp, price]) => {
+        const date = new Date(timestamp).toISOString().split('T')[0];
+        prices[date] = price;
+      });
+      
+      priceCache[cacheKey] = prices;
+      return prices;
+    } catch (error) {
+      console.error('Error fetching prices:', error);
+      throw error;
     }
   }
 
-  async function fetchHistoricalPrices(startDate, endDate) {
-    // CoinGecko market_chart/range endpoint
-    const fromTs = Math.floor(startDate.getTime() / 1000);
-    const toTs = Math.floor(endDate.getTime() / 1000);
-
-    const url = `https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/range?vs_currency=usd&from=${fromTs}&to=${toTs}`;
-
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error('Failed to fetch price data');
-    }
-
-    const data = await res.json();
-    return data.prices; // [[timestamp, price], ...]
-  }
-
-  function performDCACalculation(prices, startDate, endDate, frequency, amount) {
-    // Build price lookup by date
-    const priceByDate = {};
-    prices.forEach(([ts, price]) => {
-      const date = new Date(ts).toISOString().split('T')[0];
-      priceByDate[date] = price;
-    });
-
-    // Generate purchase dates based on frequency
-    const purchaseDates = generatePurchaseDates(startDate, endDate, frequency);
-
-    let totalInvested = 0;
-    let totalBTC = 0;
-    const purchases = [];
-    const portfolioHistory = [];
-
-    purchaseDates.forEach(date => {
-      const dateStr = formatDateForInput(date);
-      // Find closest price
-      const price = findClosestPrice(priceByDate, date);
-
-      if (price > 0) {
-        const btcBought = amount / price;
-        totalInvested += amount;
-        totalBTC += btcBought;
-
-        purchases.push({
-          date: dateStr,
-          price: price,
-          amount: amount,
-          btcBought: btcBought,
-          totalBTC: totalBTC,
-          totalInvested: totalInvested,
-          portfolioValue: totalBTC * price
-        });
-
-        portfolioHistory.push({
-          date: dateStr,
-          price: price,
-          portfolioValue: totalBTC * price,
-          totalInvested: totalInvested
-        });
-      }
-    });
-
-    // Calculate final values
-    const currentValue = totalBTC * currentBTCPrice;
-    const avgCost = totalInvested / totalBTC;
-    const roi = ((currentValue - totalInvested) / totalInvested) * 100;
-
-    // Lump sum comparison
-    const firstPrice = purchases.length > 0 ? purchases[0].price : 0;
-    const lumpSumBTC = totalInvested / firstPrice;
-    const lumpSumValue = lumpSumBTC * currentBTCPrice;
-    const dcaAdvantage = currentValue - lumpSumValue;
-
-    return {
-      totalInvested,
-      totalBTC,
-      currentValue,
-      avgCost,
-      roi,
-      purchases,
-      portfolioHistory,
-      lumpSumValue,
-      dcaAdvantage,
-      priceHistory: prices
-    };
-  }
-
-  function generatePurchaseDates(startDate, endDate, frequency) {
+  // Get investment dates based on frequency
+  function getInvestmentDates(startDate, endDate, frequency) {
     const dates = [];
     let current = new Date(startDate);
-
-    while (current <= endDate) {
-      dates.push(new Date(current));
-
+    const end = new Date(endDate);
+    
+    while (current <= end) {
+      dates.push(current.toISOString().split('T')[0]);
+      
       switch(frequency) {
         case 'daily':
           current.setDate(current.getDate() + 1);
@@ -257,133 +127,184 @@
           break;
       }
     }
-
+    
     return dates;
   }
 
-  function findClosestPrice(priceByDate, targetDate) {
-    const dateStr = formatDateForInput(targetDate);
-    if (priceByDate[dateStr]) {
-      return priceByDate[dateStr];
-    }
-
-    // Look for closest date within 7 days
-    for (let i = 1; i <= 7; i++) {
-      const before = new Date(targetDate);
-      before.setDate(before.getDate() - i);
-      const after = new Date(targetDate);
-      after.setDate(after.getDate() + i);
-
-      if (priceByDate[formatDateForInput(before)]) {
-        return priceByDate[formatDateForInput(before)];
+  // Calculate DCA results
+  function calculateDCA(prices, investmentDates, amountPerPurchase) {
+    let totalInvested = 0;
+    let totalBtc = 0;
+    let purchases = [];
+    
+    investmentDates.forEach(date => {
+      // Find closest price if exact date not available
+      let price = prices[date];
+      if (!price) {
+        const dates = Object.keys(prices).sort();
+        const closest = dates.reduce((prev, curr) => {
+          return Math.abs(new Date(curr) - new Date(date)) < Math.abs(new Date(prev) - new Date(date)) ? curr : prev;
+        });
+        price = prices[closest];
       }
-      if (priceByDate[formatDateForInput(after)]) {
-        return priceByDate[formatDateForInput(after)];
-      }
-    }
-
-    return 0;
-  }
-
-  function displayResults(results) {
-    document.getElementById('total-invested').textContent = formatCurrency(results.totalInvested);
-    document.getElementById('current-value').textContent = formatCurrency(results.currentValue);
-    document.getElementById('total-btc').textContent = formatBTC(results.totalBTC);
-    document.getElementById('avg-cost').textContent = formatCurrency(results.avgCost);
-    document.getElementById('purchases').textContent = results.purchases.length;
-
-    const roiEl = document.getElementById('roi');
-    roiEl.textContent = results.roi.toFixed(2) + '%';
-    roiEl.classList.remove('positive', 'negative');
-    roiEl.classList.add(results.roi >= 0 ? 'positive' : 'negative');
-
-    // Comparison section
-    const compSection = document.getElementById('comparison-section');
-    compSection.style.display = 'block';
-    document.getElementById('lump-sum-value').textContent = formatCurrency(results.lumpSumValue);
-
-    const advEl = document.getElementById('dca-advantage');
-    advEl.textContent = (results.dcaAdvantage >= 0 ? '+' : '') + formatCurrency(results.dcaAdvantage);
-    advEl.classList.remove('positive', 'negative');
-    advEl.classList.add(results.dcaAdvantage >= 0 ? 'positive' : 'negative');
-  }
-
-  function drawChart(results) {
-    const ctx = document.getElementById('dca-chart').getContext('2d');
-
-    // Prepare data
-    const labels = [];
-    const btcPrices = [];
-    const portfolioValues = [];
-    const totalInvested = [];
-
-    // Sample price history for BTC price line
-    const sampleInterval = Math.max(1, Math.floor(results.priceHistory.length / 100));
-    results.priceHistory.forEach(([ts, price], i) => {
-      if (i % sampleInterval === 0) {
-        const date = new Date(ts);
-        labels.push(date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
-        btcPrices.push(price);
-
-        // Find corresponding portfolio value
-        const dateStr = formatDateForInput(date);
-        const purchase = results.purchases.find(p => p.date <= dateStr);
-        if (purchase) {
-          const portfolioAtDate = results.purchases
-            .filter(p => p.date <= dateStr)
-            .reduce((acc, p) => acc + p.btcBought, 0) * price;
-          const investedAtDate = results.purchases
-            .filter(p => p.date <= dateStr)
-            .reduce((acc, p) => acc + p.amount, 0);
-          portfolioValues.push(portfolioAtDate);
-          totalInvested.push(investedAtDate);
-        } else {
-          portfolioValues.push(0);
-          totalInvested.push(0);
-        }
+      
+      if (price) {
+        const btcBought = amountPerPurchase / price;
+        totalInvested += amountPerPurchase;
+        totalBtc += btcBought;
+        purchases.push({
+          date,
+          price,
+          btcBought,
+          totalBtc,
+          totalInvested,
+          portfolioValue: totalBtc * price
+        });
       }
     });
+    
+    // Get current price for final value
+    const priceKeys = Object.keys(prices).sort();
+    const currentPrice = prices[priceKeys[priceKeys.length - 1]];
+    const currentValue = totalBtc * currentPrice;
+    const avgPrice = totalInvested / totalBtc;
+    const roi = ((currentValue - totalInvested) / totalInvested) * 100;
+    
+    return {
+      totalInvested,
+      totalBtc,
+      currentValue,
+      avgPrice,
+      roi,
+      purchases,
+      currentPrice,
+      startPrice: prices[priceKeys[0]]
+    };
+  }
 
-    // Destroy existing chart
-    if (chart) {
-      chart.destroy();
+  // Calculate lump sum comparison
+  function calculateLumpSum(startPrice, currentPrice, totalInvested) {
+    const btcBought = totalInvested / startPrice;
+    const currentValue = btcBought * currentPrice;
+    const roi = ((currentValue - totalInvested) / totalInvested) * 100;
+    
+    return {
+      currentValue,
+      roi,
+      btcBought
+    };
+  }
+
+  // Format currency
+  function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  }
+
+  // Format BTC
+  function formatBtc(value) {
+    return value.toFixed(8) + ' BTC';
+  }
+
+  // Format percentage
+  function formatPercent(value) {
+    const sign = value >= 0 ? '+' : '';
+    return sign + value.toFixed(2) + '%';
+  }
+
+  // Update results display
+  function displayResults(dcaResults, lumpSum) {
+    document.getElementById('total-invested').textContent = formatCurrency(dcaResults.totalInvested);
+    document.getElementById('current-value').textContent = formatCurrency(dcaResults.currentValue);
+    document.getElementById('btc-accumulated').textContent = formatBtc(dcaResults.totalBtc);
+    document.getElementById('avg-price').textContent = formatCurrency(dcaResults.avgPrice);
+    document.getElementById('total-purchases').textContent = dcaResults.purchases.length;
+    
+    const roiEl = document.getElementById('roi');
+    roiEl.textContent = formatPercent(dcaResults.roi);
+    roiEl.className = 'result-value ' + (dcaResults.roi >= 0 ? 'positive' : 'negative');
+    
+    // Comparison
+    document.getElementById('lumpsum-value').textContent = formatCurrency(lumpSum.currentValue);
+    
+    const lumpRoiEl = document.getElementById('lumpsum-roi');
+    lumpRoiEl.textContent = formatPercent(lumpSum.roi);
+    lumpRoiEl.className = 'comp-value ' + (lumpSum.roi >= 0 ? 'positive' : 'negative');
+    
+    const advantage = dcaResults.roi - lumpSum.roi;
+    const advantageEl = document.getElementById('dca-advantage');
+    advantageEl.textContent = formatPercent(advantage);
+    advantageEl.className = 'comp-value ' + (advantage >= 0 ? 'positive' : 'negative');
+    
+    const winnerEl = document.getElementById('strategy-winner');
+    if (dcaResults.currentValue > lumpSum.currentValue) {
+      winnerEl.textContent = 'DCA Wins!';
+      winnerEl.className = 'comp-value positive';
+    } else if (lumpSum.currentValue > dcaResults.currentValue) {
+      winnerEl.textContent = 'Lump Sum Wins';
+      winnerEl.className = 'comp-value';
+    } else {
+      winnerEl.textContent = 'Tie';
+      winnerEl.className = 'comp-value';
     }
+    
+    resultsSection.style.display = 'block';
+  }
 
-    chart = new Chart(ctx, {
+  // Create/update chart
+  function updateChart(dcaResults, prices) {
+    const ctx = document.getElementById('dca-chart').getContext('2d');
+    
+    // Prepare data
+    const labels = dcaResults.purchases.map(p => p.date);
+    const portfolioValues = dcaResults.purchases.map(p => p.portfolioValue);
+    const investedValues = dcaResults.purchases.map(p => p.totalInvested);
+    const btcPrices = dcaResults.purchases.map(p => p.price);
+    
+    if (dcaChart) {
+      dcaChart.destroy();
+    }
+    
+    dcaChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: labels,
+        labels,
         datasets: [
           {
             label: 'BTC Price',
             data: btcPrices,
             borderColor: '#f7931a',
             backgroundColor: 'rgba(247, 147, 26, 0.1)',
-            fill: false,
+            yAxisID: 'y1',
             tension: 0.1,
-            yAxisID: 'y-price',
-            pointRadius: 0
+            pointRadius: 0,
+            borderWidth: 2
           },
           {
             label: 'Portfolio Value',
             data: portfolioValues,
-            borderColor: '#4ade80',
-            backgroundColor: 'rgba(74, 222, 128, 0.1)',
-            fill: true,
+            borderColor: '#3fb950',
+            backgroundColor: 'rgba(63, 185, 80, 0.1)',
+            yAxisID: 'y',
             tension: 0.1,
-            yAxisID: 'y-value',
-            pointRadius: 0
+            fill: true,
+            pointRadius: 0,
+            borderWidth: 2
           },
           {
             label: 'Total Invested',
-            data: totalInvested,
+            data: investedValues,
             borderColor: '#6b7280',
-            backgroundColor: 'rgba(107, 114, 128, 0.1)',
-            fill: false,
+            backgroundColor: 'transparent',
+            yAxisID: 'y',
             tension: 0.1,
-            yAxisID: 'y-value',
+            borderDash: [5, 5],
             pointRadius: 0,
-            borderDash: [5, 5]
+            borderWidth: 2
           }
         ]
       },
@@ -399,9 +320,21 @@
             display: false
           },
           tooltip: {
+            backgroundColor: 'rgba(22, 27, 34, 0.95)',
+            titleColor: '#e6edf3',
+            bodyColor: '#8d96a0',
+            borderColor: '#30363d',
+            borderWidth: 1,
             callbacks: {
               label: function(context) {
-                return context.dataset.label + ': ' + formatCurrency(context.parsed.y);
+                let label = context.dataset.label || '';
+                if (context.parsed.y !== null) {
+                  label += ': $' + context.parsed.y.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  });
+                }
+                return label;
               }
             }
           }
@@ -409,59 +342,134 @@
         scales: {
           x: {
             grid: {
-              color: 'rgba(255,255,255,0.1)'
+              color: 'rgba(48, 54, 61, 0.5)'
             },
             ticks: {
-              color: '#9ca3af',
-              maxTicksLimit: 12
+              color: '#8d96a0',
+              maxTicksLimit: 8
             }
           },
-          'y-price': {
+          y: {
             type: 'linear',
+            display: true,
             position: 'left',
             grid: {
-              color: 'rgba(255,255,255,0.1)'
+              color: 'rgba(48, 54, 61, 0.5)'
+            },
+            ticks: {
+              color: '#8d96a0',
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          },
+          y1: {
+            type: 'linear',
+            display: true,
+            position: 'right',
+            grid: {
+              drawOnChartArea: false
             },
             ticks: {
               color: '#f7931a',
               callback: function(value) {
                 return '$' + value.toLocaleString();
               }
-            },
-            title: {
-              display: true,
-              text: 'BTC Price',
-              color: '#f7931a'
-            }
-          },
-          'y-value': {
-            type: 'linear',
-            position: 'right',
-            grid: {
-              drawOnChartArea: false
-            },
-            ticks: {
-              color: '#4ade80',
-              callback: function(value) {
-                return '$' + value.toLocaleString();
-              }
-            },
-            title: {
-              display: true,
-              text: 'Portfolio Value',
-              color: '#4ade80'
             }
           }
         }
       }
     });
+    
+    chartSection.style.display = 'block';
   }
 
-  function formatCurrency(value) {
-    return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  // Main calculation handler
+  async function handleCalculate() {
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+    const frequency = frequencySelect.value;
+    const amount = parseFloat(amountInput.value);
+    
+    // Validation
+    if (!startDate || !endDate || !amount || amount <= 0) {
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Please fill in all fields with valid values');
+      }
+      return;
+    }
+    
+    if (new Date(startDate) >= new Date(endDate)) {
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Start date must be before end date');
+      }
+      return;
+    }
+    
+    // Show loading state
+    const btnText = calculateBtn.querySelector('.btn-text');
+    const btnLoading = calculateBtn.querySelector('.btn-loading');
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+    calculateBtn.disabled = true;
+    
+    try {
+      // Fetch price history
+      const prices = await fetchPriceHistory(startDate, endDate);
+      
+      // Get investment dates
+      const investmentDates = getInvestmentDates(startDate, endDate, frequency);
+      
+      // Calculate DCA
+      const dcaResults = calculateDCA(prices, investmentDates, amount);
+      
+      // Calculate lump sum comparison
+      const lumpSum = calculateLumpSum(
+        dcaResults.startPrice,
+        dcaResults.currentPrice,
+        dcaResults.totalInvested
+      );
+      
+      // Display results
+      displayResults(dcaResults, lumpSum);
+      
+      // Update chart
+      updateChart(dcaResults, prices);
+      
+      // Scroll to results
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+    } catch (error) {
+      console.error('Calculation error:', error);
+      if (typeof Toast !== 'undefined') {
+        Toast.error('Failed to fetch price data. Please try again.');
+      }
+    } finally {
+      btnText.style.display = 'inline';
+      btnLoading.style.display = 'none';
+      calculateBtn.disabled = false;
+    }
   }
 
-  function formatBTC(value) {
-    return value.toFixed(8) + ' BTC';
+  // Initialize
+  function init() {
+    initializeDates();
+    setupPresets();
+    calculateBtn.addEventListener('click', handleCalculate);
+    
+    // Allow Enter key to calculate
+    document.getElementById('dca-form').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleCalculate();
+      }
+    });
+  }
+
+  // Start when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 })();

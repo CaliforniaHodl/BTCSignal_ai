@@ -1,153 +1,167 @@
 {{ define "main" }}
 <div class="free-tool-page dca-calculator-page">
   <div class="container">
-    <!-- Page Header -->
-    <div class="tool-header">
-      <div class="tool-badge free-badge">Free Tool</div>
-      <h1>🧮 Bitcoin DCA Calculator</h1>
+    <!-- Header -->
+    <header class="tool-header">
+      <span class="free-badge">100% Free</span>
+      <h1><span class="tool-icon" aria-hidden="true">🧮</span> {{ .Title }}</h1>
       <p class="tool-subtitle">See how dollar cost averaging into Bitcoin would have performed with real historical data</p>
-    </div>
+    </header>
 
-    <!-- Calculator Section -->
-    <div class="calculator-section">
-      <div class="calculator-grid">
-        <!-- Input Panel -->
-        <div class="input-panel card">
-          <h2>Configure Your DCA</h2>
+    <!-- Calculator Card -->
+    <div class="card calculator-card">
+      <h2>Calculate Your DCA Returns</h2>
 
-          <div class="form-group">
-            <label for="start-date">Start Date</label>
-            <input type="date" id="start-date" class="form-control" />
+      <!-- Preset Buttons -->
+      <div class="preset-buttons" role="group" aria-label="Quick date presets">
+        <button type="button" class="preset-btn" data-preset="1y">Last 1 Year</button>
+        <button type="button" class="preset-btn" data-preset="2y">Last 2 Years</button>
+        <button type="button" class="preset-btn" data-preset="4y">Last 4 Years</button>
+        <button type="button" class="preset-btn" data-preset="halving">Since Last Halving</button>
+      </div>
+
+      <!-- Input Form -->
+      <form id="dca-form" class="calculator-grid">
+        <div class="form-group">
+          <label for="start-date">Start Date</label>
+          <input type="date" id="start-date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="end-date">End Date</label>
+          <input type="date" id="end-date" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="frequency">Investment Frequency</label>
+          <select id="frequency" class="form-control">
+            <option value="daily">Daily</option>
+            <option value="weekly" selected>Weekly</option>
+            <option value="biweekly">Bi-Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="amount">Amount per Purchase ($)</label>
+          <input type="number" id="amount" class="form-control" min="1" value="100" required>
+        </div>
+      </form>
+
+      <button type="button" id="calculate-btn" class="btn btn-primary btn-block">
+        <span class="btn-text">Calculate DCA Returns</span>
+        <span class="btn-loading" style="display: none;">Calculating...</span>
+      </button>
+
+      <!-- Results -->
+      <div id="dca-results" class="results-section" style="display: none;">
+        <div class="results-grid">
+          <div class="result-item">
+            <span class="result-label">Total Invested</span>
+            <span class="result-value" id="total-invested">$0</span>
           </div>
-
-          <div class="form-group">
-            <label for="end-date">End Date</label>
-            <input type="date" id="end-date" class="form-control" />
+          <div class="result-item">
+            <span class="result-label">Current Value</span>
+            <span class="result-value highlight" id="current-value">$0</span>
           </div>
-
-          <div class="form-group">
-            <label for="frequency">Purchase Frequency</label>
-            <select id="frequency" class="form-control">
-              <option value="daily">Daily</option>
-              <option value="weekly" selected>Weekly</option>
-              <option value="biweekly">Bi-weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
+          <div class="result-item">
+            <span class="result-label">BTC Accumulated</span>
+            <span class="result-value btc" id="btc-accumulated">0 BTC</span>
           </div>
-
-          <div class="form-group">
-            <label for="amount">Amount per Purchase ($)</label>
-            <input type="number" id="amount" class="form-control" value="100" min="1" step="1" />
+          <div class="result-item">
+            <span class="result-label">Average Buy Price</span>
+            <span class="result-value" id="avg-price">$0</span>
           </div>
-
-          <div class="preset-buttons">
-            <button class="preset-btn" data-preset="1y">Last 1 Year</button>
-            <button class="preset-btn" data-preset="4y">Last 4 Years</button>
-            <button class="preset-btn" data-preset="2020">Since 2020</button>
+          <div class="result-item">
+            <span class="result-label">Total Purchases</span>
+            <span class="result-value" id="total-purchases">0</span>
           </div>
-
-          <button id="calculate-btn" class="btn btn-primary btn-block">
-            Calculate Returns
-          </button>
+          <div class="result-item">
+            <span class="result-label">ROI</span>
+            <span class="result-value" id="roi">0%</span>
+          </div>
         </div>
 
-        <!-- Results Panel -->
-        <div class="results-panel card">
-          <h2>Results</h2>
-
-          <div class="results-grid" id="results-grid">
-            <div class="result-item">
-              <span class="result-label">Total Invested</span>
-              <span class="result-value" id="total-invested">$0</span>
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+          <h3>DCA vs Lump Sum Comparison</h3>
+          <div class="comparison-grid">
+            <div class="comparison-item">
+              <span class="comp-label">Lump Sum Value</span>
+              <span class="comp-value" id="lumpsum-value">$0</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">Current Value</span>
-              <span class="result-value highlight" id="current-value">$0</span>
+            <div class="comparison-item">
+              <span class="comp-label">Lump Sum ROI</span>
+              <span class="comp-value" id="lumpsum-roi">0%</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">Total BTC</span>
-              <span class="result-value btc" id="total-btc">0 BTC</span>
+            <div class="comparison-item">
+              <span class="comp-label">DCA Advantage</span>
+              <span class="comp-value" id="dca-advantage">0%</span>
             </div>
-            <div class="result-item">
-              <span class="result-label">Average Cost</span>
-              <span class="result-value" id="avg-cost">$0</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">ROI</span>
-              <span class="result-value" id="roi">0%</span>
-            </div>
-            <div class="result-item">
-              <span class="result-label">Purchases Made</span>
-              <span class="result-value" id="purchases">0</span>
-            </div>
-          </div>
-
-          <!-- Lump Sum Comparison -->
-          <div class="comparison-section" id="comparison-section" style="display: none;">
-            <h3>vs Lump Sum Investment</h3>
-            <div class="comparison-grid">
-              <div class="comparison-item">
-                <span class="comp-label">If invested all at start</span>
-                <span class="comp-value" id="lump-sum-value">$0</span>
-              </div>
-              <div class="comparison-item">
-                <span class="comp-label">DCA Advantage</span>
-                <span class="comp-value" id="dca-advantage">$0</span>
-              </div>
+            <div class="comparison-item">
+              <span class="comp-label">Winner</span>
+              <span class="comp-value" id="strategy-winner">-</span>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Chart Section -->
-      <div class="chart-section card">
-        <h2>Portfolio Growth</h2>
-        <div class="chart-container">
-          <canvas id="dca-chart"></canvas>
+    <!-- Chart Section -->
+    <div class="card chart-section" id="chart-section" style="display: none;">
+      <h2>Portfolio Growth Over Time</h2>
+      <div class="chart-container">
+        <canvas id="dca-chart"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-dot btc-price"></span>
+          <span>BTC Price</span>
         </div>
-        <div class="chart-legend">
-          <span class="legend-item"><span class="legend-dot btc-price"></span> BTC Price</span>
-          <span class="legend-item"><span class="legend-dot portfolio"></span> Portfolio Value</span>
-          <span class="legend-item"><span class="legend-dot invested"></span> Total Invested</span>
+        <div class="legend-item">
+          <span class="legend-dot portfolio"></span>
+          <span>Portfolio Value</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot invested"></span>
+          <span>Total Invested</span>
         </div>
       </div>
     </div>
 
-    <!-- Educational Section -->
-    <div class="education-section card">
+    <!-- Education Section -->
+    <div class="card education-section">
       <h2>What is Dollar Cost Averaging?</h2>
       <div class="education-grid">
         <div class="education-item">
-          <span class="edu-icon">📅</span>
-          <h3>Regular Investments</h3>
-          <p>DCA involves investing a fixed amount at regular intervals, regardless of price. This removes the stress of timing the market.</p>
+          <span class="edu-icon" aria-hidden="true">📅</span>
+          <h3>Regular Investing</h3>
+          <p>DCA means investing a fixed amount at regular intervals, regardless of price. This removes emotional decision-making.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">📉</span>
-          <h3>Buy More When Low</h3>
-          <p>When prices drop, your fixed amount buys more Bitcoin. This automatically lowers your average cost over time.</p>
+          <span class="edu-icon" aria-hidden="true">📉</span>
+          <h3>Volatility Smoothing</h3>
+          <p>By buying at different price points, you average out the highs and lows, reducing the impact of volatility.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">🧘</span>
-          <h3>Emotional Discipline</h3>
-          <p>DCA removes emotional decision-making. You invest consistently through bull and bear markets alike.</p>
+          <span class="edu-icon" aria-hidden="true">🧠</span>
+          <h3>No Timing Required</h3>
+          <p>You don't need to predict market bottoms or tops. DCA works in any market condition over the long term.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">🏆</span>
-          <h3>Historically Effective</h3>
-          <p>Over any 4+ year period in Bitcoin's history, DCA investors have seen positive returns.</p>
+          <span class="edu-icon" aria-hidden="true">💪</span>
+          <h3>Discipline Builder</h3>
+          <p>Automated, consistent investing builds wealth over time and removes the stress of timing decisions.</p>
         </div>
       </div>
     </div>
 
     <!-- CTA Section -->
     <div class="cta-section">
-      <h2>Ready to Start Your Bitcoin Journey?</h2>
-      <p>Learn more about Bitcoin trading strategies and market analysis with our Pro Tools.</p>
+      <h2>Ready for Advanced Analysis?</h2>
+      <p>Get real-time signals, liquidation maps, and AI-powered insights</p>
       <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/src/js/dca-calculator.js"></script>
 {{ end }}

@@ -1,45 +1,34 @@
 {{ define "main" }}
 <div class="free-tool-page difficulty-ribbon-page">
   <div class="container">
-    <!-- Page Header -->
-    <div class="tool-header">
-      <div class="tool-badge free-badge">Free Tool</div>
-      <h1>Difficulty Ribbon</h1>
-      <p class="tool-subtitle">Bitcoin mining difficulty and miner capitulation indicator</p>
-    </div>
+    <!-- Header -->
+    <header class="tool-header">
+      <span class="free-badge">100% Free</span>
+      <h1><span class="tool-icon" aria-hidden="true">⛏️</span> {{ .Title }}</h1>
+      <p class="tool-subtitle">Track Bitcoin mining difficulty and identify miner capitulation signals</p>
+    </header>
 
     <!-- Key Metrics -->
     <div class="metrics-row">
       <div class="metric-card">
-        <span class="metric-icon">⛏️</span>
+        <span class="metric-icon" aria-hidden="true">⚡</span>
         <span class="metric-value" id="current-difficulty">--</span>
         <span class="metric-label">Current Difficulty</span>
       </div>
       <div class="metric-card">
-        <span class="metric-icon">📊</span>
+        <span class="metric-icon" aria-hidden="true">📈</span>
         <span class="metric-value" id="difficulty-change">--</span>
         <span class="metric-label">Last Adjustment</span>
       </div>
       <div class="metric-card">
-        <span class="metric-icon">⏱️</span>
+        <span class="metric-icon" aria-hidden="true">⏱️</span>
         <span class="metric-value" id="next-adjustment">--</span>
         <span class="metric-label">Next Adjustment</span>
       </div>
       <div class="metric-card">
-        <span class="metric-icon">🔥</span>
-        <span class="metric-value" id="hash-rate">--</span>
-        <span class="metric-label">Hash Rate (EH/s)</span>
-      </div>
-    </div>
-
-    <!-- Signal Card -->
-    <div class="card signal-banner" id="signal-banner">
-      <div class="signal-content">
-        <span class="signal-icon" id="ribbon-signal-icon">📊</span>
-        <div class="signal-text">
-          <h3 id="ribbon-signal-title">Loading...</h3>
-          <p id="ribbon-signal-desc">Analyzing difficulty ribbon...</p>
-        </div>
+        <span class="metric-icon" aria-hidden="true">🎯</span>
+        <span class="metric-value" id="ribbon-signal">--</span>
+        <span class="metric-label">Ribbon Signal</span>
       </div>
     </div>
 
@@ -48,140 +37,106 @@
       <div class="chart-header">
         <h2>Difficulty Ribbon</h2>
         <div class="chart-controls">
-          <button class="time-btn" data-range="6m">6M</button>
-          <button class="time-btn active" data-range="1y">1Y</button>
-          <button class="time-btn" data-range="2y">2Y</button>
-          <button class="time-btn" data-range="all">All</button>
+          <button type="button" class="time-btn" data-range="1y">1Y</button>
+          <button type="button" class="time-btn active" data-range="2y">2Y</button>
+          <button type="button" class="time-btn" data-range="4y">4Y</button>
         </div>
       </div>
       <div class="chart-container">
-        <canvas id="difficulty-chart"></canvas>
+        <canvas id="ribbon-chart"></canvas>
       </div>
-      <p class="chart-note">
-        <span class="note-icon">ℹ️</span>
-        The ribbon shows multiple difficulty moving averages. When shorter MAs cross below longer MAs, miners are capitulating.
-      </p>
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-line" style="background: #f7931a;"></span>
+          <span>Difficulty</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-line" style="background: #3fb950;"></span>
+          <span>128-day MA (Buy signal when crossed)</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-line" style="background: #f85149;"></span>
+          <span>200-day MA</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signal Explanation -->
+    <div class="card signal-card" id="signal-card">
+      <div class="signal-header">
+        <span class="signal-icon" aria-hidden="true">🎯</span>
+        <h2>Current Signal: <span id="signal-status">Loading...</span></h2>
+      </div>
+      <p id="signal-explanation">Analyzing difficulty ribbon...</p>
+    </div>
+
+    <!-- Historical Signals -->
+    <div class="card">
+      <h2>Historical Buy Signals</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">When difficulty crosses below long-term MA (miner capitulation)</p>
+      <div class="signal-history">
+        <div class="history-item bullish">
+          <span class="history-date">March 2020</span>
+          <span class="history-event">COVID Crash Capitulation</span>
+          <span class="history-result">+550% in 12 months</span>
+        </div>
+        <div class="history-item bullish">
+          <span class="history-date">Dec 2018</span>
+          <span class="history-event">Bear Market Bottom</span>
+          <span class="history-result">+1,600% to 2021 peak</span>
+        </div>
+        <div class="history-item bullish">
+          <span class="history-date">Jan 2015</span>
+          <span class="history-event">Post-2014 Capitulation</span>
+          <span class="history-result">+6,000% to 2017 peak</span>
+        </div>
+      </div>
     </div>
 
     <!-- Hash Rate Chart -->
     <div class="card chart-card">
-      <div class="chart-header">
-        <h2>Network Hash Rate</h2>
-      </div>
+      <h2>Network Hash Rate</h2>
       <div class="chart-container" style="height: 250px;">
         <canvas id="hashrate-chart"></canvas>
       </div>
     </div>
 
-    <!-- Historical Signals -->
-    <div class="card">
-      <h2>Historical Ribbon Signals</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-        Past performance does not guarantee future results. These signals are for educational purposes.
-      </p>
-      <div class="historical-signals">
-        <div class="signal-row bullish">
-          <span class="signal-date">Dec 2022</span>
-          <span class="signal-type">Buy Signal</span>
-          <span class="signal-price">~$16,500</span>
-          <span class="signal-result positive">+340% to peak</span>
-        </div>
-        <div class="signal-row bullish">
-          <span class="signal-date">Mar 2020</span>
-          <span class="signal-type">Buy Signal</span>
-          <span class="signal-price">~$5,000</span>
-          <span class="signal-result positive">+1,280% to peak</span>
-        </div>
-        <div class="signal-row bullish">
-          <span class="signal-date">Dec 2018</span>
-          <span class="signal-type">Buy Signal</span>
-          <span class="signal-price">~$3,200</span>
-          <span class="signal-result positive">+2,050% to peak</span>
-        </div>
-        <div class="signal-row bullish">
-          <span class="signal-date">Jan 2015</span>
-          <span class="signal-type">Buy Signal</span>
-          <span class="signal-price">~$220</span>
-          <span class="signal-result positive">+8,800% to peak</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Education Section -->
-    <div class="education-section card">
+    <!-- Education -->
+    <div class="card education-section">
       <h2>Understanding the Difficulty Ribbon</h2>
       <div class="education-grid">
         <div class="education-item">
-          <span class="edu-icon">📉</span>
-          <h3>What is Miner Capitulation?</h3>
-          <p>When mining becomes unprofitable, weaker miners shut down. This reduces hash rate, causing difficulty to drop. The ribbon visualizes this stress.</p>
+          <span class="edu-icon" aria-hidden="true">⛏️</span>
+          <h3>Mining Difficulty</h3>
+          <p>Adjusts every ~2 weeks to maintain 10-minute block times. Higher difficulty = more competition.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">🎯</span>
-          <h3>The Buy Signal</h3>
-          <p>When short-term difficulty MAs cross below long-term MAs, miners are struggling. Historically, these periods mark excellent buying opportunities.</p>
+          <span class="edu-icon" aria-hidden="true">📉</span>
+          <h3>Miner Capitulation</h3>
+          <p>When unprofitable miners shut down, difficulty drops. This often marks market bottoms.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">⚡</span>
-          <h3>Why It Works</h3>
-          <p>Miner selling pressure decreases during capitulation. With less supply hitting the market and difficulty adjusting down, conditions improve for price recovery.</p>
+          <span class="edu-icon" aria-hidden="true">🎯</span>
+          <h3>Buy Signals</h3>
+          <p>When short-term MA crosses below long-term MA, historically precedes major rallies.</p>
         </div>
         <div class="education-item">
-          <span class="edu-icon">⚠️</span>
-          <h3>Limitations</h3>
-          <p>The ribbon can stay compressed for months. It's a long-term indicator - not for day trading. Combine with other metrics for best results.</p>
+          <span class="edu-icon" aria-hidden="true">💎</span>
+          <h3>Survival of Fittest</h3>
+          <p>After capitulation, only efficient miners remain, making the network stronger.</p>
         </div>
       </div>
     </div>
 
-    <!-- Ribbon Components -->
-    <div class="card">
-      <h2>Ribbon Components</h2>
-      <div class="ribbon-legend">
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #da77f2;"></span>
-          <span class="ribbon-label">200D MA (Long-term)</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #9775fa;"></span>
-          <span class="ribbon-label">128D MA</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #748ffc;"></span>
-          <span class="ribbon-label">90D MA</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #4dabf7;"></span>
-          <span class="ribbon-label">60D MA</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #38d9a9;"></span>
-          <span class="ribbon-label">40D MA</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #69db7c;"></span>
-          <span class="ribbon-label">25D MA</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #a9e34b;"></span>
-          <span class="ribbon-label">14D MA</span>
-        </div>
-        <div class="ribbon-item">
-          <span class="ribbon-color" style="background: #ffd43b;"></span>
-          <span class="ribbon-label">9D MA (Short-term)</span>
-        </div>
-      </div>
-      <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 1rem;">
-        <strong>Expansion</strong> = Healthy mining growth. <strong>Compression/Inversion</strong> = Miner stress or capitulation.
-      </p>
-    </div>
-
-    <!-- CTA Section -->
+    <!-- CTA -->
     <div class="cta-section">
-      <h2>Want Real-Time Mining Alerts?</h2>
-      <p>Get notified when the difficulty ribbon signals miner capitulation.</p>
+      <h2>Get More Mining Insights</h2>
+      <p>Track hash rate changes, miner flows, and more with Pro tools</p>
       <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
     </div>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/src/js/difficulty-ribbon.js"></script>
 {{ end }}

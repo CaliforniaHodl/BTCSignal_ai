@@ -1,208 +1,208 @@
 {{ define "main" }}
 <div class="free-tool-page hodl-waves-page">
   <div class="container">
-    <!-- Page Header -->
-    <div class="tool-header">
-      <div class="tool-badge free-badge">Free Tool</div>
-      <h1>HODL Waves</h1>
-      <p class="tool-subtitle">Bitcoin's age distribution reveals long-term holder conviction</p>
-    </div>
+    <!-- Header -->
+    <header class="tool-header">
+      <span class="free-badge">100% Free</span>
+      <h1><span class="tool-icon" aria-hidden="true">🌊</span> {{ .Title }}</h1>
+      <p class="tool-subtitle">Visualize Bitcoin's age distribution and long-term holder behavior</p>
+    </header>
 
     <!-- Key Metrics -->
     <div class="metrics-row">
       <div class="metric-card">
-        <span class="metric-icon">💎</span>
-        <span class="metric-value" id="hodl-1y">--</span>
-        <span class="metric-label">Held 1+ Years</span>
+        <span class="metric-icon" aria-hidden="true">💎</span>
+        <span class="metric-value" id="ltH-percent">--</span>
+        <span class="metric-label">BTC unmoved 1+ year</span>
       </div>
       <div class="metric-card">
-        <span class="metric-icon">🏛️</span>
-        <span class="metric-value" id="hodl-2y">--</span>
-        <span class="metric-label">Held 2+ Years</span>
+        <span class="metric-icon" aria-hidden="true">🐋</span>
+        <span class="metric-value" id="whale-percent">--</span>
+        <span class="metric-label">BTC unmoved 3+ years</span>
       </div>
       <div class="metric-card">
-        <span class="metric-icon">🦣</span>
-        <span class="metric-value" id="hodl-5y">--</span>
-        <span class="metric-label">Held 5+ Years</span>
+        <span class="metric-icon" aria-hidden="true">📈</span>
+        <span class="metric-value" id="trend">--</span>
+        <span class="metric-label">LTH Trend</span>
       </div>
       <div class="metric-card">
-        <span class="metric-icon">🔥</span>
-        <span class="metric-value" id="active-supply">--</span>
-        <span class="metric-label">Active (< 1mo)</span>
+        <span class="metric-icon" aria-hidden="true">🎯</span>
+        <span class="metric-value" id="cycle-phase">--</span>
+        <span class="metric-label">Cycle Phase</span>
       </div>
     </div>
 
     <!-- HODL Waves Chart -->
     <div class="card chart-card">
       <div class="chart-header">
-        <h2>HODL Waves Over Time</h2>
+        <h2>HODL Waves Distribution</h2>
         <div class="chart-controls">
-          <button class="time-btn active" data-range="1y">1Y</button>
-          <button class="time-btn" data-range="2y">2Y</button>
-          <button class="time-btn" data-range="5y">5Y</button>
-          <button class="time-btn" data-range="all">All</button>
+          <button type="button" class="time-btn active" data-range="1y">1Y</button>
+          <button type="button" class="time-btn" data-range="2y">2Y</button>
+          <button type="button" class="time-btn" data-range="4y">4Y</button>
+          <button type="button" class="time-btn" data-range="all">All</button>
         </div>
       </div>
       <div class="chart-container">
         <canvas id="hodl-chart"></canvas>
       </div>
       <p class="chart-note">
-        <span class="note-icon">ℹ️</span>
-        Data approximated from on-chain analysis. Shows percentage of total supply in each age band.
+        <span class="note-icon" aria-hidden="true">ℹ️</span>
+        Based on on-chain analysis approximations. For institutional-grade data, consider Glassnode.
       </p>
     </div>
 
     <!-- Current Distribution -->
     <div class="card">
-      <h2>Current Supply Distribution</h2>
+      <h2>Current Age Distribution</h2>
       <div class="distribution-grid" id="distribution-grid">
-        <!-- Distribution bars will be populated by JS -->
+        <!-- Will be populated by JS -->
       </div>
     </div>
 
-    <!-- Market Insight -->
+    <!-- Insight Card -->
     <div class="card insight-card">
       <div class="insight-header">
-        <span class="insight-icon" id="insight-icon">📊</span>
-        <h3 id="insight-title">Loading...</h3>
+        <span class="insight-icon" aria-hidden="true">🧠</span>
+        <h3>Market Insight</h3>
       </div>
-      <p id="insight-text">Analyzing HODL wave patterns...</p>
+      <p id="insight-text">Loading analysis...</p>
     </div>
 
-    <!-- Cycle Comparison -->
+    <!-- Historical Comparison -->
     <div class="card">
-      <h2>Historical Cycle Comparison</h2>
-      <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
-        Long-term holder behavior changes predictably through market cycles
-      </p>
+      <h2>Cycle Comparison</h2>
       <div class="cycle-comparison">
         <div class="cycle-item">
           <h4>2017 Peak</h4>
           <div class="cycle-stat">
-            <span class="stat-label">1Y+ Holders</span>
-            <span class="stat-value">42%</span>
+            <span class="stat-label">LTH Supply</span>
+            <span class="stat-value">58%</span>
           </div>
           <div class="cycle-stat">
-            <span class="stat-label">Market Phase</span>
+            <span class="stat-label">Phase</span>
             <span class="stat-value phase-top">Distribution</span>
           </div>
         </div>
         <div class="cycle-item">
           <h4>2018 Bottom</h4>
           <div class="cycle-stat">
-            <span class="stat-label">1Y+ Holders</span>
-            <span class="stat-value">58%</span>
+            <span class="stat-label">LTH Supply</span>
+            <span class="stat-value">42%</span>
           </div>
           <div class="cycle-stat">
-            <span class="stat-label">Market Phase</span>
+            <span class="stat-label">Phase</span>
             <span class="stat-value phase-bottom">Accumulation</span>
           </div>
         </div>
         <div class="cycle-item">
           <h4>2021 Peak</h4>
           <div class="cycle-stat">
-            <span class="stat-label">1Y+ Holders</span>
-            <span class="stat-value">54%</span>
+            <span class="stat-label">LTH Supply</span>
+            <span class="stat-value">65%</span>
           </div>
           <div class="cycle-stat">
-            <span class="stat-label">Market Phase</span>
+            <span class="stat-label">Phase</span>
             <span class="stat-value phase-top">Distribution</span>
           </div>
         </div>
         <div class="cycle-item current">
-          <h4>Now</h4>
+          <h4>Current</h4>
           <div class="cycle-stat">
-            <span class="stat-label">1Y+ Holders</span>
-            <span class="stat-value" id="current-1y-holders">--</span>
+            <span class="stat-label">LTH Supply</span>
+            <span class="stat-value" id="current-lth">--</span>
           </div>
           <div class="cycle-stat">
-            <span class="stat-label">Market Phase</span>
-            <span class="stat-value" id="current-phase">Analyzing...</span>
+            <span class="stat-label">Phase</span>
+            <span class="stat-value" id="current-phase">--</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Educational Section -->
-    <div class="education-section card">
-      <h2>Understanding HODL Waves</h2>
-      <div class="education-grid">
-        <div class="education-item">
-          <span class="edu-icon">📈</span>
-          <h3>What Are HODL Waves?</h3>
-          <p>HODL waves show the age distribution of all Bitcoin. Each "wave" represents BTC that hasn't moved on-chain for a specific time period.</p>
-        </div>
-        <div class="education-item">
-          <span class="edu-icon">🎯</span>
-          <h3>Why It Matters</h3>
-          <p>When long-term holders start selling, it often signals market tops. When they accumulate during dips, it signals conviction and potential bottoms.</p>
-        </div>
-        <div class="education-item">
-          <span class="edu-icon">💡</span>
-          <h3>Reading the Chart</h3>
-          <p>Older coins (warmer colors) at the top, newer coins (cooler colors) at the bottom. Growing warm bands = accumulation. Shrinking = distribution.</p>
-        </div>
-        <div class="education-item">
-          <span class="edu-icon">⚠️</span>
-          <h3>Key Signals</h3>
-          <p><strong>Bullish:</strong> 1Y+ band expanding during price drops.<br><strong>Bearish:</strong> Old coins moving for first time in years (smart money selling).</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Age Band Legend -->
+    <!-- Legend -->
     <div class="card legend-card">
-      <h2>Age Band Reference</h2>
+      <h2>Age Bands Explained</h2>
       <div class="legend-grid">
         <div class="legend-item">
-          <span class="legend-color" style="background: #ff6b6b;"></span>
-          <span class="legend-label">< 24h (Hot Money)</span>
+          <span class="legend-color" style="background: #ef4444;"></span>
+          <span class="legend-label">&lt; 24h (Hot money)</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #ffa94d;"></span>
+          <span class="legend-color" style="background: #f97316;"></span>
           <span class="legend-label">1d - 1w</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #ffd43b;"></span>
+          <span class="legend-color" style="background: #eab308;"></span>
           <span class="legend-label">1w - 1m</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #a9e34b;"></span>
+          <span class="legend-color" style="background: #84cc16;"></span>
           <span class="legend-label">1m - 3m</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #69db7c;"></span>
+          <span class="legend-color" style="background: #22c55e;"></span>
           <span class="legend-label">3m - 6m</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #38d9a9;"></span>
-          <span class="legend-label">6m - 12m</span>
+          <span class="legend-color" style="background: #14b8a6;"></span>
+          <span class="legend-label">6m - 1y</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #4dabf7;"></span>
+          <span class="legend-color" style="background: #0ea5e9;"></span>
           <span class="legend-label">1y - 2y</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #748ffc;"></span>
+          <span class="legend-color" style="background: #6366f1;"></span>
           <span class="legend-label">2y - 3y</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #9775fa;"></span>
+          <span class="legend-color" style="background: #8b5cf6;"></span>
           <span class="legend-label">3y - 5y</span>
         </div>
         <div class="legend-item">
-          <span class="legend-color" style="background: #da77f2;"></span>
-          <span class="legend-label">5y+ (Diamond Hands)</span>
+          <span class="legend-color" style="background: #a855f7;"></span>
+          <span class="legend-label">5y+ (Diamond hands)</span>
         </div>
       </div>
     </div>
 
-    <!-- CTA Section -->
+    <!-- Education -->
+    <div class="card education-section">
+      <h2>Understanding HODL Waves</h2>
+      <div class="education-grid">
+        <div class="education-item">
+          <span class="edu-icon" aria-hidden="true">🌊</span>
+          <h3>What Are HODL Waves?</h3>
+          <p>A visualization showing when Bitcoin last moved on-chain. Each "wave" represents coins of a certain age.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon" aria-hidden="true">💎</span>
+          <h3>Long-Term Holders</h3>
+          <p>BTC unmoved for 1+ year indicates strong conviction. High LTH supply often signals market bottoms.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon" aria-hidden="true">📊</span>
+          <h3>Cycle Signals</h3>
+          <p>When old coins move (waves shrink), it often signals distribution and potential tops.</p>
+        </div>
+        <div class="education-item">
+          <span class="edu-icon" aria-hidden="true">🎯</span>
+          <h3>Trading Insight</h3>
+          <p>Watch for LTH accumulation during bear markets and distribution during euphoria.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
     <div class="cta-section">
-      <h2>Want Real-Time On-Chain Alerts?</h2>
-      <p>Get notified when whale wallets move or long-term holders start selling.</p>
+      <h2>Want Real-Time Whale Alerts?</h2>
+      <p>Get notified when large holders move their coins</p>
       <a href="/pricing/" class="btn btn-primary">Explore Pro Tools</a>
     </div>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/src/js/hodl-waves.js"></script>
 {{ end }}
