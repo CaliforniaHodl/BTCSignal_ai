@@ -108,8 +108,16 @@
 
   <!-- Market Sentiment Overview (FREE) -->
   <section class="market-sentiment-section" aria-labelledby="sentiment-heading">
-    <h2 id="sentiment-heading">Market Sentiment</h2>
-    <p class="section-desc">Real-time market indicators and sentiment metrics</p>
+    <div class="section-header-row">
+      <div>
+        <h2 id="sentiment-heading">Market Sentiment</h2>
+        <p class="section-desc">Real-time market indicators and sentiment metrics</p>
+      </div>
+      <div class="data-freshness-indicator" id="data-freshness" title="Data update status" aria-live="polite">
+        <i class="fa-solid fa-clock" aria-hidden="true"></i>
+        <span>Loading...</span>
+      </div>
+    </div>
     <div class="sentiment-overview-grid" role="list">
       <!-- Fear & Greed Index -->
       <article class="sentiment-overview-card fng" role="listitem">

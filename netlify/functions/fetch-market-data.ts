@@ -1,8 +1,19 @@
 import type { Config, Context } from '@netlify/functions';
 
+// Track which data sources succeeded/failed
+interface DataSources {
+  btcPrice: string;
+  fearGreed: string;
+  funding: string[];
+  openInterest: string[];
+  hashrate: string;
+  global: string;
+}
+
 // Market data snapshot that gets saved to GitHub
 interface MarketSnapshot {
   timestamp: string;
+  dataSources?: DataSources;
   btc: {
     price: number;
     price24hAgo: number;
@@ -225,8 +236,19 @@ async function saveToGitHub(snapshot: MarketSnapshot): Promise<boolean> {
 export default async (req: Request, context: Context) => {
   console.log('Fetching market data snapshot...');
 
+  // Track data sources for debugging and UI display
+  const dataSources: DataSources = {
+    btcPrice: 'none',
+    fearGreed: 'none',
+    funding: [],
+    openInterest: [],
+    hashrate: 'none',
+    global: 'none',
+  };
+
   const snapshot: MarketSnapshot = {
     timestamp: new Date().toISOString(),
+    dataSources: dataSources,
     btc: { price: 0, price24hAgo: 0, priceChange24h: 0, high24h: 0, low24h: 0, volume24h: 0, marketCap: 0 },
     fearGreed: { value: 50, label: 'Neutral' },
     funding: {
@@ -308,6 +330,7 @@ export default async (req: Request, context: Context) => {
           volume24h: md.total_volume?.usd || 0,
           marketCap: md.market_cap?.usd || 0,
         };
+        dataSources.btcPrice = 'coingecko';
       } else {
         console.log('CoinGecko response missing market_data:', JSON.stringify(data).slice(0, 200));
       }
@@ -315,7 +338,7 @@ export default async (req: Request, context: Context) => {
       console.log('CoinGecko API error, status:', btcDataRes.value.status);
     }
 
-    // Fallback to CoinCap API if CoinGecko failed
+    // Fallback 1: CoinCap API
     if (snapshot.btc.price === 0) {
       console.log('Trying CoinCap fallback...');
       try {
@@ -334,14 +357,70 @@ export default async (req: Request, context: Context) => {
               volume24h: parseFloat(data.data.volumeUsd24Hr) || 0,
               marketCap: parseFloat(data.data.marketCapUsd) || 0,
             };
+            dataSources.btcPrice = 'coincap';
             console.log('CoinCap fallback succeeded');
           }
         }
       } catch (e) {
-        console.log('CoinCap fallback also failed');
+        console.log('CoinCap fallback failed');
       }
     }
-    console.log('BTC data:', snapshot.btc.price > 0 ? 'OK' : 'FAILED');
+
+    // Fallback 2: Kraken API
+    if (snapshot.btc.price === 0) {
+      console.log('Trying Kraken fallback...');
+      try {
+        const krakenRes = await fetchWithTimeout('https://api.kraken.com/0/public/Ticker?pair=XBTUSD');
+        if (krakenRes.ok) {
+          const data = await krakenRes.json();
+          if (data.result && data.result.XXBTZUSD) {
+            const ticker = data.result.XXBTZUSD;
+            const price = parseFloat(ticker.c[0]);
+            const open24h = parseFloat(ticker.o);
+            const change24h = ((price - open24h) / open24h) * 100;
+            snapshot.btc = {
+              price: price,
+              price24hAgo: open24h,
+              priceChange24h: change24h,
+              high24h: parseFloat(ticker.h[1]) || 0,
+              low24h: parseFloat(ticker.l[1]) || 0,
+              volume24h: parseFloat(ticker.v[1]) * price || 0,
+              marketCap: 0,
+            };
+            dataSources.btcPrice = 'kraken';
+            console.log('Kraken fallback succeeded');
+          }
+        }
+      } catch (e) {
+        console.log('Kraken fallback failed');
+      }
+    }
+
+    // Fallback 3: Binance US API
+    if (snapshot.btc.price === 0) {
+      console.log('Trying Binance US fallback...');
+      try {
+        const binanceRes = await fetchWithTimeout('https://api.binance.us/api/v3/ticker/24hr?symbol=BTCUSDT');
+        if (binanceRes.ok) {
+          const data = await binanceRes.json();
+          const price = parseFloat(data.lastPrice);
+          snapshot.btc = {
+            price: price,
+            price24hAgo: parseFloat(data.openPrice) || price,
+            priceChange24h: parseFloat(data.priceChangePercent) || 0,
+            high24h: parseFloat(data.highPrice) || 0,
+            low24h: parseFloat(data.lowPrice) || 0,
+            volume24h: parseFloat(data.quoteVolume) || 0,
+            marketCap: 0,
+          };
+          dataSources.btcPrice = 'binance';
+          console.log('Binance US fallback succeeded');
+        }
+      } catch (e) {
+        console.log('Binance US fallback failed');
+      }
+    }
+    console.log('BTC data:', snapshot.btc.price > 0 ? `OK (${dataSources.btcPrice})` : 'FAILED');
 
     // Process Fear & Greed
     if (fearGreedRes.status === 'fulfilled' && fearGreedRes.value.ok) {
@@ -351,9 +430,32 @@ export default async (req: Request, context: Context) => {
           value: parseInt(data.data[0].value),
           label: data.data[0].value_classification,
         };
+        dataSources.fearGreed = 'alternative.me';
       }
     }
-    console.log('Fear & Greed:', snapshot.fearGreed.value);
+
+    // Fallback: Calculate Fear & Greed from price action if API failed
+    if (snapshot.fearGreed.value === 50 && snapshot.fearGreed.label === 'Neutral' && dataSources.fearGreed === 'none') {
+      console.log('Fear & Greed API failed, calculating from price action...');
+      const priceChange = snapshot.btc.priceChange24h || 0;
+      // Map price change to Fear & Greed scale (roughly)
+      // -10% change = 10 (extreme fear), +10% = 90 (extreme greed)
+      const calculatedFng = Math.max(0, Math.min(100, 50 + (priceChange * 4)));
+      let label = 'Neutral';
+      if (calculatedFng <= 25) label = 'Extreme Fear';
+      else if (calculatedFng <= 45) label = 'Fear';
+      else if (calculatedFng <= 55) label = 'Neutral';
+      else if (calculatedFng <= 75) label = 'Greed';
+      else label = 'Extreme Greed';
+
+      snapshot.fearGreed = {
+        value: Math.round(calculatedFng),
+        label: label,
+      };
+      dataSources.fearGreed = 'calculated';
+      console.log('Calculated Fear & Greed:', snapshot.fearGreed.value, snapshot.fearGreed.label);
+    }
+    console.log('Fear & Greed:', snapshot.fearGreed.value, `(${dataSources.fearGreed})`);
 
     // Process Funding Rate from OKX
     if (fundingRes.status === 'fulfilled' && fundingRes.value.ok) {
@@ -364,6 +466,7 @@ export default async (req: Request, context: Context) => {
           rate: rate,
           ratePercent: rate * 100,
         };
+        dataSources.funding.push('okx');
       }
     }
     console.log('Funding rate:', snapshot.funding.ratePercent.toFixed(4) + '%');
@@ -377,6 +480,7 @@ export default async (req: Request, context: Context) => {
           btc: oiBtc,
           usd: oiBtc * snapshot.btc.price,
         };
+        dataSources.openInterest.push('okx');
       }
     }
     console.log('Open Interest:', snapshot.openInterest.btc.toFixed(0) + ' BTC');
@@ -408,6 +512,7 @@ export default async (req: Request, context: Context) => {
           totalMarketCap: gd.total_market_cap?.usd || 0,
           total24hVolume: gd.total_24h_volume?.usd || 0,
         };
+        dataSources.global = 'coingecko';
       }
     }
     console.log('BTC Dominance:', snapshot.dominance.btc > 0 ? snapshot.dominance.btc.toFixed(1) + '%' : 'FAILED');
@@ -418,6 +523,7 @@ export default async (req: Request, context: Context) => {
       if (data && data.currentHashrate) {
         snapshot.hashrate.current = data.currentHashrate / 1e18; // Convert to EH/s
         snapshot.hashrate.unit = 'EH/s';
+        dataSources.hashrate = 'mempool.space';
 
         // Extract historical hashrate data (last 30 days)
         if (data.hashrates && Array.isArray(data.hashrates)) {
@@ -452,6 +558,7 @@ export default async (req: Request, context: Context) => {
           btc: bybitOI,
           usd: bybitOI * snapshot.btc.price,
         };
+        dataSources.openInterest.push('bybit');
       }
     }
     console.log('Bybit OI:', bybitOI.toFixed(0) + ' BTC');
@@ -468,6 +575,7 @@ export default async (req: Request, context: Context) => {
           ratePercent: bybitFunding * 100,
           nextFundingTime: parseInt(data.result.list[0].fundingRateTimestamp) || 0,
         };
+        dataSources.funding.push('bybit');
       }
     }
     console.log('Bybit Funding:', (bybitFunding * 100).toFixed(4) + '%');

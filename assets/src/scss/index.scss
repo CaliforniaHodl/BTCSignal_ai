@@ -244,6 +244,70 @@
   }
 }
 
+// Section Header Row (with freshness indicator)
+.section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: $spacing-md;
+
+  > div:first-child {
+    h2 {
+      text-align: left;
+    }
+  }
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+
+    > div:first-child {
+      h2 {
+        text-align: center;
+      }
+    }
+  }
+}
+
+// Data Freshness Indicator
+.data-freshness-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-lg;
+  font-size: $font-xs;
+  font-weight: $font-medium;
+  white-space: nowrap;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+
+  i {
+    font-size: 0.75rem;
+  }
+
+  &.fresh {
+    color: var(--bullish);
+    border-color: rgba($bullish, 0.3);
+    background: rgba($bullish, 0.1);
+
+    i {
+      color: var(--bullish);
+    }
+  }
+
+  &.stale {
+    color: var(--bitcoin-orange);
+    border-color: rgba($bitcoin-orange, 0.3);
+    background: rgba($bitcoin-orange, 0.1);
+
+    i {
+      color: var(--bitcoin-orange);
+    }
+  }
+}
+
 .sentiment-overview-grid {
   @include grid(5, $spacing-lg);
   margin-top: $spacing-lg;

@@ -13,6 +13,32 @@
     marketData = await BTCSAIShared.loadMarketSnapshot();
   }
 
+  // Format time ago from timestamp
+  function formatTimeAgo(timestamp) {
+    if (!timestamp) return 'Unknown';
+    const now = new Date();
+    const then = new Date(timestamp);
+    const diffMs = now - then;
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return diffMins + 'm ago';
+    if (diffHours < 24) return diffHours + 'h ago';
+    return diffDays + 'd ago';
+  }
+
+  // Check if data is stale (>6 hours old)
+  function isDataStale(timestamp) {
+    if (!timestamp) return true;
+    const now = new Date();
+    const then = new Date(timestamp);
+    const diffMs = now - then;
+    const sixHours = 6 * 60 * 60 * 1000;
+    return diffMs > sixHours;
+  }
+
   const elements = {
     fngValue: document.getElementById('home-fng-value'),
     fngLabel: document.getElementById('home-fng-label'),
@@ -33,10 +59,42 @@
     statHigh: document.getElementById('stat-high'),
     statLow: document.getElementById('stat-low'),
     statVolume: document.getElementById('stat-volume'),
-    statMcap: document.getElementById('stat-mcap')
+    statMcap: document.getElementById('stat-mcap'),
+    dataFreshness: document.getElementById('data-freshness'),
+    dataTimestamp: document.getElementById('data-timestamp')
   };
 
   if (!elements.fngValue) return;
+
+  // Display data freshness indicator
+  function updateDataFreshness() {
+    if (!elements.dataFreshness) return;
+
+    // Get the span inside the freshness indicator
+    const textSpan = elements.dataFreshness.querySelector('span');
+
+    if (!marketData || !marketData.timestamp) {
+      if (textSpan) textSpan.textContent = 'Data unavailable';
+      elements.dataFreshness.classList.add('stale');
+      elements.dataFreshness.classList.remove('fresh');
+      return;
+    }
+
+    const timeAgo = formatTimeAgo(marketData.timestamp);
+    const stale = isDataStale(marketData.timestamp);
+
+    if (textSpan) {
+      textSpan.textContent = 'Updated ' + timeAgo;
+    }
+    elements.dataFreshness.classList.toggle('stale', stale);
+    elements.dataFreshness.classList.toggle('fresh', !stale);
+
+    // Set tooltip with full timestamp
+    const date = new Date(marketData.timestamp);
+    elements.dataFreshness.title = stale
+      ? 'Data may be outdated - Last update: ' + date.toLocaleString()
+      : 'Data is current - Last update: ' + date.toLocaleString();
+  }
 
   // Display Fear & Greed from static snapshot
   function fetchFearGreed() {
@@ -228,6 +286,9 @@
     // Load static market snapshot
     await loadMarketSnapshot();
 
+    // Display data freshness indicator
+    updateDataFreshness();
+
     // Display all widgets from snapshot
     fetchFearGreed();
     fetchFundingRate();
@@ -238,7 +299,11 @@
 
   init();
 
-  // No need for refresh intervals - data comes from static snapshot
-  // Updated every 4 hours via scheduled function
+  // Update freshness display every minute
+  setInterval(function() {
+    if (marketData) {
+      updateDataFreshness();
+    }
+  }, 60000);
 
 })();
