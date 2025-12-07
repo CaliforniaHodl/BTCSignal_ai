@@ -1045,3 +1045,477 @@
     font-size: $font-xs;
   }
 }
+
+// =====================================================
+// SMART CHART
+// =====================================================
+
+.smart-chart-page {
+  // Market Summary Bar
+  .market-summary-bar {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-xl;
+    padding: $spacing-md;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-lg;
+    margin-bottom: $spacing-lg;
+    flex-wrap: wrap;
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-label {
+      display: block;
+      color: var(--text-muted);
+      font-size: $font-xs;
+      margin-bottom: $spacing-xs;
+    }
+
+    .summary-value {
+      color: var(--text-primary);
+      font-size: $font-lg;
+      font-weight: $font-bold;
+      font-family: monospace;
+
+      &.bullish { color: $bullish; }
+      &.bearish { color: $bearish; }
+    }
+
+    .trend-up { color: $bullish; }
+    .trend-down { color: $bearish; }
+    .trend-neutral { color: var(--text-secondary); }
+    .bias-bullish { color: $bullish; }
+    .bias-bearish { color: $bearish; }
+    .bias-neutral { color: $neutral; }
+  }
+
+  // Chart Controls
+  .smart-chart-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+    flex-wrap: wrap;
+  }
+
+  .timeframe-tabs {
+    display: flex;
+    gap: $spacing-xs;
+  }
+
+  .tf-tab {
+    padding: $spacing-xs $spacing-md;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover:not(:disabled) {
+      border-color: $bitcoin-orange;
+      color: $bitcoin-orange;
+    }
+
+    &.active {
+      background: $bitcoin-orange;
+      border-color: $bitcoin-orange;
+      color: #000;
+      font-weight: $font-semibold;
+    }
+
+    &.pro-only {
+      opacity: 0.5;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .pro-badge {
+      font-size: 0.6rem;
+      background: $bitcoin-orange;
+      color: #000;
+      padding: 1px 4px;
+      border-radius: 3px;
+      margin-left: 4px;
+    }
+  }
+
+  .chart-toggles {
+    display: flex;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+  }
+
+  .toggle-pill {
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-full;
+    font-size: $font-xs;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all $transition-base;
+
+    input {
+      accent-color: $bitcoin-orange;
+    }
+
+    &:hover {
+      border-color: $bitcoin-orange;
+    }
+
+    &.pro-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .pro-badge {
+      font-size: 0.6rem;
+      background: $bitcoin-orange;
+      color: #000;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+  }
+
+  // Chart Wrapper
+  .smart-chart-wrapper {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-lg;
+    overflow: hidden;
+    margin-bottom: $spacing-md;
+  }
+
+  .chart-container {
+    width: 100%;
+    min-height: 400px;
+  }
+
+  .chart-overlay-legend {
+    position: absolute;
+    top: $spacing-sm;
+    left: $spacing-sm;
+    background: rgba($bg-dark, 0.8);
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-sm;
+    font-size: $font-xs;
+    font-family: monospace;
+    color: var(--text-secondary);
+    z-index: 10;
+
+    .bullish { color: $bullish; }
+    .bearish { color: $bearish; }
+  }
+
+  // Mini Chart
+  .mini-chart-wrapper {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-lg;
+    overflow: hidden;
+    margin-bottom: $spacing-lg;
+  }
+
+  .mini-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-sm $spacing-md;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .mini-chart-title {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+  }
+
+  .mini-chart-value {
+    font-family: monospace;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+
+    &.bullish { color: $bullish; }
+    &.bearish { color: $bearish; }
+  }
+
+  // Analysis Grid
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+    margin-bottom: $spacing-xl;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .analysis-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-lg;
+    padding: $spacing-lg;
+
+    h3 {
+      color: var(--text-primary);
+      font-size: $font-base;
+      font-weight: $font-semibold;
+      margin-bottom: $spacing-md;
+    }
+  }
+
+  // Key Levels
+  .levels-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+  }
+
+  .level-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-sm;
+
+    &.resistance {
+      background: rgba($bearish, 0.1);
+      .level-type { color: $bearish; }
+    }
+
+    &.support {
+      background: rgba($bullish, 0.1);
+      .level-type { color: $bullish; }
+    }
+
+    &.current {
+      background: rgba($bitcoin-orange, 0.15);
+      border: 1px solid rgba($bitcoin-orange, 0.3);
+      .level-type { color: $bitcoin-orange; }
+    }
+  }
+
+  .level-type {
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+  }
+
+  .level-price {
+    font-family: monospace;
+    font-weight: $font-bold;
+    color: var(--text-primary);
+  }
+
+  // Signal Card
+  .signal-card {
+    .signal-display {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-md;
+    }
+
+    .signal-icon {
+      font-size: 2rem;
+    }
+
+    .signal-text {
+      font-size: $font-xl;
+      font-weight: $font-bold;
+      color: var(--text-primary);
+
+      &.bullish { color: $bullish; }
+      &.bearish { color: $bearish; }
+      &.neutral { color: $neutral; }
+      &.watch-bullish { color: $bullish; }
+      &.watch-bearish { color: $bearish; }
+    }
+
+    .signal-reasoning {
+      .reason {
+        color: var(--text-secondary);
+        font-size: $font-sm;
+        margin-bottom: $spacing-xs;
+      }
+    }
+  }
+
+  // Indicator Bars
+  .indicator-bars {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+  }
+
+  .indicator-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+
+  .ind-name {
+    color: var(--text-secondary);
+    font-size: $font-xs;
+  }
+
+  .ind-bar {
+    height: 8px;
+    background: var(--bg-dark);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .ind-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+
+    &.bullish { background: $bullish; }
+    &.bearish { background: $bearish; }
+    &.neutral { background: $neutral; }
+  }
+
+  .ind-label {
+    font-size: $font-xs;
+    font-weight: $font-medium;
+    text-align: right;
+
+    &.bullish { color: $bullish; }
+    &.bearish { color: $bearish; }
+    &.neutral { color: $neutral; }
+  }
+
+  .overall-score {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: $spacing-md;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .score-label {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+  }
+
+  .score-value {
+    font-size: $font-xl;
+    font-weight: $font-bold;
+    font-family: monospace;
+
+    &.bullish { color: $bullish; }
+    &.bearish { color: $bearish; }
+    &.neutral { color: $neutral; }
+  }
+
+  // Pro Teaser Section
+  .pro-teaser-section {
+    background: linear-gradient(135deg, rgba($bitcoin-orange, 0.1) 0%, rgba($bitcoin-orange, 0.05) 100%);
+    border: 1px solid rgba($bitcoin-orange, 0.3);
+    border-radius: $radius-lg;
+    padding: $spacing-2xl;
+    text-align: center;
+    margin-bottom: $spacing-xl;
+
+    h2 {
+      color: $bitcoin-orange;
+      margin-bottom: $spacing-lg;
+    }
+
+    .btn-lg {
+      padding: $spacing-md $spacing-2xl;
+      font-size: $font-lg;
+    }
+  }
+
+  .pro-features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-lg;
+    margin-bottom: $spacing-xl;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: $breakpoint-sm) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .pro-feature {
+    text-align: center;
+    padding: $spacing-md;
+
+    .pro-feature-icon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: $spacing-sm;
+    }
+
+    h4 {
+      color: var(--text-primary);
+      font-size: $font-base;
+      margin-bottom: $spacing-xs;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+      margin: 0;
+    }
+  }
+
+  // Quick Guide
+  .quick-guide {
+    h2 {
+      margin-bottom: $spacing-lg;
+    }
+  }
+
+  .guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-md;
+
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .guide-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  .guide-color {
+    width: 20px;
+    height: 4px;
+    border-radius: 2px;
+    flex-shrink: 0;
+
+    &.resistance { background: $bearish; }
+    &.support { background: $bullish; }
+    &.ema-fast { background: #58a6ff; }
+    &.ema-slow { background: #a371f7; }
+  }
+}

@@ -1,0 +1,228 @@
+{{ define "main" }}
+<div class="free-tool-page smart-chart-page">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="tool-header">
+      <div class="tool-badge free-badge">Free Tool</div>
+      <h1>Smart Chart</h1>
+      <p class="tool-subtitle">Professional Bitcoin analysis with auto-detected levels & signals</p>
+    </div>
+
+    <!-- Market Summary Bar -->
+    <div class="market-summary-bar">
+      <div class="summary-item">
+        <span class="summary-label">BTC Price</span>
+        <span class="summary-value" id="btc-price">$--</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">24h Change</span>
+        <span class="summary-value" id="price-change">--</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Trend</span>
+        <span class="summary-value" id="trend-direction">--</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-label">Bias</span>
+        <span class="summary-value" id="market-bias">--</span>
+      </div>
+    </div>
+
+    <!-- Chart Controls -->
+    <div class="smart-chart-controls">
+      <div class="timeframe-tabs">
+        <button class="tf-tab" data-tf="60">1H</button>
+        <button class="tf-tab active" data-tf="240">4H</button>
+        <button class="tf-tab" data-tf="D">1D</button>
+        <button class="tf-tab pro-only" data-tf="15" disabled title="Pro Feature">
+          15m <span class="pro-badge">PRO</span>
+        </button>
+        <button class="tf-tab pro-only" data-tf="W" disabled title="Pro Feature">
+          1W <span class="pro-badge">PRO</span>
+        </button>
+      </div>
+      <div class="chart-toggles">
+        <label class="toggle-pill">
+          <input type="checkbox" id="show-levels" checked>
+          <span>Support/Resistance</span>
+        </label>
+        <label class="toggle-pill">
+          <input type="checkbox" id="show-emas" checked>
+          <span>EMAs</span>
+        </label>
+        <label class="toggle-pill">
+          <input type="checkbox" id="show-signals" checked>
+          <span>Signals</span>
+        </label>
+        <label class="toggle-pill pro-disabled" title="Pro Feature">
+          <input type="checkbox" disabled>
+          <span>Order Blocks</span>
+          <span class="pro-badge">PRO</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Main Chart -->
+    <div class="smart-chart-wrapper">
+      <div class="chart-container" id="smart-chart"></div>
+      <div class="chart-overlay-legend" id="chart-legend">
+        <span class="ohlc-data">--</span>
+      </div>
+    </div>
+
+    <!-- RSI Mini Chart -->
+    <div class="mini-chart-wrapper">
+      <div class="mini-chart-header">
+        <span class="mini-chart-title">RSI (14)</span>
+        <span class="mini-chart-value" id="rsi-display">--</span>
+      </div>
+      <div id="rsi-mini-chart"></div>
+    </div>
+
+    <!-- Analysis Panel -->
+    <div class="analysis-grid">
+      <!-- Key Levels Card -->
+      <div class="analysis-card">
+        <h3>Key Levels</h3>
+        <div class="levels-list" id="key-levels">
+          <div class="level-item resistance">
+            <span class="level-type">R2</span>
+            <span class="level-price" id="r2-price">--</span>
+          </div>
+          <div class="level-item resistance">
+            <span class="level-type">R1</span>
+            <span class="level-price" id="r1-price">--</span>
+          </div>
+          <div class="level-item current">
+            <span class="level-type">Current</span>
+            <span class="level-price" id="current-price">--</span>
+          </div>
+          <div class="level-item support">
+            <span class="level-type">S1</span>
+            <span class="level-price" id="s1-price">--</span>
+          </div>
+          <div class="level-item support">
+            <span class="level-type">S2</span>
+            <span class="level-price" id="s2-price">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Signal Card -->
+      <div class="analysis-card signal-card">
+        <h3>Current Signal</h3>
+        <div class="signal-display" id="signal-display">
+          <span class="signal-icon">--</span>
+          <span class="signal-text">Analyzing...</span>
+        </div>
+        <div class="signal-reasoning" id="signal-reasoning">
+          Loading market data...
+        </div>
+      </div>
+
+      <!-- Indicators Card -->
+      <div class="analysis-card">
+        <h3>Indicator Summary</h3>
+        <div class="indicator-bars">
+          <div class="indicator-row">
+            <span class="ind-name">EMA Trend</span>
+            <div class="ind-bar">
+              <div class="ind-fill" id="ema-bar"></div>
+            </div>
+            <span class="ind-label" id="ema-label">--</span>
+          </div>
+          <div class="indicator-row">
+            <span class="ind-name">RSI</span>
+            <div class="ind-bar">
+              <div class="ind-fill" id="rsi-bar"></div>
+            </div>
+            <span class="ind-label" id="rsi-label">--</span>
+          </div>
+          <div class="indicator-row">
+            <span class="ind-name">MACD</span>
+            <div class="ind-bar">
+              <div class="ind-fill" id="macd-bar"></div>
+            </div>
+            <span class="ind-label" id="macd-label">--</span>
+          </div>
+          <div class="indicator-row">
+            <span class="ind-name">Volume</span>
+            <div class="ind-bar">
+              <div class="ind-fill" id="vol-bar"></div>
+            </div>
+            <span class="ind-label" id="vol-label">--</span>
+          </div>
+        </div>
+        <div class="overall-score">
+          <span class="score-label">Overall Score</span>
+          <span class="score-value" id="overall-score">--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pro Features Teaser -->
+    <div class="pro-teaser-section">
+      <h2>Unlock Pro Chart Features</h2>
+      <div class="pro-features-grid">
+        <div class="pro-feature">
+          <span class="pro-feature-icon">🎯</span>
+          <h4>Smart Money Concepts</h4>
+          <p>Order blocks, fair value gaps, and liquidity zones auto-detected</p>
+        </div>
+        <div class="pro-feature">
+          <span class="pro-feature-icon">🔍</span>
+          <h4>Pattern Detection</h4>
+          <p>AI-powered chart patterns: Head & Shoulders, Triangles, Wedges</p>
+        </div>
+        <div class="pro-feature">
+          <span class="pro-feature-icon">📊</span>
+          <h4>10+ Indicators</h4>
+          <p>Ichimoku, Supertrend, Stoch RSI, Bollinger, VWAP & more</p>
+        </div>
+        <div class="pro-feature">
+          <span class="pro-feature-icon">✏️</span>
+          <h4>Drawing Tools</h4>
+          <p>Fibonacci, trendlines, channels, and custom annotations</p>
+        </div>
+        <div class="pro-feature">
+          <span class="pro-feature-icon">⏰</span>
+          <h4>7 Timeframes</h4>
+          <p>From 15-minute scalping to weekly macro analysis</p>
+        </div>
+        <div class="pro-feature">
+          <span class="pro-feature-icon">🔔</span>
+          <h4>Price Alerts</h4>
+          <p>Get notified when price hits your key levels</p>
+        </div>
+      </div>
+      <a href="/pricing/" class="btn btn-primary btn-lg">Upgrade to Pro</a>
+    </div>
+
+    <!-- Quick Guide -->
+    <div class="card quick-guide">
+      <h2>How to Read the Smart Chart</h2>
+      <div class="guide-grid">
+        <div class="guide-item">
+          <span class="guide-color resistance"></span>
+          <strong>Red Lines</strong> - Resistance levels where price may face selling pressure
+        </div>
+        <div class="guide-item">
+          <span class="guide-color support"></span>
+          <strong>Green Lines</strong> - Support levels where buyers may step in
+        </div>
+        <div class="guide-item">
+          <span class="guide-color ema-fast"></span>
+          <strong>Blue EMA (9)</strong> - Fast-moving average, shows short-term trend
+        </div>
+        <div class="guide-item">
+          <span class="guide-color ema-slow"></span>
+          <strong>Purple EMA (21)</strong> - Slow-moving average, shows medium-term trend
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load Lightweight Charts -->
+<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+{{ end }}
