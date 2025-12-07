@@ -114,7 +114,7 @@
             <div class="panel-header">
               <span class="panel-title">RSI (14)</span>
               <span class="panel-value" id="rsi-value">--</span>
-              <button class="panel-close" data-panel="rsi">×</button>
+              <button class="panel-close" data-panel="rsi" aria-label="Close RSI panel">×</button>
             </div>
             <div class="panel-chart" id="rsi-chart"></div>
           </div>
@@ -122,7 +122,7 @@
             <div class="panel-header">
               <span class="panel-title">MACD (12,26,9)</span>
               <span class="panel-value" id="macd-value">--</span>
-              <button class="panel-close" data-panel="macd">×</button>
+              <button class="panel-close" data-panel="macd" aria-label="Close MACD panel">×</button>
             </div>
             <div class="panel-chart" id="macd-chart"></div>
           </div>
@@ -130,7 +130,7 @@
             <div class="panel-header">
               <span class="panel-title">Stoch RSI (14,14,3,3)</span>
               <span class="panel-value" id="stoch-value">--</span>
-              <button class="panel-close" data-panel="stoch">×</button>
+              <button class="panel-close" data-panel="stoch" aria-label="Close Stochastic RSI panel">×</button>
             </div>
             <div class="panel-chart" id="stoch-chart"></div>
           </div>
@@ -138,7 +138,7 @@
             <div class="panel-header">
               <span class="panel-title">Volume</span>
               <span class="panel-value" id="volume-value">--</span>
-              <button class="panel-close" data-panel="volume">×</button>
+              <button class="panel-close" data-panel="volume" aria-label="Close Volume panel">×</button>
             </div>
             <div class="panel-chart" id="volume-chart"></div>
           </div>
@@ -350,8 +350,9 @@
           <h3>Price Alerts</h3>
           <div class="alerts-manager">
             <div class="alert-input-row">
+              <label for="alert-price" class="sr-only">Alert price in USD</label>
               <input type="number" id="alert-price" placeholder="Enter price...">
-              <button class="btn-add-alert" id="btn-add-alert">+</button>
+              <button class="btn-add-alert" id="btn-add-alert" aria-label="Add price alert">+</button>
             </div>
             <div class="alerts-list" id="alerts-list">
               <p class="no-alerts">No alerts set</p>

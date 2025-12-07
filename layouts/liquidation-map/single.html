@@ -28,8 +28,8 @@
         <button class="lev-btn" data-lev="100">100x</button>
       </div>
       <div class="view-controls">
-        <button class="view-btn" id="btn-zoom-in">+</button>
-        <button class="view-btn" id="btn-zoom-out">-</button>
+        <button class="view-btn" id="btn-zoom-in" aria-label="Zoom in">+</button>
+        <button class="view-btn" id="btn-zoom-out" aria-label="Zoom out">-</button>
         <button class="view-btn" id="btn-reset">Reset</button>
       </div>
       <div class="data-source-control">
@@ -44,8 +44,8 @@
     <div class="heatmap-container">
       <div class="heatmap-chart" id="heatmap-chart">
         <canvas id="liquidation-canvas"></canvas>
-        <div class="heatmap-loading" id="heatmap-loading">
-          <div class="spinner"></div>
+        <div class="heatmap-loading" id="heatmap-loading" aria-live="polite" role="status">
+          <div class="spinner" aria-hidden="true"></div>
           <span>Calculating liquidation levels...</span>
         </div>
       </div>
