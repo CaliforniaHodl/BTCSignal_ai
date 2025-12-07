@@ -95,9 +95,9 @@
     }
 
     &:focus {
-      outline: none;
       border-color: var(--bitcoin-orange);
-      box-shadow: 0 0 0 3px rgba($bitcoin-orange, 0.2);
+      outline: 3px solid rgba($bitcoin-orange, 0.3);
+      outline-offset: 1px;
     }
   }
 

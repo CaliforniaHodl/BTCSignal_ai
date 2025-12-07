@@ -925,8 +925,9 @@
       letter-spacing: 0.05em;
 
       &:focus {
-        outline: none;
         border-color: var(--bitcoin-orange);
+        outline: 3px solid rgba(247, 147, 26, 0.3);
+        outline-offset: 1px;
       }
 
       &::placeholder {

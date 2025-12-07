@@ -3,14 +3,73 @@ h1,h2,h3,h4,h5,h6,p {
 }
 
 h1,
-.heading-h1{
+.heading-h1 {
     font-size: 28px;
     line-height: 32px;
     font-weight: 700;
 
-
     @media(min-width: 992px) {
         font-size: 40px;
         line-height: 48px;
+    }
+}
+
+h2,
+.heading-h2 {
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 700;
+
+    @media(min-width: 992px) {
+        font-size: 32px;
+        line-height: 40px;
+    }
+}
+
+h3,
+.heading-h3 {
+    font-size: 20px;
+    line-height: 24px;
+    font-weight: 600;
+
+    @media(min-width: 992px) {
+        font-size: 24px;
+        line-height: 32px;
+    }
+}
+
+h4,
+.heading-h4 {
+    font-size: 18px;
+    line-height: 22px;
+    font-weight: 600;
+
+    @media(min-width: 992px) {
+        font-size: 20px;
+        line-height: 28px;
+    }
+}
+
+h5,
+.heading-h5 {
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 600;
+
+    @media(min-width: 992px) {
+        font-size: 18px;
+        line-height: 24px;
+    }
+}
+
+h6,
+.heading-h6 {
+    font-size: 14px;
+    line-height: 18px;
+    font-weight: 600;
+
+    @media(min-width: 992px) {
+        font-size: 16px;
+        line-height: 20px;
     }
 }

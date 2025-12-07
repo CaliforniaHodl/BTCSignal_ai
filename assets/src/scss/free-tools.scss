@@ -100,8 +100,9 @@
   transition: border-color $transition-base;
 
   &:focus {
-    outline: none;
     border-color: $bitcoin-orange;
+    outline: 3px solid rgba($bitcoin-orange, 0.3);
+    outline-offset: 1px;
   }
 
   &::-webkit-calendar-picker-indicator {

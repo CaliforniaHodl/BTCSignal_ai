@@ -2455,8 +2455,9 @@
     font-size: $font-base;
 
     &:focus {
-      outline: none;
       border-color: var(--bitcoin-orange);
+      outline: 3px solid rgba(247, 147, 26, 0.3);
+      outline-offset: 1px;
     }
   }
 }
@@ -2470,6 +2471,8 @@
 
   &:focus-within {
     border-color: var(--bitcoin-orange);
+    outline: 3px solid rgba(247, 147, 26, 0.3);
+    outline-offset: 1px;
   }
 
   input {
@@ -2478,7 +2481,7 @@
     flex: 1;
 
     &:focus {
-      outline: none;
+      outline: none; // Parent handles focus state via :focus-within
       border: none;
     }
   }
