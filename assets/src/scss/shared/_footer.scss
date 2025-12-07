@@ -191,3 +191,43 @@ footer {
     }
   }
 }
+
+// Powered by Badge
+.powered-by {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-dark);
+}
+
+.powered-by-text {
+  font-size: $font-xs;
+  color: var(--text-muted);
+}
+
+.claude-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  background: rgba(217, 119, 87, 0.1);
+  color: #d97757;
+  text-decoration: none;
+  font-size: $font-xs;
+  font-weight: $font-medium;
+  transition: all $transition-base;
+
+  &:hover {
+    background: rgba(217, 119, 87, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .claude-logo {
+    width: 14px;
+    height: 14px;
+  }
+}
