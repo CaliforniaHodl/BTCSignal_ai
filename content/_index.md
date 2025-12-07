@@ -1,6 +1,6 @@
 ---
-title: 'BTC Signal'
-PageTitle: 'BTC Signal - Bitcoin On-Chain Data & Technical Analysis'
+title: 'BTC Signals Pro'
+PageTitle: 'BTC Signals Pro - Bitcoin On-Chain Data & Technical Analysis'
 description: 'Bitcoin on-chain metrics, funding rates, liquidation data, and technical analysis. Real-time BTC market data at low cost. Pay with Lightning Network.'
 seoimage: 'og-image.png'
 image: 'og-image.png'
