@@ -250,4 +250,109 @@ describe('Utility Functions Unit Tests', () => {
       expect(size).to.equal(0.1) // 0.1 BTC
     })
   })
+
+  describe('Data Freshness Utilities', () => {
+    it('should format time ago correctly', () => {
+      const formatTimeAgo = (timestamp) => {
+        if (!timestamp) return 'Unknown'
+        const now = new Date()
+        const then = new Date(timestamp)
+        const diffMs = now - then
+        const diffMins = Math.floor(diffMs / (1000 * 60))
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+
+        if (diffMins < 1) return 'Just now'
+        if (diffMins < 60) return `${diffMins}m ago`
+        if (diffHours < 24) return `${diffHours}h ago`
+        return `${Math.floor(diffHours / 24)}d ago`
+      }
+
+      const now = Date.now()
+      expect(formatTimeAgo(now)).to.equal('Just now')
+      expect(formatTimeAgo(now - 5 * 60 * 1000)).to.equal('5m ago')
+      expect(formatTimeAgo(now - 2 * 60 * 60 * 1000)).to.equal('2h ago')
+      expect(formatTimeAgo(now - 25 * 60 * 60 * 1000)).to.equal('1d ago')
+      expect(formatTimeAgo(null)).to.equal('Unknown')
+    })
+
+    it('should detect stale data correctly', () => {
+      const isDataStale = (timestamp, maxAgeMinutes = 15) => {
+        if (!timestamp) return true
+        const now = new Date()
+        const then = new Date(timestamp)
+        const diffMs = now - then
+        return diffMs > maxAgeMinutes * 60 * 1000
+      }
+
+      const now = Date.now()
+      expect(isDataStale(now)).to.be.false
+      expect(isDataStale(now - 10 * 60 * 1000)).to.be.false
+      expect(isDataStale(now - 20 * 60 * 1000)).to.be.true
+      expect(isDataStale(null)).to.be.true
+    })
+  })
+
+  describe('CSV Export Utilities', () => {
+    it('should escape CSV values correctly', () => {
+      const escapeCSV = (val) => {
+        if (val === null || val === undefined) return ''
+        const str = String(val)
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return '"' + str.replace(/"/g, '""') + '"'
+        }
+        return str
+      }
+
+      expect(escapeCSV('simple')).to.equal('simple')
+      expect(escapeCSV('has, comma')).to.equal('"has, comma"')
+      expect(escapeCSV('has "quotes"')).to.equal('"has ""quotes"""')
+      expect(escapeCSV(null)).to.equal('')
+      expect(escapeCSV(123)).to.equal('123')
+    })
+
+    it('should create CSV rows correctly', () => {
+      const createCSVRow = (values) => {
+        return values.map(v => {
+          if (v === null || v === undefined) return ''
+          const str = String(v)
+          if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+            return '"' + str.replace(/"/g, '""') + '"'
+          }
+          return str
+        }).join(',')
+      }
+
+      expect(createCSVRow(['a', 'b', 'c'])).to.equal('a,b,c')
+      expect(createCSVRow(['test', 'has, comma', 'end'])).to.equal('test,"has, comma",end')
+    })
+  })
+
+  describe('Signal Accuracy Calculations', () => {
+    it('should calculate win rate correctly', () => {
+      const calculateWinRate = (wins, losses) => {
+        const total = wins + losses
+        if (total === 0) return 0
+        return (wins / total) * 100
+      }
+
+      expect(calculateWinRate(4, 1)).to.equal(80)
+      expect(calculateWinRate(5, 5)).to.equal(50)
+      expect(calculateWinRate(0, 0)).to.equal(0)
+      expect(calculateWinRate(10, 0)).to.equal(100)
+    })
+
+    it('should classify win rate correctly', () => {
+      const classifyWinRate = (rate) => {
+        if (rate >= 60) return 'good'
+        if (rate >= 40) return 'neutral'
+        return 'poor'
+      }
+
+      expect(classifyWinRate(80)).to.equal('good')
+      expect(classifyWinRate(60)).to.equal('good')
+      expect(classifyWinRate(50)).to.equal('neutral')
+      expect(classifyWinRate(40)).to.equal('neutral')
+      expect(classifyWinRate(30)).to.equal('poor')
+    })
+  })
 })
