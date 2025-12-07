@@ -9,4 +9,5 @@ layout: "single"
 priority: 0.8
 css: ['free-tools.scss']
 js: ['difficulty-ribbon.js']
+charts: true
 ---

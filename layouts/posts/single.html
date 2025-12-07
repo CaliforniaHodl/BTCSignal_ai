@@ -8,6 +8,14 @@
   {{ end }}
 {{ end }}
 
+{{/* Set Scratch values for foot.html to load appropriate scripts */}}
+{{ if not $isFree }}
+  {{ .Scratch.Set "qrcode" true }}
+  {{ .Scratch.Set "postJs" (slice "paywall.js" "post-stats.js") }}
+{{ else }}
+  {{ .Scratch.Set "postJs" (slice "post-stats.js") }}
+{{ end }}
+
 <div class="container single-post-page" data-post-id="{{ .File.UniqueID }}" data-is-free="{{ $isFree }}">
 
   <!-- Quant-Style Header Banner -->
@@ -644,9 +652,4 @@
   </article>
 </div>
 
-{{ if not $isFree }}
-<script defer src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script defer src="{{ "src/js/paywall.js" | relURL }}"></script>
-{{ end }}
-<script defer src="{{ "src/js/post-stats.js" | relURL }}"></script>
 {{ end }}

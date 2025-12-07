@@ -17,8 +17,8 @@
   {{ end }}
 {{ end }}
 
-{{/* Load QRCode.js if page needs QR codes */}}
-{{ if .Params.qrcode }}
+{{/* Load QRCode.js if page needs QR codes (from Params or Scratch) */}}
+{{ if or .Params.qrcode (.Scratch.Get "qrcode") }}
   <script defer src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 {{ end }}
 
@@ -32,6 +32,11 @@
 
 {{/* Load page-specific JS from frontmatter */}}
 {{ range .Params.js }}
+  <script defer src="{{ "src/js/" | relURL }}{{ . }}"></script>
+{{ end }}
+
+{{/* Load page-specific JS from Scratch (for computed/conditional scripts) */}}
+{{ range .Scratch.Get "postJs" }}
   <script defer src="{{ "src/js/" | relURL }}{{ . }}"></script>
 {{ end }}
 

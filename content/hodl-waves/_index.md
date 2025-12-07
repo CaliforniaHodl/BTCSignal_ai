@@ -9,4 +9,5 @@ layout: "single"
 priority: 0.8
 css: ['free-tools.scss']
 js: ['hodl-waves.js']
+charts: true
 ---

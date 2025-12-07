@@ -9,4 +9,5 @@ layout: "single"
 priority: 0.9
 css: ['free-tools.scss']
 js: ['smart-chart.js']
+lightweightCharts: true
 ---
