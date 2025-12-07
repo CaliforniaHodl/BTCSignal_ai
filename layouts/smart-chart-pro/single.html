@@ -1,0 +1,371 @@
+{{ define "main" }}
+<div class="container premium-page smart-chart-pro-page">
+  <!-- Premium Gate -->
+  <div class="premium-gate" id="premium-gate">
+    <div class="gate-content">
+      <div class="gate-icon">📊</div>
+      <h1>Smart Chart Pro</h1>
+      <p class="gate-desc">Professional-grade Bitcoin charting with Smart Money Concepts, 12+ indicators, pattern detection, and advanced drawing tools.</p>
+      <div class="gate-features">
+        <div class="feature-item"><span>🎯</span> Smart Money Concepts</div>
+        <div class="feature-item"><span>📐</span> 12+ Technical Indicators</div>
+        <div class="feature-item"><span>🔍</span> Pattern Detection</div>
+        <div class="feature-item"><span>✏️</span> Drawing Tools</div>
+        <div class="feature-item"><span>⏰</span> 7 Timeframes</div>
+        <div class="feature-item"><span>🔔</span> Price Alerts</div>
+      </div>
+      <div class="gate-price">
+        <span class="price-amount">50 sats</span>
+        <span class="price-period">one-time access</span>
+      </div>
+      <button class="btn-unlock-premium" id="btn-unlock">Unlock Smart Chart Pro</button>
+      <p class="gate-note">Already unlocked? <a href="#" id="check-access">Check access</a></p>
+      <p class="gate-free-link">Try <a href="/smart-chart/">Smart Chart Free</a> first</p>
+    </div>
+  </div>
+
+  <!-- Smart Chart Pro Content (Hidden until unlocked) -->
+  <div class="premium-content" id="premium-content" style="display: none;">
+    <header class="chart-pro-header">
+      <div class="header-top">
+        <div class="title-section">
+          <h1>Smart Chart Pro</h1>
+          <span class="pro-badge">PRO</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon" id="btn-screenshot" title="Screenshot">📷</button>
+          <button class="btn-icon" id="btn-fullscreen" title="Fullscreen">⛶</button>
+          <button class="btn-icon" id="btn-settings" title="Settings">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Symbol Selector -->
+      <div class="symbol-bar">
+        <div class="symbol-selector">
+          <button class="symbol-btn active" data-symbol="BTCUSDT">BTC/USDT</button>
+          <button class="symbol-btn" data-symbol="ETHUSDT">ETH/USDT</button>
+          <button class="symbol-btn" data-symbol="SOLUSDT">SOL/USDT</button>
+          <button class="symbol-btn" data-symbol="XRPUSDT">XRP/USDT</button>
+        </div>
+        <div class="price-display">
+          <span class="current-price" id="header-price">$--</span>
+          <span class="price-change" id="header-change">--</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Chart Area -->
+    <div class="chart-pro-layout">
+      <!-- Left Sidebar: Drawing Tools -->
+      <div class="tools-sidebar">
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="crosshair" title="Crosshair">+</button>
+          <button class="tool-btn" data-tool="trendline" title="Trend Line">╱</button>
+          <button class="tool-btn" data-tool="horizontal" title="Horizontal Line">─</button>
+          <button class="tool-btn" data-tool="vertical" title="Vertical Line">│</button>
+          <button class="tool-btn" data-tool="ray" title="Ray">→</button>
+        </div>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="fib-retrace" title="Fibonacci Retracement">F</button>
+          <button class="tool-btn" data-tool="fib-extension" title="Fibonacci Extension">FE</button>
+          <button class="tool-btn" data-tool="channel" title="Parallel Channel">▭</button>
+          <button class="tool-btn" data-tool="pitchfork" title="Pitchfork">⑂</button>
+        </div>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="rectangle" title="Rectangle">□</button>
+          <button class="tool-btn" data-tool="circle" title="Circle">○</button>
+          <button class="tool-btn" data-tool="text" title="Text">T</button>
+          <button class="tool-btn" data-tool="arrow" title="Arrow">↗</button>
+        </div>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="measure" title="Price Range">↕</button>
+          <button class="tool-btn danger" data-tool="delete-all" title="Delete All">🗑</button>
+        </div>
+      </div>
+
+      <!-- Center: Chart -->
+      <div class="chart-center">
+        <!-- Timeframe Tabs -->
+        <div class="timeframe-bar">
+          <div class="timeframe-tabs">
+            <button class="tf-tab" data-tf="5">5m</button>
+            <button class="tf-tab" data-tf="15">15m</button>
+            <button class="tf-tab" data-tf="60">1H</button>
+            <button class="tf-tab active" data-tf="240">4H</button>
+            <button class="tf-tab" data-tf="D">1D</button>
+            <button class="tf-tab" data-tf="W">1W</button>
+            <button class="tf-tab" data-tf="M">1M</button>
+          </div>
+          <div class="chart-type-tabs">
+            <button class="type-tab active" data-type="candles" title="Candlesticks">🕯️</button>
+            <button class="type-tab" data-type="line" title="Line">📈</button>
+            <button class="type-tab" data-type="heikin" title="Heikin Ashi">HA</button>
+          </div>
+        </div>
+
+        <!-- Main Chart Container -->
+        <div class="chart-wrapper">
+          <div id="pro-chart" class="pro-chart-container"></div>
+          <div class="chart-overlay" id="chart-overlay">
+            <span class="ohlc-display" id="ohlc-display">O: -- H: -- L: -- C: --</span>
+          </div>
+        </div>
+
+        <!-- Indicator Panels (Below Chart) -->
+        <div class="indicator-panels">
+          <div class="indicator-panel" id="panel-rsi">
+            <div class="panel-header">
+              <span class="panel-title">RSI (14)</span>
+              <span class="panel-value" id="rsi-value">--</span>
+              <button class="panel-close" data-panel="rsi">×</button>
+            </div>
+            <div class="panel-chart" id="rsi-chart"></div>
+          </div>
+          <div class="indicator-panel" id="panel-macd" style="display:none;">
+            <div class="panel-header">
+              <span class="panel-title">MACD (12,26,9)</span>
+              <span class="panel-value" id="macd-value">--</span>
+              <button class="panel-close" data-panel="macd">×</button>
+            </div>
+            <div class="panel-chart" id="macd-chart"></div>
+          </div>
+          <div class="indicator-panel" id="panel-stoch" style="display:none;">
+            <div class="panel-header">
+              <span class="panel-title">Stoch RSI (14,14,3,3)</span>
+              <span class="panel-value" id="stoch-value">--</span>
+              <button class="panel-close" data-panel="stoch">×</button>
+            </div>
+            <div class="panel-chart" id="stoch-chart"></div>
+          </div>
+          <div class="indicator-panel" id="panel-volume">
+            <div class="panel-header">
+              <span class="panel-title">Volume</span>
+              <span class="panel-value" id="volume-value">--</span>
+              <button class="panel-close" data-panel="volume">×</button>
+            </div>
+            <div class="panel-chart" id="volume-chart"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar: Indicators & Analysis -->
+      <div class="analysis-sidebar">
+        <!-- Overlay Indicators -->
+        <div class="sidebar-section">
+          <h3>Overlays</h3>
+          <div class="indicator-toggles">
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-ema9" checked>
+              <span class="toggle-label">EMA 9</span>
+              <span class="toggle-color" style="background:#3b82f6"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-ema21" checked>
+              <span class="toggle-label">EMA 21</span>
+              <span class="toggle-color" style="background:#8b5cf6"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-ema50">
+              <span class="toggle-label">EMA 50</span>
+              <span class="toggle-color" style="background:#f59e0b"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-ema100">
+              <span class="toggle-label">EMA 100</span>
+              <span class="toggle-color" style="background:#ef4444"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-ema200">
+              <span class="toggle-label">EMA 200</span>
+              <span class="toggle-color" style="background:#10b981"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-bb">
+              <span class="toggle-label">Bollinger Bands</span>
+              <span class="toggle-color" style="background:#6366f1"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-ichimoku">
+              <span class="toggle-label">Ichimoku Cloud</span>
+              <span class="toggle-color" style="background:#22c55e"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-supertrend">
+              <span class="toggle-label">Supertrend</span>
+              <span class="toggle-color" style="background:#f43f5e"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-vwap">
+              <span class="toggle-label">VWAP</span>
+              <span class="toggle-color" style="background:#0ea5e9"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Panel Indicators -->
+        <div class="sidebar-section">
+          <h3>Panels</h3>
+          <div class="indicator-toggles">
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-rsi" checked>
+              <span class="toggle-label">RSI</span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-macd">
+              <span class="toggle-label">MACD</span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-stochrsi">
+              <span class="toggle-label">Stoch RSI</span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-volume" checked>
+              <span class="toggle-label">Volume</span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-obv">
+              <span class="toggle-label">OBV</span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-atr">
+              <span class="toggle-label">ATR</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Smart Money Concepts -->
+        <div class="sidebar-section">
+          <h3>Smart Money</h3>
+          <div class="indicator-toggles">
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-orderblocks">
+              <span class="toggle-label">Order Blocks</span>
+              <span class="toggle-color smc" style="background:#22c55e"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-fvg">
+              <span class="toggle-label">Fair Value Gaps</span>
+              <span class="toggle-color smc" style="background:#3b82f6"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-liquidity">
+              <span class="toggle-label">Liquidity Zones</span>
+              <span class="toggle-color smc" style="background:#f59e0b"></span>
+            </label>
+            <label class="indicator-toggle">
+              <input type="checkbox" id="tog-breaker">
+              <span class="toggle-label">Breaker Blocks</span>
+              <span class="toggle-color smc" style="background:#ef4444"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Key Levels -->
+        <div class="sidebar-section">
+          <h3>Key Levels</h3>
+          <div class="levels-display">
+            <div class="level-row resistance">
+              <span class="level-type">R3</span>
+              <span class="level-price" id="r3-price">--</span>
+            </div>
+            <div class="level-row resistance">
+              <span class="level-type">R2</span>
+              <span class="level-price" id="r2-price">--</span>
+            </div>
+            <div class="level-row resistance">
+              <span class="level-type">R1</span>
+              <span class="level-price" id="r1-price">--</span>
+            </div>
+            <div class="level-row pivot">
+              <span class="level-type">Pivot</span>
+              <span class="level-price" id="pivot-price">--</span>
+            </div>
+            <div class="level-row support">
+              <span class="level-type">S1</span>
+              <span class="level-price" id="s1-price">--</span>
+            </div>
+            <div class="level-row support">
+              <span class="level-type">S2</span>
+              <span class="level-price" id="s2-price">--</span>
+            </div>
+            <div class="level-row support">
+              <span class="level-type">S3</span>
+              <span class="level-price" id="s3-price">--</span>
+            </div>
+            <div class="level-divider"></div>
+            <div class="level-row htf">
+              <span class="level-type">Prev Day H</span>
+              <span class="level-price" id="pdh-price">--</span>
+            </div>
+            <div class="level-row htf">
+              <span class="level-type">Prev Day L</span>
+              <span class="level-price" id="pdl-price">--</span>
+            </div>
+            <div class="level-row htf">
+              <span class="level-type">Prev Week H</span>
+              <span class="level-price" id="pwh-price">--</span>
+            </div>
+            <div class="level-row htf">
+              <span class="level-type">Prev Week L</span>
+              <span class="level-price" id="pwl-price">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pattern Detection -->
+        <div class="sidebar-section">
+          <h3>Detected Patterns</h3>
+          <div class="patterns-list" id="patterns-list">
+            <div class="pattern-item scanning">
+              <span class="pattern-icon">🔍</span>
+              <span class="pattern-name">Scanning...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signal Summary -->
+        <div class="sidebar-section signal-section">
+          <h3>Signal Summary</h3>
+          <div class="signal-card-pro">
+            <div class="signal-direction" id="signal-direction">
+              <span class="signal-icon">--</span>
+              <span class="signal-label">Analyzing...</span>
+            </div>
+            <div class="signal-score">
+              <span class="score-label">Confluence Score</span>
+              <div class="score-bar">
+                <div class="score-fill" id="score-fill" style="width:50%"></div>
+              </div>
+              <span class="score-value" id="confluence-score">--/100</span>
+            </div>
+            <div class="signal-factors" id="signal-factors">
+              <div class="factor"><span class="check">--</span> EMA Alignment</div>
+              <div class="factor"><span class="check">--</span> RSI Position</div>
+              <div class="factor"><span class="check">--</span> MACD Signal</div>
+              <div class="factor"><span class="check">--</span> Volume Trend</div>
+              <div class="factor"><span class="check">--</span> S/R Proximity</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Alerts -->
+        <div class="sidebar-section">
+          <h3>Price Alerts</h3>
+          <div class="alerts-manager">
+            <div class="alert-input-row">
+              <input type="number" id="alert-price" placeholder="Enter price...">
+              <button class="btn-add-alert" id="btn-add-alert">+</button>
+            </div>
+            <div class="alerts-list" id="alerts-list">
+              <p class="no-alerts">No alerts set</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load Lightweight Charts -->
+<script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+{{ end }}
