@@ -28,14 +28,25 @@
   };
 
   // === Access Control ===
+  function hasAccess() {
+    // Use shared access system (includes admin bypass)
+    if (typeof BTCSAIShared !== 'undefined') {
+      return BTCSAIShared.checkAccess(CONFIG.accessKey);
+    }
+    // Fallback to direct check
+    if (typeof BTCSAIAccess !== 'undefined') {
+      if (BTCSAIAccess.isAdmin()) return true;
+      if (BTCSAIAccess.hasAllAccess()) return true;
+    }
+    return localStorage.getItem(CONFIG.accessKey) === 'true';
+  }
+
   function checkAccess() {
     const gate = document.getElementById('premium-gate');
     const content = document.getElementById('premium-content');
     if (!gate || !content) return;
 
-    const hasAccess = localStorage.getItem(CONFIG.accessKey) === 'true';
-
-    if (hasAccess) {
+    if (hasAccess()) {
       gate.style.display = 'none';
       content.style.display = 'block';
       initChart();
@@ -44,6 +55,9 @@
       content.style.display = 'none';
     }
   }
+
+  // Expose refresh function for console/admin mode toggle
+  window.SmartChartProRefresh = checkAccess;
 
   function setupAccessHandlers() {
     const unlockBtn = document.getElementById('btn-unlock');
