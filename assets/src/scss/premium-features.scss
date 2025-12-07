@@ -7881,3 +7881,595 @@
     flex-direction: column;
   }
 }
+
+/* ===== Setup Grader Page ===== */
+
+.setup-grader-page {
+  padding: 2rem 0;
+}
+
+.grader-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.grader-header h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.section-hint {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* Options Section */
+.options-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.option-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.option-group h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Timeframe Selector */
+.tf-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tf-btn {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.tf-btn:hover {
+  border-color: var(--bitcoin-orange);
+  color: var(--bitcoin-orange);
+}
+
+.tf-btn.active {
+  background: var(--bitcoin-orange);
+  border-color: var(--bitcoin-orange);
+  color: white;
+}
+
+/* Bias Selector */
+.bias-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.bias-btn {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.bias-btn:hover {
+  border-color: var(--bitcoin-orange);
+}
+
+.bias-btn.active {
+  border-color: var(--bitcoin-orange);
+  background: rgba(247, 147, 26, 0.1);
+}
+
+.bias-icon {
+  font-size: 1rem;
+}
+
+/* Action Section */
+.action-section {
+  margin-bottom: 2rem;
+}
+
+.btn-grade {
+  background: linear-gradient(135deg, var(--bitcoin-orange) 0%, var(--bitcoin-gold) 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-grade:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+}
+
+.btn-grade:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Score Card */
+.score-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.score-visual {
+  margin-bottom: 1.5rem;
+}
+
+.score-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--bg-dark);
+  border: 4px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transition: border-color 0.3s;
+}
+
+.score-circle.grade-a {
+  border-color: var(--green);
+}
+
+.score-circle.grade-b {
+  border-color: #7ee787;
+}
+
+.score-circle.grade-c {
+  border-color: var(--bitcoin-orange);
+}
+
+.score-circle.grade-d {
+  border-color: #db6d28;
+}
+
+.score-circle.grade-f {
+  border-color: var(--red);
+}
+
+.score-number {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.score-grade {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.score-action {
+  margin-top: 1rem;
+}
+
+.action-badge {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+}
+
+.action-badge.take {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+}
+
+.action-badge.wait {
+  background: rgba(247, 147, 26, 0.15);
+  color: var(--bitcoin-orange);
+}
+
+.action-badge.skip {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--red);
+}
+
+/* Breakdown Section */
+.breakdown-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.breakdown-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.breakdown-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.breakdown-item {
+  display: grid;
+  grid-template-columns: 150px 1fr 60px;
+  align-items: center;
+  gap: 1rem;
+}
+
+.breakdown-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.breakdown-icon {
+  font-size: 1rem;
+}
+
+.breakdown-bar-container {
+  height: 8px;
+  background: var(--bg-dark);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.breakdown-bar {
+  height: 100%;
+  background: var(--bitcoin-orange);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.breakdown-score {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+/* TF Alignment Section */
+.tf-alignment-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.tf-alignment-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.tf-alignment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.tf-alignment-card {
+  background: var(--bg-dark);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.tf-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.tf-status {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.tf-status.aligned {
+  color: var(--green);
+}
+
+.tf-status.conflicting {
+  color: var(--red);
+}
+
+.tf-status.neutral {
+  color: var(--text-secondary);
+}
+
+.tf-note {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Bias Check Section */
+.bias-check-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.bias-check-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.bias-result {
+  text-align: center;
+}
+
+.bias-status {
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+.bias-status.confirmed {
+  background: rgba(63, 185, 80, 0.15);
+  color: var(--green);
+}
+
+.bias-status.conflicting {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--red);
+}
+
+.bias-status.neutral {
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+}
+
+.bias-warning {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid var(--red);
+  border-radius: 6px;
+  color: var(--red);
+  font-size: 0.9rem;
+}
+
+/* Verdict Section */
+.verdict-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.verdict-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.verdict-text {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Improvements Section */
+.improvements-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.improvements-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.improvements-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.improvements-list li {
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Invalidation Section */
+.invalidation-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 3px solid var(--red);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.invalidation-section h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.invalidation-level {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--red);
+  margin: 0;
+}
+
+/* New Analysis Button */
+.btn-new-analysis {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 2rem;
+}
+
+.btn-new-analysis:hover {
+  border-color: var(--bitcoin-orange);
+  color: var(--bitcoin-orange);
+}
+
+/* History Section */
+.history-section {
+  margin-bottom: 2rem;
+}
+
+.history-section h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.no-history {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.history-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-item:hover {
+  border-color: var(--bitcoin-orange);
+  background: var(--bg-card-hover);
+}
+
+.history-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.history-tf {
+  background: var(--bg-dark);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.history-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.history-score {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.history-score.grade-a {
+  color: var(--green);
+}
+
+.history-score.grade-b {
+  color: #7ee787;
+}
+
+.history-score.grade-c {
+  color: var(--bitcoin-orange);
+}
+
+.history-score.grade-d {
+  color: #db6d28;
+}
+
+.history-score.grade-f {
+  color: var(--red);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .breakdown-item {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .breakdown-label {
+    justify-content: space-between;
+  }
+
+  .breakdown-score {
+    text-align: left;
+    font-size: 0.85rem;
+  }
+
+  .options-section {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

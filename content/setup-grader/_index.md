@@ -5,4 +5,5 @@ description: "Upload any TradingView screenshot for instant AI analysis. Get a 0
 layout: "single"
 type: "setup-grader"
 premium: true
+css: ['premium-features.scss']
 ---
