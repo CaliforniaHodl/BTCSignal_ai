@@ -127,7 +127,7 @@ const BTCSAIAccess = (function() {
     if (isAdmin()) return true;
 
     const access = getAccess();
-    return access && access.valid && ['hourly', 'daily', 'weekly'].includes(access.tier);
+    return !!(access && access.valid && ['hourly', 'daily', 'weekly'].includes(access.tier));
   }
 
   // Check if specific post is unlocked
