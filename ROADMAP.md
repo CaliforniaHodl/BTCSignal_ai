@@ -692,6 +692,233 @@ jobs:
 
 ---
 
+### Phase 8.5: Free Tools Expansion & Learn Hub Overhaul
+*Goal: Create irresistible free tools that hook users, expand educational content, beat Glassnode on value*
+*Priority: HIGH (before Pi server - need users first)*
+*Philosophy: Give away so much value they HAVE to see what's behind the paywall*
+
+**Why This Matters:**
+- Free tools = organic traffic + word of mouth
+- Unique tools = differentiation from Coinglass/Glassnode
+- Learn hub = SEO traffic + establishes authority
+- Category search = better UX, longer sessions
+- Users who learn from you trust you to trade with you
+
+---
+
+**Sprint 1: "Free Tools" Header Dropdown** ⏳ PENDING
+*Goal: Make free tools discoverable, separate from Pro Tools*
+
+- [ ] Add "Free Tools" dropdown to main navigation (desktop)
+- [ ] Add "Free Tools" section to mobile menu
+- [ ] Dropdown items:
+  - 🧮 DCA Calculator
+  - ⚡ Fee Estimator
+  - 📅 Halving Countdown
+  - 🌡️ Fear & Greed
+  - 💰 Sats Converter
+  - 📖 Glossary
+  - 📚 Learn Hub
+- [ ] Style dropdown to match existing "Pro Tools" dropdown
+- [ ] Add "Free" badge to make it clear these cost nothing
+
+---
+
+**Sprint 2: DCA (Dollar Cost Average) Calculator** ⏳ PENDING
+*Unique angle: Show historical DCA performance with real BTC data*
+
+- [ ] Create `/dca-calculator/` page
+- [ ] Input fields:
+  - Start date (date picker)
+  - End date (or "today")
+  - Investment frequency (daily, weekly, bi-weekly, monthly)
+  - Amount per purchase ($)
+- [ ] Output:
+  - Total invested
+  - Current value
+  - Total BTC accumulated
+  - Average purchase price
+  - ROI percentage
+  - Comparison vs lump sum
+- [ ] Interactive chart showing:
+  - BTC price over period
+  - Each DCA purchase point
+  - Portfolio value growth curve
+- [ ] Preset buttons: "Last 1 year", "Last 4 years", "Since 2020"
+- [ ] Share results (generate shareable link/image)
+- [ ] Educational: "What is DCA?" explainer section
+
+**Why this beats Glassnode:** They don't have this. Free. No login.
+
+---
+
+**Sprint 3: Bitcoin Fee Estimator** ⏳ PENDING
+*Real-time mempool analysis for optimal transaction timing*
+
+- [ ] Create `/fee-estimator/` page
+- [ ] Live mempool data (via mempool.space API)
+- [ ] Display:
+  - Current fastest fee (sats/vB)
+  - Current medium priority fee
+  - Current low priority fee (1+ hour)
+  - Mempool size (MB)
+  - Pending transactions count
+- [ ] Fee calculator:
+  - Input: transaction size (or use typical 250 vB)
+  - Output: cost in sats and USD for each priority
+- [ ] Historical chart: fees over last 24h/7d
+- [ ] "Best time to send" recommendation
+- [ ] Push notification option: "Alert me when fees drop below X"
+- [ ] Educational: "How Bitcoin fees work" section
+
+**Why this beats Glassnode:** Real-time, actionable, free.
+
+---
+
+**Sprint 4: Sats Converter & Stack Tracker** ⏳ PENDING
+*Simple but addictive - Bitcoiners love watching their stack grow*
+
+- [ ] Create `/sats-converter/` page
+- [ ] Instant conversion:
+  - USD ↔ BTC ↔ Sats
+  - Real-time price updates
+  - Shows "X sats = Y USD"
+- [ ] Stack tracker (localStorage):
+  - Add purchases: date, amount, price
+  - Track total sats accumulated
+  - Show average buy price
+  - Show current value
+  - Show unrealized P&L
+- [ ] Fun stats:
+  - "Your stack = X% of 1 BTC"
+  - "You own more BTC than X% of world population"
+  - "Days until you're a whole-coiner at current DCA rate"
+- [ ] Export stack history (CSV)
+
+**Why this beats Glassnode:** Personal, engaging, free.
+
+---
+
+**Sprint 5: HODL Waves Visualization** ⏳ PENDING
+*Show long-term holder behavior - powerful on-chain metric*
+
+- [ ] Create `/hodl-waves/` page
+- [ ] Visualize BTC age distribution:
+  - 24h, 1d-1w, 1w-1m, 1-3m, 3-6m, 6-12m, 1-2y, 2-3y, 3-5y, 5y+
+- [ ] Area chart showing waves over time
+- [ ] Key insights:
+  - "X% of BTC hasn't moved in 1+ years"
+  - "Long-term holder accumulation/distribution"
+- [ ] Historical comparison to previous cycles
+- [ ] Educational explainer on HODL waves meaning
+
+**Data source:** Glassnode charges $800/month for this. We can approximate with public data.
+
+---
+
+**Sprint 6: Bitcoin Difficulty Ribbon** ⏳ PENDING
+*Miner capitulation indicator - historically powerful signal*
+
+- [ ] Create `/difficulty-ribbon/` page
+- [ ] Display:
+  - Current difficulty
+  - Difficulty change (last adjustment)
+  - Next adjustment estimate
+  - Hash ribbon (difficulty moving averages)
+- [ ] Chart: Difficulty ribbon with buy signals
+- [ ] Historical accuracy of ribbon signals
+- [ ] Educational: "What is the difficulty ribbon?"
+
+---
+
+**Sprint 7: Learn Hub Overhaul** ⏳ PENDING
+*Goal: Category system + search + new content types*
+
+**UI Improvements:**
+- [ ] Add category filter tabs:
+  - All
+  - Trading Basics
+  - Technical Analysis
+  - On-Chain Metrics
+  - Platform Guides
+  - Glossary
+- [ ] Add search bar to Learn hub
+- [ ] Add "Difficulty" badges (Beginner, Intermediate, Advanced)
+- [ ] Add reading time estimate
+- [ ] Improve card design with icons per category
+- [ ] Add "Related Articles" sidebar on article pages
+
+**New Content - Platform Guides:**
+- [ ] "Getting Started with BTCSignal" (onboarding guide)
+- [ ] "How to Read the Dashboard" (walkthrough)
+- [ ] "Understanding Your Signals" (what each metric means)
+- [ ] "Using the Liquidation Map" (tutorial)
+- [ ] "Backtester Pro Tutorial" (strategy writing guide)
+- [ ] "Trade Coach Best Practices" (how to get useful feedback)
+
+**New Content - Graph Reading:**
+- [ ] "How to Read Candlestick Charts" (basics)
+- [ ] "Understanding Volume" (why it matters)
+- [ ] "Reading Funding Rate Charts" (interpretation)
+- [ ] "Open Interest Explained" (with visuals)
+- [ ] "Liquidation Heatmaps 101" (how to use them)
+
+**New Content - Glossary/Dictionary:**
+- [ ] Create `/learn/glossary/` page
+- [ ] A-Z listing of Bitcoin/trading terms
+- [ ] Quick definitions with "Learn more" links
+- [ ] Terms to include:
+  - Accumulation, ATH, ATL, Bear market, Bull market
+  - Candlestick, Correction, DCA, Dominance
+  - FOMO, FUD, Funding rate, HODL, Halving
+  - Leverage, Liquidation, Long, Short
+  - Market cap, MVRV, On-chain, Open interest
+  - Resistance, RSI, Satoshi, Support
+  - Volatility, Volume, Whale, etc.
+- [ ] Search within glossary
+- [ ] Link terms in articles to glossary definitions
+
+---
+
+**Sprint 8: Free vs Pro Feature Matrix** ⏳ PENDING
+*Make it crystal clear what's free and what's premium*
+
+- [ ] Create comparison table on pricing page
+- [ ] Update homepage to highlight free tools
+- [ ] Add "Free" and "Pro" badges throughout site
+- [ ] Ensure paywalls clearly explain what premium unlocks
+- [ ] Add "Try Free Tools First" CTA on pricing page
+
+---
+
+**Success Criteria:**
+
+| Metric | Target |
+|--------|--------|
+| Free tools | 5+ unique tools |
+| Learn articles | 25+ (from current 7) |
+| Glossary terms | 50+ definitions |
+| Organic traffic | +100% in 90 days |
+| Time on site | +50% (more content to explore) |
+| Free→Pro conversion | Track funnel |
+
+**Competitive Positioning:**
+
+| Tool | Glassnode | Coinglass | BTCSignal |
+|------|-----------|-----------|-----------|
+| DCA Calculator | ❌ | ❌ | ✅ Free |
+| Fee Estimator | ❌ | ❌ | ✅ Free |
+| Sats Converter | ❌ | ❌ | ✅ Free |
+| HODL Waves | $800/mo | ❌ | ✅ Free |
+| Difficulty Ribbon | $800/mo | ❌ | ✅ Free |
+| Educational Content | Limited | ❌ | ✅ Extensive |
+| Glossary | ❌ | ❌ | ✅ Free |
+
+**Positioning After Phase 8.5:**
+> "More free Bitcoin tools than Glassnode's $800/month plan. Learn everything, pay nothing, upgrade when you're ready."
+
+---
+
 ### Phase 9: Raspberry Pi 5 Server (Self-Hosted Backend)
 *Goal: Set up a dedicated Pi 5 server for user database, session validation, and analytics*
 *Priority: Medium (enables true backend without cloud costs)*
