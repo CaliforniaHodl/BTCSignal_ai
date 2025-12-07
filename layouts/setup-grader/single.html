@@ -1,0 +1,265 @@
+{{ define "main" }}
+<div class="container premium-page setup-grader-page">
+  <!-- Premium Gate -->
+  <div class="premium-gate" id="grader-paywall">
+    <div class="gate-content">
+      <div class="gate-icon">📊</div>
+      <h1>Setup Grader</h1>
+      <p class="gate-desc">Upload any TradingView screenshot and get an instant, brutally honest grade. Multi-timeframe analysis included.</p>
+      <div class="gate-features">
+        <div class="feature-item"><span>🎯</span> Score 0-100 with Letter Grade</div>
+        <div class="feature-item"><span>📈</span> Multi-Timeframe Analysis</div>
+        <div class="feature-item"><span>⚠️</span> Bias Conflict Detection</div>
+        <div class="feature-item"><span>💡</span> Actionable Improvements</div>
+      </div>
+      <div class="gate-price">
+        <span class="price-amount">Included with Pro Access</span>
+      </div>
+      <a href="/pricing/" class="btn-unlock-premium">Get Pro Access</a>
+      <p class="gate-note">Already have access? <a href="/recover/">Recover it here</a></p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="premium-content" id="grader-content">
+    <header class="grader-header">
+      <h1>📊 Setup Grader</h1>
+      <p class="subtitle">Get an instant, honest grade on any chart setup</p>
+    </header>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+      <h2>1. Upload Your Chart</h2>
+      <p class="section-hint">Screenshot or TradingView link</p>
+
+      <!-- URL Input -->
+      <div class="url-input-group">
+        <input type="url" id="url-input" class="url-input" placeholder="Paste TradingView link (e.g., https://tradingview.com/chart/abc123)">
+        <span class="url-hint">10 URL captures/day per user &bull; Screenshots are unlimited</span>
+      </div>
+
+      <!-- URL Preview -->
+      <div class="url-preview" id="url-preview" style="display: none;">
+        <div class="url-preview-content">
+          <span class="url-icon">🔗</span>
+          <span class="url-display" id="url-display"></span>
+          <button class="btn-remove" onclick="document.getElementById('url-input').value=''; document.getElementById('url-input').dispatchEvent(new Event('input'));" title="Remove URL">✕</button>
+        </div>
+        <p class="url-note">Chart will be captured automatically (takes ~5 seconds)</p>
+      </div>
+
+      <!-- Upload Box -->
+      <div class="upload-box" id="upload-box">
+        <div class="upload-icon">📤</div>
+        <p class="upload-text">Drag & drop your chart screenshot here</p>
+        <p class="upload-hint">or click to browse (PNG, JPG, WEBP - max 10MB)</p>
+        <input type="file" id="chart-input" accept="image/png,image/jpeg,image/webp" hidden>
+      </div>
+
+      <!-- Preview Box -->
+      <div class="preview-box" id="preview-box" style="display: none;">
+        <img id="preview-image" alt="Chart preview">
+        <button class="btn-remove" id="remove-btn" title="Remove image">✕</button>
+      </div>
+    </section>
+
+    <!-- Options Section -->
+    <section class="options-section">
+      <div class="option-group">
+        <h2>2. Select Timeframe</h2>
+        <p class="section-hint">What timeframe is this chart?</p>
+        <div class="tf-selector">
+          <button class="tf-btn" data-tf="15M">15M</button>
+          <button class="tf-btn" data-tf="1H">1H</button>
+          <button class="tf-btn active" data-tf="4H">4H</button>
+          <button class="tf-btn" data-tf="1D">1D</button>
+          <button class="tf-btn" data-tf="1W">1W</button>
+        </div>
+      </div>
+
+      <div class="option-group">
+        <h2>3. Your Bias (Optional)</h2>
+        <p class="section-hint">What direction are you leaning?</p>
+        <div class="bias-selector">
+          <button class="bias-btn" data-bias="long">
+            <span class="bias-icon">🟢</span> Long
+          </button>
+          <button class="bias-btn" data-bias="short">
+            <span class="bias-icon">🔴</span> Short
+          </button>
+          <button class="bias-btn active" data-bias="">
+            <span class="bias-icon">⚪</span> No Bias
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Grade Button -->
+    <section class="action-section">
+      <button class="btn-grade" id="grade-btn" disabled>
+        <span class="btn-text">Grade My Setup</span>
+        <span class="btn-loading" style="display: none;">
+          <span class="spinner"></span> Analyzing...
+        </span>
+      </button>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section" id="results-section" style="display: none;">
+      <h2>Your Grade</h2>
+
+      <!-- Main Score Card -->
+      <div class="score-card">
+        <div class="score-visual">
+          <div class="score-circle" id="score-circle">
+            <span class="score-number" id="main-score">--</span>
+            <span class="score-grade" id="main-grade">--</span>
+          </div>
+        </div>
+        <div class="score-action">
+          <span class="action-badge" id="action-badge">WAIT</span>
+        </div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown-section">
+        <h3>Score Breakdown</h3>
+        <div class="breakdown-grid">
+          <div class="breakdown-item">
+            <div class="breakdown-label">
+              <span class="breakdown-icon">📈</span> Trend Clarity
+            </div>
+            <div class="breakdown-bar-container">
+              <div class="breakdown-bar" id="trend-bar"></div>
+            </div>
+            <span class="breakdown-score" id="trend-score">--/20</span>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">
+              <span class="breakdown-icon">🎯</span> Key Levels
+            </div>
+            <div class="breakdown-bar-container">
+              <div class="breakdown-bar" id="levels-bar"></div>
+            </div>
+            <span class="breakdown-score" id="levels-score">--/20</span>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">
+              <span class="breakdown-icon">🔷</span> Pattern Quality
+            </div>
+            <div class="breakdown-bar-container">
+              <div class="breakdown-bar" id="pattern-bar"></div>
+            </div>
+            <span class="breakdown-score" id="pattern-score">--/20</span>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">
+              <span class="breakdown-icon">⚖️</span> Risk:Reward
+            </div>
+            <div class="breakdown-bar-container">
+              <div class="breakdown-bar" id="rr-bar"></div>
+            </div>
+            <span class="breakdown-score" id="rr-score">--/20</span>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">
+              <span class="breakdown-icon">⏰</span> Entry Timing
+            </div>
+            <div class="breakdown-bar-container">
+              <div class="breakdown-bar" id="timing-bar"></div>
+            </div>
+            <span class="breakdown-score" id="timing-score">--/20</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeframe Alignment -->
+      <div class="tf-alignment-section">
+        <h3>Multi-Timeframe Alignment</h3>
+        <div class="tf-alignment-grid">
+          <div class="tf-alignment-card">
+            <div class="tf-label">Higher Timeframe</div>
+            <div class="tf-status" id="higher-tf-status">--</div>
+            <p class="tf-note" id="higher-tf-note">--</p>
+          </div>
+          <div class="tf-alignment-card">
+            <div class="tf-label">Lower Timeframe</div>
+            <div class="tf-status" id="lower-tf-status">--</div>
+            <p class="tf-note" id="lower-tf-note">--</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bias Check -->
+      <div class="bias-check-section">
+        <h3>Bias Check</h3>
+        <div class="bias-result">
+          <span class="bias-status" id="bias-status">--</span>
+          <p class="bias-warning" id="bias-warning" style="display: none;"></p>
+        </div>
+      </div>
+
+      <!-- Verdict -->
+      <div class="verdict-section">
+        <h3>Verdict</h3>
+        <p class="verdict-text" id="verdict-text">--</p>
+      </div>
+
+      <!-- Improvements -->
+      <div class="improvements-section">
+        <h3>How to Improve This Setup</h3>
+        <ul class="improvements-list" id="improvements-list">
+          <li>--</li>
+        </ul>
+      </div>
+
+      <!-- Invalidation -->
+      <div class="invalidation-section">
+        <h3>Invalidation Level</h3>
+        <p class="invalidation-level" id="invalidation-level">--</p>
+      </div>
+
+      <!-- New Analysis Button -->
+      <button class="btn-new-analysis" onclick="location.reload()">Grade Another Setup</button>
+    </section>
+
+    <!-- History Section -->
+    <section class="history-section">
+      <h2>Recent Grades</h2>
+      <div class="history-list" id="history-list">
+        <p class="no-history">No grades yet. Upload a chart to get started!</p>
+      </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works-section">
+      <h2>How Setup Grader Works</h2>
+      <div class="how-grid">
+        <div class="how-item">
+          <div class="how-icon">🤖</div>
+          <h4>AI-Powered Analysis</h4>
+          <p>Claude Vision analyzes your chart image, identifying patterns, levels, and structure.</p>
+        </div>
+        <div class="how-item">
+          <div class="how-icon">📊</div>
+          <h4>Multi-Timeframe Context</h4>
+          <p>Your setup is evaluated against higher and lower timeframes for confluence.</p>
+        </div>
+        <div class="how-item">
+          <div class="how-icon">🎯</div>
+          <h4>Honest Grading</h4>
+          <p>Most setups are B or C grade. A grades are rare and reserved for textbook setups.</p>
+        </div>
+        <div class="how-item">
+          <div class="how-icon">💡</div>
+          <h4>Actionable Feedback</h4>
+          <p>Get specific improvements, not generic advice. Know exactly what to fix.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="/src/js/security-utils.js"></script>
+<script src="/src/js/setup-grader.js"></script>
+{{ end }}

@@ -6,4 +6,5 @@ layout: "single"
 type: "setup-grader"
 premium: true
 css: ['premium-features.scss']
+js: ['track-view.js', 'site.js']
 ---
