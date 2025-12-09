@@ -8,48 +8,48 @@
   <!-- Filters -->
   <div class="learn-filters">
     <!-- Category Filter -->
-    <div class="category-filter">
-      <div class="filter-label">Category:</div>
-      <div class="filter-buttons">
-        <button class="filter-btn active" data-category="all">All</button>
-      {{- $categories := slice -}}
-      {{- range .Pages -}}
-        {{- if .Params.category -}}
-          {{- $categories = $categories | append .Params.category -}}
+    <div class="filter-group">
+      <label for="category-filter" class="filter-label">Category</label>
+      <select id="category-filter" class="filter-select">
+        <option value="all">All Categories</option>
+        {{- $categories := slice -}}
+        {{- range .Pages -}}
+          {{- if .Params.category -}}
+            {{- $categories = $categories | append .Params.category -}}
+          {{- end -}}
         {{- end -}}
-      {{- end -}}
-      {{- $uniqueCategories := uniq $categories -}}
-      {{- range $uniqueCategories -}}
-      <button class="filter-btn" data-category="{{ . }}">
-        {{- if eq . "fundamentals" }}Fundamentals
-        {{- else if eq . "technical" }}Technical Analysis
-        {{- else if eq . "derivatives" }}Derivatives
-        {{- else if eq . "risk-management" }}Risk Management
-        {{- else if eq . "risk" }}Risk Management
-        {{- else if eq . "advanced" }}Advanced
-        {{- else if eq . "strategies" }}Strategies
-        {{- else if eq . "sentiment" }}Sentiment
-        {{- else if eq . "psychology" }}Psychology
-        {{- else if eq . "on-chain" }}On-Chain
-        {{- else }}{{ . | title }}
-        {{- end -}}
-      </button>
-      {{- end }}
+        {{- $uniqueCategories := uniq $categories -}}
+        {{- range $uniqueCategories -}}
+        <option value="{{ . }}">
+          {{- if eq . "fundamentals" }}Fundamentals
+          {{- else if eq . "technical" }}Technical Analysis
+          {{- else if eq . "derivatives" }}Derivatives
+          {{- else if eq . "risk-management" }}Risk Management
+          {{- else if eq . "risk" }}Risk Management
+          {{- else if eq . "advanced" }}Advanced
+          {{- else if eq . "strategies" }}Strategies
+          {{- else if eq . "sentiment" }}Sentiment
+          {{- else if eq . "psychology" }}Psychology
+          {{- else if eq . "on-chain" }}On-Chain
+          {{- else }}{{ . | title }}
+          {{- end -}}
+        </option>
+        {{- end }}
+      </select>
     </div>
-  </div>
 
-  <!-- Difficulty Filter -->
-  <div class="difficulty-filter">
-    <div class="filter-label">Level:</div>
-    <div class="filter-buttons">
-      <button class="diff-btn active" data-difficulty="all">All</button>
-      <button class="diff-btn" data-difficulty="beginner">Beginner</button>
-      <button class="diff-btn" data-difficulty="intermediate">Intermediate</button>
-      <button class="diff-btn" data-difficulty="advanced">Advanced</button>
+    <!-- Difficulty Filter -->
+    <div class="filter-group">
+      <label for="difficulty-filter" class="filter-label">Level</label>
+      <select id="difficulty-filter" class="filter-select">
+        <option value="all">All Levels</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
     </div>
-  </div>
 
-  <div class="filter-count"><span id="article-count">{{ len .Pages }}</span> articles</div>
+    <div class="filter-count"><span id="article-count">{{ len .Pages }}</span> articles</div>
   </div>
 
   <!-- Search Box -->
@@ -114,8 +114,8 @@
 (function() {
   'use strict';
 
-  var categoryButtons = document.querySelectorAll('.filter-btn');
-  var difficultyButtons = document.querySelectorAll('.diff-btn');
+  var categorySelect = document.getElementById('category-filter');
+  var difficultySelect = document.getElementById('difficulty-filter');
   var searchInput = document.getElementById('article-search');
   var articleCards = document.querySelectorAll('.article-card');
   var articleCount = document.getElementById('article-count');
@@ -124,23 +124,15 @@
   var currentSearch = '';
 
   // Filter by category
-  categoryButtons.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      categoryButtons.forEach(function(b) { b.classList.remove('active'); });
-      this.classList.add('active');
-      currentCategory = this.dataset.category;
-      filterArticles();
-    });
+  categorySelect.addEventListener('change', function() {
+    currentCategory = this.value;
+    filterArticles();
   });
 
   // Filter by difficulty
-  difficultyButtons.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      difficultyButtons.forEach(function(b) { b.classList.remove('active'); });
-      this.classList.add('active');
-      currentDifficulty = this.dataset.difficulty;
-      filterArticles();
-    });
+  difficultySelect.addEventListener('change', function() {
+    currentDifficulty = this.value;
+    filterArticles();
   });
 
   // Search filter

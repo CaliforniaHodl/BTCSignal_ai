@@ -421,6 +421,155 @@
   font-size: 0.9rem;
 }
 
+// Whale alert item styles (matches JS output)
+.whale-alert-item {
+  .alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .alert-type {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  .alert-confidence {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+
+    &.confidence-high {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    &.confidence-medium {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+    }
+
+    &.confidence-low {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+  }
+
+  .alert-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+
+    .btc-amount {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--bitcoin-orange);
+    }
+
+    .usd-amount {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+  }
+
+  .alert-flow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+
+    .arrow {
+      color: var(--text-muted);
+    }
+
+    .from, .to {
+      font-weight: 500;
+    }
+  }
+
+  .alert-analysis {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: var(--bg-dark);
+    border-radius: 6px;
+  }
+
+  .alert-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .alert-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .tx-link {
+    font-size: 0.8rem;
+    color: var(--bitcoin-orange);
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  // Type-specific borders
+  &.exchange_deposit {
+    border-left: 3px solid var(--red);
+  }
+
+  &.exchange_withdrawal {
+    border-left: 3px solid var(--green);
+  }
+
+  &.whale_transfer {
+    border-left: 3px solid var(--bitcoin-orange);
+  }
+
+  &.dormant_wallet {
+    border-left: 3px solid var(--purple, #a855f7);
+  }
+}
+
+.live-badge {
+  display: inline-block;
+  background: var(--green);
+  color: #000;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.no-alerts {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 /* Liquidity Zones */
 .zones-container {
   display: grid;
@@ -8471,5 +8620,74 @@
   .options-section {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+}
+
+// =====================================================
+// WIDGET TOOLTIP (for info bubbles)
+// =====================================================
+
+.widget-tooltip {
+  font-size: 0.875rem;
+  cursor: help;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+  margin-left: auto;
+  position: relative;
+
+  &:hover {
+    opacity: 1;
+
+    &::after {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    &::before {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  // Custom tooltip overlay
+  &::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: normal;
+    width: 250px;
+    max-width: 80vw;
+    text-align: left;
+    line-height: 1.5;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+  }
+
+  // Arrow pointing up
+  &::before {
+    content: '';
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-bottom-color: var(--border-color);
+    z-index: 1001;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
   }
 }

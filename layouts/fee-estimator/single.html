@@ -60,9 +60,19 @@
         <input type="number" id="tx-size" class="form-control" value="250" min="100" max="10000" style="max-width: 150px;">
         <span>vBytes</span>
       </div>
-      <div class="calc-row">
-        <label>Estimated Fees:</label>
-        <span class="result" id="calc-result">Enter transaction size</span>
+      <div class="calc-results" id="calc-result">
+        <div class="calc-result-row fast">
+          <span class="result-label">⚡ Fast (~10min)</span>
+          <span class="result-value" id="calc-fast">--</span>
+        </div>
+        <div class="calc-result-row medium">
+          <span class="result-label">⏱️ Medium (~30min)</span>
+          <span class="result-value" id="calc-medium">--</span>
+        </div>
+        <div class="calc-result-row economy">
+          <span class="result-label">🐢 Economy (~1hr+)</span>
+          <span class="result-value" id="calc-economy">--</span>
+        </div>
       </div>
       <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 1rem;">
         Typical transaction: 250 vB (1 input, 2 outputs) | Larger transactions use more vBytes

@@ -510,11 +510,45 @@
       flex: 1;
       min-width: 100px;
     }
+  }
 
-    .result {
-      color: $bitcoin-orange;
+  .calc-results {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    margin-top: $spacing-md;
+  }
+
+  .calc-result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-md;
+    background: var(--bg-dark);
+
+    &.fast {
+      border-left: 3px solid $bullish;
+    }
+
+    &.medium {
+      border-left: 3px solid $bitcoin-orange;
+    }
+
+    &.economy {
+      border-left: 3px solid var(--text-secondary);
+    }
+
+    .result-label {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+    }
+
+    .result-value {
+      color: var(--text-primary);
       font-weight: $font-bold;
       font-family: monospace;
+      font-size: $font-base;
     }
   }
 
@@ -710,6 +744,27 @@
 
   .fun-stats {
     margin-top: $spacing-lg;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+    }
+  }
+
+  .shuffle-btn {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    padding: $spacing-xs $spacing-sm;
+    font-size: $font-base;
+    cursor: pointer;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: $bitcoin-orange;
+      transform: rotate(180deg);
+    }
   }
 
   .fun-stat-grid {
@@ -1518,6 +1573,36 @@
     &.support { background: $bullish; }
     &.ema-fast { background: #58a6ff; }
     &.ema-slow { background: #a371f7; }
+    &.pro-call-buy {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 14px solid $bullish;
+      border-radius: 0;
+    }
+    &.pro-call-sell {
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 14px solid $bearish;
+      border-radius: 0;
+    }
+  }
+}
+
+// Pro Call toggle styles
+.pro-call-toggle {
+  position: relative;
+
+  .delay-badge {
+    background: rgba($bitcoin-orange, 0.2);
+    color: $bitcoin-orange;
+    font-size: $font-xs;
+    padding: 2px 6px;
+    border-radius: $radius-sm;
+    margin-left: $spacing-xs;
   }
 }
 

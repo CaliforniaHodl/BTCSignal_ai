@@ -338,37 +338,9 @@ export default async (req: Request, context: Context) => {
       console.log('CoinGecko API error, status:', btcDataRes.value.status);
     }
 
-    // Fallback 1: CoinCap API
+    // Fallback 1: Kraken API (more reliable than CoinCap)
     if (snapshot.btc.price === 0) {
-      console.log('Trying CoinCap fallback...');
-      try {
-        const coinCapRes = await fetchWithTimeout('https://api.coincap.io/v2/assets/bitcoin');
-        if (coinCapRes.ok) {
-          const data = await coinCapRes.json();
-          if (data?.data?.priceUsd) {
-            const price = parseFloat(data.data.priceUsd);
-            const change24h = parseFloat(data.data.changePercent24Hr) || 0;
-            snapshot.btc = {
-              price: price,
-              price24hAgo: price / (1 + change24h / 100),
-              priceChange24h: change24h,
-              high24h: 0,
-              low24h: 0,
-              volume24h: parseFloat(data.data.volumeUsd24Hr) || 0,
-              marketCap: parseFloat(data.data.marketCapUsd) || 0,
-            };
-            dataSources.btcPrice = 'coincap';
-            console.log('CoinCap fallback succeeded');
-          }
-        }
-      } catch (e) {
-        console.log('CoinCap fallback failed');
-      }
-    }
-
-    // Fallback 2: Kraken API
-    if (snapshot.btc.price === 0) {
-      console.log('Trying Kraken fallback...');
+      console.log('Trying Kraken fallback first...');
       try {
         const krakenRes = await fetchWithTimeout('https://api.kraken.com/0/public/Ticker?pair=XBTUSD');
         if (krakenRes.ok) {
@@ -388,15 +360,15 @@ export default async (req: Request, context: Context) => {
               marketCap: 0,
             };
             dataSources.btcPrice = 'kraken';
-            console.log('Kraken fallback succeeded');
+            console.log('Kraken fallback succeeded, price:', price);
           }
         }
-      } catch (e) {
-        console.log('Kraken fallback failed');
+      } catch (e: any) {
+        console.log('Kraken fallback failed:', e.message);
       }
     }
 
-    // Fallback 3: Binance US API
+    // Fallback 2: Binance US API
     if (snapshot.btc.price === 0) {
       console.log('Trying Binance US fallback...');
       try {

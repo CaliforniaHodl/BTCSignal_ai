@@ -147,16 +147,18 @@
   // Update calculator based on input
   function updateCalculator(fees) {
     if (!fees) return;
-    
+
     var txSize = parseInt(document.getElementById('tx-size').value) || 250;
     var fastCost = calculateFee(fees.fastestFee, txSize);
     var mediumCost = calculateFee(fees.halfHourFee, txSize);
     var slowCost = calculateFee(fees.hourFee, txSize);
 
-    document.getElementById('calc-result').innerHTML = 
-      'Fast: ' + fastCost.sats.toLocaleString() + ' sats (' + formatUsd(fastCost.usd) + ') | ' +
-      'Medium: ' + mediumCost.sats.toLocaleString() + ' sats (' + formatUsd(mediumCost.usd) + ') | ' +
-      'Economy: ' + slowCost.sats.toLocaleString() + ' sats (' + formatUsd(slowCost.usd) + ')';
+    document.getElementById('calc-fast').textContent =
+      fastCost.sats.toLocaleString() + ' sats · ' + formatUsd(fastCost.usd);
+    document.getElementById('calc-medium').textContent =
+      mediumCost.sats.toLocaleString() + ' sats · ' + formatUsd(mediumCost.usd);
+    document.getElementById('calc-economy').textContent =
+      slowCost.sats.toLocaleString() + ' sats · ' + formatUsd(slowCost.usd);
   }
 
   // Main update function

@@ -21,6 +21,8 @@
   // Data
   let ohlcData = [];
   let currentTimeframe = '240';
+  let proCalls = [];
+  let showProCalls = true;
 
   // Colors
   const colors = {
@@ -47,8 +49,67 @@
     }
     createCharts();
     setupEventListeners();
+    await loadProCalls();
     await loadData(currentTimeframe);
     startPriceUpdates();
+  }
+
+  async function loadProCalls() {
+    try {
+      const response = await fetch('/data/historical-calls.json');
+      const data = await response.json();
+
+      // Filter for calls older than 10 days
+      const tenDaysAgo = Date.now() - (10 * 24 * 60 * 60 * 1000);
+      proCalls = data.filter(call => new Date(call.date).getTime() < tenDaysAgo);
+
+      console.log(`Loaded ${proCalls.length} Pro Calls (10+ days old)`);
+    } catch (error) {
+      console.error('Error loading Pro Calls:', error);
+      proCalls = [];
+    }
+  }
+
+  function drawProCallMarkers() {
+    if (!candleSeries || !ohlcData.length || !proCalls.length) return;
+
+    // Clear existing markers first
+    candleSeries.setMarkers([]);
+
+    if (!showProCalls) return;
+
+    const markers = [];
+    const chartStartTime = ohlcData[0].time;
+    const chartEndTime = ohlcData[ohlcData.length - 1].time;
+
+    proCalls.forEach(call => {
+      const callTime = Math.floor(new Date(call.date).getTime() / 1000);
+
+      // Only show markers within the chart's time range
+      if (callTime >= chartStartTime && callTime <= chartEndTime) {
+        // Find the closest candle to this call time
+        let closestCandle = ohlcData.reduce((prev, curr) => {
+          return Math.abs(curr.time - callTime) < Math.abs(prev.time - callTime) ? curr : prev;
+        });
+
+        markers.push({
+          time: closestCandle.time,
+          position: call.direction === 'up' ? 'belowBar' : 'aboveBar',
+          color: call.direction === 'up' ? colors.bullish : colors.bearish,
+          shape: call.direction === 'up' ? 'arrowUp' : 'arrowDown',
+          text: call.direction === 'up' ? 'BUY' : 'SELL',
+          size: 2
+        });
+      }
+    });
+
+    // Sort markers by time
+    markers.sort((a, b) => a.time - b.time);
+
+    if (markers.length > 0) {
+      candleSeries.setMarkers(markers);
+      console.log(`Drew ${markers.length} Pro Call markers`);
+    }
   }
 
   function createCharts() {
@@ -137,6 +198,11 @@
     document.getElementById('show-signals')?.addEventListener('change', (e) => {
       // Toggle signal markers (future enhancement)
     });
+
+    document.getElementById('show-pro-calls')?.addEventListener('change', (e) => {
+      showProCalls = e.target.checked;
+      drawProCallMarkers();
+    });
   }
 
   async function loadData(timeframe) {
@@ -183,6 +249,9 @@
     if (document.getElementById('show-levels')?.checked) {
       drawKeyLevels();
     }
+
+    // Draw Pro Call markers
+    drawProCallMarkers();
 
     mainChart.timeScale().fitContent();
     rsiChart?.timeScale().fitContent();

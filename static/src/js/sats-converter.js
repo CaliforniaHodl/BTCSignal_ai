@@ -94,39 +94,97 @@
     updateFunStats();
   }
 
+  // Fun stats pool - each returns {icon, value, label}
+  var funStatsPool = [
+    // BTC Percent
+    function(sats) {
+      var btcPercent = (sats / 100000000) * 100;
+      return { icon: '🥧', value: btcPercent.toFixed(4) + '%', label: 'of 1 BTC' };
+    },
+    // World ranking
+    function(sats) {
+      var btcAmount = satsToBtc(sats);
+      var worldPercent;
+      if (btcAmount >= 1) worldPercent = 'Top 1%';
+      else if (btcAmount >= 0.1) worldPercent = 'Top 5%';
+      else if (btcAmount >= 0.01) worldPercent = 'Top 10%';
+      else if (btcAmount >= 0.001) worldPercent = 'Top 25%';
+      else worldPercent = 'Top 50%';
+      return { icon: '🌍', value: worldPercent, label: 'of BTC holders' };
+    },
+    // Coffees
+    function(sats) {
+      var coffees = Math.floor(satsToUsd(sats) / 5);
+      return { icon: '☕', value: coffees.toLocaleString(), label: 'coffees worth' };
+    },
+    // Pizzas (tribute to 10,000 BTC pizza)
+    function(sats) {
+      var pizzas = Math.floor(satsToUsd(sats) / 20);
+      return { icon: '🍕', value: pizzas.toLocaleString(), label: 'pizzas worth' };
+    },
+    // Big Macs
+    function(sats) {
+      var bigmacs = Math.floor(satsToUsd(sats) / 5.50);
+      return { icon: '🍔', value: bigmacs.toLocaleString(), label: 'Big Macs' };
+    },
+    // Netflix months
+    function(sats) {
+      var months = Math.floor(satsToUsd(sats) / 15.99);
+      return { icon: '📺', value: months.toLocaleString(), label: 'months of Netflix' };
+    },
+    // Gold grams
+    function(sats) {
+      var goldPricePerGram = 75; // approximate
+      var grams = (satsToUsd(sats) / goldPricePerGram).toFixed(2);
+      return { icon: '🪙', value: grams + 'g', label: 'of gold equivalent' };
+    },
+    // Gallons of gas
+    function(sats) {
+      var gallons = Math.floor(satsToUsd(sats) / 3.50);
+      return { icon: '⛽', value: gallons.toLocaleString(), label: 'gallons of gas' };
+    },
+    // Whole coins progress
+    function(sats) {
+      var wholeCoins = Math.floor(sats / 100000000);
+      var remaining = 100000000 - (sats % 100000000);
+      if (wholeCoins >= 1) {
+        return { icon: '₿', value: wholeCoins.toLocaleString(), label: 'whole bitcoin(s)' };
+      }
+      return { icon: '₿', value: (remaining / 100000000).toFixed(4), label: 'BTC to next whole coin' };
+    }
+  ];
+
+  var activeStats = [];
+  var funStatsEl = document.getElementById('fun-stats');
+
+  // Shuffle and select 3 stats
+  function shuffleStats() {
+    var shuffled = funStatsPool.slice().sort(function() { return 0.5 - Math.random(); });
+    activeStats = shuffled.slice(0, 3);
+    updateFunStats();
+  }
+
   // Update fun stats
   function updateFunStats() {
     var sats = parseInt(satsInput.value) || 0;
     var totalStackSats = getTotalStackSats();
     var displaySats = Math.max(sats, totalStackSats);
-    
-    if (displaySats === 0) return;
-    
-    // Percent of 1 BTC
-    var btcPercent = (displaySats / 100000000) * 100;
-    document.getElementById('btc-percent').textContent = btcPercent.toFixed(4) + '%';
-    
-    // World ranking (approximation based on distribution)
-    // ~100M people own any BTC, owning 0.01 BTC puts you in top 10%
-    var btcAmount = satsToBtc(displaySats);
-    var worldPercent;
-    if (btcAmount >= 1) {
-      worldPercent = 'Top 1%';
-    } else if (btcAmount >= 0.1) {
-      worldPercent = 'Top 5%';
-    } else if (btcAmount >= 0.01) {
-      worldPercent = 'Top 10%';
-    } else if (btcAmount >= 0.001) {
-      worldPercent = 'Top 25%';
-    } else {
-      worldPercent = 'Top 50%';
+
+    if (displaySats === 0) {
+      funStatsEl.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 1rem; grid-column: 1/-1;">Enter an amount to see fun stats</p>';
+      return;
     }
-    document.getElementById('world-percent').textContent = worldPercent;
-    
-    // Coffees worth (assuming $5 per coffee)
-    var coffeeValue = satsToUsd(displaySats);
-    var coffees = Math.floor(coffeeValue / 5);
-    document.getElementById('coffee-count').textContent = coffees.toLocaleString();
+
+    var html = '';
+    activeStats.forEach(function(statFn) {
+      var stat = statFn(displaySats);
+      html += '<div class="fun-stat">' +
+        '<span class="fun-icon" aria-hidden="true">' + stat.icon + '</span>' +
+        '<span class="fun-value">' + stat.value + '</span>' +
+        '<span class="fun-label">' + stat.label + '</span>' +
+        '</div>';
+    });
+    funStatsEl.innerHTML = html;
   }
 
   // Stack tracker functions
@@ -277,22 +335,28 @@
   function init() {
     // Set default date to today
     document.getElementById('stack-date').value = new Date().toISOString().split('T')[0];
-    
+
+    // Initialize random stats
+    shuffleStats();
+
     // Fetch initial price
     fetchPrice();
-    
+
     // Load saved stack
     loadStack();
-    
+
     // Set up input listeners
     usdInput.addEventListener('input', handleUsdInput);
     btcInput.addEventListener('input', handleBtcInput);
     satsInput.addEventListener('input', handleSatsInput);
-    
+
     // Stack tracker buttons
     document.getElementById('add-stack-btn').addEventListener('click', addStackItem);
     exportBtn.addEventListener('click', exportStack);
-    
+
+    // Shuffle stats button
+    document.getElementById('shuffle-stats').addEventListener('click', shuffleStats);
+
     // Refresh price every 60 seconds
     setInterval(fetchPrice, 60000);
   }

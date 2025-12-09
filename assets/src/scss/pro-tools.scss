@@ -1,0 +1,219 @@
+// =====================================================
+// PRO TOOLS PAGE STYLES
+// =====================================================
+
+@import 'shared/variables';
+@import 'shared/mixins';
+
+.pro-tools-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl 0;
+
+  h1 {
+    font-size: $font-4xl;
+    margin-bottom: $spacing-md;
+    @include gradient-text;
+
+    @include mobile {
+      font-size: $font-3xl;
+    }
+  }
+
+  .page-desc {
+    font-size: $font-lg;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+
+    @include mobile {
+      font-size: $font-base;
+    }
+  }
+}
+
+.pro-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-xl;
+  margin-bottom: $spacing-3xl;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+}
+
+.pro-tool-card {
+  @include card;
+  padding: $spacing-xl;
+  display: flex;
+  gap: $spacing-xl;
+  transition: all $transition-base;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: var(--bitcoin-orange);
+    box-shadow: $shadow-lg;
+  }
+
+  &.featured {
+    background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.1) 100%);
+    border-color: var(--bitcoin-orange);
+    grid-column: span 2;
+
+    @media (max-width: $breakpoint-lg) {
+      grid-column: span 1;
+    }
+  }
+
+  @include mobile {
+    flex-direction: column;
+    padding: $spacing-lg;
+    gap: $spacing-md;
+  }
+}
+
+.tool-badge-new {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  background: var(--bitcoin-orange);
+  color: #000;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tool-icon-large {
+  font-size: 4rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 80px;
+
+  @include mobile {
+    font-size: 3rem;
+    width: auto;
+  }
+}
+
+.tool-content {
+  flex: 1;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-sm;
+    color: var(--text-primary);
+
+    @include mobile {
+      font-size: $font-lg;
+    }
+  }
+}
+
+.tool-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+  font-size: $font-base;
+
+  @include mobile {
+    font-size: $font-sm;
+  }
+}
+
+.tool-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 $spacing-lg 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-xs;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+
+  li {
+    font-size: $font-sm;
+    color: var(--text-muted);
+    padding-left: $spacing-md;
+    position: relative;
+
+    &::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--green);
+      font-weight: $font-bold;
+    }
+  }
+}
+
+.tool-cta {
+  display: inline-block;
+  @include gradient-button;
+  padding: $spacing-sm $spacing-xl;
+  text-decoration: none;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+// Free Tools Promo Section
+.free-tools-promo {
+  text-align: center;
+  padding: $spacing-2xl;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-xl;
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-2xl;
+    margin-bottom: $spacing-sm;
+    color: var(--text-primary);
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-lg;
+  }
+}
+
+.free-tools-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: $spacing-md;
+
+  a {
+    padding: $spacing-sm $spacing-lg;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: $font-sm;
+    font-weight: $font-medium;
+    transition: all $transition-base;
+
+    &:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+  }
+}

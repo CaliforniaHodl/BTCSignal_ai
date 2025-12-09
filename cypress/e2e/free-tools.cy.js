@@ -177,8 +177,9 @@ describe('Free Tools Suite', () => {
 
     it('should have fee calculator section', () => {
       cy.get('#tx-size').should('exist');
-      cy.get('#calc-typical').should('exist');
-      cy.get('#calc-custom').should('exist');
+      cy.get('#calc-fast').should('exist');
+      cy.get('#calc-medium').should('exist');
+      cy.get('#calc-economy').should('exist');
     });
 
     it('should display fee chart', () => {
@@ -192,8 +193,10 @@ describe('Free Tools Suite', () => {
 
     it('should update calculator on input change', () => {
       cy.get('#tx-size').clear().type('500');
-      // Custom calculation should update
-      cy.get('#calc-custom').should('exist');
+      // Calculator results should update
+      cy.get('#calc-fast').should('exist');
+      cy.get('#calc-medium').should('exist');
+      cy.get('#calc-economy').should('exist');
     });
 
     it('should have last updated timestamp', () => {
@@ -247,9 +250,10 @@ describe('Free Tools Suite', () => {
 
     it('should show fun stats', () => {
       cy.get('.fun-stats').should('exist');
-      cy.get('#btc-percent').should('exist');
-      cy.get('#world-rank').should('exist');
-      cy.get('#days-to-coin').should('exist');
+      cy.get('#fun-stats').should('exist');
+      cy.get('#shuffle-stats').should('exist');
+      // Fun stats are now dynamically generated with 3 visible at a time
+      cy.get('.fun-stat').should('have.length', 3);
     });
 
     it('should have education section', () => {
@@ -339,42 +343,42 @@ describe('Free Tools Suite', () => {
       cy.get('#current-difficulty').should('exist');
       cy.get('#difficulty-change').should('exist');
       cy.get('#next-adjustment').should('exist');
-      cy.get('#hash-rate').should('exist');
+      cy.get('#ribbon-signal').should('exist');
     });
 
-    it('should show signal banner', () => {
-      cy.get('#signal-banner').should('exist');
-      cy.get('#ribbon-signal-title').should('exist');
-      cy.get('#ribbon-signal-desc').should('exist');
+    it('should show signal card', () => {
+      cy.get('#signal-card').should('exist');
+      cy.get('#signal-status').should('exist');
+      cy.get('#signal-explanation').should('exist');
     });
 
     it('should have time range controls', () => {
       cy.get('.chart-controls').should('be.visible');
-      cy.get('.time-btn[data-range="6m"]').should('exist');
       cy.get('.time-btn[data-range="1y"]').should('exist');
       cy.get('.time-btn[data-range="2y"]').should('exist');
+      cy.get('.time-btn[data-range="4y"]').should('exist');
     });
 
-    it('should display difficulty chart', () => {
-      cy.get('#difficulty-chart').should('exist');
+    it('should display difficulty ribbon chart', () => {
+      cy.get('#ribbon-chart').should('exist');
     });
 
     it('should display hashrate chart', () => {
       cy.get('#hashrate-chart').should('exist');
     });
 
-    it('should show historical signals', () => {
-      cy.get('.historical-signals').should('exist');
-      cy.get('.signal-row').should('have.length.at.least', 3);
+    it('should show historical signals section', () => {
+      cy.get('.signal-history').should('exist');
+      cy.get('.history-item').should('have.length.at.least', 3);
     });
 
     it('should have education section', () => {
       cy.get('.education-section').should('exist');
     });
 
-    it('should display ribbon legend', () => {
-      cy.get('.ribbon-legend').should('exist');
-      cy.get('.ribbon-item').should('have.length', 8);
+    it('should display chart legend', () => {
+      cy.get('.chart-legend').should('exist');
+      cy.get('.legend-item').should('have.length.at.least', 3);
     });
   });
 
@@ -447,13 +451,18 @@ describe('Free Tools Suite', () => {
       cy.visit('/learn/');
     });
 
-    it('should display category filter buttons', () => {
-      cy.get('.category-filter').should('exist');
-      cy.get('.filter-btn').should('have.length.at.least', 5);
+    it('should display category filter dropdown', () => {
+      cy.get('.learn-filters').should('exist');
+      cy.get('#category-filter').should('exist');
     });
 
-    it('should have All button active by default', () => {
-      cy.get('.filter-btn[data-category="all"]').should('have.class', 'active');
+    it('should have All Categories selected by default', () => {
+      cy.get('#category-filter').should('have.value', 'all');
+    });
+
+    it('should display difficulty filter dropdown', () => {
+      cy.get('#difficulty-filter').should('exist');
+      cy.get('#difficulty-filter').should('have.value', 'all');
     });
 
     it('should display article count', () => {
@@ -464,11 +473,16 @@ describe('Free Tools Suite', () => {
       cy.get('#article-search').should('exist');
     });
 
-    it('should filter articles by category', () => {
-      cy.get('.filter-btn[data-category="fundamentals"]').click();
-      cy.get('.filter-btn[data-category="fundamentals"]').should('have.class', 'active');
+    it('should filter articles by category dropdown', () => {
+      cy.get('#category-filter').select('fundamentals');
+      cy.get('#category-filter').should('have.value', 'fundamentals');
       // Article count should update
       cy.get('#article-count').should('exist');
+    });
+
+    it('should filter articles by difficulty dropdown', () => {
+      cy.get('#difficulty-filter').select('beginner');
+      cy.get('#difficulty-filter').should('have.value', 'beginner');
     });
 
     it('should filter articles by search', () => {

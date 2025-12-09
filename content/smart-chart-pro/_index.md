@@ -10,4 +10,5 @@ priority: 0.9
 css: ['premium-features.scss']
 js: ['smart-chart-pro.js']
 lightweightCharts: true
+html2canvas: true
 ---

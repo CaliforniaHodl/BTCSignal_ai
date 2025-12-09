@@ -8,10 +8,17 @@ export default async (req: Request, context: Context) => {
     const priceData = await priceRes.json();
     const currentPrice = parseFloat(priceData.data.amount);
 
-    // Fetch funding rate for sentiment
-    const fundingRes = await fetch('https://fapi.binance.us/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
-    const fundingData = await fundingRes.json();
-    const fundingRate = parseFloat(fundingData[0].fundingRate);
+    // Fetch funding rate from Binance (global, not US)
+    let fundingRate = 0;
+    try {
+      const fundingRes = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
+      if (fundingRes.ok) {
+        const fundingData = await fundingRes.json();
+        fundingRate = parseFloat(fundingData[0]?.fundingRate || 0);
+      }
+    } catch (e) {
+      console.log('Funding rate fetch failed, using neutral');
+    }
 
     // Calculate key levels
     const topZone = Math.round(currentPrice * 1.025 / 500) * 500;

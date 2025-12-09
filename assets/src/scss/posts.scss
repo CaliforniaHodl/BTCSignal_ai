@@ -49,6 +49,14 @@
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
+
+    &.col-date {
+      width: 100px;
+    }
+
+    &.col-time {
+      width: 80px;
+    }
   }
 
   td {

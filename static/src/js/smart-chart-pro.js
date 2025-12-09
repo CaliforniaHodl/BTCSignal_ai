@@ -24,7 +24,11 @@
     drawings: [],
     alerts: [],
     data: [],
-    currentTool: 'crosshair'
+    currentTool: 'crosshair',
+    proCalls: [],
+    showProCalls: true,
+    drawingState: null, // For tracking in-progress drawings
+    drawnLines: [] // Store drawn price lines
   };
 
   // === Access Control ===
@@ -130,6 +134,7 @@
     initVolumePanel();
 
     // Load data
+    loadProCalls();
     loadChartData();
 
     // Setup event handlers
@@ -138,6 +143,7 @@
     setupTimeframeHandlers();
     setupDrawingTools();
     setupAlerts();
+    setupHeaderActions();
 
     // Responsive resize
     window.addEventListener('resize', () => {
@@ -145,6 +151,61 @@
         state.chart.applyOptions({ width: container.clientWidth });
       }
     });
+  }
+
+  // === Pro Calls ===
+  async function loadProCalls() {
+    try {
+      const response = await fetch('/data/historical-calls.json');
+      state.proCalls = await response.json();
+      console.log(`Loaded ${state.proCalls.length} Pro Calls`);
+    } catch (error) {
+      console.error('Error loading Pro Calls:', error);
+      state.proCalls = [];
+    }
+  }
+
+  function drawProCallMarkers() {
+    if (!state.candleSeries || !state.data.length) return;
+
+    // Clear existing markers
+    state.candleSeries.setMarkers([]);
+
+    if (!state.showProCalls || !state.proCalls.length) return;
+
+    const markers = [];
+    const chartStartTime = state.data[0].time;
+    const chartEndTime = state.data[state.data.length - 1].time;
+
+    state.proCalls.forEach(call => {
+      const callTime = Math.floor(new Date(call.date).getTime() / 1000);
+
+      // Only show markers within the chart's time range
+      if (callTime >= chartStartTime && callTime <= chartEndTime) {
+        // Find the closest candle
+        let closestCandle = state.data.reduce((prev, curr) => {
+          return Math.abs(curr.time - callTime) < Math.abs(prev.time - callTime) ? curr : prev;
+        });
+
+        const isWin = call.actualResult === 'win';
+        const isPending = call.actualResult === 'pending';
+
+        markers.push({
+          time: closestCandle.time,
+          position: call.direction === 'up' ? 'belowBar' : 'aboveBar',
+          color: isPending ? '#f59e0b' : (call.direction === 'up' ? '#22c55e' : '#ef4444'),
+          shape: call.direction === 'up' ? 'arrowUp' : 'arrowDown',
+          text: `${call.direction === 'up' ? 'BUY' : 'SELL'}${isPending ? '' : (isWin ? ' ✓' : ' ✗')}`,
+          size: 2
+        });
+      }
+    });
+
+    markers.sort((a, b) => a.time - b.time);
+
+    if (markers.length > 0) {
+      state.candleSeries.setMarkers(markers);
+    }
   }
 
   // === Data Loading ===
@@ -177,6 +238,7 @@
       calculateLevels();
       detectPatterns();
       calculateSignal();
+      drawProCallMarkers();
 
     } catch (error) {
       console.error('Error loading chart data:', error);
@@ -730,20 +792,189 @@
   }
 
   function setupDrawingTools() {
+    const chartContainer = document.getElementById('pro-chart');
+
     document.querySelectorAll('.tool-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         state.currentTool = btn.dataset.tool;
 
+        // Update cursor based on tool
+        if (chartContainer) {
+          chartContainer.style.cursor = state.currentTool === 'crosshair' ? 'crosshair' : 'cell';
+        }
+
         if (btn.dataset.tool === 'delete-all') {
-          // Clear all drawings
+          // Clear all drawn price lines
+          state.drawnLines.forEach(line => {
+            try {
+              state.candleSeries.removePriceLine(line);
+            } catch (e) {}
+          });
+          state.drawnLines = [];
           state.drawings = [];
           btn.classList.remove('active');
+          document.querySelector('.tool-btn[data-tool="crosshair"]')?.classList.add('active');
           state.currentTool = 'crosshair';
+          if (chartContainer) chartContainer.style.cursor = 'crosshair';
         }
       });
     });
+
+    // Drawing on chart click
+    if (chartContainer) {
+      chartContainer.addEventListener('click', (e) => {
+        if (state.currentTool === 'crosshair') return;
+
+        // Get price at click position
+        const rect = chartContainer.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Convert Y to price
+        const price = state.chart.priceScale('right').coordinateToPrice(y);
+        if (!price || isNaN(price)) return;
+
+        // Handle different tools
+        if (state.currentTool === 'horizontal') {
+          // Draw horizontal line
+          const line = state.candleSeries.createPriceLine({
+            price: price,
+            color: '#f59e0b',
+            lineWidth: 2,
+            lineStyle: LightweightCharts.LineStyle.Solid,
+            axisLabelVisible: true,
+            title: ''
+          });
+          state.drawnLines.push(line);
+          state.drawings.push({ type: 'horizontal', price });
+        }
+        else if (state.currentTool === 'trendline' || state.currentTool === 'ray') {
+          // For trendline, we need two clicks - simplified version uses horizontal for now
+          if (!state.drawingState) {
+            state.drawingState = { startPrice: price, startY: y };
+            // Show feedback
+            const line = state.candleSeries.createPriceLine({
+              price: price,
+              color: '#3b82f6',
+              lineWidth: 1,
+              lineStyle: LightweightCharts.LineStyle.Dashed,
+              axisLabelVisible: false,
+              title: 'Start'
+            });
+            state.drawnLines.push(line);
+          } else {
+            // Create end point line
+            const line = state.candleSeries.createPriceLine({
+              price: price,
+              color: '#3b82f6',
+              lineWidth: 2,
+              lineStyle: LightweightCharts.LineStyle.Solid,
+              axisLabelVisible: true,
+              title: ''
+            });
+            state.drawnLines.push(line);
+            state.drawings.push({ type: 'trendline', startPrice: state.drawingState.startPrice, endPrice: price });
+            state.drawingState = null;
+          }
+        }
+        else if (state.currentTool === 'fib-retrace') {
+          // Fibonacci levels - simplified: draws at 0, 23.6, 38.2, 50, 61.8, 100
+          if (!state.drawingState) {
+            state.drawingState = { startPrice: price };
+          } else {
+            const high = Math.max(state.drawingState.startPrice, price);
+            const low = Math.min(state.drawingState.startPrice, price);
+            const diff = high - low;
+            const levels = [0, 0.236, 0.382, 0.5, 0.618, 1];
+            const colors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'];
+
+            levels.forEach((level, i) => {
+              const levelPrice = low + diff * level;
+              const line = state.candleSeries.createPriceLine({
+                price: levelPrice,
+                color: colors[i],
+                lineWidth: 1,
+                lineStyle: LightweightCharts.LineStyle.Dashed,
+                axisLabelVisible: true,
+                title: `${(level * 100).toFixed(1)}%`
+              });
+              state.drawnLines.push(line);
+            });
+            state.drawings.push({ type: 'fibonacci', high, low });
+            state.drawingState = null;
+          }
+        }
+      });
+    }
+  }
+
+  function setupHeaderActions() {
+    // Screenshot button
+    const screenshotBtn = document.getElementById('btn-screenshot');
+    if (screenshotBtn) {
+      screenshotBtn.addEventListener('click', async () => {
+        try {
+          const chartWrapper = document.querySelector('.chart-wrapper');
+          if (!chartWrapper) return;
+
+          // Use html2canvas if available, otherwise use chart's canvas
+          if (typeof html2canvas !== 'undefined') {
+            const canvas = await html2canvas(chartWrapper, {
+              backgroundColor: '#0d1117',
+              scale: 2
+            });
+            downloadCanvas(canvas, 'btc-chart.png');
+          } else {
+            // Fallback: get the chart canvas directly
+            const chartCanvas = document.querySelector('#pro-chart canvas');
+            if (chartCanvas) {
+              downloadCanvas(chartCanvas, 'btc-chart.png');
+            } else {
+              alert('Screenshot feature requires html2canvas library');
+            }
+          }
+        } catch (error) {
+          console.error('Screenshot error:', error);
+          alert('Failed to capture screenshot');
+        }
+      });
+    }
+
+    // Fullscreen button
+    const fullscreenBtn = document.getElementById('btn-fullscreen');
+    if (fullscreenBtn) {
+      fullscreenBtn.addEventListener('click', () => {
+        const chartLayout = document.querySelector('.chart-pro-layout');
+        if (!chartLayout) return;
+
+        if (!document.fullscreenElement) {
+          chartLayout.requestFullscreen().catch(err => {
+            console.error('Fullscreen error:', err);
+          });
+          fullscreenBtn.textContent = '⛶';
+        } else {
+          document.exitFullscreen();
+          fullscreenBtn.textContent = '⛶';
+        }
+      });
+    }
+
+    // Settings button (placeholder)
+    const settingsBtn = document.getElementById('btn-settings');
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', () => {
+        alert('Settings panel coming soon');
+      });
+    }
+  }
+
+  function downloadCanvas(canvas, filename) {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   }
 
   function setupAlerts() {

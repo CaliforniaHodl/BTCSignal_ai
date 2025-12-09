@@ -5,6 +5,7 @@
   var MEMPOOL_API = 'https://mempool.space/api/v1';
   var ribbonChart = null;
   var hashrateChart = null;
+  var miningData = null;
 
   // Format large numbers
   function formatDifficulty(diff) {
@@ -25,28 +26,28 @@
     return hash.toLocaleString() + ' H/s';
   }
 
-  // Fetch difficulty adjustments from mempool.space
-  function fetchDifficultyAdjustments() {
-    return fetch(MEMPOOL_API + '/difficulty-adjustments')
+  // Fetch mining data (hashrate + difficulty) from mempool.space
+  function fetchMiningData() {
+    return fetch(MEMPOOL_API + '/mining/hashrate/1y')
       .then(function(response) {
-        if (!response.ok) throw new Error('Failed to fetch difficulty');
+        if (!response.ok) throw new Error('Failed to fetch mining data');
         return response.json();
       })
       .catch(function(error) {
-        console.error('Error fetching difficulty:', error);
+        console.error('Error fetching mining data:', error);
         return null;
       });
   }
 
-  // Fetch hashrate history
-  function fetchHashrateHistory() {
-    return fetch(MEMPOOL_API + '/mining/hashrate/1y')
+  // Fetch current difficulty adjustment info
+  function fetchCurrentAdjustment() {
+    return fetch(MEMPOOL_API + '/difficulty-adjustment')
       .then(function(response) {
-        if (!response.ok) throw new Error('Failed to fetch hashrate');
+        if (!response.ok) throw new Error('Failed to fetch adjustment');
         return response.json();
       })
       .catch(function(error) {
-        console.error('Error fetching hashrate:', error);
+        console.error('Error fetching adjustment:', error);
         return null;
       });
   }
@@ -84,85 +85,99 @@
   }
 
   // Update metrics display
-  function updateMetrics(adjustments) {
-    if (!adjustments || adjustments.length === 0) return;
-    
-    var latest = adjustments[0];
-    var previous = adjustments[1];
-    
-    // Current difficulty
-    document.getElementById('current-difficulty').textContent = formatDifficulty(latest.difficulty);
-    
-    // Last adjustment
-    var changePercent = ((latest.difficulty - previous.difficulty) / previous.difficulty) * 100;
-    var changeEl = document.getElementById('difficulty-change');
-    changeEl.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%';
-    changeEl.className = 'metric-value ' + (changePercent >= 0 ? 'positive' : 'negative');
-    
-    // Next adjustment (approximately 2016 blocks from latest)
-    var blocksRemaining = 2016 - (latest.height % 2016);
-    var minutesRemaining = blocksRemaining * 10;
-    var daysRemaining = Math.floor(minutesRemaining / 1440);
-    document.getElementById('next-adjustment').textContent = '~' + daysRemaining + ' days';
-    
-    // Calculate ribbon signal
-    var difficulties = adjustments.slice(0, 30).map(function(a) { return a.difficulty; }).reverse();
-    var ma128 = calculateMA(difficulties, 9); // Approximation for 128-day
-    var ma200 = calculateMA(difficulties, 14); // Approximation for 200-day
-    
-    var signal = getRibbonSignal(
-      difficulties[difficulties.length - 1],
-      ma128[ma128.length - 1],
-      ma200[ma200.length - 1]
-    );
-    
-    document.getElementById('ribbon-signal').textContent = signal.status;
-    document.getElementById('ribbon-signal').className = 'metric-value ' + signal.class;
-    
-    // Update signal card
-    document.getElementById('signal-status').textContent = signal.status;
-    document.getElementById('signal-status').className = signal.class;
-    
-    if (signal.status === 'Buy Signal') {
-      document.getElementById('signal-explanation').textContent = 
-        'The difficulty ribbon is showing a potential buy signal. Short-term difficulty MA has crossed below long-term MA, ' +
-        'historically indicating miner capitulation and often preceding major price rallies.';
-    } else if (signal.status === 'Watch') {
-      document.getElementById('signal-explanation').textContent = 
-        'Difficulty MAs are converging. Watch for potential crossover which could signal miner stress ' +
-        'and a potential buying opportunity.';
-    } else {
-      document.getElementById('signal-explanation').textContent = 
-        'No capitulation signal currently. Difficulty is trending normally with healthy miner participation. ' +
-        'The network remains strong with consistent hash rate.';
+  function updateMetrics(data, adjustment) {
+    // Current difficulty from data
+    if (data && data.currentDifficulty) {
+      document.getElementById('current-difficulty').textContent = formatDifficulty(data.currentDifficulty);
+    }
+
+    // Last adjustment from adjustment info
+    if (adjustment && adjustment.previousRetarget !== undefined) {
+      var changePercent = adjustment.previousRetarget;
+      var changeEl = document.getElementById('difficulty-change');
+      changeEl.textContent = (changePercent >= 0 ? '+' : '') + changePercent.toFixed(2) + '%';
+      changeEl.className = 'metric-value ' + (changePercent >= 0 ? 'positive' : 'negative');
+    }
+
+    // Next adjustment
+    if (adjustment && adjustment.remainingBlocks) {
+      var daysRemaining = Math.floor((adjustment.remainingBlocks * 10) / 1440);
+      document.getElementById('next-adjustment').textContent = '~' + daysRemaining + ' days';
+    }
+
+    // Calculate ribbon signal from difficulty history
+    if (data && data.difficulty && data.difficulty.length > 0) {
+      var difficulties = data.difficulty.map(function(d) { return d.difficulty; });
+      var ma128 = calculateMA(difficulties, Math.min(9, Math.floor(difficulties.length / 3)));
+      var ma200 = calculateMA(difficulties, Math.min(14, Math.floor(difficulties.length / 2)));
+
+      var signal = getRibbonSignal(
+        difficulties[difficulties.length - 1],
+        ma128[ma128.length - 1],
+        ma200[ma200.length - 1]
+      );
+
+      document.getElementById('ribbon-signal').textContent = signal.status;
+      document.getElementById('ribbon-signal').className = 'metric-value ' + signal.class;
+
+      // Update signal card
+      document.getElementById('signal-status').textContent = signal.status;
+      document.getElementById('signal-status').className = signal.class;
+
+      if (signal.status === 'Buy Signal') {
+        document.getElementById('signal-explanation').textContent =
+          'The difficulty ribbon is showing a potential buy signal. Short-term difficulty MA has crossed below long-term MA, ' +
+          'historically indicating miner capitulation and often preceding major price rallies.';
+      } else if (signal.status === 'Watch') {
+        document.getElementById('signal-explanation').textContent =
+          'Difficulty MAs are converging. Watch for potential crossover which could signal miner stress ' +
+          'and a potential buying opportunity.';
+      } else {
+        document.getElementById('signal-explanation').textContent =
+          'No capitulation signal currently. Difficulty is trending normally with healthy miner participation. ' +
+          'The network remains strong with consistent hash rate.';
+      }
     }
   }
 
   // Create difficulty ribbon chart
-  function createRibbonChart(adjustments, months) {
-    var ctx = document.getElementById('ribbon-chart').getContext('2d');
-    
+  function createRibbonChart(data, months) {
+    if (!data || !data.difficulty || data.difficulty.length === 0) {
+      console.error('No difficulty data available');
+      return;
+    }
+
+    var ctx = document.getElementById('ribbon-chart');
+    if (!ctx) return;
+
     // Filter to time range
     var cutoff = new Date();
     cutoff.setMonth(cutoff.getMonth() - months);
-    
-    var filtered = adjustments.filter(function(a) {
-      return new Date(a.time * 1000) >= cutoff;
-    }).reverse();
-    
-    var labels = filtered.map(function(a) {
-      return new Date(a.time * 1000).toLocaleDateString();
+
+    var filtered = data.difficulty.filter(function(d) {
+      return new Date(d.time * 1000) >= cutoff;
     });
-    var difficulties = filtered.map(function(a) { return a.difficulty; });
-    
-    // Calculate MAs
-    var ma128 = calculateMA(difficulties, Math.min(9, Math.floor(filtered.length / 3)));
-    var ma200 = calculateMA(difficulties, Math.min(14, Math.floor(filtered.length / 2)));
-    
+
+    if (filtered.length === 0) {
+      // If no data in range, use all available data
+      filtered = data.difficulty;
+    }
+
+    var labels = filtered.map(function(d) {
+      return new Date(d.time * 1000).toLocaleDateString();
+    });
+    var difficulties = filtered.map(function(d) { return d.difficulty; });
+
+    // Calculate MAs based on available data
+    var maShort = Math.max(3, Math.min(9, Math.floor(filtered.length / 3)));
+    var maLong = Math.max(5, Math.min(14, Math.floor(filtered.length / 2)));
+    var ma128 = calculateMA(difficulties, maShort);
+    var ma200 = calculateMA(difficulties, maLong);
+
     if (ribbonChart) {
       ribbonChart.destroy();
     }
-    
+
     ribbonChart = new Chart(ctx, {
       type: 'line',
       data: {
@@ -179,7 +194,7 @@
             borderWidth: 2
           },
           {
-            label: '128-day MA',
+            label: 'Short MA',
             data: ma128,
             borderColor: '#3fb950',
             borderWidth: 2,
@@ -189,7 +204,7 @@
             borderDash: [5, 5]
           },
           {
-            label: '200-day MA',
+            label: 'Long MA',
             data: ma200,
             borderColor: '#f85149',
             borderWidth: 2,
@@ -323,13 +338,13 @@
   }
 
   // Handle time range buttons
-  function setupTimeButtons(adjustments) {
+  function setupTimeButtons() {
     var buttons = document.querySelectorAll('.time-btn');
     buttons.forEach(function(btn) {
       btn.addEventListener('click', function() {
         buttons.forEach(function(b) { b.classList.remove('active'); });
         btn.classList.add('active');
-        
+
         var range = btn.dataset.range;
         var months;
         switch(range) {
@@ -338,29 +353,39 @@
           case '4y': months = 48; break;
           default: months = 24;
         }
-        
-        createRibbonChart(adjustments, months);
+
+        if (miningData) {
+          createRibbonChart(miningData, months);
+        }
       });
     });
   }
 
   // Initialize
   function init() {
+    // Wait for Chart.js to be available
+    if (typeof Chart === 'undefined') {
+      setTimeout(init, 100);
+      return;
+    }
+
     Promise.all([
-      fetchDifficultyAdjustments(),
-      fetchHashrateHistory()
+      fetchMiningData(),
+      fetchCurrentAdjustment()
     ]).then(function(results) {
-      var adjustments = results[0];
-      var hashrate = results[1];
-      
-      if (adjustments) {
-        updateMetrics(adjustments);
-        createRibbonChart(adjustments, 24);
-        setupTimeButtons(adjustments);
-      }
-      
-      if (hashrate) {
-        createHashrateChart(hashrate);
+      miningData = results[0];
+      var adjustment = results[1];
+
+      if (miningData) {
+        updateMetrics(miningData, adjustment);
+        createRibbonChart(miningData, 12); // Default to 1Y since that's what API returns
+        createHashrateChart(miningData);
+        setupTimeButtons();
+      } else {
+        // Show error state
+        document.getElementById('current-difficulty').textContent = 'Error';
+        document.getElementById('signal-status').textContent = 'Error loading data';
+        document.getElementById('signal-explanation').textContent = 'Unable to fetch mining data. Please refresh the page.';
       }
     });
   }

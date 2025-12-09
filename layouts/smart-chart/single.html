@@ -54,6 +54,11 @@
           <input type="checkbox" id="show-signals" checked>
           <span>Signals</span>
         </label>
+        <label class="toggle-pill pro-call-toggle">
+          <input type="checkbox" id="show-pro-calls" checked>
+          <span>Pro Calls</span>
+          <span class="delay-badge">10d delay</span>
+        </label>
         <label class="toggle-pill pro-disabled" title="Pro Feature">
           <input type="checkbox" disabled>
           <span>Order Blocks</span>
@@ -160,6 +165,37 @@
       </div>
     </div>
 
+    <!-- Quick Guide -->
+    <div class="card quick-guide">
+      <h2>How to Read the Smart Chart</h2>
+      <div class="guide-grid">
+        <div class="guide-item">
+          <span class="guide-color resistance"></span>
+          <strong>Red Lines</strong> - Resistance levels where price may face selling pressure
+        </div>
+        <div class="guide-item">
+          <span class="guide-color support"></span>
+          <strong>Green Lines</strong> - Support levels where buyers may step in
+        </div>
+        <div class="guide-item">
+          <span class="guide-color ema-fast"></span>
+          <strong>Blue EMA (9)</strong> - Fast-moving average, shows short-term trend
+        </div>
+        <div class="guide-item">
+          <span class="guide-color ema-slow"></span>
+          <strong>Purple EMA (21)</strong> - Slow-moving average, shows medium-term trend
+        </div>
+        <div class="guide-item">
+          <span class="guide-color pro-call-buy"></span>
+          <strong>Green Arrows (▲)</strong> - BTC Pro Call: Buy signal (10-day delayed)
+        </div>
+        <div class="guide-item">
+          <span class="guide-color pro-call-sell"></span>
+          <strong>Red Arrows (▼)</strong> - BTC Pro Call: Sell signal (10-day delayed)
+        </div>
+      </div>
+    </div>
+
     <!-- Pro Features Teaser -->
     <div class="pro-teaser-section">
       <h2>Unlock Pro Chart Features</h2>
@@ -196,29 +232,6 @@
         </div>
       </div>
       <a href="/pricing/" class="btn btn-primary btn-lg">Upgrade to Pro</a>
-    </div>
-
-    <!-- Quick Guide -->
-    <div class="card quick-guide">
-      <h2>How to Read the Smart Chart</h2>
-      <div class="guide-grid">
-        <div class="guide-item">
-          <span class="guide-color resistance"></span>
-          <strong>Red Lines</strong> - Resistance levels where price may face selling pressure
-        </div>
-        <div class="guide-item">
-          <span class="guide-color support"></span>
-          <strong>Green Lines</strong> - Support levels where buyers may step in
-        </div>
-        <div class="guide-item">
-          <span class="guide-color ema-fast"></span>
-          <strong>Blue EMA (9)</strong> - Fast-moving average, shows short-term trend
-        </div>
-        <div class="guide-item">
-          <span class="guide-color ema-slow"></span>
-          <strong>Purple EMA (21)</strong> - Slow-moving average, shows medium-term trend
-        </div>
-      </div>
     </div>
   </div>
 </div>
