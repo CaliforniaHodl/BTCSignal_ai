@@ -1,0 +1,51 @@
+{
+  "lastUpdated": "2025-12-13T20:30:05.044Z",
+  "nvt": {
+    "ratio": 166.6,
+    "signal": "overvalued",
+    "description": "High NVT suggests speculative premium. Caution advised."
+  },
+  "puellMultiple": {
+    "value": 0.94,
+    "zone": "neutral",
+    "description": "Miner profitability in normal range."
+  },
+  "stockToFlow": {
+    "ratio": 121.5,
+    "modelPrice": 993099,
+    "deflection": -90.9,
+    "signal": "undervalued"
+  },
+  "ssr": {
+    "ratio": 6.7,
+    "trend": "neutral",
+    "description": "Moderate stablecoin reserves relative to BTC."
+  },
+  "reserveRisk": {
+    "value": 2.5,
+    "zone": "risk",
+    "description": "High reserve risk. Consider taking profits."
+  },
+  "nupl": {
+    "value": 1,
+    "zone": "euphoria",
+    "description": "Extreme greed. Consider taking profits."
+  },
+  "mvrv": {
+    "ratio": 1.6,
+    "zone": "fair",
+    "description": "Market value aligned with realized value. Normal conditions.",
+    "realizedCap": 0
+  },
+  "activeAddresses": {
+    "count24h": 537832,
+    "change7d": 0.7,
+    "trend": "stable",
+    "description": "Network activity stable."
+  },
+  "transactionCount": {
+    "count24h": 417151,
+    "change7d": 17.1,
+    "description": "Transaction activity surging. High network utilization."
+  }
+}
