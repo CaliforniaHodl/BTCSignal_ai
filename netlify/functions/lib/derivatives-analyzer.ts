@@ -82,7 +82,7 @@ export class DerivativesAnalyzer {
         });
         const price = priceResponse.data?.data?.[0]?.last
           ? parseFloat(priceResponse.data.data[0].last)
-          : 95000; // fallback price
+          : 0; // No fallback - if we can't get price, OI value will be 0
 
         return {
           symbol: 'BTCUSDT',

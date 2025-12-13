@@ -27,3 +27,9 @@ Todo_Readme.md
 cypress/screenshots/
 cypress/videos/
 cypress/downloads/
+
+# Personal trading bot - code is committed, secrets are not
+.private-bot/.env
+.private-bot/bot-state.json
+.private-bot/trade-log.json
+.private-bot/node_modules/

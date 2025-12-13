@@ -16,6 +16,38 @@ export interface MarketData {
 }
 
 export class DataProvider {
+  private maxRetries = 3;
+  private retryDelay = 1000;
+
+  /**
+   * Fetch Bitcoin data with automatic retry and fallback
+   */
+  async fetchData(symbol: string, timeframe: string, limit: number = 100): Promise<MarketData> {
+    // Try Coinbase first with retries
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        return await this.fetchCoinbaseData(symbol, timeframe, limit);
+      } catch (error: any) {
+        console.log(`Coinbase attempt ${attempt} failed: ${error.message}`);
+        if (attempt < this.maxRetries) {
+          await this.sleep(this.retryDelay * attempt); // Exponential backoff
+        }
+      }
+    }
+
+    // Fallback to Binance
+    console.log('Coinbase failed, trying Binance fallback...');
+    try {
+      return await this.fetchBinanceData(symbol === 'BTC-USD' ? 'BTCUSDT' : symbol, timeframe, limit);
+    } catch (error: any) {
+      throw new Error(`All data sources failed. Last error: ${error.message}`);
+    }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   /**
    * Fetch Bitcoin data from Coinbase API (FREE, no key needed)
    */

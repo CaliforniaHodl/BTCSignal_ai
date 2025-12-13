@@ -1,0 +1,12 @@
+# Secrets - NEVER commit
+.env
+
+# Runtime state
+bot-state.json
+trade-log.json
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/

@@ -95,6 +95,46 @@ export class PredictionEngine {
       }
     }
 
+    // NEW: Volume analysis - volume confirms price moves
+    if (indicators.volumeRatio !== null) {
+      const volRatio = indicators.volumeRatio;
+
+      // High volume amplifies existing signals
+      if (volRatio > 2.0) {
+        // Extreme volume - check if it confirms direction
+        const priceUp = data[data.length - 1].close > data[data.length - 2].close;
+        if (priceUp) {
+          signals.push({ signal: 'bullish', weight: 0.6, reason: `High volume rally (${volRatio.toFixed(1)}x avg)` });
+        } else {
+          signals.push({ signal: 'bearish', weight: 0.6, reason: `High volume selloff (${volRatio.toFixed(1)}x avg)` });
+        }
+      } else if (volRatio > 1.5) {
+        const priceUp = data[data.length - 1].close > data[data.length - 2].close;
+        if (priceUp) {
+          signals.push({ signal: 'bullish', weight: 0.3, reason: `Above avg volume on green (${volRatio.toFixed(1)}x)` });
+        } else {
+          signals.push({ signal: 'bearish', weight: 0.3, reason: `Above avg volume on red (${volRatio.toFixed(1)}x)` });
+        }
+      } else if (volRatio < 0.5) {
+        // Low volume moves are suspect - reduce conviction
+        signals.push({ signal: 'neutral', weight: 0.2, reason: `Low volume (${volRatio.toFixed(1)}x avg) - weak conviction` });
+      }
+    }
+
+    // NEW: Volume trend analysis
+    if (indicators.volumeTrend === 'increasing') {
+      signals.push({ signal: 'neutral', weight: 0.2, reason: 'Volume trend increasing - momentum building' });
+    } else if (indicators.volumeTrend === 'decreasing') {
+      signals.push({ signal: 'neutral', weight: 0.2, reason: 'Volume trend decreasing - momentum fading' });
+    }
+
+    // NEW: RSI divergence - powerful reversal signal
+    if (indicators.rsiDivergence === 'bullish') {
+      signals.push({ signal: 'bullish', weight: 0.8, reason: 'Bullish RSI divergence (price lower, RSI higher)' });
+    } else if (indicators.rsiDivergence === 'bearish') {
+      signals.push({ signal: 'bearish', weight: 0.8, reason: 'Bearish RSI divergence (price higher, RSI lower)' });
+    }
+
     // Analyze patterns
     patterns.forEach(pattern => {
       if (pattern.type === 'bullish') {
@@ -232,7 +272,9 @@ export class PredictionEngine {
       reasoning.push('= Low volatility, price ranging');
     } else if (Math.abs(bullishPercent - bearishPercent) < 0.15) {
       direction = 'mixed';
-      confidence = 1 - Math.abs(bullishPercent - bearishPercent);
+      // BUG FIX: Mixed signals should have LOW confidence, not high
+      // When bullish/bearish are balanced, we're uncertain about direction
+      confidence = 0.5 + (Math.abs(bullishPercent - bearishPercent) * 2);
     } else if (bullishPercent > bearishPercent) {
       direction = 'up';
       confidence = bullishPercent;

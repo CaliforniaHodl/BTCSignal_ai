@@ -10,6 +10,13 @@ export interface TechnicalIndicators {
   ema20: number | null;
   sma50: number | null;
   atr: number | null;
+  // NEW: Volume analysis
+  volumeAvg20: number | null;
+  volumeRatio: number | null; // Current volume / 20-period avg
+  volumeTrend: 'increasing' | 'decreasing' | 'stable' | null;
+  // NEW: RSI divergence
+  rsiDivergence: 'bullish' | 'bearish' | null;
+  prevRsi: number | null;
 }
 
 export interface Pattern {
@@ -76,7 +83,49 @@ export class TechnicalAnalyzer {
     });
     const atr = atrValues.length > 0 ? atrValues[atrValues.length - 1] : null;
 
-    return { rsi, macd, prevMacdHistogram, bollingerBands, ema20, sma50, atr };
+    // Volume analysis (20-period)
+    const volumes = data.map(d => d.volume);
+    const last20Volumes = volumes.slice(-20);
+    const volumeAvg20 = last20Volumes.length >= 20
+      ? last20Volumes.reduce((a, b) => a + b, 0) / 20
+      : null;
+    const currentVolume = volumes[volumes.length - 1];
+    const volumeRatio = volumeAvg20 ? currentVolume / volumeAvg20 : null;
+
+    // Volume trend (compare recent 5 avg to previous 5 avg)
+    let volumeTrend: 'increasing' | 'decreasing' | 'stable' | null = null;
+    if (volumes.length >= 10) {
+      const recent5Avg = volumes.slice(-5).reduce((a, b) => a + b, 0) / 5;
+      const prev5Avg = volumes.slice(-10, -5).reduce((a, b) => a + b, 0) / 5;
+      if (recent5Avg > prev5Avg * 1.2) volumeTrend = 'increasing';
+      else if (recent5Avg < prev5Avg * 0.8) volumeTrend = 'decreasing';
+      else volumeTrend = 'stable';
+    }
+
+    // RSI divergence detection
+    const prevRsi = rsiValues.length > 1 ? rsiValues[rsiValues.length - 2] : null;
+    let rsiDivergence: 'bullish' | 'bearish' | null = null;
+
+    if (rsi !== null && prevRsi !== null && closes.length >= 10) {
+      const recentLow = Math.min(...closes.slice(-10));
+      const prevLow = Math.min(...closes.slice(-20, -10));
+      const recentHigh = Math.max(...closes.slice(-10));
+      const prevHigh = Math.max(...closes.slice(-20, -10));
+
+      // Bullish divergence: price makes lower low, RSI makes higher low
+      if (recentLow < prevLow * 0.99 && rsi > prevRsi) {
+        rsiDivergence = 'bullish';
+      }
+      // Bearish divergence: price makes higher high, RSI makes lower high
+      if (recentHigh > prevHigh * 1.01 && rsi < prevRsi) {
+        rsiDivergence = 'bearish';
+      }
+    }
+
+    return {
+      rsi, macd, prevMacdHistogram, bollingerBands, ema20, sma50, atr,
+      volumeAvg20, volumeRatio, volumeTrend, rsiDivergence, prevRsi
+    };
   }
 
   /**
@@ -144,8 +193,11 @@ export class TechnicalAnalyzer {
 
     const recent = data.slice(-60);
     const highs = recent.map(d => d.high);
+    const lows = recent.map(d => d.low);
     const peaks = this.findPeaks(highs);
+    const troughs = this.findPeaks(lows.map(l => -l)); // Invert for trough finding
 
+    // Regular Head and Shoulders (bearish)
     if (peaks.length >= 3) {
       const lastThree = peaks.slice(-3);
       const [left, head, right] = lastThree.map(i => highs[i]);
@@ -156,6 +208,25 @@ export class TechnicalAnalyzer {
           type: 'bearish',
           confidence: 0.75,
           description: 'Classic reversal pattern',
+        };
+      }
+    }
+
+    // Inverse Head and Shoulders (bullish) - NEW
+    if (troughs.length >= 3) {
+      const lastThree = troughs.slice(-3);
+      const [leftIdx, headIdx, rightIdx] = lastThree;
+      const left = lows[leftIdx];
+      const head = lows[headIdx];
+      const right = lows[rightIdx];
+
+      // Head should be lowest, shoulders roughly equal
+      if (head < left && head < right && Math.abs(left - right) / left < 0.03) {
+        return {
+          name: 'Inverse Head and Shoulders',
+          type: 'bullish',
+          confidence: 0.75,
+          description: 'Bullish reversal pattern',
         };
       }
     }

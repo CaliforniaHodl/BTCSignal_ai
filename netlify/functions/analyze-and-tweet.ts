@@ -83,8 +83,10 @@ export default async (req: Request, context: Context) => {
     let derivativesData = null;
     try {
       const currentPriceForDerivatives = marketData.data[marketData.data.length - 1].close;
-      const startPriceForDerivatives = marketData.data[0].close;
-      const priceChange24hForDerivatives = ((currentPriceForDerivatives - startPriceForDerivatives) / startPriceForDerivatives) * 100;
+      // BUG FIX: Use actual 24h data, not 100h ago (was using first candle of 100 1h candles)
+      const last24hCandles = marketData.data.slice(-24);
+      const price24hAgoForDerivatives = last24hCandles[0].close;
+      const priceChange24hForDerivatives = ((currentPriceForDerivatives - price24hAgoForDerivatives) / price24hAgoForDerivatives) * 100;
       derivativesData = await derivativesAnalyzer.getDerivativesData(currentPriceForDerivatives, priceChange24hForDerivatives);
       console.log('Derivatives data fetched:', {
         fundingRate: derivativesData.fundingRate?.fundingRate,
