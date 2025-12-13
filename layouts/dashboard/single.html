@@ -673,6 +673,143 @@
       </div>
     </section>
 
+    <!-- Profitability Metrics Section (Phase 3: SOPR Family) -->
+    <section class="profitability-section" id="profitability-metrics">
+      <h2>Profitability Analysis</h2>
+      <p class="section-desc">SOPR (Spent Output Profit Ratio) family metrics and realized price analysis. Track when holders are realizing profits or losses.</p>
+
+      <div class="profitability-grid">
+        <!-- SOPR Card -->
+        <div class="profitability-card sopr-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">💹</span>
+            <h3>SOPR</h3>
+            {{ partial "tooltip.html" (dict "text" "Spent Output Profit Ratio. >1 = profits being realized, <1 = losses being realized, =1 = equilibrium. SOPR crossing 1.0 signals trend reversals.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="sopr-value">--</span>
+            <span class="metric-badge" id="sopr-signal">--</span>
+            <span class="metric-trend" id="sopr-trend">→</span>
+          </div>
+          <p class="metric-description" id="sopr-description">Loading...</p>
+        </div>
+
+        <!-- aSOPR Card -->
+        <div class="profitability-card asopr-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">🔄</span>
+            <h3>aSOPR</h3>
+            {{ partial "tooltip.html" (dict "text" "Adjusted SOPR. Filters out very young outputs to reduce noise. More reliable signal for sustained profit/loss realization.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="asopr-value">--</span>
+            <span class="metric-badge" id="asopr-signal">--</span>
+          </div>
+          <p class="metric-description" id="asopr-description">Loading...</p>
+        </div>
+
+        <!-- STH-SOPR Card -->
+        <div class="profitability-card sth-sopr-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">🏃</span>
+            <h3>STH-SOPR</h3>
+            {{ partial "tooltip.html" (dict "text" "Short-Term Holder SOPR (<155 days). Tracks profit/loss realization of recent buyers. Capitulation here signals local bottoms.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="sth-sopr-value">--</span>
+            <span class="metric-badge" id="sth-sopr-signal">--</span>
+          </div>
+          <div class="metric-gauge">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="sth-sopr-gauge-fill" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>Capitulation</span>
+              <span>Breakeven</span>
+              <span>Profit-Taking</span>
+            </div>
+          </div>
+          <p class="metric-description" id="sth-sopr-description">Loading...</p>
+        </div>
+
+        <!-- LTH-SOPR Card -->
+        <div class="profitability-card lth-sopr-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">💎</span>
+            <h3>LTH-SOPR</h3>
+            {{ partial "tooltip.html" (dict "text" "Long-Term Holder SOPR (>155 days). Tracks smart money profit/loss. High values signal cycle tops, low values signal cycle bottoms.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="lth-sopr-value">--</span>
+            <span class="metric-badge" id="lth-sopr-signal">--</span>
+          </div>
+          <div class="metric-gauge">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="lth-sopr-gauge-fill" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>Capitulation</span>
+              <span>Accumulation</span>
+              <span>Distribution</span>
+            </div>
+          </div>
+          <p class="metric-description" id="lth-sopr-description">Loading...</p>
+        </div>
+
+        <!-- Realized Price Card -->
+        <div class="profitability-card realized-price-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">💰</span>
+            <h3>Realized Price</h3>
+            {{ partial "tooltip.html" (dict "text" "Average price at which all coins last moved. Critical support/resistance level. Price below realized = market in loss.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="realized-price">--</span>
+            <span class="metric-badge" id="realized-price-signal">--</span>
+          </div>
+          <div class="realized-price-vs">
+            <span class="realized-label">vs Current Price:</span>
+            <span class="realized-value" id="realized-price-vs-current">--%</span>
+          </div>
+          <div class="realized-price-scale">
+            <div class="scale-bar">
+              <div class="scale-marker" id="realized-price-marker" style="left: 50%"></div>
+            </div>
+            <div class="scale-labels">
+              <span>-50%</span>
+              <span>0%</span>
+              <span>+50%</span>
+            </div>
+          </div>
+          <p class="metric-description" id="realized-price-description">Loading...</p>
+        </div>
+
+        <!-- STH/LTH Realized Prices Card -->
+        <div class="profitability-card cohort-realized-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">📊</span>
+            <h3>Cohort Realized Prices</h3>
+            {{ partial "tooltip.html" (dict "text" "Average cost basis for short-term vs long-term holders. Shows profitability of different holder groups.") }}
+          </div>
+          <div class="cohort-prices">
+            <div class="cohort-row">
+              <span class="cohort-label">🏃 STH Realized:</span>
+              <span class="cohort-value" id="sth-realized-price">--</span>
+            </div>
+            <div class="cohort-row">
+              <span class="cohort-label">💎 LTH Realized:</span>
+              <span class="cohort-value" id="lth-realized-price">--</span>
+            </div>
+          </div>
+          <p class="metric-note">STH = <155 days, LTH = >155 days</p>
+        </div>
+      </div>
+
+      <div class="metrics-data-note profitability-last-updated">
+        <strong>Data Sources:</strong> CoinGecko price history. Proxy SOPR calculations based on volume-weighted cost basis. Updated every 4 hours.
+      </div>
+    </section>
+
     <!-- Exchange Flows Section (Phase 2: Exchange Intelligence) -->
     <section class="exchange-flows-section" id="exchange-flows-section">
       <!-- Content rendered by JavaScript -->
@@ -1048,6 +1185,19 @@
             <canvas id="correlationChart" height="120"></canvas>
           </div>
           <p class="onchain-note">Low correlation = BTC acting as uncorrelated asset</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cohort Analysis Section (Phase 4) -->
+    <section class="cohort-metrics-section">
+      <h2>👥 Holder Cohort Analysis</h2>
+      <p class="section-desc">Long-term vs short-term holder behavior and whale tier distribution. Data updated every 6 hours.</p>
+
+      <div id="cohort-metrics-container">
+        <!-- Content loaded by cohort-metrics.js -->
+        <div class="cohort-metrics-loading">
+          <p>Loading cohort analysis...</p>
         </div>
       </div>
     </section>

@@ -3571,6 +3571,193 @@
 }
 
 // =====================================================
+// PROFITABILITY METRICS SECTION - Phase 3: SOPR Family
+// =====================================================
+
+.profitability-section {
+  margin-top: $spacing-2xl;
+  padding: $spacing-xl;
+  background: var(--bg-card);
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+
+  h2 {
+    font-size: $font-2xl;
+    margin-bottom: $spacing-sm;
+    @include gradient-text;
+  }
+
+  .section-desc {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.profitability-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profitability-card {
+  @include card;
+  padding: $spacing-lg;
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-color: var(--bitcoin-orange);
+  }
+
+  .metric-card-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+
+    .metric-icon {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: $font-lg;
+      color: var(--text-primary);
+      margin: 0;
+    }
+  }
+
+  .metric-main {
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    margin-bottom: $spacing-md;
+
+    .metric-value {
+      font-size: $font-2xl;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .metric-badge {
+      padding: 4px 12px;
+      border-radius: $radius-full;
+      font-size: $font-xs;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+
+    .metric-trend {
+      font-size: $font-xl;
+      font-weight: 700;
+    }
+  }
+
+  .metric-description {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-top: $spacing-sm;
+  }
+
+  .metric-note {
+    font-size: $font-xs;
+    color: var(--text-muted);
+    margin-top: $spacing-sm;
+    font-style: italic;
+  }
+}
+
+// Realized Price specific styles
+.realized-price-vs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding: $spacing-sm;
+  background: var(--bg-card);
+  border-radius: $radius-sm;
+
+  .realized-label {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+
+  .realized-value {
+    font-size: $font-lg;
+    font-weight: 700;
+  }
+}
+
+.realized-price-scale {
+  margin-bottom: $spacing-md;
+
+  .scale-bar {
+    height: 20px;
+    background: linear-gradient(to right, $success 0%, $warning 50%, $danger 100%);
+    border-radius: $radius-full;
+    position: relative;
+    margin-bottom: $spacing-xs;
+
+    .scale-marker {
+      position: absolute;
+      top: -4px;
+      width: 4px;
+      height: 28px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+      transition: left $transition-normal;
+    }
+  }
+
+  .scale-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: $font-xs;
+    color: var(--text-muted);
+  }
+}
+
+// Cohort prices specific styles
+.cohort-prices {
+  margin-top: $spacing-md;
+
+  .cohort-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-sm;
+    margin-bottom: $spacing-xs;
+    background: var(--bg-card);
+    border-radius: $radius-sm;
+
+    .cohort-label {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+    }
+
+    .cohort-value {
+      font-size: $font-lg;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+  }
+}
+
+// =====================================================
 // EXCHANGE FLOWS SECTION - Phase 2: Exchange Intelligence
 // =====================================================
 
@@ -3935,4 +4122,372 @@
   @include flex-center;
   min-height: 200px;
   color: var(--text-muted);
+}
+
+// ====================================
+// COHORT METRICS SECTION (PHASE 4)
+// ====================================
+
+.cohort-metrics-section {
+  margin-bottom: $spacing-xl;
+
+  h2 {
+    font-size: $font-xxl;
+    margin-bottom: $spacing-xs;
+    color: var(--text-primary);
+  }
+}
+
+.cohort-metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+
+  h3 {
+    font-size: $font-xl;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .last-updated {
+    font-size: $font-xs;
+    color: var(--text-muted);
+  }
+}
+
+.cohort-section {
+  margin-bottom: $spacing-xl;
+
+  h4 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+  }
+}
+
+.cohort-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.cohort-card {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $border-radius-lg;
+  padding: $spacing-lg;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    transform: translateY(-2px);
+  }
+}
+
+.cohort-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+
+  .cohort-card-title {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    font-weight: $font-semibold;
+  }
+
+  .cohort-trend,
+  .cohort-signal {
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+    padding: 2px 8px;
+    border-radius: $border-radius-sm;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+.cohort-card-value {
+  font-size: $font-xxl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+  margin-bottom: $spacing-xs;
+}
+
+.cohort-card-percentage {
+  font-size: $font-md;
+  color: var(--text-secondary);
+  margin-bottom: $spacing-sm;
+}
+
+.cohort-card-change {
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+  margin-bottom: $spacing-md;
+
+  &.positive {
+    color: $success;
+  }
+
+  &.negative {
+    color: $danger;
+  }
+}
+
+.cohort-card-description {
+  font-size: $font-sm;
+  color: var(--text-muted);
+  line-height: 1.4;
+
+  &.small {
+    font-size: $font-xs;
+  }
+}
+
+// LTH/STH Ratio visualization
+.ratio-bar {
+  height: 40px;
+  display: flex;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  margin: $spacing-md 0;
+  background: var(--bg-darker);
+}
+
+.ratio-bar-lth {
+  background: linear-gradient(90deg, #10b981, #059669);
+  transition: width 0.5s ease;
+}
+
+.ratio-bar-sth {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+  transition: width 0.5s ease;
+}
+
+.ratio-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: $font-xs;
+  color: var(--text-secondary);
+
+  .lth-label {
+    color: $success;
+  }
+
+  .sth-label {
+    color: $danger;
+  }
+}
+
+// Supply Liquidity visualization
+.liquidity-chart {
+  margin-top: $spacing-lg;
+  padding: $spacing-lg;
+  background: var(--bg-darker);
+  border-radius: $border-radius-md;
+}
+
+.liquidity-bar {
+  height: 50px;
+  display: flex;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.liquidity-segment {
+  transition: width 0.5s ease;
+  position: relative;
+  cursor: pointer;
+
+  &.illiquid {
+    background: linear-gradient(90deg, #3b82f6, #2563eb);
+  }
+
+  &.liquid {
+    background: linear-gradient(90deg, #f59e0b, #d97706);
+  }
+
+  &.highly-liquid {
+    background: linear-gradient(90deg, #ef4444, #dc2626);
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.liquidity-score {
+  font-size: $font-md;
+  font-weight: $font-semibold;
+  color: var(--bitcoin-orange);
+  margin-bottom: $spacing-sm;
+}
+
+.liquidity-analysis {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+// Whale Distribution Table
+.whale-table {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+}
+
+.whale-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr 1fr 1.2fr 1fr 1fr;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  transition: background 0.2s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.header {
+    background: var(--bg-darker);
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+  }
+
+  &:not(.header):hover {
+    background: var(--bg-darker);
+  }
+
+  span {
+    font-size: $font-sm;
+    color: var(--text-primary);
+  }
+
+  .whale-name {
+    font-weight: $font-semibold;
+  }
+
+  .whale-range {
+    color: var(--text-secondary);
+    font-family: $font-family-mono;
+  }
+
+  .whale-trend {
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+  }
+}
+
+.whale-summary {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  padding: $spacing-md;
+  background: var(--bg-darker);
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-lg;
+  line-height: 1.5;
+}
+
+// Whale Distribution Chart
+.whale-distribution-chart {
+  margin-top: $spacing-lg;
+}
+
+.whale-dist-bar {
+  height: 60px;
+  display: flex;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.whale-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+
+  .segment-label {
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &:hover {
+    filter: brightness(1.1);
+
+    .segment-label {
+      opacity: 1;
+    }
+  }
+}
+
+// Loading state
+.cohort-metrics-loading {
+  @include flex-center;
+  min-height: 300px;
+  color: var(--text-muted);
+
+  p {
+    font-size: $font-md;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 1200px) {
+  .whale-row {
+    grid-template-columns: 1fr 1fr 0.8fr 1fr 0.8fr 1fr;
+    gap: $spacing-sm;
+    padding: $spacing-sm $spacing-md;
+
+    span {
+      font-size: $font-xs;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .cohort-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .whale-row {
+    grid-template-columns: 1fr;
+    gap: $spacing-xs;
+
+    &.header {
+      display: none;
+    }
+
+    span {
+      display: flex;
+      justify-content: space-between;
+
+      &::before {
+        content: attr(data-label);
+        font-weight: $font-semibold;
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .whale-segment .segment-label {
+    opacity: 0;
+  }
 }

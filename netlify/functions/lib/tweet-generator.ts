@@ -3,6 +3,7 @@ import { AnalysisResult } from './blog-generator';
 import { HistoricalCall } from './historical-tracker';
 import { OnChainMetrics, formatMetricsForDisplay, generateOnChainSummary } from './onchain-analyzer';
 import { ExchangeFlowData, formatExchangeFlowsForTweet, generateExchangeFlowSummary } from './exchange-analyzer';
+import { ProfitabilityMetrics, formatMetricsForDisplay as formatProfitabilityMetrics, generateProfitabilitySummary } from './profitability-analyzer';
 
 export interface TweetContent {
   tweets: string[];
@@ -27,7 +28,8 @@ export function generateTradingBotTweets(
   analysis: AnalysisResult,
   historicalCalls: HistoricalCall[],
   onChainData?: OnChainMetrics,
-  exchangeFlowData?: ExchangeFlowData
+  exchangeFlowData?: ExchangeFlowData,
+  profitabilityData?: ProfitabilityMetrics
 ): TweetContent {
   const { currentPrice, priceChange24h, prediction, indicators, patterns, high24h, low24h, blockHeight } = analysis;
 
@@ -115,10 +117,26 @@ ${flowLines.join('\n')}
 📊 Data: Mempool.space whale tracking`;
   }
 
-  // Tweet 5: Track record (if we have history)
+  // Tweet 5: Profitability Metrics (if available)
   let tweet5 = '';
+  if (profitabilityData) {
+    const profitLines = formatProfitabilityMetrics(profitabilityData);
+    const { headline: profitHeadline, bias: profitBias } = generateProfitabilitySummary(profitabilityData);
+    const profitEmoji = profitBias === 'bullish' ? '🟢' : profitBias === 'bearish' ? '🔴' : '🟡';
+
+    tweet5 = `💰 Profitability Analysis
+
+${profitEmoji} ${profitHeadline}
+
+${profitLines.join('\n')}
+
+📊 Data: CoinGecko price history, proxy SOPR calculations`;
+  }
+
+  // Tweet 6: Track record (if we have history)
+  let tweet6 = '';
   if (completedCalls.length >= 3) {
-    tweet5 = `📈 Track Record (Last 30 Days)
+    tweet6 = `📈 Track Record (Last 30 Days)
 
 ✅ Wins: ${wins}
 ❌ Losses: ${completedCalls.length - wins}
@@ -131,6 +149,7 @@ Not financial advice. DYOR.`;
   if (tweet3) tweets.push(tweet3);
   if (tweet4) tweets.push(tweet4);
   if (tweet5) tweets.push(tweet5);
+  if (tweet6) tweets.push(tweet6);
 
   return { tweets, type: 'thread' };
 }

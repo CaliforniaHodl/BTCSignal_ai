@@ -3,6 +3,8 @@ import { TechnicalIndicators, Pattern } from './technical-analysis';
 import { DerivativesData } from './derivatives-analyzer';
 import { OnChainMetrics, analyzeOnChainMetrics, calculateOnChainScore } from './onchain-analyzer';
 import { ExchangeFlowData, generateExchangeFlowSignals } from './exchange-analyzer';
+import { ProfitabilityMetrics, analyzeProfitabilityMetrics, calculateProfitabilityScore } from './profitability-analyzer';
+import { CohortMetrics, analyzeCohortMetrics, calculateCohortScore } from './cohort-analyzer';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -33,11 +35,29 @@ export interface Prediction {
     whaleRatio: number;
     factors: string[];
   };
+  // Profitability factors included in signal
+  profitabilityFactors?: {
+    score: number;
+    bias: 'bullish' | 'bearish' | 'neutral';
+    topSignals: string[];
+    sopr: number;
+    sthSopr: number;
+    lthSopr: number;
+  };
+  // Cohort factors included in signal
+  cohortFactors?: {
+    score: number;
+    bias: 'bullish' | 'bearish' | 'neutral';
+    confidence: number;
+    topSignals: string[];
+    lthSthRatio: number;
+    illiquidPct: number;
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators, patterns, derivatives, on-chain, and exchange flows
+   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, and profitability
    */
   predict(
     data: OHLCV[],
@@ -45,7 +65,9 @@ export class PredictionEngine {
     patterns: Pattern[],
     derivativesData?: DerivativesData,
     onChainData?: OnChainMetrics,
-    exchangeFlowData?: ExchangeFlowData
+    exchangeFlowData?: ExchangeFlowData,
+    profitabilityData?: ProfitabilityMetrics,
+    cohortData?: CohortMetrics
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -336,6 +358,96 @@ export class PredictionEngine {
       });
     }
 
+    // ===== PROFITABILITY ANALYSIS =====
+    let profitabilityFactors: Prediction['profitabilityFactors'] = undefined;
+
+    if (profitabilityData) {
+      const profitabilitySignals = analyzeProfitabilityMetrics(profitabilityData);
+      const { score, bias } = calculateProfitabilityScore(profitabilitySignals);
+
+      // Extract top signals for reasoning
+      const topSignals = profitabilitySignals
+        .filter(s => s.signal !== 'neutral')
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 3);
+
+      profitabilityFactors = {
+        score,
+        bias,
+        topSignals: topSignals.map(s => s.reason),
+        sopr: profitabilityData.sopr.value,
+        sthSopr: profitabilityData.sthSopr.value,
+        lthSopr: profitabilityData.lthSopr.value
+      };
+
+      // Add profitability signals to main signals array
+      profitabilitySignals.forEach(s => {
+        if (s.signal !== 'neutral' && s.weight >= 0.4) {
+          signals.push({
+            signal: s.signal,
+            weight: s.weight * 0.85, // Profitability metrics are strong signals
+            reason: s.reason
+          });
+        }
+      });
+
+      // Add macro profitability bias signal
+      if (Math.abs(score) > 0.3) {
+        const macroSignal = score > 0 ? 'bullish' : 'bearish';
+        const macroWeight = Math.min(Math.abs(score), 0.8);
+        signals.push({
+          signal: macroSignal,
+          weight: macroWeight,
+          reason: `Profitability macro: ${bias} (score: ${score.toFixed(2)})`
+        });
+      }
+    }
+
+    // ===== COHORT ANALYSIS =====
+    let cohortFactors: Prediction['cohortFactors'] = undefined;
+
+    if (cohortData) {
+      const cohortSignals = analyzeCohortMetrics(cohortData);
+      const { score, bias, confidence } = calculateCohortScore(cohortSignals);
+
+      // Extract top signals for reasoning
+      const topSignals = cohortSignals
+        .filter(s => s.signal !== 'neutral')
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 3);
+
+      cohortFactors = {
+        score,
+        bias,
+        confidence,
+        topSignals: topSignals.map(s => s.reason),
+        lthSthRatio: cohortData.holderCohorts.lthSthRatio.ratio,
+        illiquidPct: cohortData.supplyLiquidity.illiquidSupply.percentage
+      };
+
+      // Add cohort signals to main signals array
+      cohortSignals.forEach(s => {
+        if (s.signal !== 'neutral' && s.weight >= 0.4) {
+          signals.push({
+            signal: s.signal,
+            weight: s.weight * 0.75, // Cohort data is estimated, slightly lower weight
+            reason: s.reason
+          });
+        }
+      });
+
+      // Add macro cohort bias signal
+      if (Math.abs(score) > 0.3) {
+        const macroSignal = score > 0 ? 'bullish' : 'bearish';
+        const macroWeight = Math.min(Math.abs(score), 0.7);
+        signals.push({
+          signal: macroSignal,
+          weight: macroWeight,
+          reason: `Cohort macro: ${bias} (score: ${score.toFixed(2)})`
+        });
+      }
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -416,6 +528,8 @@ export class PredictionEngine {
       derivativesFactors,
       onChainFactors,
       exchangeFlowFactors,
+      profitabilityFactors,
+      cohortFactors,
     };
   }
 }
