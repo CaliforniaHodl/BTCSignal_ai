@@ -1,0 +1,74 @@
+{
+  "lastUpdated": "2025-12-13T20:30:10.011Z",
+  "flows": {
+    "netflow24h": 0,
+    "inflow24h": 0,
+    "outflow24h": 0,
+    "exchanges": [],
+    "whaleRatio": 0,
+    "largestInflow": 0,
+    "largestOutflow": 0,
+    "flowSignal": "neutral",
+    "flowStrength": 50,
+    "analysis": "Balanced exchange flows. No strong directional signal."
+  },
+  "reserves": [
+    {
+      "exchange": "Binance",
+      "estimatedBTC": 580000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "Coinbase",
+      "estimatedBTC": 420000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "Bitfinex",
+      "estimatedBTC": 180000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "Kraken",
+      "estimatedBTC": 140000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "OKX",
+      "estimatedBTC": 130000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "HTX",
+      "estimatedBTC": 80000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "Bybit",
+      "estimatedBTC": 70000,
+      "change24h": 0,
+      "confidence": "low"
+    },
+    {
+      "exchange": "Gemini",
+      "estimatedBTC": 50000,
+      "change24h": 0,
+      "confidence": "low"
+    }
+  ],
+  "fundFlowRatio": {
+    "ratio": 0,
+    "interpretation": "Low exchange activity. HODLing behavior dominant."
+  },
+  "signals": {
+    "signal": "neutral",
+    "weight": 0.5,
+    "factors": []
+  }
+}
