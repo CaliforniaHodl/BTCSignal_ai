@@ -4491,3 +4491,527 @@
     opacity: 0;
   }
 }
+
+// =====================================================
+// ADVANCED DERIVATIVES ANALYSIS SECTION (Phase 5)
+// =====================================================
+
+.derivatives-advanced-section {
+  margin-top: $spacing-2xl;
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-2xl;
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  .section-desc {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.derivatives-advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: $spacing-lg;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Base card styles
+.deriv-adv-card {
+  @include card;
+  padding: $spacing-lg;
+  background: var(--bg-card);
+  border-radius: $radius-lg;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.deriv-adv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+
+  h4 {
+    font-size: $font-lg;
+    color: var(--text-primary);
+    font-weight: $font-semibold;
+    display: flex;
+    align-items: center;
+    gap: $spacing-xs;
+  }
+
+  .trend-arrow {
+    font-size: $font-xl;
+    margin-left: $spacing-xs;
+  }
+}
+
+.signal-badge {
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  color: white;
+  text-transform: uppercase;
+}
+
+.deriv-adv-value {
+  font-size: $font-3xl;
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+  margin-bottom: $spacing-xs;
+}
+
+.deriv-adv-sublabel {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin-bottom: $spacing-md;
+}
+
+.deriv-adv-description {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+}
+
+.deriv-adv-loading {
+  padding: $spacing-xl;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.deriv-adv-empty {
+  padding: $spacing-lg;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+// Exchange list
+.deriv-adv-exchanges {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+
+  .exchange-item {
+    display: flex;
+    justify-content: space-between;
+    padding: $spacing-sm 0;
+    font-size: $font-sm;
+
+    .exchange-name {
+      color: var(--text-secondary);
+    }
+
+    .exchange-value {
+      color: var(--text-primary);
+      font-weight: $font-medium;
+    }
+  }
+}
+
+// Funding rate gauge
+.deriv-adv-gauge {
+  margin-top: $spacing-md;
+  margin-bottom: $spacing-md;
+
+  .gauge-fill {
+    height: 8px;
+    border-radius: $radius-sm;
+    transition: width $transition-base;
+  }
+}
+
+// Long/Short ratio bar
+.ls-ratio-bar {
+  display: flex;
+  width: 100%;
+  height: 50px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  margin-top: $spacing-md;
+
+  .ls-bar-long,
+  .ls-bar-short {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: width $transition-base;
+
+    .bar-label {
+      font-size: $font-sm;
+      font-weight: $font-bold;
+      color: white;
+    }
+  }
+
+  .ls-bar-long {
+    background: #10b981;
+  }
+
+  .ls-bar-short {
+    background: #ef4444;
+  }
+}
+
+// Liquidations breakdown
+.liq-breakdown {
+  margin-top: $spacing-md;
+
+  .liq-bar {
+    display: flex;
+    width: 100%;
+    height: 40px;
+    border-radius: $radius-md;
+    overflow: hidden;
+    margin-bottom: $spacing-md;
+
+    .liq-bar-long,
+    .liq-bar-short {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: width $transition-base;
+
+      .bar-label {
+        font-size: $font-xs;
+        font-weight: $font-bold;
+        color: white;
+      }
+    }
+
+    .liq-bar-long {
+      background: #ef4444;
+    }
+
+    .liq-bar-short {
+      background: #10b981;
+    }
+  }
+
+  .liq-values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-sm;
+
+    .liq-value-item {
+      display: flex;
+      justify-content: space-between;
+      padding: $spacing-sm;
+      background: var(--bg-dark);
+      border-radius: $radius-sm;
+
+      .liq-label {
+        font-size: $font-xs;
+        color: var(--text-secondary);
+      }
+
+      .liq-amount {
+        font-size: $font-sm;
+        font-weight: $font-bold;
+
+        &.red {
+          color: #ef4444;
+        }
+
+        &.green {
+          color: #10b981;
+        }
+      }
+    }
+  }
+}
+
+.large-liqs {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1px solid var(--border-color);
+
+  .large-liqs-header {
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-sm;
+  }
+
+  .large-liq-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $spacing-xs;
+    font-size: $font-xs;
+
+    .liq-side {
+      padding: 2px 6px;
+      border-radius: $radius-xs;
+      font-weight: $font-bold;
+      color: white;
+      text-transform: uppercase;
+
+      &.long {
+        background: #ef4444;
+      }
+
+      &.short {
+        background: #10b981;
+      }
+    }
+
+    .liq-price {
+      color: var(--text-secondary);
+    }
+
+    .liq-value {
+      color: var(--text-primary);
+      font-weight: $font-bold;
+    }
+  }
+}
+
+// OI pattern indicator
+.oi-pattern {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  margin-top: $spacing-md;
+
+  .pattern-emoji {
+    font-size: $font-2xl;
+  }
+
+  .pattern-name {
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+  }
+}
+
+.oi-details {
+  margin-top: $spacing-md;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+
+  .oi-detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+
+    .detail-label {
+      font-size: $font-xs;
+      color: var(--text-secondary);
+    }
+
+    .detail-value {
+      font-size: $font-sm;
+      font-weight: $font-bold;
+      color: var(--text-primary);
+
+      &.green {
+        color: #10b981;
+      }
+
+      &.red {
+        color: #ef4444;
+      }
+    }
+  }
+}
+
+// Max pain visualization
+.max-pain-deviation {
+  display: flex;
+  justify-content: space-between;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  margin-top: $spacing-md;
+
+  .deviation-label {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+
+  .deviation-value {
+    font-size: $font-lg;
+    font-weight: $font-bold;
+
+    &.green {
+      color: #10b981;
+    }
+
+    &.red {
+      color: #ef4444;
+    }
+  }
+}
+
+.max-pain-oi {
+  margin-top: $spacing-md;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-xs;
+
+  .oi-item {
+    display: flex;
+    justify-content: space-between;
+    padding: $spacing-xs;
+    font-size: $font-sm;
+
+    .oi-label {
+      color: var(--text-secondary);
+    }
+
+    .oi-value {
+      color: var(--text-primary);
+      font-weight: $font-medium;
+    }
+  }
+}
+
+// IV gauge
+.iv-gauge {
+  margin-top: $spacing-md;
+
+  .gauge-track {
+    height: 10px;
+    background: var(--bg-dark);
+    border-radius: $radius-sm;
+    position: relative;
+    overflow: hidden;
+
+    .gauge-fill {
+      height: 100%;
+      border-radius: $radius-sm;
+      transition: width $transition-base;
+    }
+  }
+
+  .gauge-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: $spacing-xs;
+    font-size: $font-xs;
+    color: var(--text-secondary);
+  }
+}
+
+.iv-details {
+  margin-top: $spacing-md;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-sm;
+
+  .iv-detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: $spacing-sm;
+    background: var(--bg-dark);
+    border-radius: $radius-sm;
+
+    .detail-label {
+      font-size: $font-xs;
+      color: var(--text-secondary);
+    }
+
+    .detail-value {
+      font-size: $font-sm;
+      font-weight: $font-bold;
+      color: var(--text-primary);
+    }
+  }
+}
+
+// Overall sentiment card
+.deriv-sentiment-card {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+}
+
+.sentiment-main {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  .sentiment-emoji {
+    font-size: 4rem;
+  }
+
+  .sentiment-info {
+    flex: 1;
+
+    .sentiment-value {
+      font-size: $font-3xl;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-xs;
+    }
+
+    .sentiment-confidence {
+      font-size: $font-md;
+      color: var(--text-secondary);
+    }
+  }
+}
+
+.sentiment-breakdown {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: $spacing-md;
+
+  .sentiment-factor {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: $spacing-md;
+    background: var(--bg-card);
+    border-radius: $radius-md;
+
+    .factor-icon {
+      font-size: $font-xl;
+    }
+
+    .factor-label {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+    }
+
+    .factor-signal {
+      margin-left: auto;
+      padding: $spacing-xs $spacing-sm;
+      border-radius: $radius-sm;
+      font-size: $font-xs;
+      font-weight: $font-bold;
+      color: white;
+
+      &.bullish {
+        background: #10b981;
+      }
+
+      &.bearish {
+        background: #ef4444;
+      }
+
+      &.neutral {
+        background: #6b7280;
+      }
+    }
+  }
+}

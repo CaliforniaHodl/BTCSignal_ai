@@ -1,6 +1,7 @@
 import { OHLCV } from './data-provider';
 import { TechnicalIndicators, Pattern } from './technical-analysis';
 import { DerivativesData } from './derivatives-analyzer';
+import { DerivativesAdvancedData } from './derivatives-advanced';
 import { OnChainMetrics, analyzeOnChainMetrics, calculateOnChainScore } from './onchain-analyzer';
 import { ExchangeFlowData, generateExchangeFlowSignals } from './exchange-analyzer';
 import { ProfitabilityMetrics, analyzeProfitabilityMetrics, calculateProfitabilityScore } from './profitability-analyzer';
@@ -53,11 +54,22 @@ export interface Prediction {
     lthSthRatio: number;
     illiquidPct: number;
   };
+  // Advanced derivatives factors included in signal
+  derivativesAdvancedFactors?: {
+    overallSentiment: 'bullish' | 'bearish' | 'neutral';
+    confidenceScore: number;
+    fundingRateSignal: 'bullish' | 'bearish' | 'neutral';
+    longShortRatioSignal: 'bullish' | 'bearish' | 'neutral';
+    liquidationsSignal: 'bullish' | 'bearish' | 'neutral';
+    oiDeltaPattern: string;
+    maxPainDeviation?: number;
+    ivLevel?: string;
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, and profitability
+   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, profitability, and advanced derivatives
    */
   predict(
     data: OHLCV[],
@@ -67,7 +79,8 @@ export class PredictionEngine {
     onChainData?: OnChainMetrics,
     exchangeFlowData?: ExchangeFlowData,
     profitabilityData?: ProfitabilityMetrics,
-    cohortData?: CohortMetrics
+    cohortData?: CohortMetrics,
+    derivativesAdvancedData?: DerivativesAdvancedData
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -448,6 +461,91 @@ export class PredictionEngine {
       }
     }
 
+    // ===== ADVANCED DERIVATIVES ANALYSIS =====
+    let derivativesAdvancedFactors: Prediction['derivativesAdvancedFactors'] = undefined;
+
+    if (derivativesAdvancedData) {
+      const {
+        fundingRateAnalysis,
+        longShortRatio,
+        liquidations,
+        oiDeltaAnalysis,
+        maxPain,
+        impliedVolatility,
+        overallSentiment,
+        confidenceScore
+      } = derivativesAdvancedData;
+
+      derivativesAdvancedFactors = {
+        overallSentiment,
+        confidenceScore,
+        fundingRateSignal: fundingRateAnalysis.signal,
+        longShortRatioSignal: longShortRatio.signal,
+        liquidationsSignal: liquidations.signal,
+        oiDeltaPattern: oiDeltaAnalysis.pattern,
+        maxPainDeviation: maxPain?.deviationPercent,
+        ivLevel: impliedVolatility?.level
+      };
+
+      // Add advanced derivatives signals to main signals array with high weight
+      if (fundingRateAnalysis.signal !== 'neutral') {
+        signals.push({
+          signal: fundingRateAnalysis.signal,
+          weight: 0.7,
+          reason: fundingRateAnalysis.reasoning
+        });
+      }
+
+      if (oiDeltaAnalysis.signal !== 'neutral') {
+        signals.push({
+          signal: oiDeltaAnalysis.signal,
+          weight: 0.8,
+          reason: oiDeltaAnalysis.reasoning
+        });
+      }
+
+      if (longShortRatio.signal !== 'neutral') {
+        signals.push({
+          signal: longShortRatio.signal,
+          weight: 0.5,
+          reason: `Long/Short ratio ${longShortRatio.weightedRatio.toFixed(2)} suggests crowded positioning`
+        });
+      }
+
+      if (liquidations.signal !== 'neutral') {
+        signals.push({
+          signal: liquidations.signal,
+          weight: 0.6,
+          reason: `Net liquidations: $${(liquidations.netLiquidations / 1e6).toFixed(1)}M`
+        });
+      }
+
+      if (maxPain && maxPain.signal !== 'neutral' && Math.abs(maxPain.deviationPercent) > 5) {
+        signals.push({
+          signal: maxPain.signal,
+          weight: 0.5,
+          reason: `Price ${maxPain.deviationPercent > 0 ? 'above' : 'below'} max pain by ${Math.abs(maxPain.deviationPercent).toFixed(1)}%`
+        });
+      }
+
+      if (impliedVolatility && impliedVolatility.signal === 'expect_movement') {
+        signals.push({
+          signal: 'neutral',
+          weight: 0.3,
+          reason: `${impliedVolatility.level.replace(/_/g, ' ')} IV expects large move`
+        });
+      }
+
+      // Add overall derivatives sentiment with high weight
+      if (overallSentiment !== 'neutral' && confidenceScore > 0.5) {
+        signals.push({
+          signal: overallSentiment,
+          weight: 0.9 * confidenceScore,
+          reason: `Derivatives sentiment ${overallSentiment} (${(confidenceScore * 100).toFixed(0)}% confidence)`
+        });
+      }
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -530,6 +628,7 @@ export class PredictionEngine {
       exchangeFlowFactors,
       profitabilityFactors,
       cohortFactors,
+      derivativesAdvancedFactors,
     };
   }
 }
