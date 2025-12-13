@@ -4,6 +4,8 @@ import { OHLCV } from './data-provider';
 export interface TechnicalIndicators {
   rsi: number | null;
   macd: { MACD: number; signal: number; histogram: number } | null;
+  // BUG FIX: Add previous MACD histogram for proper crossover detection
+  prevMacdHistogram: number | null;
   bollingerBands: { upper: number; middle: number; lower: number } | null;
   ema20: number | null;
   sma50: number | null;
@@ -44,6 +46,11 @@ export class TechnicalAnalyzer {
       ? { MACD: lastMacd.MACD, signal: lastMacd.signal, histogram: lastMacd.histogram }
       : null;
 
+    // BUG FIX: Get previous MACD histogram for crossover detection
+    // A real crossover requires comparing current vs previous histogram sign
+    const prevMacd = macdValues.length > 1 ? macdValues[macdValues.length - 2] : null;
+    const prevMacdHistogram = prevMacd && prevMacd.histogram !== undefined ? prevMacd.histogram : null;
+
     // Bollinger Bands (20, 2)
     const bbValues = BollingerBands.calculate({
       values: closes,
@@ -69,7 +76,7 @@ export class TechnicalAnalyzer {
     });
     const atr = atrValues.length > 0 ? atrValues[atrValues.length - 1] : null;
 
-    return { rsi, macd, bollingerBands, ema20, sma50, atr };
+    return { rsi, macd, prevMacdHistogram, bollingerBands, ema20, sma50, atr };
   }
 
   /**
@@ -218,11 +225,19 @@ export class TechnicalAnalyzer {
     return null;
   }
 
-  private findPeaks(values: number[]): number[] {
+  // IMPROVEMENT: Added minimum spacing to filter out noise (single candle spikes)
+  private findPeaks(values: number[], minSpacing: number = 5): number[] {
     const peaks: number[] = [];
-    for (let i = 1; i < values.length - 1; i++) {
-      if (values[i] > values[i - 1] && values[i] > values[i + 1]) {
-        peaks.push(i);
+    for (let i = 2; i < values.length - 2; i++) {
+      // Require peak to be higher than 2 candles on each side (reduces noise)
+      if (values[i] > values[i - 1] &&
+          values[i] > values[i - 2] &&
+          values[i] > values[i + 1] &&
+          values[i] > values[i + 2]) {
+        // Enforce minimum spacing between peaks to avoid over-detection
+        if (peaks.length === 0 || i - peaks[peaks.length - 1] >= minSpacing) {
+          peaks.push(i);
+        }
       }
     }
     return peaks;

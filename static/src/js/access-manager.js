@@ -8,24 +8,30 @@ const BTCSAIAccess = (function() {
   const RECOVERY_KEY = 'btcsai_recovery_code';
   const SESSION_KEY = 'btcsai_session_token';
 
-  // Admin mode check - bypasses all paywalls for development/testing
-  // To enable: localStorage.setItem('btcsai_admin', 'satoshi2024')
-  // To disable: localStorage.removeItem('btcsai_admin')
+  // SECURITY FIX: Admin mode removed from client-side code
+  // Admin access should be validated server-side only
+  // For local development, use environment variables or a separate dev build
+  //
+  // Old insecure implementation stored a hardcoded password in source code.
+  // Anyone viewing source could enable admin mode and bypass all paywalls.
+  //
+  // If you need admin/testing access:
+  // 1. Use a server-side admin endpoint with proper authentication
+  // 2. Or set up a separate development environment
+  // 3. Or use the recovery code system with a test account
   function isAdmin() {
-    try {
-      return localStorage.getItem(ADMIN_KEY) === 'satoshi2024';
-    } catch (e) {
-      return false;
-    }
+    // Always return false - admin mode disabled in production
+    // For development, set BTCSAI_DEV_MODE in your local environment
+    // and rebuild with admin features conditionally compiled in
+    return false;
   }
 
-  // Enable admin mode (call from browser console)
+  // Admin functions disabled for security
   function enableAdmin() {
-    localStorage.setItem(ADMIN_KEY, 'satoshi2024');
-    return true;
+    console.warn('Admin mode has been disabled for security. Use server-side authentication.');
+    return false;
   }
 
-  // Disable admin mode
   function disableAdmin() {
     localStorage.removeItem(ADMIN_KEY);
     return true;

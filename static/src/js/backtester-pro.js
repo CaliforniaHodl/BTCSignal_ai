@@ -260,18 +260,31 @@
   }
 
   // Check if entry conditions are met
+  // Returns false if no entry, or an object with entry details if entry triggered
   function checkEntry(data, i, strategy, prevData) {
     if (i < 30) return false;
+
+    // BUG FIX: Track if this is a breakout entry to use correct price
+    let isBreakoutEntry = false;
+    let breakoutPrice = null;
 
     for (const cond of strategy.entryConditions) {
       switch (cond.type) {
         case 'rsi_cross_above':
+          // BUG FIX: Ensure both prev and current RSI are valid (not warmup values)
+          // RSI of exactly 50 during early candles is likely warmup
+          if (prevData.rsi === 50 && i < 20) return false;
           if (!(prevData.rsi <= cond.value && data[i].rsi > cond.value)) return false;
           break;
         case 'rsi_cross_below':
+          // BUG FIX: Ensure both prev and current RSI are valid (not warmup values)
+          if (prevData.rsi === 50 && i < 20) return false;
           if (!(prevData.rsi >= cond.value && data[i].rsi < cond.value)) return false;
           break;
         case 'macd_cross_above':
+          // BUG FIX: Skip if this looks like a warmup-to-real transition
+          // MACD hist near 0 during warmup, then jumps to real value
+          if (Math.abs(prevData.macdHist) < 0.01 && i < 30) return false;
           if (!(prevData.macdHist <= 0 && data[i].macdHist > 0)) return false;
           break;
         case 'ema_cross_above':
@@ -284,7 +297,12 @@
           if (data[i].close < data[i][maKey]) return false;
           break;
         case 'breakout_high':
-          if (data[i].close <= data[i].high20) return false;
+          // BUG FIX: Check if HIGH broke through (not just close)
+          // and use the breakout price for entry instead of close
+          if (!data[i].high20) return false;
+          if (data[i].high <= data[i].high20) return false; // High must break the level
+          isBreakoutEntry = true;
+          breakoutPrice = data[i].high20 * 1.001; // Enter just above breakout level
           break;
         case 'random_entry':
           // Random entry for strategies we couldn't fully parse
@@ -292,7 +310,12 @@
           break;
       }
     }
-    return true;
+
+    // Return entry details instead of just true
+    return {
+      triggered: true,
+      breakoutPrice: isBreakoutEntry ? breakoutPrice : null
+    };
   }
 
   // Check if exit conditions are met
@@ -326,15 +349,22 @@
     }
 
     // Trailing stop
-    if (strategy.trailingStop && trade.maxProfit) {
+    // BUG FIX: Check if maxProfit exists AND is above a threshold (e.g., 1% profit)
+    // Trailing stops should only activate after the trade is in profit
+    if (strategy.trailingStop && trade.maxProfit && trade.maxProfit > 0.01) {
       const trailPrice = trade.direction === 'long'
         ? trade.highestPrice * (1 - strategy.trailingStop)
         : trade.lowestPrice * (1 + strategy.trailingStop);
 
-      if (trade.direction === 'long' && data[i].low <= trailPrice) {
+      // BUG FIX: Only trigger if trail price is better than entry (ensures we lock in profit)
+      const isTrailValid = trade.direction === 'long'
+        ? trailPrice > trade.entryPrice
+        : trailPrice < trade.entryPrice;
+
+      if (isTrailValid && trade.direction === 'long' && data[i].low <= trailPrice) {
         return { exit: true, price: trailPrice, reason: 'Trailing Stop' };
       }
-      if (trade.direction === 'short' && data[i].high >= trailPrice) {
+      if (isTrailValid && trade.direction === 'short' && data[i].high >= trailPrice) {
         return { exit: true, price: trailPrice, reason: 'Trailing Stop' };
       }
     }
@@ -386,16 +416,32 @@
     let totalSlippage = 0;
     let maxDrawdown = 0;
 
+    // BUG FIX: Require indicator warmup period before trading
+    // RSI needs 14 periods, MACD needs ~26, EMAs need their respective periods
+    const WARMUP_PERIOD = 50; // Conservative warmup to ensure all indicators are valid
+
     for (let i = 1; i < data.length; i++) {
       const candle = data[i];
       const prevCandle = data[i - 1];
 
       if (currentTrade) {
+        // BUG FIX: Skip exit check on same candle as entry (entry happens at close,
+        // so same candle's high/low shouldn't trigger stops)
+        if (currentTrade.entryIndex === i) {
+          // Same candle as entry - only update equity curve, don't check exits
+          equityCurve.push({ time: candle.time, equity: equity });
+          continue;
+        }
+
         // Update trade tracking
         if (currentTrade.direction === 'long') {
           currentTrade.highestPrice = Math.max(currentTrade.highestPrice || currentTrade.entryPrice, candle.high);
+          // BUG FIX: Calculate maxProfit for trailing stop activation
+          currentTrade.maxProfit = (currentTrade.highestPrice - currentTrade.entryPrice) / currentTrade.entryPrice;
         } else {
           currentTrade.lowestPrice = Math.min(currentTrade.lowestPrice || currentTrade.entryPrice, candle.low);
+          // BUG FIX: Calculate maxProfit for trailing stop (shorts profit when price goes down)
+          currentTrade.maxProfit = (currentTrade.entryPrice - currentTrade.lowestPrice) / currentTrade.entryPrice;
         }
 
         // Check for exit
@@ -431,17 +477,31 @@
           currentTrade = null;
         }
       } else {
+        // BUG FIX: Enforce warmup period - don't trade until indicators are valid
+        if (i < WARMUP_PERIOD) {
+          equityCurve.push({ time: candle.time, equity: equity });
+          continue;
+        }
+
         // Check for entry
-        if (checkEntry(data, i, strategy, prevCandle)) {
+        const entryResult = checkEntry(data, i, strategy, prevCandle);
+        if (entryResult) {
           const riskAmount = equity * strategy.riskPerTrade;
           const size = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
           const direction = strategy.direction === 'both' ? (Math.random() > 0.5 ? 'long' : 'short') : strategy.direction;
 
+          // BUG FIX: Use breakout price for breakout entries instead of close
+          // This fixes look-ahead bias where we'd buy at close after seeing the breakout
+          let baseEntryPrice = candle.close;
+          if (entryResult.breakoutPrice) {
+            baseEntryPrice = entryResult.breakoutPrice;
+          }
+
           // Apply slippage to entry (worse price)
-          const slippageAmt = candle.close * slippage;
+          const slippageAmt = baseEntryPrice * slippage;
           const entryPrice = direction === 'long'
-            ? candle.close + slippageAmt  // Buy higher
-            : candle.close - slippageAmt; // Sell lower
+            ? baseEntryPrice + slippageAmt  // Buy higher
+            : baseEntryPrice - slippageAmt; // Sell lower
 
           // Entry fee
           const entryFee = size * fee;
@@ -451,6 +511,7 @@
           currentTrade = {
             entryPrice: entryPrice,
             entryTime: candle.time,
+            entryIndex: i, // BUG FIX: Track entry candle index for same-candle check
             direction: direction,
             size: Math.min(size, equity * 0.5), // Max 50% per trade
             entryFee: entryFee

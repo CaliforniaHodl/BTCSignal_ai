@@ -80,10 +80,14 @@ export async function validateAuth(recoveryCode: string, sessionToken: string): 
   const records = await fetchRecordsFromGitHub();
 
   if (!records) {
-    // If we can't fetch records, allow access to avoid false denials
-    // This should be rare and temporary
-    console.warn('Could not fetch records for auth, allowing request');
-    return { authenticated: true, tier: 'unknown' };
+    // SECURITY FIX: Fail closed - deny access when records can't be fetched
+    // Previous behavior allowed access on fetch failure (fail-open), which is insecure
+    // An attacker could potentially exploit network conditions to bypass auth
+    //
+    // This may cause false denials during GitHub outages, but that's preferable
+    // to allowing unauthorized access. Users can retry after a moment.
+    console.error('SECURITY: Could not fetch records for auth, denying access (fail-closed)');
+    return { authenticated: false, error: 'Authentication service temporarily unavailable. Please try again.' };
   }
 
   const record = records.records.find(

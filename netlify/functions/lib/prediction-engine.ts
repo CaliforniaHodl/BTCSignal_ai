@@ -46,12 +46,33 @@ export class PredictionEngine {
       }
     }
 
-    // Analyze MACD
+    // Analyze MACD - BUG FIX: Detect actual crossovers, not just position
     if (indicators.macd !== null) {
-      if (indicators.macd.MACD > indicators.macd.signal) {
-        signals.push({ signal: 'bullish', weight: 0.7, reason: 'MACD bullish crossover' });
+      const currentHist = indicators.macd.histogram;
+      const prevHist = indicators.prevMacdHistogram;
+
+      // Check for actual crossover (histogram sign change)
+      if (prevHist !== null) {
+        if (prevHist <= 0 && currentHist > 0) {
+          // Actual bullish crossover: MACD just crossed above signal line
+          signals.push({ signal: 'bullish', weight: 0.8, reason: 'MACD bullish crossover (confirmed)' });
+        } else if (prevHist >= 0 && currentHist < 0) {
+          // Actual bearish crossover: MACD just crossed below signal line
+          signals.push({ signal: 'bearish', weight: 0.8, reason: 'MACD bearish crossover (confirmed)' });
+        } else if (currentHist > 0) {
+          // Above signal but not a fresh crossover - bullish momentum but lower weight
+          signals.push({ signal: 'bullish', weight: 0.4, reason: 'MACD bullish (above signal)' });
+        } else if (currentHist < 0) {
+          // Below signal but not a fresh crossover - bearish momentum but lower weight
+          signals.push({ signal: 'bearish', weight: 0.4, reason: 'MACD bearish (below signal)' });
+        }
       } else {
-        signals.push({ signal: 'bearish', weight: 0.7, reason: 'MACD bearish crossover' });
+        // No previous data, fall back to position-based (lower weight)
+        if (indicators.macd.MACD > indicators.macd.signal) {
+          signals.push({ signal: 'bullish', weight: 0.4, reason: 'MACD bullish (position)' });
+        } else {
+          signals.push({ signal: 'bearish', weight: 0.4, reason: 'MACD bearish (position)' });
+        }
       }
     }
 
