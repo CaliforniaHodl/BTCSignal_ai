@@ -10,6 +10,7 @@ import { HistoricalTracker } from './lib/historical-tracker';
 import { DerivativesAnalyzer } from './lib/derivatives-analyzer';
 import { generateTradingBotTweets, generateDerivativesAlertTweet } from './lib/tweet-generator';
 import { OnChainMetrics } from './lib/onchain-analyzer';
+import { ExchangeFlowData } from './lib/exchange-analyzer';
 
 const SYMBOL = 'BTC-USD';
 const TIMEFRAME = '1h';
@@ -52,6 +53,46 @@ async function fetchOnChainData(): Promise<OnChainMetrics | null> {
     return null;
   } catch (e: any) {
     console.error('Error fetching on-chain data:', e.message);
+    return null;
+  }
+}
+
+// Fetch exchange flow data
+async function fetchExchangeFlowData(): Promise<ExchangeFlowData | null> {
+  try {
+    // First try the Netlify function
+    const response = await fetch(`https://${process.env.URL || 'btctradingsignalai.netlify.app'}/.netlify/functions/exchange-flows`);
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data?.flows) {
+        console.log('Exchange flow data fetched successfully');
+        return result.data.flows;
+      }
+    }
+
+    // Fallback: Try reading from GitHub cache
+    const token = process.env.GITHUB_TOKEN;
+    const repo = process.env.GITHUB_REPO;
+    if (token && repo) {
+      const cacheUrl = `https://api.github.com/repos/${repo}/contents/data/exchange-flows.json`;
+      const cacheRes = await fetch(cacheUrl, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      if (cacheRes.ok) {
+        const data = await cacheRes.json();
+        const content = JSON.parse(Buffer.from(data.content, 'base64').toString());
+        console.log('Exchange flow data loaded from GitHub cache');
+        return content.flows;
+      }
+    }
+
+    console.log('Exchange flow data unavailable');
+    return null;
+  } catch (e: any) {
+    console.error('Error fetching exchange flow data:', e.message);
     return null;
   }
 }
@@ -242,13 +283,23 @@ export default async (req: Request, context: Context) => {
       console.error('On-chain fetch error:', e.message);
     }
 
-    // Generate prediction (now includes on-chain data)
+    // Fetch exchange flow data
+    console.log('Fetching exchange flow data...');
+    let exchangeFlowData: ExchangeFlowData | null = null;
+    try {
+      exchangeFlowData = await fetchExchangeFlowData();
+    } catch (e: any) {
+      console.error('Exchange flow fetch error:', e.message);
+    }
+
+    // Generate prediction (now includes on-chain and exchange flow data)
     const prediction = predictionEngine.predict(
       marketData.data,
       indicators,
       patterns,
       derivativesData || undefined,
-      onChainData || undefined
+      onChainData || undefined,
+      exchangeFlowData || undefined
     );
 
     // Fetch block height
@@ -280,9 +331,9 @@ export default async (req: Request, context: Context) => {
       blockHeight,
     };
 
-    // Generate tweets using shared generator (now includes on-chain data)
-    const tweetContent = generateTradingBotTweets(analysis, historicalCalls, onChainData || undefined);
-    console.log(`Generated ${tweetContent.tweets.length} tweets (on-chain: ${onChainData ? 'yes' : 'no'})`);
+    // Generate tweets using shared generator (now includes on-chain and exchange flow data)
+    const tweetContent = generateTradingBotTweets(analysis, historicalCalls, onChainData || undefined, exchangeFlowData || undefined);
+    console.log(`Generated ${tweetContent.tweets.length} tweets (on-chain: ${onChainData ? 'yes' : 'no'}, flows: ${exchangeFlowData ? 'yes' : 'no'})`);
 
     // Post thread
     const threadResult = await postThread(twitterClient, tweetContent.tweets);
@@ -339,6 +390,8 @@ export default async (req: Request, context: Context) => {
         confidence: prediction.confidence,
         onChainBias: prediction.onChainFactors?.bias || 'unavailable',
         onChainScore: prediction.onChainFactors?.score || 0,
+        exchangeFlowSignal: prediction.exchangeFlowFactors?.signal || 'unavailable',
+        exchangeFlowNetflow: prediction.exchangeFlowFactors?.netflow || 0,
       },
     }), {
       status: 200,

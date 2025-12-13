@@ -2,6 +2,7 @@
 import { AnalysisResult } from './blog-generator';
 import { HistoricalCall } from './historical-tracker';
 import { OnChainMetrics, formatMetricsForDisplay, generateOnChainSummary } from './onchain-analyzer';
+import { ExchangeFlowData, formatExchangeFlowsForTweet, generateExchangeFlowSummary } from './exchange-analyzer';
 
 export interface TweetContent {
   tweets: string[];
@@ -25,7 +26,8 @@ export interface WhaleAlert {
 export function generateTradingBotTweets(
   analysis: AnalysisResult,
   historicalCalls: HistoricalCall[],
-  onChainData?: OnChainMetrics
+  onChainData?: OnChainMetrics,
+  exchangeFlowData?: ExchangeFlowData
 ): TweetContent {
   const { currentPrice, priceChange24h, prediction, indicators, patterns, high24h, low24h, blockHeight } = analysis;
 
@@ -95,10 +97,28 @@ ${onChainLines.join('\n')}
 📊 Data: CoinGecko, Blockchain.info`;
   }
 
-  // Tweet 4: Track record (if we have history)
+  // Tweet 4: Exchange Flows (if available)
   let tweet4 = '';
+  if (exchangeFlowData && (exchangeFlowData.inflow24h > 0 || exchangeFlowData.outflow24h > 0)) {
+    const flowLines = formatExchangeFlowsForTweet(exchangeFlowData);
+    const { headline: flowHeadline, bias: flowBias } = generateExchangeFlowSummary(exchangeFlowData);
+    const flowEmoji = flowBias === 'bullish' ? '🟢' : flowBias === 'bearish' ? '🔴' : '🟡';
+
+    tweet4 = `🏦 Exchange Flows
+
+${flowEmoji} ${flowHeadline}
+
+${flowLines.join('\n')}
+
+🐋 Whale Ratio: ${(exchangeFlowData.whaleRatio * 100).toFixed(0)}%
+
+📊 Data: Mempool.space whale tracking`;
+  }
+
+  // Tweet 5: Track record (if we have history)
+  let tweet5 = '';
   if (completedCalls.length >= 3) {
-    tweet4 = `📈 Track Record (Last 30 Days)
+    tweet5 = `📈 Track Record (Last 30 Days)
 
 ✅ Wins: ${wins}
 ❌ Losses: ${completedCalls.length - wins}
@@ -110,6 +130,7 @@ Not financial advice. DYOR.`;
   const tweets = [tweet1, tweet2];
   if (tweet3) tweets.push(tweet3);
   if (tweet4) tweets.push(tweet4);
+  if (tweet5) tweets.push(tweet5);
 
   return { tweets, type: 'thread' };
 }

@@ -2,6 +2,7 @@ import { OHLCV } from './data-provider';
 import { TechnicalIndicators, Pattern } from './technical-analysis';
 import { DerivativesData } from './derivatives-analyzer';
 import { OnChainMetrics, analyzeOnChainMetrics, calculateOnChainScore } from './onchain-analyzer';
+import { ExchangeFlowData, generateExchangeFlowSignals } from './exchange-analyzer';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -25,18 +26,26 @@ export interface Prediction {
     bias: 'bullish' | 'bearish' | 'neutral';
     topSignals: string[];
   };
+  // Exchange flow factors included in signal
+  exchangeFlowFactors?: {
+    netflow: number;
+    signal: 'bullish' | 'bearish' | 'neutral';
+    whaleRatio: number;
+    factors: string[];
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators, patterns, derivatives, and on-chain data
+   * Predict next market move based on indicators, patterns, derivatives, on-chain, and exchange flows
    */
   predict(
     data: OHLCV[],
     indicators: TechnicalIndicators,
     patterns: Pattern[],
     derivativesData?: DerivativesData,
-    onChainData?: OnChainMetrics
+    onChainData?: OnChainMetrics,
+    exchangeFlowData?: ExchangeFlowData
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -294,6 +303,39 @@ export class PredictionEngine {
       }
     }
 
+    // ===== EXCHANGE FLOW ANALYSIS =====
+    let exchangeFlowFactors: Prediction['exchangeFlowFactors'] = undefined;
+
+    if (exchangeFlowData) {
+      const flowSignals = generateExchangeFlowSignals(exchangeFlowData);
+
+      exchangeFlowFactors = {
+        netflow: exchangeFlowData.netflow24h,
+        signal: flowSignals.signal,
+        whaleRatio: exchangeFlowData.whaleRatio,
+        factors: flowSignals.factors,
+      };
+
+      // Add flow signals to main signals array
+      if (flowSignals.signal !== 'neutral') {
+        signals.push({
+          signal: flowSignals.signal,
+          weight: flowSignals.weight,
+          reason: `Exchange flows ${flowSignals.signal} (${exchangeFlowData.netflow24h >= 0 ? '+' : ''}${exchangeFlowData.netflow24h.toFixed(0)} BTC net)`
+        });
+      }
+
+      // Add individual flow factors
+      flowSignals.factors.forEach(factor => {
+        const factorSignal = flowSignals.signal;
+        signals.push({
+          signal: factorSignal,
+          weight: flowSignals.weight * 0.5,
+          reason: factor
+        });
+      });
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -373,6 +415,7 @@ export class PredictionEngine {
       reasoning,
       derivativesFactors,
       onChainFactors,
+      exchangeFlowFactors,
     };
   }
 }
