@@ -520,6 +520,159 @@
       </div>
     </section>
 
+    <!-- Advanced On-Chain Metrics (Phase 1 Sprint 1) -->
+    <section class="onchain-advanced-section" id="onchain-advanced-metrics">
+      <h2>Advanced On-Chain Metrics</h2>
+      <p class="section-desc">Professional-grade valuation indicators used by CryptoQuant and Glassnode analysts.</p>
+
+      <div class="advanced-metrics-grid">
+        <!-- NVT Ratio Card -->
+        <div class="advanced-metric-card nvt-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">📡</span>
+            <h3>NVT Ratio</h3>
+            {{ partial "tooltip.html" (dict "text" "Network Value to Transactions. Compares market cap to transaction volume. Low NVT (<25) = undervalued, High NVT (>65) = overvalued.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="nvt-value">--</span>
+            <span class="metric-badge" id="nvt-signal">--</span>
+          </div>
+          <div class="metric-gauge">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="nvt-gauge-fill" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>Undervalued</span>
+              <span>Fair</span>
+              <span>Overvalued</span>
+            </div>
+          </div>
+          <p class="metric-description" id="nvt-description">Loading...</p>
+        </div>
+
+        <!-- Puell Multiple Card -->
+        <div class="advanced-metric-card puell-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">⛏️</span>
+            <h3>Puell Multiple</h3>
+            {{ partial "tooltip.html" (dict "text" "Daily miner revenue vs 365-day average. <0.5 = buy zone (miner stress), >1.2 = sell zone (high distribution).") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="puell-value">--</span>
+            <span class="metric-badge" id="puell-zone">--</span>
+          </div>
+          <div class="metric-gauge">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="puell-gauge-fill" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>Buy Zone</span>
+              <span>Neutral</span>
+              <span>Sell Zone</span>
+            </div>
+          </div>
+          <p class="metric-description" id="puell-description">Loading...</p>
+        </div>
+
+        <!-- Stock-to-Flow Card -->
+        <div class="advanced-metric-card s2f-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">📊</span>
+            <h3>Stock-to-Flow</h3>
+            {{ partial "tooltip.html" (dict "text" "Scarcity model comparing existing supply to annual production. Higher S2F = more scarce. Model price based on PlanB's original formula.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="s2f-ratio">--</span>
+            <span class="metric-badge" id="s2f-signal">--</span>
+          </div>
+          <div class="s2f-details">
+            <div class="s2f-row">
+              <span class="s2f-label">Model Price:</span>
+              <span class="s2f-value" id="s2f-model-price">$--</span>
+            </div>
+            <div class="s2f-row">
+              <span class="s2f-label">Deflection:</span>
+              <span class="s2f-value" id="s2f-deflection">--%</span>
+            </div>
+          </div>
+          <p class="metric-note">S2F model accuracy varies with market cycles</p>
+        </div>
+
+        <!-- Stablecoin Supply Ratio Card -->
+        <div class="advanced-metric-card ssr-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">💵</span>
+            <h3>Stablecoin Supply Ratio</h3>
+            {{ partial "tooltip.html" (dict "text" "BTC market cap divided by total stablecoin market cap. Lower SSR = more buying power waiting on sidelines.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="ssr-value">--</span>
+            <span class="metric-badge" id="ssr-trend">--</span>
+          </div>
+          <div class="metric-gauge">
+            <div class="gauge-track inverted">
+              <div class="gauge-fill" id="ssr-gauge-fill" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>High Buying Power</span>
+              <span>Neutral</span>
+              <span>Low</span>
+            </div>
+          </div>
+          <p class="metric-description" id="ssr-description">Loading...</p>
+        </div>
+
+        <!-- Reserve Risk Card -->
+        <div class="advanced-metric-card reserve-risk-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">⚖️</span>
+            <h3>Reserve Risk</h3>
+            {{ partial "tooltip.html" (dict "text" "Measures risk/reward of investing. Low values = opportunity zone. High values = risk zone. Based on HODL behavior.") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="reserve-risk-value">--</span>
+            <span class="metric-badge" id="reserve-risk-zone">--</span>
+          </div>
+          <p class="metric-description" id="reserve-risk-description">Loading...</p>
+        </div>
+
+        <!-- NUPL Card -->
+        <div class="advanced-metric-card nupl-card">
+          <div class="metric-card-header">
+            <span class="metric-icon">📈</span>
+            <h3>NUPL</h3>
+            {{ partial "tooltip.html" (dict "text" "Net Unrealized Profit/Loss. Shows what % of market cap is unrealized profit. Zones: Capitulation (<0), Hope (0-25%), Optimism (25-50%), Belief (50-75%), Euphoria (>75%).") }}
+          </div>
+          <div class="metric-main">
+            <span class="metric-value" id="nupl-value">--</span>
+            <span class="metric-badge" id="nupl-zone">--</span>
+          </div>
+          <div class="nupl-meter">
+            <div class="nupl-bar">
+              <div class="nupl-zone capitulation"></div>
+              <div class="nupl-zone hope"></div>
+              <div class="nupl-zone optimism"></div>
+              <div class="nupl-zone belief"></div>
+              <div class="nupl-zone euphoria"></div>
+              <div class="nupl-marker" id="nupl-marker" style="left: 50%"></div>
+            </div>
+            <div class="nupl-labels">
+              <span>Capitulation</span>
+              <span>Hope</span>
+              <span>Optimism</span>
+              <span>Belief</span>
+              <span>Euphoria</span>
+            </div>
+          </div>
+          <p class="metric-description" id="nupl-description">Loading...</p>
+        </div>
+      </div>
+
+      <div class="metrics-data-note">
+        <strong>Data Sources:</strong> CoinGecko (prices, market caps), Blockchain.info (transaction volume, miner revenue). Updated every 4 hours.
+      </div>
+    </section>
+
     <!-- Signal Accuracy Tracking (Phase 6) -->
     <section class="accuracy-section">
       <h2>Signal Accuracy Tracking</h2>

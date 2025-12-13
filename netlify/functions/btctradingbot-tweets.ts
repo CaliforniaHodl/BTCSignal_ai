@@ -9,11 +9,52 @@ import { BlogGenerator, AnalysisResult } from './lib/blog-generator';
 import { HistoricalTracker } from './lib/historical-tracker';
 import { DerivativesAnalyzer } from './lib/derivatives-analyzer';
 import { generateTradingBotTweets, generateDerivativesAlertTweet } from './lib/tweet-generator';
+import { OnChainMetrics } from './lib/onchain-analyzer';
 
 const SYMBOL = 'BTC-USD';
 const TIMEFRAME = '1h';
 const CANDLE_LIMIT = 100;
 const CANDLE_LIMIT_24H = 24;
+
+// Fetch on-chain metrics data
+async function fetchOnChainData(): Promise<OnChainMetrics | null> {
+  try {
+    // First try the Netlify function (which also updates the cache)
+    const response = await fetch(`https://${process.env.URL || 'btctradingsignalai.netlify.app'}/.netlify/functions/onchain-metrics`);
+    if (response.ok) {
+      const result = await response.json();
+      if (result.success && result.data) {
+        console.log('On-chain data fetched successfully');
+        return result.data;
+      }
+    }
+
+    // Fallback: Try reading from GitHub cache
+    const token = process.env.GITHUB_TOKEN;
+    const repo = process.env.GITHUB_REPO;
+    if (token && repo) {
+      const cacheUrl = `https://api.github.com/repos/${repo}/contents/data/onchain-metrics.json`;
+      const cacheRes = await fetch(cacheUrl, {
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github.v3+json',
+        },
+      });
+      if (cacheRes.ok) {
+        const data = await cacheRes.json();
+        const content = JSON.parse(Buffer.from(data.content, 'base64').toString());
+        console.log('On-chain data loaded from GitHub cache');
+        return content;
+      }
+    }
+
+    console.log('On-chain data unavailable');
+    return null;
+  } catch (e: any) {
+    console.error('Error fetching on-chain data:', e.message);
+    return null;
+  }
+}
 
 interface ThreadTweet {
   id: string;
@@ -192,8 +233,23 @@ export default async (req: Request, context: Context) => {
       console.error('Derivatives fetch error:', e.message);
     }
 
-    // Generate prediction
-    const prediction = predictionEngine.predict(marketData.data, indicators, patterns, derivativesData || undefined);
+    // Fetch on-chain data
+    console.log('Fetching on-chain data...');
+    let onChainData: OnChainMetrics | null = null;
+    try {
+      onChainData = await fetchOnChainData();
+    } catch (e: any) {
+      console.error('On-chain fetch error:', e.message);
+    }
+
+    // Generate prediction (now includes on-chain data)
+    const prediction = predictionEngine.predict(
+      marketData.data,
+      indicators,
+      patterns,
+      derivativesData || undefined,
+      onChainData || undefined
+    );
 
     // Fetch block height
     let blockHeight: number | null = null;
@@ -224,9 +280,9 @@ export default async (req: Request, context: Context) => {
       blockHeight,
     };
 
-    // Generate tweets using shared generator
-    const tweetContent = generateTradingBotTweets(analysis, historicalCalls);
-    console.log(`Generated ${tweetContent.tweets.length} tweets`);
+    // Generate tweets using shared generator (now includes on-chain data)
+    const tweetContent = generateTradingBotTweets(analysis, historicalCalls, onChainData || undefined);
+    console.log(`Generated ${tweetContent.tweets.length} tweets (on-chain: ${onChainData ? 'yes' : 'no'})`);
 
     // Post thread
     const threadResult = await postThread(twitterClient, tweetContent.tweets);
@@ -281,6 +337,8 @@ export default async (req: Request, context: Context) => {
         price: currentPrice,
         direction: prediction.direction,
         confidence: prediction.confidence,
+        onChainBias: prediction.onChainFactors?.bias || 'unavailable',
+        onChainScore: prediction.onChainFactors?.score || 0,
       },
     }), {
       status: 200,

@@ -1,6 +1,7 @@
 import { OHLCV } from './data-provider';
 import { TechnicalIndicators, Pattern } from './technical-analysis';
 import { DerivativesData } from './derivatives-analyzer';
+import { OnChainMetrics, analyzeOnChainMetrics, calculateOnChainScore } from './onchain-analyzer';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -18,17 +19,24 @@ export interface Prediction {
     squeezeRisk: 'long' | 'short' | 'none';
     squeezeProbability: 'high' | 'medium' | 'low';
   };
+  // On-chain factors included in signal
+  onChainFactors?: {
+    score: number;
+    bias: 'bullish' | 'bearish' | 'neutral';
+    topSignals: string[];
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators, patterns, and derivatives data
+   * Predict next market move based on indicators, patterns, derivatives, and on-chain data
    */
   predict(
     data: OHLCV[],
     indicators: TechnicalIndicators,
     patterns: Pattern[],
-    derivativesData?: DerivativesData
+    derivativesData?: DerivativesData,
+    onChainData?: OnChainMetrics
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -244,6 +252,48 @@ export class PredictionEngine {
       }
     }
 
+    // ===== ON-CHAIN ANALYSIS =====
+    let onChainFactors: Prediction['onChainFactors'] = undefined;
+
+    if (onChainData) {
+      const onChainSignals = analyzeOnChainMetrics(onChainData);
+      const { score, bias } = calculateOnChainScore(onChainSignals);
+
+      // Extract top signals for reasoning
+      const topSignals = onChainSignals
+        .filter(s => s.signal !== 'neutral')
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 3);
+
+      onChainFactors = {
+        score,
+        bias,
+        topSignals: topSignals.map(s => s.reason)
+      };
+
+      // Add on-chain signals to main signals array
+      onChainSignals.forEach(s => {
+        if (s.signal !== 'neutral' && s.weight >= 0.4) {
+          signals.push({
+            signal: s.signal,
+            weight: s.weight * 0.8, // Slightly reduce on-chain weight vs TA
+            reason: s.reason
+          });
+        }
+      });
+
+      // Add macro on-chain bias signal
+      if (Math.abs(score) > 0.3) {
+        const macroSignal = score > 0 ? 'bullish' : 'bearish';
+        const macroWeight = Math.min(Math.abs(score), 0.7);
+        signals.push({
+          signal: macroSignal,
+          weight: macroWeight,
+          reason: `On-chain macro: ${bias} (score: ${score.toFixed(2)})`
+        });
+      }
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -322,6 +372,7 @@ export class PredictionEngine {
       predictedPrice24h,
       reasoning,
       derivativesFactors,
+      onChainFactors,
     };
   }
 }

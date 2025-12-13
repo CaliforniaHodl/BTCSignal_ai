@@ -1,6 +1,7 @@
 // Tweet Generator - Shared logic for generating tweets for different accounts
 import { AnalysisResult } from './blog-generator';
 import { HistoricalCall } from './historical-tracker';
+import { OnChainMetrics, formatMetricsForDisplay, generateOnChainSummary } from './onchain-analyzer';
 
 export interface TweetContent {
   tweets: string[];
@@ -23,7 +24,8 @@ export interface WhaleAlert {
 // Generate tweets for @BTCTradingBotAI (trading signals)
 export function generateTradingBotTweets(
   analysis: AnalysisResult,
-  historicalCalls: HistoricalCall[]
+  historicalCalls: HistoricalCall[],
+  onChainData?: OnChainMetrics
 ): TweetContent {
   const { currentPrice, priceChange24h, prediction, indicators, patterns, high24h, low24h, blockHeight } = analysis;
 
@@ -77,10 +79,26 @@ ${patterns.length > 0 ? `📐 Patterns: ${patterns.slice(0, 2).map(p => p.name).
 
 🔗 Full analysis: btctradingsignalai.netlify.app`;
 
-  // Tweet 3: Track record (if we have history)
+  // Tweet 3: On-Chain Metrics (if available)
   let tweet3 = '';
+  if (onChainData) {
+    const onChainLines = formatMetricsForDisplay(onChainData);
+    const { headline, bias } = generateOnChainSummary(onChainData);
+    const onChainEmoji = bias === 'bullish' ? '🟢' : bias === 'bearish' ? '🔴' : '🟡';
+
+    tweet3 = `⛓️ On-Chain Analysis
+
+${onChainEmoji} ${headline}
+
+${onChainLines.join('\n')}
+
+📊 Data: CoinGecko, Blockchain.info`;
+  }
+
+  // Tweet 4: Track record (if we have history)
+  let tweet4 = '';
   if (completedCalls.length >= 3) {
-    tweet3 = `📈 Track Record (Last 30 Days)
+    tweet4 = `📈 Track Record (Last 30 Days)
 
 ✅ Wins: ${wins}
 ❌ Losses: ${completedCalls.length - wins}
@@ -91,6 +109,7 @@ Not financial advice. DYOR.`;
 
   const tweets = [tweet1, tweet2];
   if (tweet3) tweets.push(tweet3);
+  if (tweet4) tweets.push(tweet4);
 
   return { tweets, type: 'thread' };
 }

@@ -3299,3 +3299,273 @@
   font-weight: $font-bold;
   color: var(--text-primary);
 }
+
+// =====================================================
+// ADVANCED ON-CHAIN METRICS (Phase 1 Sprint 1)
+// NVT, Puell Multiple, S2F, SSR, Reserve Risk, NUPL
+// =====================================================
+
+.onchain-advanced-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-2xl;
+    margin-bottom: $spacing-sm;
+    @include gradient-text;
+  }
+
+  .section-desc {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+}
+
+.advanced-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-lg;
+
+  @include tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.advanced-metric-card {
+  @include card;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+
+  .metric-card-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+
+    .metric-icon {
+      font-size: 1.5rem;
+    }
+
+    h3 {
+      font-size: $font-base;
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+      margin: 0;
+      flex: 1;
+    }
+  }
+
+  .metric-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-md;
+
+    .metric-value {
+      font-size: $font-2xl;
+      font-weight: $font-bold;
+      color: var(--text-primary);
+    }
+
+    .metric-badge {
+      padding: $spacing-xs $spacing-sm;
+      border-radius: $radius-full;
+      font-size: $font-xs;
+      font-weight: $font-semibold;
+      text-transform: uppercase;
+
+      &.undervalued, &.buy, &.bullish, &.opportunity {
+        background: rgba($success, 0.2);
+        color: $success;
+      }
+
+      &.fair, &.neutral {
+        background: rgba($warning, 0.2);
+        color: $warning;
+      }
+
+      &.overvalued, &.sell, &.bearish, &.risk {
+        background: rgba($danger, 0.2);
+        color: $danger;
+      }
+
+      // NUPL zones
+      &.capitulation {
+        background: rgba($danger, 0.2);
+        color: $danger;
+      }
+
+      &.hope {
+        background: rgba($warning, 0.2);
+        color: $warning;
+      }
+
+      &.optimism {
+        background: rgba($info, 0.2);
+        color: $info;
+      }
+
+      &.belief {
+        background: rgba($success, 0.2);
+        color: $success;
+      }
+
+      &.euphoria {
+        background: rgba($purple, 0.2);
+        color: $purple;
+      }
+    }
+  }
+
+  .metric-gauge {
+    margin-bottom: $spacing-md;
+
+    .gauge-track {
+      height: 8px;
+      background: var(--bg-dark);
+      border-radius: $radius-full;
+      overflow: hidden;
+      position: relative;
+
+      &.inverted .gauge-fill {
+        background: linear-gradient(90deg, $success, $warning, $danger);
+      }
+    }
+
+    .gauge-fill {
+      height: 100%;
+      background: linear-gradient(90deg, $success, $warning, $danger);
+      border-radius: $radius-full;
+      transition: width $transition-normal;
+    }
+
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: $spacing-xs;
+      font-size: $font-xs;
+      color: var(--text-muted);
+    }
+  }
+
+  .metric-description {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin: 0;
+    flex: 1;
+  }
+
+  .metric-note {
+    font-size: $font-xs;
+    color: var(--text-muted);
+    font-style: italic;
+    margin: 0;
+  }
+}
+
+// Stock-to-Flow specific styles
+.s2f-details {
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  margin-bottom: $spacing-md;
+
+  .s2f-row {
+    display: flex;
+    justify-content: space-between;
+    padding: $spacing-xs 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+
+  .s2f-label {
+    font-size: $font-sm;
+    color: var(--text-muted);
+  }
+
+  .s2f-value {
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+  }
+}
+
+// NUPL meter styles
+.nupl-meter {
+  margin-bottom: $spacing-md;
+
+  .nupl-bar {
+    height: 20px;
+    display: flex;
+    border-radius: $radius-full;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: $spacing-xs;
+
+    .nupl-zone {
+      flex: 1;
+
+      &.capitulation {
+        background: $danger;
+      }
+
+      &.hope {
+        background: $warning;
+      }
+
+      &.optimism {
+        background: $info;
+      }
+
+      &.belief {
+        background: $success;
+      }
+
+      &.euphoria {
+        background: $purple;
+      }
+    }
+
+    .nupl-marker {
+      position: absolute;
+      top: -4px;
+      width: 4px;
+      height: 28px;
+      background: var(--text-primary);
+      border-radius: 2px;
+      transform: translateX(-50%);
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+      transition: left $transition-normal;
+    }
+  }
+
+  .nupl-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// Data note at bottom
+.metrics-data-note {
+  margin-top: $spacing-xl;
+  padding: $spacing-md;
+  background: var(--bg-card);
+  border-radius: $radius-md;
+  border-left: 4px solid var(--bitcoin-orange);
+  font-size: $font-sm;
+  color: var(--text-secondary);
+
+  strong {
+    color: var(--text-primary);
+  }
+}
