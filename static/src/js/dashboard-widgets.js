@@ -1622,130 +1622,151 @@
     loadOnChainData();
   }
 
-  // Load on-chain data from JSON file
+  // Load on-chain data - now uses REAL data from personal node
   async function loadOnChainData() {
     try {
+      // First try to get live node data from API
+      let nodeData = null;
+      try {
+        const nodeRes = await fetch('/.netlify/functions/api-node-data');
+        if (nodeRes.ok) {
+          const nodeJson = await nodeRes.json();
+          nodeData = nodeJson.data;
+        }
+      } catch (e) {
+        console.log('Live node data unavailable, trying static file');
+      }
+
+      // Fall back to static JSON file
       const res = await fetch('/data/onchain-data.json');
       if (!res.ok) return;
       const data = await res.json();
 
-      // Render Exchange Reserves
-      renderExchangeReserves(data.exchangeReserves);
+      // Render Node Data (REAL data from personal Bitcoin node)
+      renderNodeData(nodeData || data.nodeData);
 
-      // Render Whale Flows
-      renderWhaleFlows(data.whaleFlows);
+      // Render Mempool Stats (REAL data)
+      renderMempoolStats(nodeData || data.nodeData);
 
-      // Render MVRV
+      // Render MVRV (now uses real CoinMetrics data)
       renderMVRV(data.mvrv);
     } catch (e) {
       console.log('Failed to load on-chain data:', e);
     }
   }
 
-  // Render Exchange Reserves Card
-  function renderExchangeReserves(reserves) {
-    if (!reserves) return;
+  // Render Node Data Card (REAL data from personal Bitcoin node)
+  function renderNodeData(nodeData) {
+    if (!nodeData) return;
 
-    const totalEl = document.getElementById('reserves-total');
-    const change24hEl = document.getElementById('reserves-24h');
-    const change7dEl = document.getElementById('reserves-7d');
-    const trendEl = document.getElementById('reserves-trend');
-    const listEl = document.getElementById('exchange-reserves-list');
+    const blockHeightEl = document.getElementById('node-block-height');
+    const hashrateEl = document.getElementById('node-hashrate');
+    const difficultyEl = document.getElementById('node-difficulty');
+    const totalSupplyEl = document.getElementById('node-total-supply');
+    const utxoCountEl = document.getElementById('node-utxo-count');
+    const sourceEl = document.getElementById('node-source');
 
-    if (totalEl) {
-      totalEl.textContent = (reserves.totalBTC / 1000000).toFixed(2) + 'M';
+    if (blockHeightEl) {
+      blockHeightEl.textContent = (nodeData.blockHeight || nodeData.block_height || '--').toLocaleString();
     }
 
-    if (change24hEl) {
-      const change24h = reserves.change24h;
-      change24hEl.textContent = (change24h >= 0 ? '+' : '') + change24h.toFixed(2) + '%';
-      change24hEl.className = 'change-value ' + (change24h < 0 ? 'negative' : 'positive');
-    }
-
-    if (change7dEl) {
-      const change7d = reserves.change7d;
-      change7dEl.textContent = (change7d >= 0 ? '+' : '') + change7d.toFixed(2) + '%';
-      change7dEl.className = 'change-value ' + (change7d < 0 ? 'negative' : 'positive');
-    }
-
-    if (trendEl) {
-      trendEl.className = 'reserves-trend ' + reserves.trend;
-      const iconSpan = trendEl.querySelector('.trend-icon');
-      const textSpan = trendEl.querySelector('.trend-text');
-
-      if (reserves.trend === 'accumulation') {
-        if (iconSpan) iconSpan.textContent = '📤';
-        if (textSpan) textSpan.textContent = 'Coins leaving exchanges - Accumulation signal';
-      } else if (reserves.trend === 'distribution') {
-        if (iconSpan) iconSpan.textContent = '📥';
-        if (textSpan) textSpan.textContent = 'Coins entering exchanges - Distribution signal';
-      } else {
-        if (iconSpan) iconSpan.textContent = '↔️';
-        if (textSpan) textSpan.textContent = 'Exchange flows neutral';
+    if (hashrateEl) {
+      const hashrate = nodeData.hashrate;
+      if (hashrate) {
+        // Format hashrate
+        if (hashrate >= 1e21) {
+          hashrateEl.textContent = (hashrate / 1e21).toFixed(1) + ' ZH/s';
+        } else if (hashrate >= 1e18) {
+          hashrateEl.textContent = (hashrate / 1e18).toFixed(1) + ' EH/s';
+        } else {
+          hashrateEl.textContent = nodeData.hashrateFormatted || '--';
+        }
       }
     }
 
-    if (listEl && reserves.exchanges) {
-      listEl.innerHTML = reserves.exchanges.map(ex => {
-        const changeClass = ex.change24h < 0 ? 'negative' : 'positive';
-        return `
-          <div class="exchange-row">
-            <span class="exchange-name">${ex.name}</span>
-            <span class="exchange-btc">${(ex.btc / 1000).toFixed(0)}K BTC</span>
-            <span class="exchange-change ${changeClass}">${ex.change24h >= 0 ? '+' : ''}${ex.change24h.toFixed(2)}%</span>
-          </div>
-        `;
-      }).join('');
+    if (difficultyEl) {
+      const diff = nodeData.difficulty;
+      if (diff) {
+        difficultyEl.textContent = (diff / 1e12).toFixed(1) + 'T';
+      }
+    }
+
+    // UTXO data (real supply from our node!)
+    const utxo = nodeData.utxo;
+    if (utxo && totalSupplyEl) {
+      totalSupplyEl.textContent = (utxo.total_supply || utxo.totalSupply || 0).toLocaleString(undefined, {maximumFractionDigits: 0}) + ' BTC';
+    }
+
+    if (utxo && utxoCountEl) {
+      const count = utxo.txout_count || utxo.txoutCount || 0;
+      utxoCountEl.textContent = (count / 1000000).toFixed(1) + 'M';
+    }
+
+    if (sourceEl) {
+      const textSpan = sourceEl.querySelector('.trend-text');
+      if (textSpan) {
+        textSpan.textContent = 'Source: Personal Node (Bitcoin Knots)';
+      }
     }
   }
 
-  // Render Whale Flows Card
-  function renderWhaleFlows(flows) {
-    if (!flows) return;
+  // Render Mempool Stats Card (REAL data from personal node)
+  function renderMempoolStats(nodeData) {
+    if (!nodeData) return;
 
-    const inflowEl = document.getElementById('whale-inflow');
-    const outflowEl = document.getElementById('whale-outflow');
-    const netFlowEl = document.getElementById('net-flow');
-    const signalEl = document.getElementById('whale-signal');
-    const alertCountEl = document.getElementById('whale-alert-count');
+    const txCountEl = document.getElementById('mempool-tx-count');
+    const sizeEl = document.getElementById('mempool-size');
+    const feesBtcEl = document.getElementById('mempool-fees-btc');
+    const congestionBadgeEl = document.getElementById('mempool-congestion-badge');
+    const congestionTextEl = document.getElementById('mempool-congestion-text');
+    const lastUpdateEl = document.getElementById('node-last-update');
 
-    if (inflowEl) {
-      inflowEl.textContent = flows.inflow24h.toLocaleString() + ' BTC';
+    const mempool = nodeData.mempool || nodeData;
+    const txCount = mempool.size || mempool.transactions || nodeData.mempool_size || 0;
+    const bytes = mempool.bytes || mempool.sizeBytes || nodeData.mempool_bytes || 0;
+    const feesBtc = mempool.feesBTC || mempool.totalFeesBTC || nodeData.mempool_fees_btc || 0;
+
+    if (txCountEl) {
+      txCountEl.textContent = txCount.toLocaleString();
     }
 
-    if (outflowEl) {
-      outflowEl.textContent = flows.outflow24h.toLocaleString() + ' BTC';
+    if (sizeEl) {
+      sizeEl.textContent = (bytes / 1024 / 1024).toFixed(2) + ' MB';
     }
 
-    if (netFlowEl) {
-      const netFlow = flows.netFlow24h;
-      netFlowEl.className = 'net-flow ' + flows.flowSignal;
-      const valueSpan = netFlowEl.querySelector('.net-flow-value');
-      if (valueSpan) {
-        const prefix = netFlow > 0 ? '+' : '';
-        valueSpan.textContent = prefix + netFlow.toLocaleString() + ' BTC';
+    if (feesBtcEl) {
+      feesBtcEl.textContent = feesBtc.toFixed(4) + ' BTC';
+    }
+
+    // Determine congestion level
+    let congestion = 'low';
+    let congestionText = 'Low congestion - fast confirmations expected';
+    if (txCount > 50000) {
+      congestion = 'extreme';
+      congestionText = 'Extreme congestion - expect delays';
+    } else if (txCount > 20000) {
+      congestion = 'high';
+      congestionText = 'High congestion - use higher fees';
+    } else if (txCount > 5000) {
+      congestion = 'medium';
+      congestionText = 'Moderate congestion';
+    }
+
+    if (congestionBadgeEl) {
+      congestionBadgeEl.textContent = congestion.charAt(0).toUpperCase() + congestion.slice(1);
+      congestionBadgeEl.className = 'signal-badge ' + congestion;
+    }
+
+    if (congestionTextEl) {
+      congestionTextEl.textContent = congestionText;
+    }
+
+    if (lastUpdateEl) {
+      const timestamp = nodeData.timestamp || nodeData.lastNodeUpdate;
+      if (timestamp) {
+        const date = new Date(timestamp * 1000);
+        lastUpdateEl.textContent = date.toLocaleTimeString();
       }
-    }
-
-    if (signalEl) {
-      signalEl.className = 'whale-signal ' + flows.flowSignal;
-      const badgeSpan = signalEl.querySelector('.signal-badge');
-      const textSpan = signalEl.querySelector('.signal-text');
-
-      if (flows.flowSignal === 'bullish') {
-        if (badgeSpan) badgeSpan.textContent = 'Bullish';
-        if (textSpan) textSpan.textContent = 'Net outflows indicate accumulation';
-      } else if (flows.flowSignal === 'bearish') {
-        if (badgeSpan) badgeSpan.textContent = 'Bearish';
-        if (textSpan) textSpan.textContent = 'Net inflows indicate selling pressure';
-      } else {
-        if (badgeSpan) badgeSpan.textContent = 'Neutral';
-        if (textSpan) textSpan.textContent = 'Balanced flows - no clear signal';
-      }
-    }
-
-    if (alertCountEl) {
-      alertCountEl.textContent = flows.recentAlerts || 0;
     }
   }
 

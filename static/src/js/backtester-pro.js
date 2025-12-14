@@ -545,12 +545,25 @@
 
   // Check if entry conditions are met
   // Returns false if no entry, or an object with entry details if entry triggered
+  //
+  // LOOK-AHEAD BIAS FIX:
+  // This function now classifies entries as either:
+  // 1. Signal-based (requiresDelay: true) - RSI/MACD/EMA/Stoch crossovers
+  //    These require 1-bar delay because you don't know the crossover happened
+  //    until the candle CLOSES. Entry happens at NEXT bar's OPEN.
+  // 2. Price-based (requiresDelay: false) - Breakouts, BB touches
+  //    These can enter same bar because price action is visible intra-bar.
+  //    Entry happens at breakout price or close.
   function checkEntry(data, i, strategy, prevData) {
     if (i < 30) return false;
 
-    // BUG FIX: Track if this is a breakout entry to use correct price
+    // BUG FIX: Track entry type to determine if we need to delay entry
+    // Signal-based entries (crossovers) require 1-bar delay because we don't know
+    // the signal occurred until the candle closes. Price-based entries (breakouts)
+    // can enter on the same bar because price action is known intra-bar.
     let isBreakoutEntry = false;
     let breakoutPrice = null;
+    let isSignalBased = false; // Requires 1-bar delay
 
     for (const cond of strategy.entryConditions) {
       switch (cond.type) {
@@ -558,16 +571,19 @@
           // FIX: Skip if RSI is null (warmup period)
           if (prevData.rsi === null || data[i].rsi === null) return false;
           if (!(prevData.rsi <= cond.value && data[i].rsi > cond.value)) return false;
+          isSignalBased = true; // RSI crossovers are signal-based
           break;
         case 'rsi_cross_below':
           // FIX: Skip if RSI is null (warmup period)
           if (prevData.rsi === null || data[i].rsi === null) return false;
           if (!(prevData.rsi >= cond.value && data[i].rsi < cond.value)) return false;
+          isSignalBased = true; // RSI crossovers are signal-based
           break;
         case 'macd_cross_above':
           // FIX: Skip if MACD histogram is null (warmup period)
           if (prevData.macdHist === null || data[i].macdHist === null) return false;
           if (!(prevData.macdHist <= 0 && data[i].macdHist > 0)) return false;
+          isSignalBased = true; // MACD crossovers are signal-based
           break;
         case 'ema_cross_above':
           const fastKey = `ema${cond.fast}`;
@@ -576,10 +592,12 @@
           if (prevData[fastKey] === null || prevData[slowKey] === null ||
               data[i][fastKey] === null || data[i][slowKey] === null) return false;
           if (!(prevData[fastKey] <= prevData[slowKey] && data[i][fastKey] > data[i][slowKey])) return false;
+          isSignalBased = true; // EMA crossovers are signal-based
           break;
         case 'price_above_ma':
           const maKey = `ema${cond.period}`;
           if (data[i].close < data[i][maKey]) return false;
+          // Price filters are not signal-based (they're used with other conditions)
           break;
         case 'breakout_high':
           // BUG FIX: Check if HIGH broke through (not just close)
@@ -588,26 +606,31 @@
           if (data[i].high <= data[i].high20) return false; // High must break the level
           isBreakoutEntry = true;
           breakoutPrice = data[i].high20 * 1.001; // Enter just above breakout level
+          // Breakouts are NOT signal-based - we can see the breakout happening intra-bar
           break;
 
         // VOLUME CONDITIONS
         case 'volume_above':
           if (!data[i].volumeRatio) return false;
           if (data[i].volumeRatio < cond.multiplier) return false;
+          // Volume filters are not signal-based (they're used with other conditions)
           break;
         case 'volume_below':
           if (!data[i].volumeRatio) return false;
           if (data[i].volumeRatio > cond.multiplier) return false;
+          // Volume filters are not signal-based
           break;
 
         // BOLLINGER BAND CONDITIONS
         case 'bb_lower_touch':
           if (!data[i].bbLower) return false;
           if (data[i].low > data[i].bbLower) return false; // Price must touch lower band
+          // BB touches can be detected intra-bar, not signal-based
           break;
         case 'bb_upper_touch':
           if (!data[i].bbUpper) return false;
           if (data[i].high < data[i].bbUpper) return false;
+          // BB touches can be detected intra-bar, not signal-based
           break;
         case 'bb_squeeze':
           // BB Squeeze = bandwidth is in lowest 20% of recent values
@@ -618,36 +641,43 @@
           }
           const threshold = bbWidths.sort((a, b) => a - b)[Math.floor(bbWidths.length * 0.2)];
           if (data[i].bbWidth > threshold) return false;
+          // BB squeeze is a state, not a crossover - not signal-based
           break;
 
         // STOCHASTIC CONDITIONS
         case 'stoch_cross_above':
           if (!data[i].stochK || !prevData.stochK) return false;
           if (!(prevData.stochK <= cond.value && data[i].stochK > cond.value)) return false;
+          isSignalBased = true; // Stochastic crossovers are signal-based
           break;
         case 'stoch_cross_below':
           if (!data[i].stochK || !prevData.stochK) return false;
           if (!(prevData.stochK >= cond.value && data[i].stochK < cond.value)) return false;
+          isSignalBased = true; // Stochastic crossovers are signal-based
           break;
 
         // ADX CONDITIONS (Trend Strength)
         case 'adx_above':
           if (!data[i].adx) return false;
           if (data[i].adx < cond.value) return false;
+          // ADX threshold is a filter, not a crossover - not signal-based
           break;
         case 'adx_below':
           if (!data[i].adx) return false;
           if (data[i].adx > cond.value) return false;
+          // ADX threshold is a filter - not signal-based
           break;
         case 'uptrend_filter':
           // Uptrend = ADX > 20 AND +DI > -DI
           if (!data[i].adx || !data[i].plusDI || !data[i].minusDI) return false;
           if (data[i].adx < 20 || data[i].plusDI <= data[i].minusDI) return false;
+          // Trend filter is a state check - not signal-based
           break;
         case 'downtrend_filter':
           // Downtrend = ADX > 20 AND -DI > +DI
           if (!data[i].adx || !data[i].plusDI || !data[i].minusDI) return false;
           if (data[i].adx < 20 || data[i].minusDI <= data[i].plusDI) return false;
+          // Trend filter is a state check - not signal-based
           break;
 
         case 'random_entry':
@@ -657,10 +687,11 @@
       }
     }
 
-    // Return entry details instead of just true
+    // Return entry details including whether this requires a delay
     return {
       triggered: true,
-      breakoutPrice: isBreakoutEntry ? breakoutPrice : null
+      breakoutPrice: isBreakoutEntry ? breakoutPrice : null,
+      requiresDelay: isSignalBased // Signal-based entries need 1-bar delay
     };
   }
 
@@ -770,9 +801,61 @@
     // RSI needs 14 periods, MACD needs ~26, EMAs need their respective periods
     const WARMUP_PERIOD = 50; // Conservative warmup to ensure all indicators are valid
 
+    // BUG FIX: Pending entry system to fix look-ahead bias
+    // Signal-based entries (crossovers) can't be acted on until NEXT bar.
+    // When a signal is detected at bar N, we queue a pending entry that executes
+    // at bar N+1's OPEN price. This prevents the unrealistic scenario where we
+    // "know" RSI crossed 30 and buy at the same candle's close.
+    let pendingEntry = null;
+
     for (let i = 1; i < data.length; i++) {
       const candle = data[i];
       const prevCandle = data[i - 1];
+
+      // BUG FIX: Execute pending entry at this bar's open (if we have one)
+      // This fixes look-ahead bias for signal-based entries
+      if (pendingEntry && !currentTrade) {
+        const direction = pendingEntry.direction;
+
+        // Use current bar's OPEN price for delayed entry
+        const baseEntryPrice = candle.open;
+
+        // Apply slippage to entry (worse price)
+        const slippageAmt = baseEntryPrice * slippage;
+        const entryPrice = direction === 'long'
+          ? baseEntryPrice + slippageAmt  // Buy higher
+          : baseEntryPrice - slippageAmt; // Sell lower
+
+        // FIX: Calculate position size AFTER accounting for round-trip fees
+        const roundTripFees = fee * 2;
+        const roundTripSlippage = slippage * 2;
+        const effectiveCosts = roundTripFees + roundTripSlippage;
+
+        // Risk amount reduced by expected costs
+        const riskAmount = equity * strategy.riskPerTrade;
+        let rawSize = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
+
+        // FIX: Reduce position size to account for costs eating into profits
+        const costAdjustedSize = rawSize / (1 + effectiveCosts);
+        const size = Math.min(costAdjustedSize, equity * 0.5); // Max 50% per trade
+
+        // Entry fee based on adjusted size
+        const entryFee = size * fee;
+        totalFees += entryFee;
+        totalSlippage += size * slippage;
+
+        currentTrade = {
+          entryPrice: entryPrice,
+          entryTime: candle.time,
+          entryIndex: i,
+          direction: direction,
+          size: size,
+          entryFee: entryFee
+        };
+
+        equity -= entryFee; // Deduct entry fee
+        pendingEntry = null; // Clear pending entry
+      }
 
       if (currentTrade) {
         // BUG FIX: Skip exit check on same candle as entry (entry happens at close,
@@ -838,49 +921,57 @@
         if (entryResult) {
           const direction = strategy.direction === 'both' ? (Math.random() > 0.5 ? 'long' : 'short') : strategy.direction;
 
-          // BUG FIX: Use breakout price for breakout entries instead of close
-          // This fixes look-ahead bias where we'd buy at close after seeing the breakout
-          let baseEntryPrice = candle.close;
-          if (entryResult.breakoutPrice) {
-            baseEntryPrice = entryResult.breakoutPrice;
+          // BUG FIX: If this is a signal-based entry, queue it for next bar
+          // Signal-based entries (RSI/MACD/EMA crossovers) can't be acted on until the candle closes
+          if (entryResult.requiresDelay) {
+            // Queue entry for next bar's open
+            pendingEntry = {
+              direction: direction,
+              signalBar: i
+            };
+          } else {
+            // Price-based entries (breakouts, BB touches) can enter same bar
+            // BUG FIX: Use breakout price for breakout entries instead of close
+            let baseEntryPrice = candle.close;
+            if (entryResult.breakoutPrice) {
+              baseEntryPrice = entryResult.breakoutPrice;
+            }
+
+            // Apply slippage to entry (worse price)
+            const slippageAmt = baseEntryPrice * slippage;
+            const entryPrice = direction === 'long'
+              ? baseEntryPrice + slippageAmt  // Buy higher
+              : baseEntryPrice - slippageAmt; // Sell lower
+
+            // FIX: Calculate position size AFTER accounting for round-trip fees
+            const roundTripFees = fee * 2;
+            const roundTripSlippage = slippage * 2;
+            const effectiveCosts = roundTripFees + roundTripSlippage;
+
+            // Risk amount reduced by expected costs
+            const riskAmount = equity * strategy.riskPerTrade;
+            let rawSize = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
+
+            // FIX: Reduce position size to account for costs eating into profits
+            const costAdjustedSize = rawSize / (1 + effectiveCosts);
+            const size = Math.min(costAdjustedSize, equity * 0.5); // Max 50% per trade
+
+            // Entry fee based on adjusted size
+            const entryFee = size * fee;
+            totalFees += entryFee;
+            totalSlippage += size * slippage;
+
+            currentTrade = {
+              entryPrice: entryPrice,
+              entryTime: candle.time,
+              entryIndex: i,
+              direction: direction,
+              size: size,
+              entryFee: entryFee
+            };
+
+            equity -= entryFee; // Deduct entry fee
           }
-
-          // Apply slippage to entry (worse price)
-          const slippageAmt = baseEntryPrice * slippage;
-          const entryPrice = direction === 'long'
-            ? baseEntryPrice + slippageAmt  // Buy higher
-            : baseEntryPrice - slippageAmt; // Sell lower
-
-          // FIX: Calculate position size AFTER accounting for round-trip fees
-          // This prevents over-sizing positions that will be eroded by fees
-          const roundTripFees = fee * 2; // Entry + exit fee rate
-          const roundTripSlippage = slippage * 2;
-          const effectiveCosts = roundTripFees + roundTripSlippage;
-
-          // Risk amount reduced by expected costs
-          const riskAmount = equity * strategy.riskPerTrade;
-          let rawSize = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
-
-          // FIX: Reduce position size to account for costs eating into profits
-          // If costs are 0.4% round trip, a 2% profit becomes 1.6%
-          const costAdjustedSize = rawSize / (1 + effectiveCosts);
-          const size = Math.min(costAdjustedSize, equity * 0.5); // Max 50% per trade
-
-          // Entry fee based on adjusted size
-          const entryFee = size * fee;
-          totalFees += entryFee;
-          totalSlippage += size * slippage;
-
-          currentTrade = {
-            entryPrice: entryPrice,
-            entryTime: candle.time,
-            entryIndex: i, // BUG FIX: Track entry candle index for same-candle check
-            direction: direction,
-            size: size,
-            entryFee: entryFee
-          };
-
-          equity -= entryFee; // Deduct entry fee
         }
       }
 
@@ -1104,6 +1195,738 @@
       totalReturn: ((equity - startingCapital) / startingCapital) * 100,
       maxDrawdown: maxDrawdown * 100,
       finalEquity: equity
+    };
+  }
+
+  // ============================================================
+  // REALISTIC EXECUTION MODELING
+  // Simulates real-world fill conditions
+  // ============================================================
+  function calculateRealisticSlippage(baseSlippage, orderSize, candle, direction) {
+    // Base slippage from user input
+    let totalSlippage = baseSlippage;
+
+    // 1. Volume-based slippage: Low volume = higher slippage
+    if (candle.volumeRatio !== undefined) {
+      if (candle.volumeRatio < 0.5) {
+        // Very low volume - double slippage
+        totalSlippage *= 2;
+      } else if (candle.volumeRatio < 0.8) {
+        // Below average volume - 50% more slippage
+        totalSlippage *= 1.5;
+      } else if (candle.volumeRatio > 2) {
+        // High volume - reduced slippage
+        totalSlippage *= 0.7;
+      }
+    }
+
+    // 2. Volatility-based slippage: High ATR = more slippage
+    if (candle.atr) {
+      const atrPercent = (candle.atr / candle.close) * 100;
+      if (atrPercent > 5) {
+        // Very volatile - add extra slippage
+        totalSlippage *= 1.5;
+      } else if (atrPercent > 3) {
+        totalSlippage *= 1.25;
+      }
+    }
+
+    // 3. Size-based slippage: Larger orders move the market more
+    // This is simplified - real impact is non-linear
+    const sizeImpact = Math.min(orderSize / 10000, 0.5); // Max 0.5% additional for large orders
+    totalSlippage += sizeImpact / 100;
+
+    // 4. Spread simulation: Add half the typical spread
+    // BTC typically has 0.01-0.05% spread on major exchanges
+    const estimatedSpread = 0.0002; // 0.02% half-spread
+    totalSlippage += estimatedSpread;
+
+    return totalSlippage;
+  }
+
+  // Simulate partial fills for large orders
+  function simulatePartialFills(orderSize, candle, maxFillPercent = 1.0) {
+    // In reality, large orders don't always fill completely
+    // This simulates getting partial fills
+
+    if (!candle.volume || !candle.avgVolume) {
+      return { filledSize: orderSize, fillPercent: 100 };
+    }
+
+    // Estimate how much of the volume we can take
+    // Typically shouldn't be more than 1-2% of bar volume for retail
+    const maxReasonableSize = candle.volume * 0.02; // 2% of bar volume
+
+    if (orderSize <= maxReasonableSize) {
+      return { filledSize: orderSize, fillPercent: 100 };
+    }
+
+    // Large order - might get partial fill
+    const fillPercent = Math.min(100, (maxReasonableSize / orderSize) * 100 * maxFillPercent);
+    const filledSize = orderSize * (fillPercent / 100);
+
+    return { filledSize, fillPercent };
+  }
+
+  // Calculate realistic entry price with all factors
+  function getRealisticEntryPrice(basePrice, direction, slippage, orderSize, candle) {
+    const realisticSlippage = calculateRealisticSlippage(slippage, orderSize, candle, direction);
+    const slippageAmt = basePrice * realisticSlippage;
+
+    // For longs, we buy higher; for shorts, we sell lower
+    const entryPrice = direction === 'long'
+      ? basePrice + slippageAmt
+      : basePrice - slippageAmt;
+
+    return {
+      entryPrice,
+      slippageUsed: realisticSlippage,
+      slippageAmount: slippageAmt
+    };
+  }
+
+  // Calculate realistic exit price
+  function getRealisticExitPrice(basePrice, direction, slippage, orderSize, candle) {
+    const realisticSlippage = calculateRealisticSlippage(slippage, orderSize, candle, direction);
+    const slippageAmt = basePrice * realisticSlippage;
+
+    // For longs, we sell lower; for shorts, we buy back higher
+    const exitPrice = direction === 'long'
+      ? basePrice - slippageAmt
+      : basePrice + slippageAmt;
+
+    return {
+      exitPrice,
+      slippageUsed: realisticSlippage,
+      slippageAmount: slippageAmt
+    };
+  }
+
+  // ============================================================
+  // WALK-FORWARD VALIDATION
+  // The gold standard for testing if a strategy will work in the future
+  // ============================================================
+  function runWalkForwardValidation(data, strategy, startingCapital, slippage = 0, fee = 0, config = {}) {
+    const {
+      trainRatio = 0.7,      // 70% of each window for training
+      windowCount = 5,       // Number of walk-forward windows
+      minTradesPerWindow = 3 // Minimum trades to consider window valid
+    } = config;
+
+    const windowSize = Math.floor(data.length / windowCount);
+    const trainSize = Math.floor(windowSize * trainRatio);
+    const testSize = windowSize - trainSize;
+
+    if (windowSize < 100) {
+      return {
+        success: false,
+        error: 'Insufficient data for walk-forward analysis. Need more historical data.',
+        recommendation: 'Use at least 1 year of daily data or 3 months of hourly data.'
+      };
+    }
+
+    const windows = [];
+    let allOutOfSampleTrades = [];
+    let allInSampleTrades = [];
+
+    for (let w = 0; w < windowCount; w++) {
+      const windowStart = w * windowSize;
+      const trainEnd = windowStart + trainSize;
+      const testEnd = Math.min(windowStart + windowSize, data.length);
+
+      // Training period data
+      const trainData = data.slice(windowStart, trainEnd);
+      // Testing period data (out-of-sample)
+      const testData = data.slice(trainEnd, testEnd);
+
+      if (trainData.length < 50 || testData.length < 20) continue;
+
+      // Run backtest on training data (in-sample)
+      const inSampleResult = runBacktest(trainData, strategy, startingCapital, slippage, fee);
+
+      // Run backtest on test data (out-of-sample) - THIS IS THE REAL TEST
+      const outOfSampleResult = runBacktest(testData, strategy, startingCapital, slippage, fee);
+
+      // Calculate performance degradation
+      const inSampleReturn = inSampleResult.stats.totalReturn;
+      const outOfSampleReturn = outOfSampleResult.stats.totalReturn;
+      const degradation = inSampleReturn !== 0
+        ? ((inSampleReturn - outOfSampleReturn) / Math.abs(inSampleReturn)) * 100
+        : 0;
+
+      windows.push({
+        windowNum: w + 1,
+        trainPeriod: {
+          start: new Date(trainData[0].time).toLocaleDateString(),
+          end: new Date(trainData[trainData.length - 1].time).toLocaleDateString(),
+          candles: trainData.length
+        },
+        testPeriod: {
+          start: new Date(testData[0].time).toLocaleDateString(),
+          end: new Date(testData[testData.length - 1].time).toLocaleDateString(),
+          candles: testData.length
+        },
+        inSample: {
+          return: inSampleReturn,
+          trades: inSampleResult.stats.totalTrades,
+          winRate: inSampleResult.stats.winRate,
+          profitFactor: inSampleResult.stats.profitFactor
+        },
+        outOfSample: {
+          return: outOfSampleReturn,
+          trades: outOfSampleResult.stats.totalTrades,
+          winRate: outOfSampleResult.stats.winRate,
+          profitFactor: outOfSampleResult.stats.profitFactor
+        },
+        degradation: degradation,
+        passed: outOfSampleReturn > 0 && degradation < 50 // Passed if profitable OOS and < 50% degradation
+      });
+
+      // Collect trades for aggregate analysis
+      allOutOfSampleTrades = allOutOfSampleTrades.concat(outOfSampleResult.trades);
+      allInSampleTrades = allInSampleTrades.concat(inSampleResult.trades);
+    }
+
+    // Calculate aggregate statistics
+    const validWindows = windows.filter(w => w.outOfSample.trades >= minTradesPerWindow);
+    const passedWindows = validWindows.filter(w => w.passed);
+
+    const avgInSampleReturn = validWindows.reduce((sum, w) => sum + w.inSample.return, 0) / validWindows.length;
+    const avgOutOfSampleReturn = validWindows.reduce((sum, w) => sum + w.outOfSample.return, 0) / validWindows.length;
+    const avgDegradation = validWindows.reduce((sum, w) => sum + w.degradation, 0) / validWindows.length;
+
+    // Consistency score: what % of windows were profitable OOS?
+    const consistencyScore = (passedWindows.length / validWindows.length) * 100;
+
+    // Robustness score: how stable is OOS vs IS performance?
+    const robustnessScore = Math.max(0, 100 - avgDegradation);
+
+    // Overall walk-forward efficiency
+    const wfeScore = avgOutOfSampleReturn !== 0 && avgInSampleReturn !== 0
+      ? (avgOutOfSampleReturn / avgInSampleReturn) * 100
+      : 0;
+
+    return {
+      success: true,
+      windows: windows,
+      summary: {
+        totalWindows: windowCount,
+        validWindows: validWindows.length,
+        passedWindows: passedWindows.length,
+        avgInSampleReturn: avgInSampleReturn,
+        avgOutOfSampleReturn: avgOutOfSampleReturn,
+        avgDegradation: avgDegradation,
+        consistencyScore: consistencyScore,
+        robustnessScore: robustnessScore,
+        walkForwardEfficiency: wfeScore,
+        totalInSampleTrades: allInSampleTrades.length,
+        totalOutOfSampleTrades: allOutOfSampleTrades.length
+      },
+      verdict: getWalkForwardVerdict(consistencyScore, robustnessScore, avgOutOfSampleReturn),
+      outOfSampleTrades: allOutOfSampleTrades
+    };
+  }
+
+  function getWalkForwardVerdict(consistency, robustness, avgOosReturn) {
+    if (consistency >= 80 && robustness >= 60 && avgOosReturn > 5) {
+      return {
+        grade: 'A',
+        color: 'green',
+        message: 'Excellent - Strategy shows consistent out-of-sample profitability',
+        tradeable: true
+      };
+    } else if (consistency >= 60 && robustness >= 40 && avgOosReturn > 0) {
+      return {
+        grade: 'B',
+        color: 'yellow',
+        message: 'Good - Strategy is profitable OOS but shows some inconsistency',
+        tradeable: true
+      };
+    } else if (consistency >= 40 && avgOosReturn > -5) {
+      return {
+        grade: 'C',
+        color: 'orange',
+        message: 'Marginal - Strategy underperforms out-of-sample. Likely overfit.',
+        tradeable: false
+      };
+    } else {
+      return {
+        grade: 'F',
+        color: 'red',
+        message: 'Fail - Strategy does not generalize. Do not trade this.',
+        tradeable: false
+      };
+    }
+  }
+
+  // ============================================================
+  // BUY-AND-HOLD BENCHMARK
+  // If you can't beat this, why bother trading?
+  // ============================================================
+  function calculateBuyAndHold(data, startingCapital) {
+    const startPrice = data[0].close;
+    const endPrice = data[data.length - 1].close;
+    const btcBought = startingCapital / startPrice;
+    const finalValue = btcBought * endPrice;
+    const totalReturn = ((finalValue - startingCapital) / startingCapital) * 100;
+
+    // Calculate max drawdown for buy-and-hold
+    let maxPrice = startPrice;
+    let maxDrawdown = 0;
+    for (const candle of data) {
+      if (candle.high > maxPrice) maxPrice = candle.high;
+      const drawdown = (maxPrice - candle.low) / maxPrice;
+      if (drawdown > maxDrawdown) maxDrawdown = drawdown;
+    }
+
+    // Calculate daily returns for Sharpe
+    const dailyReturns = [];
+    for (let i = 1; i < data.length; i++) {
+      dailyReturns.push((data[i].close - data[i-1].close) / data[i-1].close);
+    }
+    const avgReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
+    const stdDev = Math.sqrt(dailyReturns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / dailyReturns.length);
+    const sharpe = stdDev > 0 ? (avgReturn / stdDev) * Math.sqrt(365) : 0;
+
+    return {
+      startPrice,
+      endPrice,
+      totalReturn,
+      maxDrawdown: maxDrawdown * 100,
+      sharpe,
+      finalValue,
+      period: {
+        start: new Date(data[0].time).toLocaleDateString(),
+        end: new Date(data[data.length - 1].time).toLocaleDateString(),
+        days: Math.round((new Date(data[data.length - 1].time) - new Date(data[0].time)) / (1000 * 60 * 60 * 24))
+      }
+    };
+  }
+
+  // ============================================================
+  // REGIME ANALYSIS
+  // How does strategy perform in bull vs bear markets?
+  // ============================================================
+  function analyzeRegimes(data, trades) {
+    // Define regimes based on 50-day EMA trend
+    const regimes = [];
+    let currentRegime = null;
+    let regimeStart = 0;
+
+    for (let i = 50; i < data.length; i++) {
+      const ema50 = data[i].ema50;
+      const price = data[i].close;
+      const prevPrice = data[i - 20]?.close || price;
+      const trend = price > ema50 ? 'bull' : 'bear';
+      const momentum = ((price - prevPrice) / prevPrice) * 100;
+
+      // Determine regime
+      let regime;
+      if (trend === 'bull' && momentum > 5) {
+        regime = 'strong_bull';
+      } else if (trend === 'bull') {
+        regime = 'bull';
+      } else if (trend === 'bear' && momentum < -5) {
+        regime = 'strong_bear';
+      } else {
+        regime = 'bear';
+      }
+
+      if (regime !== currentRegime) {
+        if (currentRegime !== null) {
+          regimes.push({
+            type: currentRegime,
+            startIdx: regimeStart,
+            endIdx: i - 1,
+            startTime: data[regimeStart].time,
+            endTime: data[i - 1].time
+          });
+        }
+        currentRegime = regime;
+        regimeStart = i;
+      }
+    }
+
+    // Close final regime
+    if (currentRegime !== null) {
+      regimes.push({
+        type: currentRegime,
+        startIdx: regimeStart,
+        endIdx: data.length - 1,
+        startTime: data[regimeStart].time,
+        endTime: data[data.length - 1].time
+      });
+    }
+
+    // Analyze trades by regime
+    const regimeStats = {
+      strong_bull: { trades: [], totalReturn: 0, count: 0, winRate: 0 },
+      bull: { trades: [], totalReturn: 0, count: 0, winRate: 0 },
+      bear: { trades: [], totalReturn: 0, count: 0, winRate: 0 },
+      strong_bear: { trades: [], totalReturn: 0, count: 0, winRate: 0 }
+    };
+
+    for (const trade of trades) {
+      const tradeTime = new Date(trade.entryTime).getTime();
+      const regime = regimes.find(r =>
+        tradeTime >= new Date(r.startTime).getTime() &&
+        tradeTime <= new Date(r.endTime).getTime()
+      );
+
+      if (regime && regimeStats[regime.type]) {
+        regimeStats[regime.type].trades.push(trade);
+        regimeStats[regime.type].totalReturn += trade.pnlPct;
+        regimeStats[regime.type].count++;
+      }
+    }
+
+    // Calculate win rates
+    for (const regime of Object.keys(regimeStats)) {
+      const stats = regimeStats[regime];
+      if (stats.count > 0) {
+        const wins = stats.trades.filter(t => t.pnl > 0).length;
+        stats.winRate = (wins / stats.count) * 100;
+        stats.avgReturn = stats.totalReturn / stats.count;
+      }
+    }
+
+    return {
+      regimes,
+      regimeStats,
+      summary: {
+        bullMarketReturn: regimeStats.bull.totalReturn + regimeStats.strong_bull.totalReturn,
+        bearMarketReturn: regimeStats.bear.totalReturn + regimeStats.strong_bear.totalReturn,
+        bullMarketTrades: regimeStats.bull.count + regimeStats.strong_bull.count,
+        bearMarketTrades: regimeStats.bear.count + regimeStats.strong_bear.count,
+        bestRegime: Object.entries(regimeStats).reduce((best, [regime, stats]) =>
+          stats.avgReturn > (best.avgReturn || -Infinity) ? { regime, ...stats } : best, {}),
+        worstRegime: Object.entries(regimeStats).reduce((worst, [regime, stats]) =>
+          stats.count > 0 && stats.avgReturn < (worst.avgReturn || Infinity) ? { regime, ...stats } : worst, {})
+      }
+    };
+  }
+
+  // ============================================================
+  // ROLLING PERFORMANCE WINDOWS
+  // Shows consistency over time, not just totals
+  // ============================================================
+  function calculateRollingPerformance(equityCurve, windowDays = 90) {
+    const results = [];
+    const msPerDay = 24 * 60 * 60 * 1000;
+
+    // Group equity by date
+    const dailyEquity = {};
+    for (const point of equityCurve) {
+      const date = new Date(point.time).toISOString().split('T')[0];
+      dailyEquity[date] = point.equity;
+    }
+
+    const dates = Object.keys(dailyEquity).sort();
+
+    for (let i = windowDays; i < dates.length; i++) {
+      const windowStart = dates[i - windowDays];
+      const windowEnd = dates[i];
+      const startEquity = dailyEquity[windowStart];
+      const endEquity = dailyEquity[windowEnd];
+
+      if (startEquity && endEquity) {
+        const windowReturn = ((endEquity - startEquity) / startEquity) * 100;
+        results.push({
+          endDate: windowEnd,
+          return: windowReturn,
+          startEquity,
+          endEquity
+        });
+      }
+    }
+
+    // Calculate statistics
+    const returns = results.map(r => r.return);
+    const positive = returns.filter(r => r > 0).length;
+    const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
+    const minReturn = Math.min(...returns);
+    const maxReturn = Math.max(...returns);
+
+    return {
+      windows: results,
+      stats: {
+        windowDays,
+        totalWindows: results.length,
+        positiveWindows: positive,
+        negativeWindows: results.length - positive,
+        winRate: (positive / results.length) * 100,
+        avgReturn,
+        minReturn,
+        maxReturn,
+        consistency: (positive / results.length) * 100
+      }
+    };
+  }
+
+  // ============================================================
+  // OVERFITTING DETECTION
+  // Warns when results are too good to be true
+  // ============================================================
+  function detectOverfitting(backtestStats, walkForwardResults, tradeCount) {
+    const warnings = [];
+    let overfitScore = 0; // 0-100, higher = more likely overfit
+
+    // Check 1: Too few trades
+    if (tradeCount < 30) {
+      warnings.push({
+        severity: 'high',
+        message: `Only ${tradeCount} trades - insufficient sample size for statistical significance`,
+        recommendation: 'Extend backtest period or loosen entry criteria'
+      });
+      overfitScore += 25;
+    }
+
+    // Check 2: Unrealistic returns
+    if (backtestStats.totalReturn > 500) {
+      warnings.push({
+        severity: 'high',
+        message: `${backtestStats.totalReturn.toFixed(0)}% return is suspiciously high`,
+        recommendation: 'Verify strategy logic and check for look-ahead bias'
+      });
+      overfitScore += 30;
+    }
+
+    // Check 3: Win rate too high
+    if (backtestStats.winRate > 80) {
+      warnings.push({
+        severity: 'medium',
+        message: `${backtestStats.winRate.toFixed(0)}% win rate is unrealistic for crypto`,
+        recommendation: 'Professional traders average 40-60% win rate'
+      });
+      overfitScore += 20;
+    }
+
+    // Check 4: Walk-forward degradation
+    if (walkForwardResults && walkForwardResults.success) {
+      const degradation = walkForwardResults.summary.avgDegradation;
+      if (degradation > 50) {
+        warnings.push({
+          severity: 'critical',
+          message: `${degradation.toFixed(0)}% performance degradation out-of-sample`,
+          recommendation: 'Strategy is overfit to historical data'
+        });
+        overfitScore += 40;
+      } else if (degradation > 25) {
+        warnings.push({
+          severity: 'medium',
+          message: `${degradation.toFixed(0)}% performance degradation out-of-sample`,
+          recommendation: 'Consider simplifying strategy rules'
+        });
+        overfitScore += 15;
+      }
+    }
+
+    // Check 5: Profit factor too high
+    if (backtestStats.profitFactor > 5) {
+      warnings.push({
+        severity: 'medium',
+        message: `Profit factor of ${backtestStats.profitFactor.toFixed(1)} is unusually high`,
+        recommendation: 'Most robust strategies have PF between 1.5-3.0'
+      });
+      overfitScore += 15;
+    }
+
+    // Check 6: Sharpe ratio too high
+    if (backtestStats.sharpeRatio > 3) {
+      warnings.push({
+        severity: 'medium',
+        message: `Sharpe ratio of ${backtestStats.sharpeRatio.toFixed(2)} exceeds realistic levels`,
+        recommendation: 'Top hedge funds achieve Sharpe of 1-2'
+      });
+      overfitScore += 15;
+    }
+
+    return {
+      overfitScore: Math.min(100, overfitScore),
+      warnings,
+      verdict: overfitScore > 50 ? 'HIGH OVERFIT RISK' : overfitScore > 25 ? 'MODERATE OVERFIT RISK' : 'LOW OVERFIT RISK',
+      color: overfitScore > 50 ? 'red' : overfitScore > 25 ? 'orange' : 'green'
+    };
+  }
+
+  // ============================================================
+  // DRAWDOWN ANALYSIS
+  // How bad can it get, and how long to recover?
+  // ============================================================
+  function analyzeDrawdowns(equityCurve) {
+    const drawdowns = [];
+    let peak = equityCurve[0].equity;
+    let peakTime = equityCurve[0].time;
+    let trough = peak;
+    let troughTime = peakTime;
+    let inDrawdown = false;
+    let currentDrawdownStart = null;
+
+    for (let i = 1; i < equityCurve.length; i++) {
+      const point = equityCurve[i];
+
+      if (point.equity > peak) {
+        // New peak - if we were in drawdown, record it
+        if (inDrawdown && currentDrawdownStart) {
+          const drawdownPct = ((peak - trough) / peak) * 100;
+          const drawdownDays = Math.round(
+            (new Date(point.time) - new Date(currentDrawdownStart)) / (1000 * 60 * 60 * 24)
+          );
+          const recoveryDays = Math.round(
+            (new Date(point.time) - new Date(troughTime)) / (1000 * 60 * 60 * 24)
+          );
+
+          drawdowns.push({
+            startDate: currentDrawdownStart,
+            troughDate: troughTime,
+            recoveryDate: point.time,
+            drawdownPct,
+            totalDays: drawdownDays,
+            recoveryDays,
+            peakEquity: peak,
+            troughEquity: trough
+          });
+        }
+
+        peak = point.equity;
+        peakTime = point.time;
+        trough = peak;
+        troughTime = peakTime;
+        inDrawdown = false;
+        currentDrawdownStart = null;
+      } else {
+        // In or entering drawdown
+        if (!inDrawdown) {
+          inDrawdown = true;
+          currentDrawdownStart = peakTime;
+        }
+
+        if (point.equity < trough) {
+          trough = point.equity;
+          troughTime = point.time;
+        }
+      }
+    }
+
+    // Handle ongoing drawdown at end of data
+    if (inDrawdown) {
+      const lastPoint = equityCurve[equityCurve.length - 1];
+      const drawdownPct = ((peak - trough) / peak) * 100;
+      const drawdownDays = Math.round(
+        (new Date(lastPoint.time) - new Date(currentDrawdownStart)) / (1000 * 60 * 60 * 24)
+      );
+
+      drawdowns.push({
+        startDate: currentDrawdownStart,
+        troughDate: troughTime,
+        recoveryDate: null, // Still underwater
+        drawdownPct,
+        totalDays: drawdownDays,
+        recoveryDays: null,
+        peakEquity: peak,
+        troughEquity: trough,
+        ongoing: true
+      });
+    }
+
+    // Calculate statistics
+    const sortedBySize = [...drawdowns].sort((a, b) => b.drawdownPct - a.drawdownPct);
+    const recoveredDrawdowns = drawdowns.filter(d => d.recoveryDays !== null);
+    const avgRecoveryDays = recoveredDrawdowns.length > 0
+      ? recoveredDrawdowns.reduce((sum, d) => sum + d.recoveryDays, 0) / recoveredDrawdowns.length
+      : null;
+
+    // Calculate underwater periods
+    let totalUnderwaterDays = 0;
+    for (const dd of drawdowns) {
+      totalUnderwaterDays += dd.totalDays;
+    }
+
+    const totalDays = Math.round(
+      (new Date(equityCurve[equityCurve.length - 1].time) - new Date(equityCurve[0].time)) / (1000 * 60 * 60 * 24)
+    );
+
+    return {
+      drawdowns: sortedBySize.slice(0, 10), // Top 10 drawdowns
+      stats: {
+        totalDrawdowns: drawdowns.length,
+        maxDrawdown: sortedBySize[0]?.drawdownPct || 0,
+        avgDrawdown: drawdowns.reduce((sum, d) => sum + d.drawdownPct, 0) / drawdowns.length || 0,
+        maxRecoveryDays: Math.max(...recoveredDrawdowns.map(d => d.recoveryDays), 0),
+        avgRecoveryDays,
+        totalUnderwaterDays,
+        underwaterPercent: (totalUnderwaterDays / totalDays) * 100,
+        longestDrawdown: sortedBySize.reduce((max, d) => d.totalDays > max ? d.totalDays : max, 0)
+      }
+    };
+  }
+
+  // ============================================================
+  // STRATEGY ROBUSTNESS SCORE
+  // Single metric combining all quality factors
+  // ============================================================
+  function calculateRobustnessScore(stats, walkForward, regime, rolling, overfit, drawdown, benchmark) {
+    const scores = {
+      profitability: 0,
+      consistency: 0,
+      riskManagement: 0,
+      outOfSample: 0,
+      benchmark: 0
+    };
+
+    // Profitability (0-20 points)
+    if (stats.totalReturn > 50) scores.profitability = 20;
+    else if (stats.totalReturn > 20) scores.profitability = 15;
+    else if (stats.totalReturn > 0) scores.profitability = 10;
+    else if (stats.totalReturn > -10) scores.profitability = 5;
+
+    // Consistency (0-20 points)
+    if (rolling && rolling.stats) {
+      const winRate = rolling.stats.winRate;
+      if (winRate > 70) scores.consistency = 20;
+      else if (winRate > 50) scores.consistency = 15;
+      else if (winRate > 30) scores.consistency = 10;
+      else scores.consistency = 5;
+    }
+
+    // Risk Management (0-20 points)
+    if (stats.maxDrawdown < 15) scores.riskManagement = 20;
+    else if (stats.maxDrawdown < 25) scores.riskManagement = 15;
+    else if (stats.maxDrawdown < 35) scores.riskManagement = 10;
+    else if (stats.maxDrawdown < 50) scores.riskManagement = 5;
+
+    // Out-of-sample (0-25 points) - Most important
+    if (walkForward && walkForward.success) {
+      const wfe = walkForward.summary.walkForwardEfficiency;
+      if (wfe > 80) scores.outOfSample = 25;
+      else if (wfe > 60) scores.outOfSample = 20;
+      else if (wfe > 40) scores.outOfSample = 15;
+      else if (wfe > 20) scores.outOfSample = 10;
+      else scores.outOfSample = 5;
+    }
+
+    // Benchmark comparison (0-15 points)
+    if (benchmark) {
+      const alpha = stats.totalReturn - benchmark.totalReturn;
+      const sharpeRatio = stats.sharpeRatio / (benchmark.sharpe || 1);
+      if (alpha > 20 && sharpeRatio > 1.5) scores.benchmark = 15;
+      else if (alpha > 10 && sharpeRatio > 1.2) scores.benchmark = 12;
+      else if (alpha > 0 && sharpeRatio > 1) scores.benchmark = 8;
+      else if (alpha > -10) scores.benchmark = 4;
+    }
+
+    const total = Object.values(scores).reduce((a, b) => a + b, 0);
+
+    return {
+      total,
+      breakdown: scores,
+      grade: total >= 80 ? 'A' : total >= 65 ? 'B' : total >= 50 ? 'C' : total >= 35 ? 'D' : 'F',
+      tradeable: total >= 50 && (!walkForward || walkForward.verdict.tradeable),
+      summary: total >= 70
+        ? 'Strategy shows strong characteristics for live trading'
+        : total >= 50
+          ? 'Strategy is marginally acceptable but needs improvement'
+          : 'Strategy is not ready for live trading'
     };
   }
 
@@ -1489,7 +2312,13 @@
       'Calculating indicators...',
       'Simulating trades...',
       'Running Monte Carlo analysis...',
-      'Analyzing results...',
+      'Running walk-forward validation...',
+      'Calculating buy-and-hold benchmark...',
+      'Analyzing market regimes...',
+      'Computing rolling performance...',
+      'Detecting overfitting...',
+      'Analyzing drawdowns...',
+      'Calculating robustness score...',
       'Generating insights...'
     ];
 
@@ -1556,6 +2385,42 @@
       const mcResults = runMonteCarloSimulation(priceData, strategy, capital, slippage, fee);
       lastMcResults = mcResults;
       displayMonteCarloResults(mcResults);
+
+      // Run walk-forward validation
+      const walkForwardResults = runWalkForwardValidation(priceData, strategy, capital, slippage, fee);
+      displayWalkForwardResults(walkForwardResults);
+
+      // Calculate buy-and-hold benchmark
+      const benchmarkResults = calculateBuyAndHold(priceData, capital);
+      displayBenchmarkComparison(benchmarkResults, backtestResults.stats);
+
+      // Analyze market regimes
+      const regimeResults = analyzeRegimes(priceData, backtestResults.trades);
+      displayRegimeAnalysis(regimeResults);
+
+      // Calculate rolling performance (90-day windows)
+      const rollingResults = calculateRollingPerformance(backtestResults.equityCurve, 90);
+      displayRollingPerformance(rollingResults);
+
+      // Detect overfitting
+      const overfitResults = detectOverfitting(backtestResults.stats, walkForwardResults, backtestResults.stats.totalTrades);
+      displayOverfitWarnings(overfitResults);
+
+      // Analyze drawdowns
+      const drawdownResults = analyzeDrawdowns(backtestResults.equityCurve);
+      displayDrawdownAnalysis(drawdownResults);
+
+      // Calculate robustness score
+      const robustnessResults = calculateRobustnessScore(
+        backtestResults.stats,
+        walkForwardResults,
+        regimeResults,
+        rollingResults,
+        overfitResults,
+        drawdownResults,
+        benchmarkResults
+      );
+      displayRobustnessScore(robustnessResults);
 
       // Show results
       clearInterval(loadingInterval);
@@ -1695,6 +2560,80 @@
 
     Toast.success('JSON exported successfully');
   });
+
+  // Display functions for advanced analysis (UI implementation coming soon)
+  function displayWalkForwardResults(results) {
+    console.log('Walk-Forward Validation Results:', results);
+    // TODO: Create UI section to display:
+    // - results.periods (array of in-sample/out-of-sample results)
+    // - results.avgInSampleReturn
+    // - results.avgOutOfSampleReturn
+    // - results.degradation
+    // - results.consistency
+  }
+
+  function displayBenchmarkComparison(benchmarkResults, backtestStats) {
+    console.log('Benchmark Comparison:', {
+      benchmark: benchmarkResults,
+      strategy: backtestStats
+    });
+    // TODO: Create UI section to display:
+    // - benchmarkResults.totalReturn
+    // - benchmarkResults.maxDrawdown
+    // - Comparison chart showing strategy vs buy-and-hold
+    // - Alpha (excess return over benchmark)
+  }
+
+  function displayRegimeAnalysis(results) {
+    console.log('Regime Analysis Results:', results);
+    // TODO: Create UI section to display:
+    // - results.regimes (array of regime periods)
+    // - Performance breakdown by regime type (bull/bear/sideways)
+    // - Chart showing regimes overlaid on price action
+    // - Trade distribution across regimes
+  }
+
+  function displayRollingPerformance(results) {
+    console.log('Rolling Performance Results:', results);
+    // TODO: Create UI section to display:
+    // - results.windows (array of rolling window results)
+    // - results.avgReturn
+    // - results.stdDev
+    // - results.worstWindow
+    // - results.bestWindow
+    // - Chart showing rolling returns over time
+  }
+
+  function displayOverfitWarnings(results) {
+    console.log('Overfitting Detection Results:', results);
+    // TODO: Create UI section to display:
+    // - results.score (0-100, higher = more likely overfit)
+    // - results.flags (array of warning messages)
+    // - results.details (breakdown of each check)
+    // - Color-coded warning level (green/yellow/red)
+  }
+
+  function displayDrawdownAnalysis(results) {
+    console.log('Drawdown Analysis Results:', results);
+    // TODO: Create UI section to display:
+    // - results.drawdowns (array of all drawdown periods)
+    // - results.maxDrawdown
+    // - results.avgDrawdown
+    // - results.longestDrawdown
+    // - results.avgRecoveryTime
+    // - Underwater equity chart
+  }
+
+  function displayRobustnessScore(results) {
+    console.log('Robustness Score Results:', results);
+    // TODO: Create UI section to display:
+    // - results.overallScore (0-100)
+    // - results.breakdown (scores for each component)
+    // - results.grade (A-F letter grade)
+    // - results.strengths (array of positive points)
+    // - results.weaknesses (array of concerns)
+    // - Visual score gauge/meter
+  }
 
   // Initialize
   function init() {

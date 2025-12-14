@@ -520,19 +520,43 @@ FUNCTION analyzeSqueezeRisk(fundingRate, openInterest, priceChange24h):
 
 ## Data Sources
 
-All our data comes from free, publicly available APIs:
+We run our own **self-hosted Bitcoin full node** for real blockchain data - not estimates, not third-party APIs, but actual data from the Bitcoin network.
+
+### Primary Data: Our Own Bitcoin Node
 
 | Data | Source | Update Frequency |
 |------|--------|------------------|
-| BTC Price | CoinGecko, Coinbase | 30 seconds |
+| **Block Height** | Personal Node (Bitcoin Knots) | Real-time |
+| **Network Hashrate** | Personal Node | 15 minutes |
+| **Difficulty** | Personal Node | 15 minutes |
+| **Mempool Stats** | Personal Node | 15 minutes |
+| **Total BTC Supply** | Personal Node (UTXO set) | Hourly |
+| **UTXO Count** | Personal Node | Hourly |
+
+**Our Setup:** Raspberry Pi 5 running Bitcoin Knots, synced to the full blockchain. This gives us direct access to real network data without relying on third-party estimates.
+
+### Secondary Data: Free Public APIs
+
+| Data | Source | Update Frequency |
+|------|--------|------------------|
+| BTC Price | CoinGecko, Binance | 30 seconds |
+| Realized Cap (for MVRV) | CoinMetrics Community API | Daily |
 | OHLC Candles | CoinGecko | 30 days of daily data |
 | Funding Rate | OKX | 1 minute |
 | Open Interest | OKX | 1 minute |
 | Buy/Sell Ratio | Kraken | 30 seconds |
 | Long/Short Ratio | OKX | 1 minute |
 | Fear & Greed Index | alternative.me | 5 minutes |
-| Hashrate | mempool.space | 10 minutes |
 | Options Data | Deribit | On demand |
+
+### Why This Matters
+
+Most crypto analytics sites just wrap public APIs and display the same data everyone else has. We run our own node because:
+
+1. **Real Data** - Our hashrate and mempool stats come directly from the Bitcoin network
+2. **No Rate Limits** - We're not dependent on third-party API quotas
+3. **Verification** - We can verify blockchain data ourselves
+4. **Independence** - If an API goes down, our core data keeps flowing
 
 ---
 

@@ -215,6 +215,65 @@
       </div>
     </div>
 
+    <!-- Walk-Forward Validation Section -->
+    <div id="walkforward-section" class="analysis-section" style="display: none;">
+      <h3>Walk-Forward Validation</h3>
+      <div class="wf-verdict" id="wf-verdict"></div>
+      <div class="wf-summary">
+        <div class="wf-stat"><span>In-Sample Return</span><span id="wf-in-sample"></span></div>
+        <div class="wf-stat"><span>Out-of-Sample Return</span><span id="wf-out-sample"></span></div>
+        <div class="wf-stat"><span>Degradation</span><span id="wf-degradation"></span></div>
+        <div class="wf-stat"><span>Consistency</span><span id="wf-consistency"></span></div>
+      </div>
+      <div class="wf-windows" id="wf-windows"></div>
+    </div>
+
+    <!-- Benchmark Comparison Section -->
+    <div id="benchmark-section" class="analysis-section">
+      <h3>vs Buy & Hold</h3>
+      <div class="benchmark-comparison">
+        <div class="bench-col strategy"><h4>Your Strategy</h4><div id="bench-strategy-return"></div></div>
+        <div class="bench-col vs">vs</div>
+        <div class="bench-col hodl"><h4>HODL</h4><div id="bench-hodl-return"></div></div>
+      </div>
+      <div id="benchmark-alpha"></div>
+    </div>
+
+    <!-- Regime Analysis Section -->
+    <div id="regime-section" class="analysis-section">
+      <h3>Performance by Market Regime</h3>
+      <div class="regime-grid">
+        <div class="regime-card bull"><h4>Bull Market</h4><div id="regime-bull"></div></div>
+        <div class="regime-card bear"><h4>Bear Market</h4><div id="regime-bear"></div></div>
+      </div>
+    </div>
+
+    <!-- Robustness Score Section -->
+    <div id="robustness-section" class="analysis-section">
+      <h3>Strategy Robustness Score</h3>
+      <div class="robustness-grade" id="robustness-grade"></div>
+      <div class="robustness-breakdown" id="robustness-breakdown"></div>
+      <div class="robustness-verdict" id="robustness-verdict"></div>
+    </div>
+
+    <!-- Overfit Warnings Section -->
+    <div id="overfit-section" class="analysis-section">
+      <h3>Overfit Risk Assessment</h3>
+      <div class="overfit-score" id="overfit-score"></div>
+      <div class="overfit-warnings" id="overfit-warnings"></div>
+    </div>
+
+    <!-- Drawdown Analysis Section -->
+    <div id="drawdown-section" class="analysis-section">
+      <h3>Drawdown Analysis</h3>
+      <div class="dd-stats">
+        <div><span>Max Drawdown</span><span id="dd-max"></span></div>
+        <div><span>Avg Recovery</span><span id="dd-recovery"></span></div>
+        <div><span>Time Underwater</span><span id="dd-underwater"></span></div>
+      </div>
+      <div class="dd-table" id="dd-table"></div>
+    </div>
+
     <!-- Optimization Suggestions -->
     <div class="optimization-section">
       <h3>Optimization Suggestions</h3>

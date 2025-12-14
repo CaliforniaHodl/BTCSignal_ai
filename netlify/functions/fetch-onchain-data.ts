@@ -1,34 +1,43 @@
 // Fetch On-Chain Data for Dashboard
 // Phase 6 Sprint 4: Exchange Reserves, MVRV, Whale Flows
+// Updated: Now uses REAL data from personal Bitcoin node (Raspberry Pi 5 + Knots)
+// + CoinMetrics Community API for real realized cap
 import type { Config, Context } from '@netlify/functions';
+import { fetchNodeData, formatHashrate, getMempoolCongestion } from './lib/node-data';
+import { calculateRealMVRV, fetchRealizedCap } from './lib/coinmetrics';
 
 interface OnChainData {
   lastUpdated: string;
-  exchangeReserves: {
-    totalBTC: number;
-    change24h: number;
-    change7d: number;
-    trend: 'accumulation' | 'distribution' | 'neutral';
-    exchanges: {
-      name: string;
-      btc: number;
-      change24h: number;
-    }[];
+  // Real data from personal Bitcoin node (Raspberry Pi 5 + Bitcoin Knots)
+  nodeData: {
+    source: 'personal-node' | 'fallback';
+    blockHeight: number;
+    hashrate: number;
+    hashrateFormatted: string;
+    difficulty: number;
+    mempool: {
+      size: number;
+      bytes: number;
+      feesBTC: number;
+      congestion: 'low' | 'medium' | 'high' | 'extreme';
+    };
+    utxo?: {
+      totalSupply: number;
+      txoutCount: number;
+    };
+    lastNodeUpdate: number;
   };
+  // Real MVRV from CoinMetrics + personal node supply
   mvrv: {
     ratio: number;
     zone: 'undervalued' | 'fair' | 'overvalued' | 'extreme';
     marketCap: number;
     realizedCap: number;
     signal: string;
+    source: 'real' | 'estimated';
   };
-  whaleFlows: {
-    inflow24h: number;
-    outflow24h: number;
-    netFlow24h: number;
-    flowSignal: 'bullish' | 'bearish' | 'neutral';
-    recentAlerts: number;
-  };
+  // NOTE: Exchange reserves removed - was fake/simulated data
+  // We only show real data now. Exchange reserves require paid APIs (CryptoQuant/Glassnode)
 }
 
 // Fetch BTC price from multiple sources
@@ -109,80 +118,12 @@ function getMVRVZone(mvrv: number): { zone: OnChainData['mvrv']['zone']; signal:
   }
 }
 
-// Load whale data from GitHub to get flow metrics
-async function loadWhaleData(): Promise<{ inflow: number; outflow: number; alertCount: number }> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
+// REMOVED: loadWhaleData - was loading fake/simulated whale data
+// Whale watching now done via personal node mempool (see whale-watch.sh on Pi)
 
-  if (!token || !repo) {
-    return { inflow: 0, outflow: 0, alertCount: 0 };
-  }
-
-  try {
-    const url = `https://api.github.com/repos/${repo}/contents/static/data/whale-alerts.json`;
-    const res = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const content = Buffer.from(data.content, 'base64').toString();
-      const whaleData = JSON.parse(content);
-
-      return {
-        inflow: whaleData.stats?.exchangeInflow24h || 0,
-        outflow: whaleData.stats?.exchangeOutflow24h || 0,
-        alertCount: whaleData.stats?.totalTracked24h || 0,
-      };
-    }
-  } catch (e) {
-    console.error('Failed to load whale data:', e);
-  }
-
-  return { inflow: 0, outflow: 0, alertCount: 0 };
-}
-
-// Simulate exchange reserve data
-// In production, this would come from CryptoQuant/Glassnode API
-function generateExchangeReserves(whaleFlows: { inflow: number; outflow: number }): OnChainData['exchangeReserves'] {
-  // Estimated total exchange reserves (based on historical data ~2.3-2.5M BTC on exchanges)
-  const baseTotalBTC = 2350000;
-
-  // Adjust based on net flows
-  const netFlow = whaleFlows.outflow - whaleFlows.inflow;
-
-  // Simulate 24h change based on whale flows we tracked
-  const change24h = netFlow > 0 ? -Math.random() * 0.5 - 0.1 : Math.random() * 0.3 + 0.1;
-  const change7d = change24h * 3 + (Math.random() - 0.5) * 2;
-
-  // Determine trend based on flows
-  let trend: OnChainData['exchangeReserves']['trend'] = 'neutral';
-  if (netFlow > 500) {
-    trend = 'accumulation'; // More outflows than inflows = accumulation
-  } else if (netFlow < -500) {
-    trend = 'distribution'; // More inflows than outflows = distribution
-  }
-
-  // Simulated exchange breakdown (roughly accurate proportions)
-  const exchanges = [
-    { name: 'Binance', btc: 580000 + Math.random() * 20000 - 10000, change24h: (Math.random() - 0.5) * 2 },
-    { name: 'Coinbase', btc: 420000 + Math.random() * 15000 - 7500, change24h: (Math.random() - 0.5) * 2 },
-    { name: 'Bitfinex', btc: 180000 + Math.random() * 8000 - 4000, change24h: (Math.random() - 0.5) * 2 },
-    { name: 'Kraken', btc: 140000 + Math.random() * 6000 - 3000, change24h: (Math.random() - 0.5) * 2 },
-    { name: 'OKX', btc: 130000 + Math.random() * 5000 - 2500, change24h: (Math.random() - 0.5) * 2 },
-  ];
-
-  return {
-    totalBTC: baseTotalBTC + Math.random() * 50000 - 25000,
-    change24h,
-    change7d,
-    trend,
-    exchanges,
-  };
-}
+// REMOVED: Fake exchange reserve data
+// Exchange reserves require paid APIs (CryptoQuant, Glassnode, etc.)
+// We only show real data now - honesty over fake metrics
 
 // Load existing on-chain data from GitHub
 async function loadExistingData(): Promise<OnChainData | null> {
@@ -267,7 +208,11 @@ async function saveToGitHub(data: OnChainData): Promise<boolean> {
 }
 
 export default async (req: Request, context: Context) => {
-  console.log('Fetching on-chain data...');
+  console.log('Fetching on-chain data (with real node data)...');
+
+  // NEW: Fetch real data from personal Bitcoin node
+  const nodeResponse = await fetchNodeData();
+  console.log(`Node data source: ${nodeResponse.source}`);
 
   // Fetch BTC price and market data
   const btcPrice = await fetchBTCPrice();
@@ -279,41 +224,67 @@ export default async (req: Request, context: Context) => {
   }
 
   const marketData = await fetchMarketData();
-  const whaleFlowData = await loadWhaleData();
 
-  // Calculate MVRV
-  const realizedCap = await estimateRealizedCap(btcPrice, marketData.circulatingSupply);
-  const mvrvRatio = marketData.marketCap / realizedCap;
-  const mvrvInfo = getMVRVZone(mvrvRatio);
+  // Calculate REAL MVRV using:
+  // - Real total supply from personal node (if available)
+  // - Real realized cap from CoinMetrics
+  const nodeData = nodeResponse.data;
+  const realSupply = nodeData?.utxo?.total_supply || marketData.circulatingSupply;
 
-  // Generate exchange reserves data
-  const exchangeReserves = generateExchangeReserves(whaleFlowData);
+  // Try to get real MVRV first
+  let mvrvData = await calculateRealMVRV(realSupply, btcPrice);
+  let mvrvSource = 'real';
 
-  // Calculate whale flow signal
-  const netFlow = whaleFlowData.outflow - whaleFlowData.inflow;
-  let flowSignal: OnChainData['whaleFlows']['flowSignal'] = 'neutral';
-  if (netFlow > 500) {
-    flowSignal = 'bullish'; // Net outflows = accumulation
-  } else if (netFlow < -500) {
-    flowSignal = 'bearish'; // Net inflows = distribution
+  // Fallback to estimated if CoinMetrics fails
+  if (!mvrvData) {
+    console.log('Falling back to estimated MVRV');
+    const realizedCap = await estimateRealizedCap(btcPrice, marketData.circulatingSupply);
+    const mvrvRatio = marketData.marketCap / realizedCap;
+    const mvrvInfo = getMVRVZone(mvrvRatio);
+    mvrvData = {
+      mvrv: Math.round(mvrvRatio * 100) / 100,
+      marketCap: marketData.marketCap,
+      realizedCap,
+      zone: mvrvInfo.zone,
+      signal: mvrvInfo.signal,
+      source: 'estimated' as const,
+    };
+    mvrvSource = 'estimated';
   }
+
+  console.log(`MVRV source: ${mvrvSource}, value: ${mvrvData.mvrv}`);
+
+  // Build node data section (REAL data from personal Bitcoin node!)
+  const nodeData = nodeResponse.data;
+  const nodeDataSection: OnChainData['nodeData'] = {
+    source: nodeResponse.source,
+    blockHeight: nodeData?.block_height || 0,
+    hashrate: nodeData?.hashrate || 0,
+    hashrateFormatted: nodeData ? formatHashrate(nodeData.hashrate) : 'N/A',
+    difficulty: nodeData?.difficulty || 0,
+    mempool: {
+      size: nodeData?.mempool_size || 0,
+      bytes: nodeData?.mempool_bytes || 0,
+      feesBTC: nodeData?.mempool_fees_btc || 0,
+      congestion: nodeData ? getMempoolCongestion(nodeData.mempool_size) : 'low',
+    },
+    utxo: nodeData?.utxo ? {
+      totalSupply: nodeData.utxo.total_supply,
+      txoutCount: nodeData.utxo.txout_count,
+    } : undefined,
+    lastNodeUpdate: nodeData?.timestamp || 0,
+  };
 
   const onChainData: OnChainData = {
     lastUpdated: new Date().toISOString(),
-    exchangeReserves,
+    nodeData: nodeDataSection,
     mvrv: {
-      ratio: Math.round(mvrvRatio * 100) / 100,
-      zone: mvrvInfo.zone,
-      marketCap: marketData.marketCap,
-      realizedCap,
-      signal: mvrvInfo.signal,
-    },
-    whaleFlows: {
-      inflow24h: whaleFlowData.inflow,
-      outflow24h: whaleFlowData.outflow,
-      netFlow24h: netFlow,
-      flowSignal,
-      recentAlerts: whaleFlowData.alertCount,
+      ratio: mvrvData.mvrv,
+      zone: mvrvData.zone,
+      marketCap: mvrvData.marketCap,
+      realizedCap: mvrvData.realizedCap,
+      signal: mvrvData.signal,
+      source: mvrvSource as 'real' | 'estimated',
     },
   };
 
@@ -323,6 +294,7 @@ export default async (req: Request, context: Context) => {
   return new Response(JSON.stringify({
     success: true,
     saved,
+    nodeSource: nodeResponse.source,
     data: onChainData,
   }), {
     status: 200,

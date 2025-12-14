@@ -3,6 +3,7 @@
  * Fetches and calculates on-chain analytics from free APIs
  *
  * Data Sources:
+ * - PERSONAL NODE: Bitcoin Knots on Raspberry Pi 5 (REAL data!)
  * - Blockchain.info (hash rate, difficulty, miner revenue, tx count)
  * - Mempool.space (mempool, fees, lightning network)
  * - Alternative.me (Fear & Greed Index)
@@ -19,6 +20,84 @@ const BTCSAIOnChain = (function() {
     long: 3600000,     // 1 hour
     daily: 86400000    // 24 hours
   };
+
+  // ==================== PERSONAL NODE DATA ====================
+  // Real Bitcoin data from personal Raspberry Pi 5 running Bitcoin Knots
+  // Updated every 15 minutes via cron job
+
+  /**
+   * Fetch data from personal Bitcoin node
+   * @returns {Promise<Object>}
+   */
+  async function fetchPersonalNodeData() {
+    const cacheKey = 'personal_node_data';
+    const cached = BTCSAIShared.getCached(cacheKey);
+    if (cached) return cached;
+
+    try {
+      // Try the Netlify function first
+      let response = await fetch('/.netlify/functions/api-node-data');
+
+      if (!response.ok) {
+        // Fallback: fetch directly from JSONBin
+        response = await fetch('https://api.jsonbin.io/v3/b/693e4065d0ea881f4027feac/latest');
+      }
+
+      const json = await response.json();
+      const data = json.data || json.record;
+
+      // Calculate data age
+      const timestamp = data.timestamp || data.blockHeight;
+      const dataAge = Math.round((Date.now() / 1000 - timestamp) / 60);
+
+      const result = {
+        source: 'personal-node',
+        isReal: true,
+        dataAgeMinutes: dataAge,
+        blockHeight: data.blockHeight || data.block_height,
+        hashrate: data.hashrate,
+        hashrateFormatted: formatHashrateLocal(data.hashrate),
+        difficulty: data.difficulty,
+        mempool: {
+          transactions: data.mempool?.transactions || data.mempool_size,
+          sizeBytes: data.mempool?.sizeBytes || data.mempool_bytes,
+          totalFeesBTC: data.mempool?.totalFeesBTC || data.mempool_fees_btc,
+          congestion: getMempoolCongestionLevel(data.mempool?.transactions || data.mempool_size)
+        },
+        timestamp: timestamp,
+        lastUpdate: new Date(timestamp * 1000).toLocaleString()
+      };
+
+      BTCSAIShared.setCache(cacheKey, result, CACHE_TTL.short);
+      return result;
+    } catch (error) {
+      console.error('Personal node data fetch error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Format hashrate for display
+   */
+  function formatHashrateLocal(hashrate) {
+    if (!hashrate) return 'N/A';
+    if (hashrate >= 1e21) return (hashrate / 1e21).toFixed(2) + ' ZH/s';
+    if (hashrate >= 1e18) return (hashrate / 1e18).toFixed(2) + ' EH/s';
+    if (hashrate >= 1e15) return (hashrate / 1e15).toFixed(2) + ' PH/s';
+    if (hashrate >= 1e12) return (hashrate / 1e12).toFixed(2) + ' TH/s';
+    return hashrate.toFixed(0) + ' H/s';
+  }
+
+  /**
+   * Get mempool congestion level
+   */
+  function getMempoolCongestionLevel(size) {
+    if (!size) return 'unknown';
+    if (size < 5000) return 'low';
+    if (size < 20000) return 'medium';
+    if (size < 50000) return 'high';
+    return 'extreme';
+  }
 
   // ==================== BLOCKCHAIN.INFO API ====================
 
@@ -501,6 +580,7 @@ const BTCSAIOnChain = (function() {
    */
   async function fetchDashboard() {
     const [
+      personalNode,
       hashRate,
       difficulty,
       minerRevenue,
@@ -512,6 +592,7 @@ const BTCSAIOnChain = (function() {
       fearGreed,
       marketData
     ] = await Promise.all([
+      fetchPersonalNodeData(),
       fetchHashRate(),
       fetchDifficulty(),
       fetchMinerRevenue(),
@@ -529,15 +610,35 @@ const BTCSAIOnChain = (function() {
     const hashRibbons = hashRate ? calculateHashRibbons(hashRate.values) : null;
 
     return {
+      // NEW: Real data from personal Bitcoin node
+      personalNode,
       network: {
-        hashRate,
-        difficulty,
+        // Use personal node data for hashrate/difficulty if available
+        hashRate: personalNode ? {
+          ...hashRate,
+          current: personalNode.hashrate,
+          currentFormatted: personalNode.hashrateFormatted,
+          source: 'personal-node'
+        } : hashRate,
+        difficulty: personalNode ? {
+          ...difficulty,
+          current: personalNode.difficulty,
+          source: 'personal-node'
+        } : difficulty,
+        blockHeight: personalNode?.blockHeight,
         minerRevenue,
         txCount,
         totalBTC
       },
       mempool: {
-        stats: mempool,
+        // Use personal node mempool data if available
+        stats: personalNode ? {
+          count: personalNode.mempool.transactions,
+          vsize: personalNode.mempool.sizeBytes,
+          totalFee: personalNode.mempool.totalFeesBTC * 100000000, // Convert to sats
+          congestion: personalNode.mempool.congestion,
+          source: 'personal-node'
+        } : mempool,
         fees
       },
       lightning,
@@ -550,7 +651,8 @@ const BTCSAIOnChain = (function() {
         puellMultiple: minerRevenue?.puellMultiple,
         hashRibbons
       },
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      dataSource: personalNode ? 'personal-node' : 'public-apis'
     };
   }
 
@@ -566,6 +668,9 @@ const BTCSAIOnChain = (function() {
   // ==================== PUBLIC API ====================
 
   return {
+    // Personal Bitcoin Node (REAL DATA!)
+    fetchPersonalNodeData,
+
     // Blockchain.info
     fetchHashRate,
     fetchDifficulty,

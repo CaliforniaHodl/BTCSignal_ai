@@ -444,88 +444,95 @@
       </div>
     </section>
 
-    <!-- On-Chain Metrics (Phase 6 Sprint 4) -->
+    <!-- On-Chain Metrics - REAL DATA from Personal Node -->
     <section class="onchain-section">
       <h2>On-Chain Intelligence</h2>
-      <p class="section-desc">Track exchange reserves, whale flows, and market valuation metrics for deeper market insights.</p>
+      <p class="section-desc">Real blockchain data from our self-hosted Bitcoin node (Raspberry Pi 5 + Bitcoin Knots)</p>
 
       <div class="onchain-grid">
-        <!-- Exchange Reserves Card -->
+        <!-- Personal Node Data Card (REAL DATA) -->
         <div class="onchain-card reserves-card">
           <div class="onchain-card-header">
-            <span class="onchain-card-icon">🏦</span>
-            <h3>Exchange Reserves</h3>
-            {{ partial "tooltip.html" (dict "text" "BTC held on exchanges. Decreasing reserves = accumulation (bullish). Increasing = distribution (bearish).") }}
+            <span class="onchain-card-icon">🖥️</span>
+            <h3>Node Data</h3>
+            {{ partial "tooltip.html" (dict "text" "Real-time data from our personal Bitcoin full node. Updated every 15 minutes.") }}
           </div>
 
           <div class="reserves-main">
             <div class="reserves-total">
-              <span class="reserves-value" id="reserves-total">--</span>
-              <span class="reserves-label">BTC on Exchanges</span>
+              <span class="reserves-value" id="node-block-height">--</span>
+              <span class="reserves-label">Block Height</span>
             </div>
             <div class="reserves-changes">
               <div class="reserves-change">
-                <span class="change-label">24h</span>
-                <span class="change-value" id="reserves-24h">--%</span>
+                <span class="change-label">Hashrate</span>
+                <span class="change-value" id="node-hashrate">--</span>
               </div>
               <div class="reserves-change">
-                <span class="change-label">7d</span>
-                <span class="change-value" id="reserves-7d">--%</span>
+                <span class="change-label">Difficulty</span>
+                <span class="change-value" id="node-difficulty">--</span>
               </div>
             </div>
           </div>
 
-          <div class="reserves-trend" id="reserves-trend">
-            <span class="trend-icon">--</span>
-            <span class="trend-text">Loading...</span>
+          <div class="reserves-trend" id="node-source">
+            <span class="trend-icon">✅</span>
+            <span class="trend-text">Source: Personal Node</span>
           </div>
 
           <div class="reserves-breakdown">
-            <h4>Top Exchanges</h4>
-            <div class="exchange-list" id="exchange-reserves-list">
-              <div class="exchange-row loading">Loading exchange data...</div>
+            <h4>UTXO Set (Real Supply)</h4>
+            <div class="exchange-list" id="node-utxo-info">
+              <div class="exchange-row">
+                <span class="exchange-name">Total BTC Supply</span>
+                <span class="exchange-btc" id="node-total-supply">--</span>
+              </div>
+              <div class="exchange-row">
+                <span class="exchange-name">UTXO Count</span>
+                <span class="exchange-btc" id="node-utxo-count">--</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Whale Flows Card -->
+        <!-- Mempool Stats Card (REAL DATA from Personal Node) -->
         <div class="onchain-card whale-card">
           <div class="onchain-card-header">
-            <span class="onchain-card-icon">🐋</span>
-            <h3>Whale Flows (24h)</h3>
-            {{ partial "tooltip.html" (dict "text" "Large BTC movements to/from exchanges. Net outflow = accumulation. Net inflow = selling pressure.") }}
+            <span class="onchain-card-icon">📦</span>
+            <h3>Mempool Stats</h3>
+            {{ partial "tooltip.html" (dict "text" "Real mempool data from our Bitcoin node. Shows pending transactions waiting for confirmation.") }}
           </div>
 
           <div class="whale-flows">
             <div class="flow-item inflow">
-              <span class="flow-icon">📥</span>
+              <span class="flow-icon">📋</span>
               <div class="flow-info">
-                <span class="flow-label">Exchange Inflow</span>
-                <span class="flow-value" id="whale-inflow">-- BTC</span>
+                <span class="flow-label">Pending Transactions</span>
+                <span class="flow-value" id="mempool-tx-count">--</span>
               </div>
             </div>
             <div class="flow-item outflow">
-              <span class="flow-icon">📤</span>
+              <span class="flow-icon">📊</span>
               <div class="flow-info">
-                <span class="flow-label">Exchange Outflow</span>
-                <span class="flow-value" id="whale-outflow">-- BTC</span>
+                <span class="flow-label">Mempool Size</span>
+                <span class="flow-value" id="mempool-size">-- MB</span>
               </div>
             </div>
           </div>
 
-          <div class="net-flow" id="net-flow">
-            <span class="net-flow-label">Net Flow:</span>
-            <span class="net-flow-value">--</span>
+          <div class="net-flow" id="mempool-fees">
+            <span class="net-flow-label">Total Fees:</span>
+            <span class="net-flow-value" id="mempool-fees-btc">-- BTC</span>
           </div>
 
-          <div class="whale-signal" id="whale-signal">
-            <span class="signal-badge">--</span>
-            <span class="signal-text">Loading...</span>
+          <div class="whale-signal" id="mempool-congestion">
+            <span class="signal-badge" id="mempool-congestion-badge">--</span>
+            <span class="signal-text" id="mempool-congestion-text">Loading...</span>
           </div>
 
           <div class="whale-alerts-count">
-            <span class="alerts-icon">🚨</span>
-            <span id="whale-alert-count">0</span> whale alerts tracked in last 24h
+            <span class="alerts-icon">🕐</span>
+            Last updated: <span id="node-last-update">--</span>
           </div>
         </div>
 
