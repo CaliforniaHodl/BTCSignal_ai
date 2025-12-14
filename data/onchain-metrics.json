@@ -1,18 +1,18 @@
 {
-  "lastUpdated": "2025-12-14T00:30:05.764Z",
+  "lastUpdated": "2025-12-14T04:30:12.852Z",
   "nvt": {
-    "ratio": 0,
-    "signal": "fair",
-    "description": "Unable to calculate - no transaction data"
+    "ratio": 448.7,
+    "signal": "overvalued",
+    "description": "High NVT suggests speculative premium. Caution advised."
   },
   "puellMultiple": {
-    "value": 0.94,
+    "value": 0.86,
     "zone": "neutral",
     "description": "Miner profitability in normal range."
   },
   "stockToFlow": {
     "ratio": 121.5,
-    "modelPrice": 993111,
+    "modelPrice": 993120,
     "deflection": -90.9,
     "signal": "undervalued"
   },
@@ -38,14 +38,14 @@
     "realizedCap": 0
   },
   "activeAddresses": {
-    "count24h": 537832,
-    "change7d": 0.7,
+    "count24h": 463369,
+    "change7d": -0.4,
     "trend": "stable",
     "description": "Network activity stable."
   },
   "transactionCount": {
-    "count24h": 417151,
-    "change7d": 17.1,
-    "description": "Transaction activity surging. High network utilization."
+    "count24h": 495923,
+    "change7d": -5.9,
+    "description": "Transaction activity normal."
   }
 }
