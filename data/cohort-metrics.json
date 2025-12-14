@@ -1,0 +1,102 @@
+{
+  "lastUpdated": "2025-12-14T00:15:03.996Z",
+  "holderCohorts": {
+    "lthSupply": {
+      "btc": 13973260,
+      "percentage": 70,
+      "change30d": 0.4,
+      "trend": "accumulating",
+      "description": "Moderate LTH supply"
+    },
+    "sthSupply": {
+      "btc": 5988540,
+      "percentage": 30,
+      "change30d": -0.4,
+      "trend": "distributing",
+      "description": "Moderate STH supply - normal market activity"
+    },
+    "lthSthRatio": {
+      "ratio": 2.33,
+      "signal": "bullish",
+      "description": "High LTH/STH ratio. Long-term holders dominating supply."
+    }
+  },
+  "whaleCohorts": {
+    "shrimp": {
+      "name": "Shrimp",
+      "range": "< 1 BTC",
+      "addresses": 40000000,
+      "btcHeld": 399236,
+      "percentageOfSupply": 2,
+      "change30d": 0,
+      "trend": "stable"
+    },
+    "crab": {
+      "name": "Crab",
+      "range": "1-10 BTC",
+      "addresses": 8000000,
+      "btcHeld": 998090,
+      "percentageOfSupply": 5,
+      "change30d": 0,
+      "trend": "stable"
+    },
+    "fish": {
+      "name": "Fish",
+      "range": "10-100 BTC",
+      "addresses": 1500000,
+      "btcHeld": 1996180,
+      "percentageOfSupply": 10,
+      "change30d": 0,
+      "trend": "stable"
+    },
+    "shark": {
+      "name": "Shark",
+      "range": "100-1K BTC",
+      "addresses": 450000,
+      "btcHeld": 2994270,
+      "percentageOfSupply": 15,
+      "change30d": 0,
+      "trend": "stable"
+    },
+    "whale": {
+      "name": "Whale",
+      "range": "1K-10K BTC",
+      "addresses": 45000,
+      "btcHeld": 4990450,
+      "percentageOfSupply": 25,
+      "change30d": 0,
+      "trend": "stable"
+    },
+    "humpback": {
+      "name": "Humpback",
+      "range": "> 10K BTC",
+      "addresses": 5000,
+      "btcHeld": 7984720,
+      "percentageOfSupply": 40,
+      "change30d": 0,
+      "trend": "stable"
+    },
+    "totalAddresses": 50000000,
+    "summary": "Whale and institutional cohorts continue accumulating, while retail distribution increases."
+  },
+  "supplyLiquidity": {
+    "illiquidSupply": {
+      "btc": 23055879,
+      "percentage": 115.5,
+      "description": "LTH + large whale holdings unlikely to move"
+    },
+    "liquidSupply": {
+      "btc": -4691023,
+      "percentage": -23.5,
+      "description": "STH + medium holders, moderately available for trading"
+    },
+    "highlyLiquidSupply": {
+      "btc": 1596944,
+      "percentage": 8,
+      "description": "Exchange holdings + active traders, immediately available"
+    },
+    "liquidityScore": -16,
+    "signal": "bullish",
+    "analysis": "Very high illiquid supply. Strong holder conviction, supply shock potential."
+  }
+}
