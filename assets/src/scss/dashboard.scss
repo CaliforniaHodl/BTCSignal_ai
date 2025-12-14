@@ -6899,3 +6899,336 @@
     }
   }
 }
+
+// =====================================================
+// PAPER TRADING SECTION
+// =====================================================
+.paper-trading-section {
+  margin: $spacing-2xl 0;
+  padding-top: $spacing-2xl;
+  border-top: 1px solid var(--border-color);
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-xs;
+    color: var(--text-primary);
+  }
+}
+
+.paper-trading-container {
+  margin-top: $spacing-lg;
+}
+
+.paper-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paper-stat-card {
+  @include card;
+  padding: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.paper-stat-icon {
+  font-size: $font-2xl;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+}
+
+.paper-stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.paper-stat-value {
+  font-size: $font-xl;
+  font-weight: $font-bold;
+  color: var(--text-primary);
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+.paper-stat-label {
+  font-size: $font-xs;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.paper-trade-form {
+  @include card;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-xl;
+
+  h3 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-lg;
+    color: var(--text-primary);
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  label {
+    display: block;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xs;
+  }
+
+  input, select {
+    width: 100%;
+    padding: $spacing-sm $spacing-md;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    color: var(--text-primary);
+    font-size: $font-base;
+
+    &:focus {
+      outline: none;
+      border-color: var(--bitcoin-orange);
+    }
+
+    &::placeholder {
+      color: var(--text-muted);
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+}
+
+.btn-paper-trade {
+  @include button-primary;
+  padding: $spacing-md $spacing-xl;
+}
+
+.btn-paper-clear {
+  background: var(--bg-dark);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: $spacing-md $spacing-xl;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+}
+
+.paper-trades-history {
+  @include card;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-xl;
+
+  h3 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-lg;
+    color: var(--text-primary);
+  }
+}
+
+.paper-trades-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.paper-trades-empty {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: var(--text-muted);
+
+  .empty-icon {
+    font-size: $font-4xl;
+    display: block;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.paper-trade-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+
+  &.win {
+    border-left: 3px solid var(--green);
+  }
+
+  &.loss {
+    border-left: 3px solid var(--red);
+  }
+
+  &.open {
+    border-left: 3px solid var(--bitcoin-orange);
+  }
+}
+
+.paper-trade-info {
+  display: flex;
+  gap: $spacing-lg;
+  align-items: center;
+}
+
+.paper-trade-direction {
+  font-weight: $font-bold;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  font-size: $font-xs;
+  text-transform: uppercase;
+
+  &.long {
+    background: rgba($green, 0.2);
+    color: var(--green);
+  }
+
+  &.short {
+    background: rgba($red, 0.2);
+    color: var(--red);
+  }
+}
+
+.paper-trade-details {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.paper-trade-pnl {
+  font-weight: $font-bold;
+  font-size: $font-base;
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+.paper-trade-actions {
+  display: flex;
+  gap: $spacing-sm;
+
+  button {
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $radius-sm;
+    font-size: $font-xs;
+    cursor: pointer;
+    transition: all $transition-fast;
+    border: 1px solid var(--border-color);
+    background: var(--bg-page);
+    color: var(--text-secondary);
+
+    &:hover {
+      border-color: var(--bitcoin-orange);
+      color: var(--bitcoin-orange);
+    }
+
+    &.btn-close-trade {
+      &:hover {
+        border-color: var(--green);
+        color: var(--green);
+      }
+    }
+
+    &.btn-delete-trade {
+      &:hover {
+        border-color: var(--red);
+        color: var(--red);
+      }
+    }
+  }
+}
+
+.paper-risk-rules {
+  @include card;
+  padding: $spacing-lg;
+
+  h4 {
+    font-size: $font-base;
+    margin-bottom: $spacing-md;
+    color: var(--text-primary);
+  }
+}
+
+.risk-rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-sm;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+}
+
+.rule-status {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($green, 0.2);
+  color: var(--green);
+  border-radius: $radius-full;
+  font-size: $font-xs;
+
+  &.violated {
+    background: rgba($red, 0.2);
+    color: var(--red);
+  }
+}

@@ -653,8 +653,201 @@
     isAutoExecutionEnabled,
     getLivePrice,
     subscribeToPrices,
-    calculateUnrealizedPnL
+    calculateUnrealizedPnL,
+
+    // UI functions
+    initDashboardUI
   };
+
+  // ==================== DASHBOARD UI INTEGRATION ====================
+
+  function initDashboardUI() {
+    const form = document.getElementById('paper-trade-form');
+    const clearBtn = document.getElementById('btn-paper-clear');
+
+    if (!form) return; // Not on dashboard page
+
+    // Update stats display
+    updateStatsDisplay();
+
+    // Render trade history
+    renderTradeHistory();
+
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const trade = {
+        direction: document.getElementById('paper-direction').value,
+        entryPrice: parseFloat(document.getElementById('paper-entry').value),
+        positionSize: parseFloat(document.getElementById('paper-size').value),
+        stopLoss: parseFloat(document.getElementById('paper-sl').value) || null,
+        targetPrice: parseFloat(document.getElementById('paper-tp').value) || null,
+        notes: document.getElementById('paper-notes').value || ''
+      };
+
+      const validation = validateTrade(trade);
+
+      if (validation.errors.length > 0) {
+        showToast(validation.errors[0], 'error');
+        return;
+      }
+
+      if (validation.warnings.length > 0) {
+        showToast(validation.warnings[0], 'warning');
+      }
+
+      const result = addTrade(trade);
+
+      if (result.success) {
+        showToast('Trade logged successfully!', 'success');
+        form.reset();
+        updateStatsDisplay();
+        renderTradeHistory();
+      } else {
+        showToast(result.error || 'Failed to add trade', 'error');
+      }
+    });
+
+    // Clear all trades
+    if (clearBtn) {
+      clearBtn.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all paper trades? This cannot be undone.')) {
+          clearAllTrades();
+          updateStatsDisplay();
+          renderTradeHistory();
+          showToast('All trades cleared', 'success');
+        }
+      });
+    }
+  }
+
+  function updateStatsDisplay() {
+    const stats = calculateStats();
+    const settings = getSettings();
+
+    // Update stat cards
+    const capitalEl = document.getElementById('paper-capital');
+    const pnlEl = document.getElementById('paper-pnl');
+    const winrateEl = document.getElementById('paper-winrate');
+    const tradesEl = document.getElementById('paper-trades');
+
+    if (capitalEl) {
+      capitalEl.textContent = '$' + stats.currentCapital.toFixed(2);
+    }
+
+    if (pnlEl) {
+      pnlEl.textContent = (stats.totalPnL >= 0 ? '+' : '') + '$' + stats.totalPnL.toFixed(2);
+      pnlEl.classList.remove('positive', 'negative');
+      pnlEl.classList.add(stats.totalPnL >= 0 ? 'positive' : 'negative');
+    }
+
+    if (winrateEl) {
+      winrateEl.textContent = stats.totalTrades > 0 ? stats.winRate.toFixed(1) + '%' : '--%';
+    }
+
+    if (tradesEl) {
+      tradesEl.textContent = stats.totalTrades;
+    }
+
+    // Update risk rule statuses
+    updateRiskRuleStatus('rule-sl', settings.requireStopLoss);
+    updateRiskRuleStatus('rule-risk', stats.drawdown < settings.maxRiskPerTrade * 100);
+    updateRiskRuleStatus('rule-daily', stats.drawdown < settings.maxDailyLoss * 100);
+
+    // Check consecutive losses
+    const trades = getTrades();
+    let consecutiveLosses = 0;
+    for (let i = trades.length - 1; i >= 0; i--) {
+      if (trades[i].result === 'loss') consecutiveLosses++;
+      else break;
+    }
+    updateRiskRuleStatus('rule-streak', consecutiveLosses < settings.maxConsecutiveLosses);
+  }
+
+  function updateRiskRuleStatus(elementId, isOk) {
+    const el = document.getElementById(elementId);
+    if (el) {
+      el.textContent = isOk ? '✓' : '✗';
+      el.classList.remove('violated');
+      if (!isOk) el.classList.add('violated');
+    }
+  }
+
+  function renderTradeHistory() {
+    const container = document.getElementById('paper-trades-list');
+    if (!container) return;
+
+    const trades = getTrades().sort((a, b) => new Date(b.entryTime) - new Date(a.entryTime));
+
+    if (trades.length === 0) {
+      container.innerHTML = `
+        <div class="paper-trades-empty">
+          <span class="empty-icon">📋</span>
+          <p>No trades yet. Start logging your paper trades above!</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = trades.map(trade => `
+      <div class="paper-trade-item ${trade.result}">
+        <div class="paper-trade-info">
+          <span class="paper-trade-direction ${trade.direction}">${trade.direction === 'long' ? '🟢 LONG' : '🔴 SHORT'}</span>
+          <span class="paper-trade-details">
+            Entry: $${trade.entryPrice.toLocaleString()} | Size: $${trade.positionSize.toFixed(2)}
+            ${trade.exitPrice ? ' | Exit: $' + trade.exitPrice.toLocaleString() : ''}
+          </span>
+        </div>
+        <div class="paper-trade-pnl ${trade.pnl !== null ? (trade.pnl >= 0 ? 'positive' : 'negative') : ''}">
+          ${trade.pnl !== null ? (trade.pnl >= 0 ? '+' : '') + '$' + trade.pnl.toFixed(2) : 'OPEN'}
+        </div>
+        <div class="paper-trade-actions">
+          ${trade.result === 'open' ? `<button class="btn-close-trade" onclick="closePaperTrade('${trade.id}')">Close</button>` : ''}
+          <button class="btn-delete-trade" onclick="deletePaperTrade('${trade.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Global functions for button handlers
+  window.closePaperTrade = function(tradeId) {
+    const exitPrice = prompt('Enter exit price:');
+    if (exitPrice && !isNaN(parseFloat(exitPrice))) {
+      const result = closeTrade(tradeId, parseFloat(exitPrice));
+      if (result.success) {
+        showToast(`Trade closed! P&L: ${result.trade.pnl >= 0 ? '+' : ''}$${result.trade.pnl.toFixed(2)}`, result.trade.result === 'win' ? 'success' : 'error');
+        updateStatsDisplay();
+        renderTradeHistory();
+      }
+    }
+  };
+
+  window.deletePaperTrade = function(tradeId) {
+    if (confirm('Delete this trade?')) {
+      const trades = getTrades().filter(t => t.id !== tradeId);
+      saveTrades(trades);
+      updateStatsDisplay();
+      renderTradeHistory();
+      showToast('Trade deleted', 'success');
+    }
+  };
+
+  function showToast(message, type) {
+    // Use existing toast system if available
+    if (typeof BTCSAIShared !== 'undefined' && BTCSAIShared.showToast) {
+      BTCSAIShared.showToast(message, type);
+    } else {
+      console.log(`[${type}] ${message}`);
+    }
+  }
+
+  // Auto-init when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboardUI);
+  } else {
+    initDashboardUI();
+  }
 
   console.log('Paper Trading Journal loaded with live feed support.');
 })();

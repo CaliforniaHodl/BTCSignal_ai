@@ -1788,6 +1788,110 @@
       </div>
     </section>
 
+    <!-- Paper Trading Journal -->
+    <section class="paper-trading-section" id="paper-trading-section">
+      <h2>📝 Paper Trading Journal</h2>
+      <p class="section-desc">Practice your strategy with simulated trades before risking real capital</p>
+
+      <div class="paper-trading-container">
+        <!-- Stats Overview -->
+        <div class="paper-stats-grid">
+          <div class="paper-stat-card">
+            <span class="paper-stat-icon">💰</span>
+            <div class="paper-stat-info">
+              <span class="paper-stat-value" id="paper-capital">$100.00</span>
+              <span class="paper-stat-label">Current Capital</span>
+            </div>
+          </div>
+          <div class="paper-stat-card">
+            <span class="paper-stat-icon">📊</span>
+            <div class="paper-stat-info">
+              <span class="paper-stat-value" id="paper-pnl">$0.00</span>
+              <span class="paper-stat-label">Total P&L</span>
+            </div>
+          </div>
+          <div class="paper-stat-card">
+            <span class="paper-stat-icon">🎯</span>
+            <div class="paper-stat-info">
+              <span class="paper-stat-value" id="paper-winrate">--%</span>
+              <span class="paper-stat-label">Win Rate</span>
+            </div>
+          </div>
+          <div class="paper-stat-card">
+            <span class="paper-stat-icon">📈</span>
+            <div class="paper-stat-info">
+              <span class="paper-stat-value" id="paper-trades">0</span>
+              <span class="paper-stat-label">Total Trades</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Trade Form -->
+        <div class="paper-trade-form">
+          <h3>Log New Trade</h3>
+          <form id="paper-trade-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="paper-direction">Direction</label>
+                <select id="paper-direction" required>
+                  <option value="long">🟢 Long</option>
+                  <option value="short">🔴 Short</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="paper-entry">Entry Price</label>
+                <input type="number" id="paper-entry" step="0.01" placeholder="e.g. 42000" required>
+              </div>
+              <div class="form-group">
+                <label for="paper-size">Position Size ($)</label>
+                <input type="number" id="paper-size" step="0.01" placeholder="e.g. 10" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="paper-sl">Stop Loss</label>
+                <input type="number" id="paper-sl" step="0.01" placeholder="e.g. 41500" required>
+              </div>
+              <div class="form-group">
+                <label for="paper-tp">Take Profit</label>
+                <input type="number" id="paper-tp" step="0.01" placeholder="e.g. 43000">
+              </div>
+              <div class="form-group">
+                <label for="paper-notes">Notes</label>
+                <input type="text" id="paper-notes" placeholder="Trade reasoning...">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-paper-trade">📝 Log Trade</button>
+              <button type="button" class="btn-paper-clear" id="btn-paper-clear">🗑️ Clear All</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Trade History -->
+        <div class="paper-trades-history">
+          <h3>Trade History</h3>
+          <div class="paper-trades-list" id="paper-trades-list">
+            <div class="paper-trades-empty">
+              <span class="empty-icon">📋</span>
+              <p>No trades yet. Start logging your paper trades above!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Management Rules -->
+        <div class="paper-risk-rules">
+          <h4>⚠️ Risk Management Rules</h4>
+          <ul class="risk-rules-list">
+            <li><span class="rule-status" id="rule-sl">✓</span> Stop loss required on every trade</li>
+            <li><span class="rule-status" id="rule-risk">✓</span> Max 2% risk per trade</li>
+            <li><span class="rule-status" id="rule-daily">✓</span> Max 5% daily loss</li>
+            <li><span class="rule-status" id="rule-streak">✓</span> Stop after 3 consecutive losses</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
     <!-- Watchlist (Phase 7) -->
     <section class="watchlist-section">
       <h2>⭐ My Watchlist</h2>

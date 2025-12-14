@@ -62,6 +62,14 @@
   <script defer src="{{ "src/js/correlation-matrix.js" | relURL }}"></script>
   {{ end }}
 
+  {{/* Paper trading for dashboard */}}
+  {{ if eq .Type "dashboard" }}
+  <script defer src="{{ "src/js/paper-trading.js" | relURL }}"></script>
+  <script defer src="{{ "src/js/price-models.js" | relURL }}"></script>
+  <script defer src="{{ "src/js/signal-aggregator.js" | relURL }}"></script>
+  <script defer src="{{ "src/js/market-report.js" | relURL }}"></script>
+  {{ end }}
+
   {{/* Chart export utility for chart pages */}}
   {{ if or (eq .Type "smart-chart-pro") (eq .Type "smart-chart") (eq .Type "backtester-pro") }}
   <script defer src="{{ "src/js/chart-export.js" | relURL }}"></script>

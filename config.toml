@@ -12,7 +12,7 @@ author = 'BTC Signals Pro'
 keywords = 'Bitcoin, BTC, trading signals, technical analysis, on-chain data, cryptocurrency, liquidations, funding rates, open interest, Lightning Network'
 
 # Paywall Settings
-paywallEnabled = true  # Set to false to disable all paywalls
+paywallEnabled = false  # Set to false to disable all paywalls
 freePostCount = 10     # Number of recent posts that require payment (older posts are free)
 
 [environments.development]
