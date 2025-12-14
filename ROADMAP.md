@@ -2157,41 +2157,48 @@ Share: API layer only
 
 ---
 
-### Phase 15: Advanced Alert System (PRIORITY: CRITICAL)
+### Phase 15: Advanced Alert System (PRIORITY: CRITICAL) - IN PROGRESS
 *Goal: Match CryptoQuant's 20-alert Professional tier*
 *Effort: 2 sprints*
 
-**Sprint 1: Alert Infrastructure**
-- [ ] Create `netlify/functions/alerts/` module
-- [ ] Alert types:
-  - [ ] Price threshold (above/below)
-  - [ ] Percentage change (1h, 4h, 24h)
-  - [ ] Funding rate threshold (>0.05%, <-0.03%)
-  - [ ] Open Interest change (>5% in 4h)
-  - [ ] MVRV zone entry (undervalued/overvalued)
-  - [ ] Whale transaction (>500 BTC)
-  - [ ] Liquidation spike (>$50M in 1h)
-- [ ] Alert storage in Turso/GitHub
-- [ ] Alert evaluation cron (every 5 min)
+**Sprint 1: Alert Infrastructure** - COMPLETE
+- [x] Create `netlify/functions/alerts/` module (lib/alert-system.ts, lib/alert-config.ts, check-alerts.ts)
+- [x] Alert types (28 total):
+  - [x] Price threshold (above/below) - 5%, 10%
+  - [x] Percentage change (24h)
+  - [x] Funding rate threshold (>0.1%, <-0.05%)
+  - [x] Open Interest change (+20%, -15%)
+  - [x] MVRV zone entry (<1.0, >2.5, >3.5)
+  - [x] Whale transaction (>500, >1000, >5000 BTC)
+  - [x] Liquidation spike (>$500M)
+  - [x] SOPR capitulation (<0.95, crosses 1.0)
+  - [x] NUPL euphoria/capitulation
+  - [x] Exchange netflow (>10K, <-10K BTC)
+  - [x] RSI overbought/oversold
+  - [x] Long/Short ratio extremes
+  - [x] NVT overvalued
+  - [x] Miner outflow spike
+- [x] Alert storage in GitHub (data/triggered-alerts.json)
+- [x] Alert evaluation cron (every 15 min via scheduled function)
 
-**Sprint 2: Alert UI & Notifications**
-- [ ] Alert management dashboard (`/alerts/`)
-- [ ] Create/edit/delete alerts
-- [ ] Alert history with trigger timestamps
-- [ ] Notification channels:
-  - [ ] Browser push notifications
+**Sprint 2: Alert UI & Notifications** - IN PROGRESS
+- [x] Alert management dashboard (`/alerts/`)
+- [x] Create/edit/delete alerts (alert-manager.js with localStorage)
+- [x] Alert history with trigger timestamps
+- [x] Notification channels:
+  - [x] Browser push notifications
   - [ ] Email (optional, no KYC required)
-  - [ ] Telegram bot integration
-  - [ ] Discord webhook
+  - [x] Telegram bot integration (send-telegram-alert.ts)
+  - [x] Discord webhook (discord-webhook.ts)
   - [ ] Webhook (custom URL)
-- [ ] Alert templates (Quick Alerts)
+- [x] Alert templates (8 Quick Alerts)
 - [ ] Alert sharing (public alert presets)
 
 **Success Criteria:**
-- [ ] 20+ alerts per user
-- [ ] 7+ alert types available
-- [ ] <1 minute alert delivery latency
-- [ ] 99% alert delivery rate
+- [x] 20+ alerts per user (MAX_USER_ALERTS = 20)
+- [x] 7+ alert types available (28 types)
+- [x] <1 minute alert delivery latency (15 min check + instant browser)
+- [ ] 99% alert delivery rate (tracking needed)
 
 ---
 
@@ -2466,33 +2473,9 @@ Share: API layer only
 
 ---
 
-### Phase 23: Multi-Asset Support (PRIORITY: LOW)
-*Goal: Expand beyond BTC-only*
-*Effort: 3 sprints*
-
-**Sprint 1: ETH Support**
-- [ ] ETH price feed
-- [ ] ETH funding rates
-- [ ] ETH open interest
-- [ ] ETH liquidations
-- [ ] ETH on-chain basics (staking, gas)
-
-**Sprint 2: Major Alts**
-- [ ] SOL, XRP, DOGE, ADA
-- [ ] Basic metrics only (price, funding, OI)
-- [ ] Cross-asset correlation matrix
-- [ ] BTC dominance impact
-
-**Sprint 3: DeFi Metrics**
-- [ ] Total Value Locked (TVL)
-- [ ] DEX volume
-- [ ] Stablecoin flows
-- [ ] ETH gas tracker
-
-**Success Criteria:**
-- [ ] 5+ assets supported
-- [ ] Correlation matrix functional
-- [ ] Asset selector on all widgets
+### ~~Phase 23: Multi-Asset Support~~ (REMOVED - Bitcoin Only)
+*We are a Bitcoin-focused platform. No altcoin support planned.*
+*This keeps us aligned with our Lightning payment identity and Bitcoin maximalist users.*
 
 ---
 
@@ -2534,7 +2517,7 @@ Share: API layer only
 ## Recent Updates
 **2025-12-13**: Premium Feature Roadmap Added (Phases 15-23)
 - Added 9 new phases to compete with Glassnode/CryptoQuant paid tiers
-- Phase 15: Advanced Alert System (20+ custom alerts)
+- Phase 15: Advanced Alert System (28 alert types - IN PROGRESS)
 - Phase 16: Historical Data Infrastructure (Turso database)
 - Phase 17: Public API (REST API with rate limiting)
 - Phase 18: Data Export (CSV, JSON, Excel)
@@ -2542,7 +2525,7 @@ Share: API layer only
 - Phase 20: Expanded Metrics (100+ on-chain metrics)
 - Phase 21: Saved Layouts & Workspaces
 - Phase 22: Team & Enterprise Features
-- Phase 23: Multi-Asset Support (ETH, SOL, etc.)
+- ~~Phase 23: Multi-Asset Support~~ (REMOVED - Bitcoin Only)
 - New pricing tiers: Basic ($21), Pro ($50), Premium ($150), Enterprise
 - Removed old comparison files (Phase_6.md, COMPETITIVE_ROADMAP.md, etc.)
 

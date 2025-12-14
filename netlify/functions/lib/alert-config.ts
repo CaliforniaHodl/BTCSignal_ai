@@ -8,9 +8,20 @@ import { AlertCondition } from './alert-system';
 /**
  * Default alert configurations
  * These represent common market conditions that traders should monitor
+ * Target: 20+ alerts to match CryptoQuant Professional tier
  */
 export const DEFAULT_ALERTS: AlertCondition[] = [
-  // Price Alerts
+  // ============ PRICE ALERTS ============
+  {
+    id: 'price_drop_5pct',
+    name: 'Price Drop -5% (24h)',
+    category: 'price',
+    condition: 'below',
+    threshold: -5,
+    severity: 'warning',
+    enabled: true,
+    description: 'Notable price decline - may signal further downside',
+  },
   {
     id: 'price_drop_10pct',
     name: 'Price Drop -10% (24h)',
@@ -22,6 +33,16 @@ export const DEFAULT_ALERTS: AlertCondition[] = [
     description: 'Flash crash warning - price has dropped more than 10% in 24 hours',
   },
   {
+    id: 'price_pump_5pct',
+    name: 'Price Pump +5% (24h)',
+    category: 'price',
+    condition: 'above',
+    threshold: 5,
+    severity: 'info',
+    enabled: true,
+    description: 'Notable price increase - momentum building',
+  },
+  {
     id: 'price_pump_10pct',
     name: 'Price Pump +10% (24h)',
     category: 'price',
@@ -31,8 +52,18 @@ export const DEFAULT_ALERTS: AlertCondition[] = [
     enabled: true,
     description: 'Significant price increase - possible FOMO or short squeeze',
   },
+  {
+    id: 'price_ath_proximity',
+    name: 'Price within 5% of ATH',
+    category: 'price',
+    condition: 'above',
+    threshold: 95, // % of ATH
+    severity: 'info',
+    enabled: false,
+    description: 'Price approaching all-time high territory',
+  },
 
-  // On-Chain Alerts
+  // ============ ON-CHAIN ALERTS ============
   {
     id: 'mvrv_extreme_high',
     name: 'MVRV > 3.5 (Cycle Top Warning)',
@@ -42,6 +73,16 @@ export const DEFAULT_ALERTS: AlertCondition[] = [
     severity: 'critical',
     enabled: true,
     description: 'Market approaching cycle top territory - extreme overvaluation',
+  },
+  {
+    id: 'mvrv_high',
+    name: 'MVRV > 2.5 (Overvalued)',
+    category: 'onchain',
+    condition: 'above',
+    threshold: 2.5,
+    severity: 'warning',
+    enabled: true,
+    description: 'Market entering overvalued territory - caution advised',
   },
   {
     id: 'mvrv_extreme_low',
@@ -113,8 +154,48 @@ export const DEFAULT_ALERTS: AlertCondition[] = [
     enabled: true,
     description: 'Market in capitulation - network in unrealized loss',
   },
+  {
+    id: 'whale_transaction_500btc',
+    name: 'Whale Transaction > 500 BTC',
+    category: 'onchain',
+    condition: 'above',
+    threshold: 500,
+    severity: 'info',
+    enabled: true,
+    description: 'Large whale transaction detected - watch for market impact',
+  },
+  {
+    id: 'whale_transaction_1000btc',
+    name: 'Whale Transaction > 1000 BTC',
+    category: 'onchain',
+    condition: 'above',
+    threshold: 1000,
+    severity: 'warning',
+    enabled: true,
+    description: 'Very large whale transaction - significant market mover',
+  },
+  {
+    id: 'whale_transaction_5000btc',
+    name: 'Whale Transaction > 5000 BTC',
+    category: 'onchain',
+    condition: 'above',
+    threshold: 5000,
+    severity: 'critical',
+    enabled: true,
+    description: 'Massive whale movement - potential major market event',
+  },
+  {
+    id: 'miner_outflow_spike',
+    name: 'Miner Outflow Spike',
+    category: 'onchain',
+    condition: 'above',
+    threshold: 1000, // BTC
+    severity: 'warning',
+    enabled: true,
+    description: 'Miners selling - potential supply pressure',
+  },
 
-  // Derivatives Alerts
+  // ============ DERIVATIVES ALERTS ============
   {
     id: 'funding_rate_extreme_positive',
     name: 'Funding Rate > 0.1%',
@@ -155,8 +236,38 @@ export const DEFAULT_ALERTS: AlertCondition[] = [
     enabled: true,
     description: 'Significant increase in leveraged positions',
   },
+  {
+    id: 'oi_drop',
+    name: 'Open Interest -15% (24h)',
+    category: 'derivatives',
+    condition: 'below',
+    threshold: -15,
+    severity: 'warning',
+    enabled: true,
+    description: 'Significant deleveraging - positions being closed',
+  },
+  {
+    id: 'long_short_extreme_long',
+    name: 'L/S Ratio > 2.0 (Extreme Longs)',
+    category: 'derivatives',
+    condition: 'above',
+    threshold: 2.0,
+    severity: 'warning',
+    enabled: true,
+    description: 'Market heavily long - potential long squeeze risk',
+  },
+  {
+    id: 'long_short_extreme_short',
+    name: 'L/S Ratio < 0.5 (Extreme Shorts)',
+    category: 'derivatives',
+    condition: 'below',
+    threshold: 0.5,
+    severity: 'warning',
+    enabled: true,
+    description: 'Market heavily short - potential short squeeze setup',
+  },
 
-  // Technical Alerts
+  // ============ TECHNICAL ALERTS ============
   {
     id: 'rsi_overbought',
     name: 'RSI > 80 (Overbought)',
