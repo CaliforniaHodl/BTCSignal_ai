@@ -7232,3 +7232,410 @@
     color: var(--red);
   }
 }
+
+// =====================================================
+// DASHBOARD CUSTOMIZER - Sprint 16
+// =====================================================
+
+// Customize button
+.btn-customize-dashboard {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  font-weight: $font-medium;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+    border-color: var(--text-secondary);
+  }
+
+  i {
+    font-size: $font-md;
+  }
+}
+
+// Drag and drop states
+.widget-card {
+  cursor: grab;
+  transition: all $transition-base, transform $transition-fast;
+
+  &.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+    transform: scale(0.95);
+  }
+
+  &.drag-over {
+    border: 2px dashed var(--bitcoin-orange);
+    background: rgba($bitcoin-orange, 0.05);
+  }
+}
+
+// Widget size variations
+.widget-size-small {
+  grid-column: span 1;
+
+  .widget-value {
+    font-size: $font-2xl;
+  }
+}
+
+.widget-size-medium {
+  // Default size - no changes needed
+}
+
+.widget-size-large {
+  grid-column: span 2;
+
+  .widget-value {
+    font-size: $font-4xl;
+  }
+
+  .widget-chart {
+    height: 200px;
+  }
+}
+
+// Customizer Panel
+.customizer-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  &.active {
+    display: flex;
+  }
+}
+
+.customizer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.customizer-content {
+  position: relative;
+  z-index: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-lg;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.customizer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg $spacing-xl;
+  border-bottom: 1px solid var(--border-color);
+
+  h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: $font-xl;
+  }
+
+  .btn-close-customizer {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: $font-xl;
+    cursor: pointer;
+    padding: $spacing-xs;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $radius-md;
+    transition: all $transition-fast;
+
+    &:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+  }
+}
+
+.customizer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: $spacing-xl;
+}
+
+.customizer-section {
+  margin-bottom: $spacing-2xl;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h4 {
+    color: var(--text-primary);
+    font-size: $font-lg;
+    margin-bottom: $spacing-xs;
+  }
+
+  .section-help {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    margin-bottom: $spacing-md;
+  }
+}
+
+// Widget Toggles
+.widget-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.toggle-item {
+  padding: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  border: 1px solid var(--border-color);
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: var(--text-secondary);
+  }
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 60px;
+}
+
+.toggle-icon {
+  font-size: $font-xl;
+  width: 32px;
+  text-align: center;
+}
+
+.toggle-text {
+  flex: 1;
+  color: var(--text-primary);
+  font-weight: $font-medium;
+}
+
+.toggle-checkbox {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+
+  &:checked ~ .toggle-slider {
+    background: var(--bitcoin-orange);
+
+    &::before {
+      transform: translateX(24px);
+    }
+  }
+}
+
+.toggle-slider {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 24px;
+  background: var(--border-color);
+  border-radius: $radius-full;
+  transition: all $transition-fast;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: $radius-full;
+    transition: transform $transition-fast;
+  }
+}
+
+// Widget Sizes
+.widget-sizes {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.size-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  border: 1px solid var(--border-color);
+}
+
+.size-label {
+  color: var(--text-primary);
+  font-weight: $font-medium;
+  font-size: $font-sm;
+}
+
+.size-buttons {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.btn-size {
+  width: 40px;
+  height: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: $radius-sm;
+  font-weight: $font-bold;
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+    color: var(--bg-dark);
+  }
+}
+
+// Tips List
+.tips-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: $spacing-sm 0;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    line-height: 1.6;
+
+    strong {
+      color: var(--text-primary);
+      font-weight: $font-semibold;
+    }
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+}
+
+// Customizer Footer
+.customizer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg $spacing-xl;
+  border-top: 1px solid var(--border-color);
+  gap: $spacing-md;
+
+  .btn-reset,
+  .btn-primary {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-xs;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-md;
+    font-weight: $font-medium;
+    cursor: pointer;
+    transition: all $transition-fast;
+  }
+
+  .btn-reset {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+
+    &:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: var(--text-secondary);
+    }
+  }
+
+  .btn-primary {
+    background: var(--bitcoin-orange);
+    border: 1px solid var(--bitcoin-orange);
+    color: var(--bg-dark);
+
+    &:hover {
+      background: var(--bitcoin-orange-dark);
+      border-color: var(--bitcoin-orange-dark);
+    }
+  }
+}
+
+// Prevent body scroll when customizer is open
+body.customizer-open {
+  overflow: hidden;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .widget-size-large {
+    grid-column: span 1;
+  }
+
+  .customizer-content {
+    width: 100%;
+    max-width: none;
+    height: 100vh;
+    max-height: none;
+    border-radius: 0;
+  }
+
+  .size-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+
+  .size-label {
+    width: 100%;
+  }
+}

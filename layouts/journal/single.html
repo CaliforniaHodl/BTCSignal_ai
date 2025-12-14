@@ -1,0 +1,503 @@
+{{ define "main" }}
+<div class="container premium-page journal-page" id="journal-page">
+  <header class="journal-header">
+    <h1>Trade Journal</h1>
+    <p class="subtitle">Track, analyze, and improve your trading performance</p>
+  </header>
+
+  <!-- Quick Stats -->
+  <div class="journal-stats" id="journal-stats">
+    <div class="stat-card">
+      <span class="stat-label">Total Trades</span>
+      <span class="stat-value" id="stat-total-trades">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Win Rate</span>
+      <span class="stat-value" id="stat-win-rate">0%</span>
+    </div>
+    <div class="stat-card profit">
+      <span class="stat-label">Total P&L</span>
+      <span class="stat-value" id="stat-total-pnl">$0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Profit Factor</span>
+      <span class="stat-value" id="stat-profit-factor">0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Avg Win</span>
+      <span class="stat-value positive" id="stat-avg-win">$0</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Avg Loss</span>
+      <span class="stat-value negative" id="stat-avg-loss">$0</span>
+    </div>
+  </div>
+
+  <!-- Add Trade Section -->
+  <section class="add-trade-section">
+    <h2>Add New Trade</h2>
+    <form id="add-trade-form" class="trade-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="trade-type">Type</label>
+          <select id="trade-type" required>
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="trade-entry">Entry Price</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="trade-entry" step="0.01" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="trade-exit">Exit Price</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="trade-exit" step="0.01" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="trade-size">Position Size</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">$</span>
+            <input type="number" id="trade-size" step="0.01" required>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="trade-date">Date</label>
+          <input type="date" id="trade-date" required>
+        </div>
+        <div class="form-group flex-2">
+          <label for="trade-notes">Notes</label>
+          <input type="text" id="trade-notes" placeholder="Setup, reasoning, lessons learned...">
+        </div>
+        <div class="form-group">
+          <label for="trade-tags">Tags</label>
+          <input type="text" id="trade-tags" placeholder="breakout, trend, scalp">
+        </div>
+      </div>
+      <button type="submit" class="btn-add-trade">
+        <span class="btn-icon">+</span> Add Trade
+      </button>
+    </form>
+  </section>
+
+  <!-- Filters & Actions -->
+  <section class="journal-controls">
+    <div class="filters">
+      <select id="filter-type" class="filter-select">
+        <option value="all">All Types</option>
+        <option value="long">Longs Only</option>
+        <option value="short">Shorts Only</option>
+      </select>
+      <select id="filter-result" class="filter-select">
+        <option value="all">All Results</option>
+        <option value="win">Winners Only</option>
+        <option value="loss">Losers Only</option>
+      </select>
+      <input type="text" id="search-trades" class="search-input" placeholder="Search notes/tags...">
+    </div>
+    <div class="actions">
+      <button id="btn-export" class="btn-action">Export CSV</button>
+      <button id="btn-clear" class="btn-action danger">Clear All</button>
+    </div>
+  </section>
+
+  <!-- Trades List -->
+  <section class="trades-list-section">
+    <div class="trades-list" id="trades-list">
+      <div class="no-trades" id="no-trades">
+        <div class="no-trades-icon">📊</div>
+        <p>No trades recorded yet</p>
+        <span>Add your first trade above to start tracking</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .journal-page { max-width: 1000px; padding-top: 2rem; }
+  .journal-header { text-align: center; margin-bottom: 2rem; }
+  .journal-header h1 { margin: 0 0 0.5rem; }
+  .journal-header .subtitle { color: var(--text-muted); margin: 0; }
+
+  .journal-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+  }
+  .stat-card .stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+  }
+  .stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .stat-card .stat-value.positive { color: var(--green); }
+  .stat-card .stat-value.negative { color: var(--red); }
+
+  .add-trade-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .add-trade-section h2 {
+    font-size: 1.125rem;
+    margin: 0 0 1rem;
+  }
+  .trade-form .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .trade-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+    min-width: 120px;
+  }
+  .trade-form .form-group.flex-2 { flex: 2; }
+  .trade-form label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .trade-form select,
+  .trade-form input {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+  .trade-form select:focus,
+  .trade-form input:focus {
+    border-color: var(--bitcoin-orange);
+    outline: none;
+  }
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-wrapper .input-prefix {
+    position: absolute;
+    left: 0.75rem;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+  .input-wrapper input {
+    padding-left: 1.75rem;
+    width: 100%;
+  }
+  .btn-add-trade {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--bitcoin-orange), var(--bitcoin-gold));
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-add-trade:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(247, 147, 26, 0.3);
+  }
+
+  .journal-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .filter-select, .search-input {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+  }
+  .search-input { min-width: 200px; }
+  .actions { display: flex; gap: 0.5rem; }
+  .btn-action {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-action:hover {
+    background: var(--bg-card-hover);
+    color: var(--text-primary);
+  }
+  .btn-action.danger { border-color: var(--red); color: var(--red); }
+  .btn-action.danger:hover { background: rgba(248, 81, 73, 0.1); }
+
+  .trades-list-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .trade-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.2s;
+  }
+  .trade-item:last-child { border-bottom: none; }
+  .trade-item:hover { background: var(--bg-dark); }
+  .trade-type {
+    width: 60px;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .trade-type.long { background: rgba(63, 185, 80, 0.15); color: var(--green); }
+  .trade-type.short { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+  .trade-details { flex: 1; }
+  .trade-prices {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+  .trade-notes {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+  .trade-tags { display: flex; gap: 0.25rem; margin-top: 0.25rem; }
+  .trade-tag {
+    background: var(--bg-dark);
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .trade-pnl {
+    font-size: 1.125rem;
+    font-weight: 700;
+    min-width: 80px;
+    text-align: right;
+  }
+  .trade-pnl.positive { color: var(--green); }
+  .trade-pnl.negative { color: var(--red); }
+  .trade-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-width: 80px;
+    text-align: right;
+  }
+  .trade-delete {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    opacity: 0;
+    transition: all 0.2s;
+  }
+  .trade-item:hover .trade-delete { opacity: 1; }
+  .trade-delete:hover { color: var(--red); }
+
+  .no-trades {
+    padding: 3rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .no-trades-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+
+  @media (max-width: 768px) {
+    .trade-form .form-group { min-width: 100%; }
+    .journal-controls { flex-direction: column; }
+    .filters, .actions { width: 100%; }
+    .trade-item { flex-wrap: wrap; }
+    .trade-pnl, .trade-date { min-width: auto; }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default date to today
+  document.getElementById('trade-date').valueAsDate = new Date();
+
+  // Update stats display
+  function updateStats() {
+    const stats = TradeJournal.getStats();
+    document.getElementById('stat-total-trades').textContent = stats.totalTrades;
+    document.getElementById('stat-win-rate').textContent = stats.winRate.toFixed(1) + '%';
+
+    const pnlEl = document.getElementById('stat-total-pnl');
+    pnlEl.textContent = (stats.totalPnL >= 0 ? '+' : '') + '$' + stats.totalPnL.toFixed(2);
+    pnlEl.className = 'stat-value ' + (stats.totalPnL >= 0 ? 'positive' : 'negative');
+
+    document.getElementById('stat-profit-factor').textContent = stats.profitFactor.toFixed(2);
+    document.getElementById('stat-avg-win').textContent = '+$' + stats.avgWin.toFixed(2);
+    document.getElementById('stat-avg-loss').textContent = '-$' + Math.abs(stats.avgLoss).toFixed(2);
+  }
+
+  // Render trades list
+  function renderTrades() {
+    const container = document.getElementById('trades-list');
+    const noTrades = document.getElementById('no-trades');
+
+    // Apply filters
+    const typeFilter = document.getElementById('filter-type').value;
+    const resultFilter = document.getElementById('filter-result').value;
+    const search = document.getElementById('search-trades').value;
+
+    const trades = TradeJournal.filter({
+      type: typeFilter !== 'all' ? typeFilter : null,
+      result: resultFilter !== 'all' ? resultFilter : null,
+      search: search || null
+    });
+
+    if (trades.length === 0) {
+      container.innerHTML = `
+        <div class="no-trades">
+          <div class="no-trades-icon">📊</div>
+          <p>No trades match your filters</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = trades.map(trade => {
+      const pnlClass = trade.pnl >= 0 ? 'positive' : 'negative';
+      const pnlSign = trade.pnl >= 0 ? '+' : '';
+      const tags = (trade.tags || '').split(',').filter(t => t.trim());
+
+      return `
+        <div class="trade-item" data-id="${trade.id}">
+          <span class="trade-type ${trade.type}">${trade.type}</span>
+          <div class="trade-details">
+            <div class="trade-prices">
+              Entry: $${trade.entryPrice.toLocaleString()} → Exit: $${trade.exitPrice.toLocaleString()}
+              (Size: $${trade.positionSize.toLocaleString()})
+            </div>
+            ${trade.notes ? `<div class="trade-notes">${escapeHtml(trade.notes)}</div>` : ''}
+            ${tags.length ? `
+              <div class="trade-tags">
+                ${tags.map(t => `<span class="trade-tag">${escapeHtml(t.trim())}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+          <span class="trade-pnl ${pnlClass}">${pnlSign}$${trade.pnl.toFixed(2)}</span>
+          <span class="trade-date">${new Date(trade.date).toLocaleDateString()}</span>
+          <button class="trade-delete" data-id="${trade.id}">&times;</button>
+        </div>
+      `;
+    }).join('');
+
+    // Add delete handlers
+    container.querySelectorAll('.trade-delete').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (confirm('Delete this trade?')) {
+          TradeJournal.delete(this.dataset.id);
+          renderTrades();
+          updateStats();
+        }
+      });
+    });
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Form submission
+  document.getElementById('add-trade-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const trade = {
+      type: document.getElementById('trade-type').value,
+      entryPrice: parseFloat(document.getElementById('trade-entry').value),
+      exitPrice: parseFloat(document.getElementById('trade-exit').value),
+      positionSize: parseFloat(document.getElementById('trade-size').value),
+      date: document.getElementById('trade-date').value,
+      notes: document.getElementById('trade-notes').value,
+      tags: document.getElementById('trade-tags').value
+    };
+
+    TradeJournal.add(trade);
+    this.reset();
+    document.getElementById('trade-date').valueAsDate = new Date();
+    renderTrades();
+    updateStats();
+
+    // Show confirmation
+    if (window.Toast) {
+      Toast.show('Trade added successfully', 'success');
+    }
+  });
+
+  // Filter handlers
+  document.getElementById('filter-type').addEventListener('change', renderTrades);
+  document.getElementById('filter-result').addEventListener('change', renderTrades);
+  document.getElementById('search-trades').addEventListener('input', renderTrades);
+
+  // Export
+  document.getElementById('btn-export').addEventListener('click', function() {
+    TradeJournal.export();
+  });
+
+  // Clear all
+  document.getElementById('btn-clear').addEventListener('click', function() {
+    if (confirm('Are you sure you want to delete all trades? This cannot be undone.')) {
+      localStorage.removeItem('btcsai_trade_journal');
+      location.reload();
+    }
+  });
+
+  // Initial render
+  updateStats();
+  renderTrades();
+});
+</script>
+{{ end }}

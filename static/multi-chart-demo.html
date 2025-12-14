@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Chart Layout Demo - BTC Signal AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #010409;
+      color: #c9d1d9;
+      padding: 20px;
+    }
+
+    .demo-container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .demo-header {
+      margin-bottom: 30px;
+    }
+
+    .demo-header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      color: #58a6ff;
+    }
+
+    .demo-header p {
+      color: #8d96a0;
+      font-size: 16px;
+    }
+
+    .demo-info {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .demo-info h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+      color: #58a6ff;
+    }
+
+    .demo-info ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .demo-info li {
+      padding: 6px 0;
+      color: #8d96a0;
+    }
+
+    .demo-info li:before {
+      content: "✓ ";
+      color: #3fb950;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+
+    .chart-wrapper {
+      height: 800px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .demo-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 16px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      flex-wrap: wrap;
+    }
+
+    .demo-controls button {
+      padding: 10px 20px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .demo-controls button:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+    }
+
+    .demo-controls button:active {
+      transform: translateY(1px);
+    }
+
+    code {
+      background: #21262d;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+      color: #f85149;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .feature-card {
+      background: #161b22;
+      padding: 16px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+    }
+
+    .feature-card h3 {
+      font-size: 14px;
+      color: #58a6ff;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 13px;
+      color: #8d96a0;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 768px) {
+      .chart-wrapper {
+        height: 600px;
+      }
+
+      .demo-controls {
+        flex-direction: column;
+      }
+
+      .demo-controls button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-container">
+    <div class="demo-header">
+      <h1>Multi-Chart Layout System</h1>
+      <p>View multiple timeframes simultaneously with synced crosshairs</p>
+    </div>
+
+    <div class="demo-info">
+      <h2>Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Multiple Layouts</h3>
+          <p>Choose from single, split horizontal, split vertical, and quad layouts</p>
+        </div>
+        <div class="feature-card">
+          <h3>Synced Crosshairs</h3>
+          <p>Crosshair movement synchronized across all charts for easy comparison</p>
+        </div>
+        <div class="feature-card">
+          <h3>Independent Timeframes</h3>
+          <p>Each chart can display a different timeframe (1m, 5m, 15m, 1H, 4H, 1D, 1W)</p>
+        </div>
+        <div class="feature-card">
+          <h3>Layout Persistence</h3>
+          <p>Your layout preferences are automatically saved to localStorage</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-info">
+      <h2>Quick Start</h2>
+      <ul>
+        <li>Use the layout selector buttons in the toolbar to switch between layouts</li>
+        <li>Toggle "Sync Crosshair" to enable/disable crosshair synchronization</li>
+        <li>Select different timeframes from the dropdown in each chart header</li>
+        <li>Click the × button to remove a chart (minimum 1 chart required)</li>
+        <li>Your layout preference is automatically saved</li>
+      </ul>
+    </div>
+
+    <div class="demo-controls">
+      <button onclick="testLayout('single')">Single Chart</button>
+      <button onclick="testLayout('splitHorizontal')">Split Horizontal</button>
+      <button onclick="testLayout('splitVertical')">Split Vertical</button>
+      <button onclick="testLayout('quad')">Quad Layout</button>
+      <button onclick="toggleSync()">Toggle Sync</button>
+      <button onclick="logState()">Log State</button>
+    </div>
+
+    <div id="multi-chart-container" class="chart-wrapper"></div>
+
+    <div class="demo-info" style="margin-top: 20px;">
+      <h2>API Usage</h2>
+      <p style="margin-bottom: 12px;">Initialize the multi-chart system:</p>
+      <pre style="background: #161b22; padding: 16px; border-radius: 6px; overflow-x: auto; color: #c9d1d9; font-size: 13px;">
+// Initialize with default options
+MultiChart.init('multi-chart-container');
+
+// Initialize with custom layout
+MultiChart.init('multi-chart-container', {
+  layout: 'quad',
+  crosshairSync: true,
+  timeframes: ['15m', '1h', '4h', '1d']
+});
+
+// Change layout programmatically
+MultiChart.setLayout('splitHorizontal', ['1h', '4h']);
+
+// Toggle crosshair sync
+MultiChart.syncCrosshair(true);
+
+// Listen for events
+MultiChart.on('layoutChange', (data) => {
+  console.log('Layout changed:', data);
+});
+
+// Get chart instance
+const chart = MultiChart.getChart('chart-1');
+
+// Get all charts
+const allCharts = MultiChart.getAllCharts();
+      </pre>
+    </div>
+  </div>
+
+  <!-- LightweightCharts Library -->
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+
+  <!-- Shared utilities (optional - will fall back to sample data) -->
+  <script src="/static/src/js/shared.js"></script>
+
+  <!-- Multi-Chart Module -->
+  <script src="/static/src/js/multi-chart.js"></script>
+
+  <script>
+    // Initialize multi-chart on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize with quad layout by default
+      MultiChart.init('multi-chart-container', {
+        layout: 'quad',
+        crosshairSync: true,
+        timeframes: ['15m', '1h', '4h', '1d']
+      });
+
+      // Listen for layout changes
+      MultiChart.on('layoutChange', (data) => {
+        console.log('[Demo] Layout changed:', data);
+      });
+
+      console.log('[Demo] Multi-chart initialized');
+    });
+
+    // Demo control functions
+    function testLayout(layout) {
+      const timeframes = {
+        single: ['4h'],
+        splitHorizontal: ['1h', '4h'],
+        splitVertical: ['15m', '4h'],
+        quad: ['15m', '1h', '4h', '1d']
+      };
+
+      MultiChart.setLayout(layout, timeframes[layout]);
+      console.log('[Demo] Switched to layout:', layout);
+    }
+
+    function toggleSync() {
+      const currentState = MultiChart._state.crosshairSync;
+      MultiChart.syncCrosshair(!currentState);
+      console.log('[Demo] Crosshair sync:', !currentState ? 'enabled' : 'disabled');
+    }
+
+    function logState() {
+      console.log('[Demo] Current state:', {
+        layout: MultiChart._state.currentLayout,
+        chartCount: MultiChart._state.charts.size,
+        crosshairSync: MultiChart._state.crosshairSync,
+        charts: Array.from(MultiChart._state.chartConfigs.entries())
+      });
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + 1-4 for layouts
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        switch(e.key) {
+          case '1':
+            e.preventDefault();
+            testLayout('single');
+            break;
+          case '2':
+            e.preventDefault();
+            testLayout('splitHorizontal');
+            break;
+          case '3':
+            e.preventDefault();
+            testLayout('splitVertical');
+            break;
+          case '4':
+            e.preventDefault();
+            testLayout('quad');
+            break;
+          case 's':
+            e.preventDefault();
+            toggleSync();
+            break;
+        }
+      }
+    });
+  </script>
+</body>
+</html>

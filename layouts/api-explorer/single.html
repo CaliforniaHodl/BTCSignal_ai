@@ -1,0 +1,181 @@
+{{ define "main" }}
+<div class="container api-explorer-page">
+  <header class="api-explorer-header">
+    <h1>{{ .Title }}</h1>
+    <p class="subtitle">{{ .Description }}</p>
+  </header>
+
+  <div class="api-explorer-content">
+    {{ .Content }}
+  </div>
+
+  <div class="api-explorer-container">
+    <!-- Endpoint Sidebar -->
+    <aside class="endpoints-sidebar">
+      <div class="sidebar-header">
+        <h3>Endpoints</h3>
+        <span class="endpoint-count" id="endpoint-count">0</span>
+      </div>
+
+      <div class="endpoints-list" id="endpoints-list">
+        <!-- Populated by JavaScript -->
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="api-info">
+          <h4>Rate Limits</h4>
+          <p>125k requests/month</p>
+          <p class="info-note">Shared Netlify limit</p>
+        </div>
+        <div class="api-info">
+          <h4>CORS Enabled</h4>
+          <p>Call from any domain</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Explorer Panel -->
+    <main class="explorer-main">
+      <!-- Request Builder -->
+      <section class="request-builder">
+        <div class="section-header">
+          <h2>Request Builder</h2>
+          <button class="btn-reset" id="btn-reset-request" title="Reset request">
+            <i class="fas fa-redo"></i> Reset
+          </button>
+        </div>
+
+        <div class="request-config">
+          <div class="config-row">
+            <div class="config-group">
+              <label for="request-method">Method</label>
+              <select id="request-method" class="method-select">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+              </select>
+            </div>
+
+            <div class="config-group url-group">
+              <label for="request-url">Endpoint URL</label>
+              <div class="url-input-wrapper">
+                <input type="text" id="request-url" class="url-input" readonly>
+                <button class="btn-copy-url" id="btn-copy-url" title="Copy URL">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Query Parameters -->
+          <div class="query-params-section" id="query-params-section" style="display: none;">
+            <h4>Query Parameters</h4>
+            <div class="params-list" id="params-list">
+              <!-- Populated by JavaScript -->
+            </div>
+            <button class="btn-add-param" id="btn-add-param">
+              <i class="fas fa-plus"></i> Add Parameter
+            </button>
+          </div>
+
+          <!-- Request Body (for POST) -->
+          <div class="request-body-section" id="request-body-section" style="display: none;">
+            <h4>Request Body (JSON)</h4>
+            <textarea id="request-body" class="request-body-input" rows="8" placeholder='{\n  "key": "value"\n}'></textarea>
+          </div>
+
+          <div class="action-buttons">
+            <button class="btn-send-request" id="btn-send-request">
+              <i class="fas fa-paper-plane"></i> Send Request
+            </button>
+            <div class="request-status" id="request-status"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Response Viewer -->
+      <section class="response-viewer">
+        <div class="section-header">
+          <h2>Response</h2>
+          <div class="response-controls">
+            <span class="response-time" id="response-time"></span>
+            <span class="response-status" id="response-status-badge"></span>
+            <button class="btn-copy-response" id="btn-copy-response" title="Copy response">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="response-content">
+          <div class="response-empty" id="response-empty">
+            <i class="fas fa-code"></i>
+            <p>Send a request to see the response</p>
+          </div>
+          <pre class="response-json" id="response-json" style="display: none;"><code class="language-json"></code></pre>
+        </div>
+      </section>
+
+      <!-- Code Examples -->
+      <section class="code-examples">
+        <div class="section-header">
+          <h2>Code Examples</h2>
+          <div class="code-tabs" id="code-tabs">
+            <button class="tab-btn active" data-lang="curl">cURL</button>
+            <button class="tab-btn" data-lang="javascript">JavaScript</button>
+            <button class="tab-btn" data-lang="python">Python</button>
+          </div>
+        </div>
+
+        <div class="code-panels">
+          <!-- cURL Example -->
+          <div class="code-panel active" data-lang="curl">
+            <div class="code-header">
+              <span class="code-lang-label">Bash / cURL</span>
+              <button class="btn-copy-code" data-target="curl-code">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+            <pre class="code-block"><code id="curl-code" class="language-bash">curl https://btcsignal.ai/.netlify/functions/api-market-data</code></pre>
+          </div>
+
+          <!-- JavaScript Example -->
+          <div class="code-panel" data-lang="javascript">
+            <div class="code-header">
+              <span class="code-lang-label">JavaScript / Fetch API</span>
+              <button class="btn-copy-code" data-target="js-code">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+            <pre class="code-block"><code id="js-code" class="language-javascript">fetch('https://btcsignal.ai/.netlify/functions/api-market-data')
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error('Error:', error));</code></pre>
+          </div>
+
+          <!-- Python Example -->
+          <div class="code-panel" data-lang="python">
+            <div class="code-header">
+              <span class="code-lang-label">Python / Requests</span>
+              <button class="btn-copy-code" data-target="python-code">
+                <i class="fas fa-copy"></i> Copy
+              </button>
+            </div>
+            <pre class="code-block"><code id="python-code" class="language-python">import requests
+
+response = requests.get('https://btcsignal.ai/.netlify/functions/api-market-data')
+data = response.json()
+print(data)</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Endpoint Documentation -->
+      <section class="endpoint-docs" id="endpoint-docs">
+        <h2>Endpoint Documentation</h2>
+        <div class="docs-content" id="docs-content">
+          <p>Select an endpoint from the sidebar to view documentation</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{{ end }}

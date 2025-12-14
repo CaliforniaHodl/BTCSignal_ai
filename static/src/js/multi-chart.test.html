@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Chart Test Suite</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #010409;
+      color: #c9d1d9;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .test-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #58a6ff;
+      margin-bottom: 20px;
+    }
+
+    .test-section {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .test-section h2 {
+      color: #58a6ff;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .test-controls {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      color: #c9d1d9;
+      cursor: pointer;
+      font-family: monospace;
+      font-size: 12px;
+    }
+
+    button:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+    }
+
+    button.success {
+      background: #1a7f37;
+      border-color: #3fb950;
+    }
+
+    button.error {
+      background: #a40e26;
+      border-color: #f85149;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 600px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .test-result {
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 4px;
+      border: 1px solid;
+      font-size: 13px;
+    }
+
+    .test-result.pass {
+      background: rgba(63, 185, 80, 0.1);
+      border-color: #3fb950;
+      color: #3fb950;
+    }
+
+    .test-result.fail {
+      background: rgba(248, 81, 73, 0.1);
+      border-color: #f85149;
+      color: #f85149;
+    }
+
+    .test-result.info {
+      background: rgba(88, 166, 255, 0.1);
+      border-color: #58a6ff;
+      color: #58a6ff;
+    }
+
+    #test-results {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      padding: 12px;
+      background: #161b22;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      flex: 1;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #8d96a0;
+      display: block;
+    }
+
+    .pass .stat-value { color: #3fb950; }
+    .fail .stat-value { color: #f85149; }
+    .total .stat-value { color: #58a6ff; }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>Multi-Chart Test Suite</h1>
+
+    <div class="test-section">
+      <h2>Test Controls</h2>
+      <div class="test-controls">
+        <button onclick="runAllTests()">Run All Tests</button>
+        <button onclick="runBasicTests()">Basic Tests</button>
+        <button onclick="runLayoutTests()">Layout Tests</button>
+        <button onclick="runSyncTests()">Sync Tests</button>
+        <button onclick="runPersistenceTests()">Persistence Tests</button>
+        <button onclick="clearResults()">Clear Results</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat total">
+          <span class="stat-value" id="total-tests">0</span>
+          <span class="stat-label">Total Tests</span>
+        </div>
+        <div class="stat pass">
+          <span class="stat-value" id="passed-tests">0</span>
+          <span class="stat-label">Passed</span>
+        </div>
+        <div class="stat fail">
+          <span class="stat-value" id="failed-tests">0</span>
+          <span class="stat-label">Failed</span>
+        </div>
+      </div>
+
+      <div id="test-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>Chart Container</h2>
+      <div id="test-chart-container" class="chart-container"></div>
+    </div>
+  </div>
+
+  <!-- Dependencies -->
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="multi-chart.js"></script>
+
+  <script>
+    // Test Suite
+    const testResults = {
+      total: 0,
+      passed: 0,
+      failed: 0
+    };
+
+    function logResult(testName, passed, message = '') {
+      testResults.total++;
+      if (passed) {
+        testResults.passed++;
+      } else {
+        testResults.failed++;
+      }
+
+      const resultsContainer = document.getElementById('test-results');
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result ${passed ? 'pass' : 'fail'}`;
+      resultDiv.textContent = `${passed ? '✓' : '✗'} ${testName}${message ? ': ' + message : ''}`;
+      resultsContainer.insertBefore(resultDiv, resultsContainer.firstChild);
+
+      updateStats();
+    }
+
+    function logInfo(message) {
+      const resultsContainer = document.getElementById('test-results');
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'test-result info';
+      resultDiv.textContent = `ℹ ${message}`;
+      resultsContainer.insertBefore(resultDiv, resultsContainer.firstChild);
+    }
+
+    function updateStats() {
+      document.getElementById('total-tests').textContent = testResults.total;
+      document.getElementById('passed-tests').textContent = testResults.passed;
+      document.getElementById('failed-tests').textContent = testResults.failed;
+    }
+
+    function clearResults() {
+      document.getElementById('test-results').innerHTML = '';
+      testResults.total = 0;
+      testResults.passed = 0;
+      testResults.failed = 0;
+      updateStats();
+    }
+
+    async function wait(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // ========== BASIC TESTS ==========
+
+    async function runBasicTests() {
+      logInfo('Running basic tests...');
+
+      // Test 1: MultiChart exists
+      logResult(
+        'MultiChart object exists',
+        typeof MultiChart !== 'undefined',
+        'MultiChart should be defined'
+      );
+
+      // Test 2: Initialize
+      const initResult = MultiChart.init('test-chart-container');
+      logResult(
+        'Initialize MultiChart',
+        initResult === true,
+        'Init should return true'
+      );
+
+      await wait(100);
+
+      // Test 3: Default layout
+      logResult(
+        'Default layout is set',
+        MultiChart._state.currentLayout !== null,
+        `Current layout: ${MultiChart._state.currentLayout}`
+      );
+
+      // Test 4: Charts created
+      logResult(
+        'Charts created',
+        MultiChart._state.charts.size > 0,
+        `Created ${MultiChart._state.charts.size} chart(s)`
+      );
+
+      // Test 5: Container exists
+      logResult(
+        'Container exists',
+        MultiChart._state.container !== null,
+        'Container should be set'
+      );
+
+      // Test 6: LightweightCharts loaded
+      logResult(
+        'LightweightCharts loaded',
+        typeof LightweightCharts !== 'undefined',
+        'LightweightCharts should be available'
+      );
+    }
+
+    // ========== LAYOUT TESTS ==========
+
+    async function runLayoutTests() {
+      logInfo('Running layout tests...');
+
+      // Reinitialize
+      MultiChart.init('test-chart-container');
+      await wait(100);
+
+      // Test single layout
+      MultiChart.setLayout('single');
+      await wait(100);
+      logResult(
+        'Single layout (1x1)',
+        MultiChart._state.currentLayout === 'single' &&
+        MultiChart._state.charts.size === 1,
+        `Charts: ${MultiChart._state.charts.size}`
+      );
+
+      // Test split horizontal
+      MultiChart.setLayout('splitHorizontal');
+      await wait(100);
+      logResult(
+        'Split horizontal layout (1x2)',
+        MultiChart._state.currentLayout === 'splitHorizontal' &&
+        MultiChart._state.charts.size === 2,
+        `Charts: ${MultiChart._state.charts.size}`
+      );
+
+      // Test split vertical
+      MultiChart.setLayout('splitVertical');
+      await wait(100);
+      logResult(
+        'Split vertical layout (2x1)',
+        MultiChart._state.currentLayout === 'splitVertical' &&
+        MultiChart._state.charts.size === 2,
+        `Charts: ${MultiChart._state.charts.size}`
+      );
+
+      // Test quad layout
+      MultiChart.setLayout('quad');
+      await wait(100);
+      logResult(
+        'Quad layout (2x2)',
+        MultiChart._state.currentLayout === 'quad' &&
+        MultiChart._state.charts.size === 4,
+        `Charts: ${MultiChart._state.charts.size}`
+      );
+
+      // Test invalid layout
+      const beforeLayout = MultiChart._state.currentLayout;
+      MultiChart.setLayout('invalid');
+      await wait(100);
+      logResult(
+        'Invalid layout rejected',
+        MultiChart._state.currentLayout === beforeLayout,
+        'Layout should remain unchanged'
+      );
+
+      // Test custom timeframes
+      MultiChart.setLayout('splitHorizontal', ['1m', '1d']);
+      await wait(100);
+      const configs = Array.from(MultiChart._state.chartConfigs.values());
+      logResult(
+        'Custom timeframes applied',
+        configs[0].timeframe === '1m' || configs[1].timeframe === '1d',
+        `Timeframes: ${configs.map(c => c.timeframe).join(', ')}`
+      );
+    }
+
+    // ========== SYNC TESTS ==========
+
+    async function runSyncTests() {
+      logInfo('Running sync tests...');
+
+      // Initialize with quad layout
+      MultiChart.init('test-chart-container', {
+        layout: 'quad',
+        crosshairSync: true
+      });
+      await wait(100);
+
+      // Test sync enabled by default
+      logResult(
+        'Crosshair sync enabled by default',
+        MultiChart._state.crosshairSync === true,
+        'Should be enabled on init'
+      );
+
+      // Test disable sync
+      MultiChart.syncCrosshair(false);
+      logResult(
+        'Disable crosshair sync',
+        MultiChart._state.crosshairSync === false,
+        'Sync should be disabled'
+      );
+
+      // Test enable sync
+      MultiChart.syncCrosshair(true);
+      logResult(
+        'Enable crosshair sync',
+        MultiChart._state.crosshairSync === true,
+        'Sync should be enabled'
+      );
+
+      // Test checkbox state
+      const checkbox = document.getElementById('mc-crosshair-sync');
+      logResult(
+        'Sync checkbox exists',
+        checkbox !== null,
+        'Checkbox should be in DOM'
+      );
+
+      if (checkbox) {
+        logResult(
+          'Checkbox state matches',
+          checkbox.checked === MultiChart._state.crosshairSync,
+          `Checkbox: ${checkbox.checked}, State: ${MultiChart._state.crosshairSync}`
+        );
+      }
+    }
+
+    // ========== PERSISTENCE TESTS ==========
+
+    async function runPersistenceTests() {
+      logInfo('Running persistence tests...');
+
+      // Clear localStorage first
+      localStorage.removeItem('btcsai_multichart_layout');
+
+      // Initialize and set layout
+      MultiChart.init('test-chart-container');
+      await wait(100);
+      MultiChart.setLayout('quad');
+      await wait(100);
+
+      // Check if saved
+      const saved = localStorage.getItem('btcsai_multichart_layout');
+      logResult(
+        'Layout saved to localStorage',
+        saved !== null,
+        'Should save to localStorage'
+      );
+
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        logResult(
+          'Saved layout is correct',
+          parsed.layout === 'quad',
+          `Saved: ${parsed.layout}`
+        );
+
+        logResult(
+          'Saved crosshair sync preference',
+          typeof parsed.crosshairSync === 'boolean',
+          `Sync: ${parsed.crosshairSync}`
+        );
+
+        logResult(
+          'Saved timestamp exists',
+          typeof parsed.timestamp === 'number',
+          `Timestamp: ${new Date(parsed.timestamp).toISOString()}`
+        );
+      }
+
+      // Test loading saved preference
+      MultiChart.setLayout('single');
+      await wait(100);
+
+      // Reinitialize - should load saved preference
+      MultiChart.init('test-chart-container');
+      await wait(100);
+
+      logResult(
+        'Load saved layout on init',
+        MultiChart._state.currentLayout === 'single',
+        `Loaded layout: ${MultiChart._state.currentLayout}`
+      );
+    }
+
+    // ========== CHART MANAGEMENT TESTS ==========
+
+    async function runChartManagementTests() {
+      logInfo('Running chart management tests...');
+
+      MultiChart.init('test-chart-container', { layout: 'quad' });
+      await wait(100);
+
+      // Test getChart
+      const chart1 = MultiChart.getChart('chart-1');
+      logResult(
+        'Get chart by ID',
+        chart1 !== null && chart1 !== undefined,
+        'Should return chart object'
+      );
+
+      if (chart1) {
+        logResult(
+          'Chart has LightweightCharts instance',
+          chart1.chart !== undefined,
+          'Chart object should have chart property'
+        );
+
+        logResult(
+          'Chart has candleSeries',
+          chart1.candleSeries !== undefined,
+          'Chart object should have candleSeries'
+        );
+
+        logResult(
+          'Chart has container',
+          chart1.container !== undefined,
+          'Chart object should have container'
+        );
+      }
+
+      // Test getAllCharts
+      const allCharts = MultiChart.getAllCharts();
+      logResult(
+        'Get all charts',
+        allCharts instanceof Map && allCharts.size === 4,
+        `Returned ${allCharts.size} charts`
+      );
+
+      // Test chart configs
+      const configs = MultiChart._state.chartConfigs;
+      logResult(
+        'Chart configs exist',
+        configs.size === 4,
+        `${configs.size} configs stored`
+      );
+    }
+
+    // ========== EVENT TESTS ==========
+
+    async function runEventTests() {
+      logInfo('Running event tests...');
+
+      MultiChart.init('test-chart-container');
+      await wait(100);
+
+      // Test event subscription
+      let eventFired = false;
+      let eventData = null;
+
+      MultiChart.on('layoutChange', (data) => {
+        eventFired = true;
+        eventData = data;
+      });
+
+      // Trigger event
+      MultiChart.setLayout('quad');
+      await wait(100);
+
+      logResult(
+        'Event listener fired',
+        eventFired === true,
+        'layoutChange event should fire'
+      );
+
+      if (eventData) {
+        logResult(
+          'Event data contains layout',
+          eventData.layout === 'quad',
+          `Layout: ${eventData.layout}`
+        );
+
+        logResult(
+          'Event data contains chartCount',
+          eventData.chartCount === 4,
+          `Chart count: ${eventData.chartCount}`
+        );
+      }
+    }
+
+    // ========== RUN ALL TESTS ==========
+
+    async function runAllTests() {
+      clearResults();
+      logInfo('Starting comprehensive test suite...');
+
+      await runBasicTests();
+      await wait(200);
+
+      await runLayoutTests();
+      await wait(200);
+
+      await runSyncTests();
+      await wait(200);
+
+      await runPersistenceTests();
+      await wait(200);
+
+      await runChartManagementTests();
+      await wait(200);
+
+      await runEventTests();
+      await wait(200);
+
+      logInfo(`Test suite complete! ${testResults.passed}/${testResults.total} tests passed`);
+
+      if (testResults.failed === 0) {
+        logInfo('✓ All tests passed!');
+      } else {
+        logInfo(`✗ ${testResults.failed} test(s) failed`);
+      }
+    }
+
+    // Auto-run basic tests on load
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        logInfo('Page loaded - ready to run tests');
+        logInfo('Click "Run All Tests" to start the test suite');
+      }, 500);
+    });
+  </script>
+</body>
+</html>

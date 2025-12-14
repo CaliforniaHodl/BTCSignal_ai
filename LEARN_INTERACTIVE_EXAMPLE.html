@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learn Interactive - Usage Example</title>
+  <link rel="stylesheet" href="/assets/dist/css/learn-interactive.css">
+</head>
+<body data-article-id="bitcoin-basics-intro">
+
+  <!--
+    LEARN INTERACTIVE COMPONENTS - Usage Examples
+
+    This file demonstrates how to use all the interactive learn components:
+    1. Progress Tracking
+    2. Quiz Components
+    3. Code Examples with Copy Button
+    4. Expandable Sections
+    5. Completion Badges
+  -->
+
+  <div class="learn-page">
+
+    <!-- ================================================= -->
+    <!-- 1. PROGRESS TRACKING -->
+    <!-- ================================================= -->
+
+    <section class="progress-container" data-article-id="bitcoin-basics-intro">
+      <div class="progress-header">
+        <h3>Your Progress</h3>
+        <span class="progress-text">0%</span>
+      </div>
+      <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-fill" style="width: 0%"></div>
+      </div>
+    </section>
+
+    <!--
+      Progress is automatically tracked as users scroll through the article.
+      The article container must have class "article-content" and the body
+      must have data-article-id attribute.
+    -->
+
+    <!-- ================================================= -->
+    <!-- 2. COMPLETION BADGE -->
+    <!-- ================================================= -->
+
+    <div class="completion-badge" aria-hidden="true">
+      Completed
+    </div>
+
+    <!-- Badges automatically show when article is completed -->
+
+    <!-- ================================================= -->
+    <!-- 3. QUIZ COMPONENT -->
+    <!-- ================================================= -->
+
+    <form class="quiz-container" data-quiz-id="bitcoin-basics-quiz-1" data-article-id="bitcoin-basics-intro">
+      <div class="quiz-header">
+        <h3>Test Your Knowledge</h3>
+        <p class="quiz-subtitle">See how well you understand Bitcoin basics</p>
+        <span class="quiz-previous-score"></span>
+      </div>
+
+      <!-- Question 1 -->
+      <div class="quiz-question" data-correct="b">
+        <div class="question-text">
+          <span class="question-number">1.</span>
+          <span>What is the maximum supply of Bitcoin?</span>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option">
+            <input type="radio" id="q1a" name="question-0" value="a">
+            <label for="q1a">100 million BTC</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q1b" name="question-0" value="b">
+            <label for="q1b">21 million BTC</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q1c" name="question-0" value="c">
+            <label for="q1c">50 million BTC</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q1d" name="question-0" value="d">
+            <label for="q1d">Unlimited supply</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="quiz-question" data-correct="c">
+        <div class="question-text">
+          <span class="question-number">2.</span>
+          <span>Who created Bitcoin?</span>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option">
+            <input type="radio" id="q2a" name="question-1" value="a">
+            <label for="q2a">Elon Musk</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q2b" name="question-1" value="b">
+            <label for="q2b">Vitalik Buterin</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q2c" name="question-1" value="c">
+            <label for="q2c">Satoshi Nakamoto</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q2d" name="question-1" value="d">
+            <label for="q2d">Charlie Lee</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="quiz-question" data-correct="a">
+        <div class="question-text">
+          <span class="question-number">3.</span>
+          <span>What is a blockchain?</span>
+        </div>
+        <div class="quiz-options">
+          <div class="quiz-option">
+            <input type="radio" id="q3a" name="question-2" value="a">
+            <label for="q3a">A distributed ledger of transactions</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q3b" name="question-2" value="b">
+            <label for="q3b">A type of cryptocurrency wallet</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q3c" name="question-2" value="c">
+            <label for="q3c">A mining hardware device</label>
+          </div>
+          <div class="quiz-option">
+            <input type="radio" id="q3d" name="question-2" value="d">
+            <label for="q3d">A trading platform</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quiz Actions -->
+      <div class="quiz-actions">
+        <button type="submit" class="quiz-submit">Submit Quiz</button>
+      </div>
+
+      <!-- Quiz Results (hidden initially) -->
+      <div class="quiz-results">
+        <h4>Quiz Results</h4>
+        <div class="quiz-score">0/0</div>
+        <p class="quiz-message"></p>
+        <button type="button" class="quiz-retry">Try Again</button>
+      </div>
+    </form>
+
+    <!--
+      QUIZ SETUP:
+      - data-quiz-id: Unique ID for storing quiz scores
+      - data-article-id: Optional, for marking article complete when quiz passed
+      - data-correct: On each .quiz-question, specify the correct answer (a, b, c, d)
+      - Scores >= 70% mark the article as complete
+    -->
+
+    <!-- ================================================= -->
+    <!-- 4. CODE EXAMPLES WITH COPY BUTTON -->
+    <!-- ================================================= -->
+
+    <div class="code-example">
+      <pre><code>// Example: Generating a Bitcoin address
+const bitcoin = require('bitcoinjs-lib');
+const keyPair = bitcoin.ECPair.makeRandom();
+const { address } = bitcoin.payments.p2pkh({
+  pubkey: keyPair.publicKey
+});
+console.log('Your Bitcoin Address:', address);</code></pre>
+      <!-- Copy button is automatically added by JavaScript -->
+    </div>
+
+    <!--
+      CODE EXAMPLES:
+      - Wrap code in .code-example container
+      - Copy button is automatically injected
+      - Supports syntax highlighting when combined with highlight.js
+    -->
+
+    <!-- ================================================= -->
+    <!-- 5. EXPANDABLE SECTIONS -->
+    <!-- ================================================= -->
+
+    <div class="expandable-section">
+      <button class="section-toggle" aria-expanded="false">
+        <h3 class="section-title">Advanced Concepts</h3>
+        <span class="toggle-icon">▼</span>
+      </button>
+      <div class="section-content">
+        <div class="section-inner">
+          <p>This content is hidden until the user clicks the toggle button.</p>
+          <p>Great for organizing long articles and letting users focus on what they need.</p>
+
+          <h4>Nested Code Example</h4>
+          <div class="code-example">
+            <pre><code>// Calculate transaction fee
+const fee = transaction.virtualSize() * feeRate;
+console.log('Transaction Fee:', fee, 'satoshis');</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multiple expandable sections -->
+    <div class="expandable-section">
+      <button class="section-toggle" aria-expanded="false">
+        <h3 class="section-title">Lightning Network Deep Dive</h3>
+        <span class="toggle-icon">▼</span>
+      </button>
+      <div class="section-content">
+        <div class="section-inner">
+          <p>Lightning Network enables fast, low-cost Bitcoin transactions.</p>
+        </div>
+      </div>
+    </div>
+
+    <!--
+      EXPANDABLE SECTIONS:
+      - Click to expand/collapse content
+      - Auto-expands when URL hash matches a child element ID
+      - Smooth animations with max-height transitions
+    -->
+
+    <!-- ================================================= -->
+    <!-- 6. INTERACTIVE HIGHLIGHTS -->
+    <!-- ================================================= -->
+
+    <!-- Tip -->
+    <div class="interactive-highlight tip">
+      <div class="highlight-title">Pro Tip</div>
+      <p>Always verify addresses before sending Bitcoin. One wrong character can result in lost funds.</p>
+    </div>
+
+    <!-- Warning -->
+    <div class="interactive-highlight warning">
+      <div class="highlight-title">Important</div>
+      <p>Never share your private keys with anyone. Not your keys, not your Bitcoin.</p>
+    </div>
+
+    <!-- Info -->
+    <div class="interactive-highlight">
+      <div class="highlight-title">Did You Know?</div>
+      <p>Bitcoin's difficulty adjusts every 2,016 blocks to maintain a 10-minute average block time.</p>
+    </div>
+
+    <!-- Danger -->
+    <div class="interactive-highlight danger">
+      <div class="highlight-title">Security Alert</div>
+      <p>Phishing attacks targeting crypto users are common. Always verify URLs and use hardware wallets for large amounts.</p>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- 7. ARTICLE CARD WITH PROGRESS (for list pages) -->
+    <!-- ================================================= -->
+
+    <div class="article-card" data-article-id="bitcoin-basics-intro">
+      <div class="completion-badge" aria-hidden="true">Completed</div>
+
+      <div class="article-icon">📖</div>
+      <h2>Bitcoin Basics</h2>
+      <p class="article-desc">Learn the fundamentals of Bitcoin and how it works.</p>
+
+      <div class="learn-card-progress">
+        <div class="card-progress-bar">
+          <div class="card-progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="card-progress-text">0% complete</div>
+      </div>
+
+      <div class="article-meta">
+        <span class="read-time">10 min read</span>
+        <span class="difficulty-badge difficulty-beginner">Beginner</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================================================= -->
+  <!-- JAVASCRIPT INITIALIZATION -->
+  <!-- ================================================= -->
+
+  <script src="/static/dist/js/learn-interactive.js"></script>
+
+  <!--
+    JAVASCRIPT API:
+
+    The learn-interactive.js module exposes a global LearnInteractive object:
+
+    LearnInteractive.progress.saveProgress(articleId, percentage)
+    LearnInteractive.progress.markComplete(articleId)
+    LearnInteractive.progress.getProgress()
+    LearnInteractive.progress.isCompleted(articleId)
+    LearnInteractive.progress.reset()
+
+    LearnInteractive.quiz.init(quizElement)
+    LearnInteractive.quiz.submitQuiz(quizElement, quizId, questions)
+
+    LearnInteractive.code.init()
+
+    LearnInteractive.sections.toggle(sectionElement)
+    LearnInteractive.sections.expand(sectionElement)
+
+    LearnInteractive.scroll.init()
+
+    All components initialize automatically on DOM ready.
+  -->
+
+  <!-- ================================================= -->
+  <!-- MANUAL PROGRESS UPDATE EXAMPLE -->
+  <!-- ================================================= -->
+
+  <script>
+    // Example: Manually update progress
+    document.addEventListener('DOMContentLoaded', function() {
+      // Simulate progress updates
+      setTimeout(function() {
+        window.LearnInteractive.progress.saveProgress('bitcoin-basics-intro', 25);
+      }, 2000);
+
+      setTimeout(function() {
+        window.LearnInteractive.progress.saveProgress('bitcoin-basics-intro', 50);
+      }, 4000);
+
+      setTimeout(function() {
+        window.LearnInteractive.progress.saveProgress('bitcoin-basics-intro', 75);
+      }, 6000);
+
+      // Example: Mark complete on button click
+      const completeBtn = document.getElementById('mark-complete-btn');
+      if (completeBtn) {
+        completeBtn.addEventListener('click', function() {
+          window.LearnInteractive.progress.markComplete('bitcoin-basics-intro');
+        });
+      }
+    });
+  </script>
+
+  <!-- ================================================= -->
+  <!-- STORAGE STRUCTURE -->
+  <!-- ================================================= -->
+
+  <!--
+    LocalStorage Keys:
+
+    btcsignal_learn_progress:
+    {
+      "bitcoin-basics-intro": {
+        "percentage": 75,
+        "lastUpdated": "2024-01-15T10:30:00.000Z"
+      }
+    }
+
+    btcsignal_quiz_scores:
+    {
+      "bitcoin-basics-quiz-1": {
+        "score": 100,
+        "date": "2024-01-15T10:30:00.000Z"
+      }
+    }
+
+    btcsignal_completed_sections:
+    ["bitcoin-basics-intro", "advanced-trading-strategies"]
+  -->
+
+</body>
+</html>

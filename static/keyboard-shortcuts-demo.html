@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Keyboard Shortcuts Demo - BTCSignal.ai</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/static/src/css/shared.css">
+  <link rel="stylesheet" href="/static/src/css/keyboard-shortcuts.css">
+
+  <style>
+    body {
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .demo-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .demo-section h2 {
+      margin-top: 0;
+      color: var(--bitcoin-orange);
+    }
+
+    .demo-section p {
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .shortcut-list {
+      list-style: none;
+      padding: 0;
+      margin: 1.5rem 0;
+    }
+
+    .shortcut-list li {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+
+    .shortcut-list kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      height: 28px;
+      padding: 0 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-bottom: 2px solid var(--border-color);
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .demo-buttons {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f7931a, #ffb800);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-surface);
+    }
+
+    .status-box {
+      padding: 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    .status-box h4 {
+      margin-top: 0;
+      color: var(--text-primary);
+    }
+
+    .status-box pre {
+      background: var(--bg-card);
+      padding: 0.75rem;
+      border-radius: 4px;
+      overflow-x: auto;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .modal-demo {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-demo.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      color: var(--text-primary);
+    }
+
+    .modal-content p {
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-section">
+    <h1>Keyboard Shortcuts Demo</h1>
+    <p>
+      This page demonstrates the keyboard shortcuts system for BTCSignal.ai.
+      Try the shortcuts listed below or press <kbd>?</kbd> to see the help modal.
+    </p>
+  </div>
+
+  <div class="demo-section">
+    <h2>Available Shortcuts</h2>
+    <p>The following keyboard shortcuts are available on this page:</p>
+
+    <ul class="shortcut-list">
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>?</kbd> (Shift + /)
+        </div>
+        <div>Show keyboard shortcuts help modal</div>
+      </li>
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>Ctrl</kbd> + <kbd>K</kbd>
+        </div>
+        <div>Open command palette (coming soon)</div>
+      </li>
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>G</kbd> then <kbd>H</kbd>
+        </div>
+        <div>Go to Home</div>
+      </li>
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>G</kbd> then <kbd>D</kbd>
+        </div>
+        <div>Go to Dashboard</div>
+      </li>
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>G</kbd> then <kbd>A</kbd>
+        </div>
+        <div>Go to Alerts</div>
+      </li>
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>G</kbd> then <kbd>C</kbd>
+        </div>
+        <div>Go to Charts</div>
+      </li>
+      <li>
+        <div style="flex: 0 0 150px;">
+          <kbd>Escape</kbd>
+        </div>
+        <div>Close modals / Cancel</div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="demo-section">
+    <h2>Interactive Demo</h2>
+    <p>Test the shortcuts with these interactive examples:</p>
+
+    <div class="demo-buttons">
+      <button class="btn btn-primary" onclick="openTestModal()">
+        Open Test Modal (close with Escape)
+      </button>
+      <button class="btn btn-secondary" onclick="KeyboardShortcuts.showHelp()">
+        Show Shortcuts Help (or press ?)
+      </button>
+      <button class="btn btn-secondary" onclick="testChord()">
+        Test Chord Detection
+      </button>
+      <button class="btn btn-secondary" onclick="registerCustomShortcut()">
+        Register Custom Shortcut (T)
+      </button>
+    </div>
+
+    <div class="status-box">
+      <h4>Shortcuts Status</h4>
+      <pre id="status-display">Keyboard shortcuts initialized. Press any shortcut to test...</pre>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Custom Shortcuts API</h2>
+    <p>You can register your own shortcuts using the exposed API:</p>
+
+    <pre style="background: var(--bg-dark); padding: 1rem; border-radius: 8px; overflow-x: auto; color: var(--text-secondary); font-size: 0.875rem;">
+// Register a new shortcut
+KeyboardShortcuts.register({
+  key: 's',
+  modifiers: ['ctrl'],
+  description: 'Save document',
+  action: () => console.log('Saving...')
+});
+
+// Register a chord shortcut (vim-style)
+KeyboardShortcuts.register({
+  key: 'p',
+  chord: 'g',
+  description: 'Go to Profile',
+  action: () => window.location.href = '/profile/'
+});
+
+// Show help modal
+KeyboardShortcuts.showHelp();
+
+// Enable/disable shortcuts
+KeyboardShortcuts.disable();
+KeyboardShortcuts.enable();
+
+// Get all registered shortcuts
+const shortcuts = KeyboardShortcuts.getShortcuts();
+    </pre>
+  </div>
+
+  <!-- Test Modal -->
+  <div id="test-modal" class="modal-demo" data-keyboard-close>
+    <div class="modal-content">
+      <h3>Test Modal</h3>
+      <p>This modal can be closed by pressing the <kbd>Escape</kbd> key.</p>
+      <p>Try it now!</p>
+      <button class="btn btn-secondary" onclick="closeTestModal()">
+        Close with Button
+      </button>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="/static/src/js/security-utils.js"></script>
+  <script src="/static/src/js/shared.js"></script>
+  <script src="/static/src/js/toast.js"></script>
+  <script src="/static/src/js/keyboard-shortcuts.js"></script>
+
+  <script>
+    // Demo functions
+    function openTestModal() {
+      document.getElementById('test-modal').classList.add('show');
+      updateStatus('Test modal opened. Press Escape to close.');
+    }
+
+    function closeTestModal() {
+      document.getElementById('test-modal').classList.remove('show');
+      updateStatus('Test modal closed.');
+    }
+
+    function testChord() {
+      updateStatus('Press G then H to navigate to home (chord shortcut test)');
+      Toast.info('Try pressing G then H to test chord detection!');
+    }
+
+    function registerCustomShortcut() {
+      KeyboardShortcuts.register({
+        key: 't',
+        description: 'Test custom shortcut',
+        action: () => {
+          Toast.success('Custom shortcut T activated!');
+          updateStatus('Custom shortcut T was triggered!');
+        }
+      });
+      Toast.success('Custom shortcut registered! Press T to test.');
+      updateStatus('Registered custom shortcut: Press T to trigger a toast notification');
+    }
+
+    function updateStatus(message) {
+      const display = document.getElementById('status-display');
+      const timestamp = new Date().toLocaleTimeString();
+      display.textContent = `[${timestamp}] ${message}`;
+    }
+
+    // Log shortcut activations
+    const originalRegister = KeyboardShortcuts.register;
+    let customShortcutCount = 0;
+
+    // Listen for shortcut events
+    document.addEventListener('keydown', (e) => {
+      // Only log when a recognized shortcut is used
+      if (e.target === document.body || e.target.tagName === 'BUTTON') {
+        const keyStr = e.key;
+        const modifiers = [];
+        if (e.ctrlKey) modifiers.push('Ctrl');
+        if (e.metaKey) modifiers.push('Cmd');
+        if (e.altKey) modifiers.push('Alt');
+        if (e.shiftKey) modifiers.push('Shift');
+
+        const fullKey = modifiers.length > 0
+          ? `${modifiers.join('+')}+${keyStr}`
+          : keyStr;
+
+        // Only update for meaningful keys
+        if (keyStr.length === 1 || ['Escape', '?'].includes(keyStr)) {
+          updateStatus(`Key pressed: ${fullKey}`);
+        }
+      }
+    });
+
+    // Initialize
+    updateStatus('Keyboard shortcuts system loaded. Total shortcuts: ' + KeyboardShortcuts.getShortcuts().length);
+  </script>
+</body>
+</html>

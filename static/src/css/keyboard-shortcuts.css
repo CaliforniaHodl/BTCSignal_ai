@@ -1,0 +1,362 @@
+/* Keyboard Shortcuts Styles */
+
+/* ========== CHORD INDICATOR ========== */
+
+.chord-indicator {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--bg-card);
+  border: 2px solid var(--bitcoin-orange);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--bitcoin-orange);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 99999;
+  opacity: 0;
+  transform: scale(0.8) translateY(10px);
+  transition: all 0.2s ease;
+  display: none;
+  pointer-events: none;
+}
+
+.chord-indicator.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Pulse animation for chord indicator */
+@keyframes chord-pulse {
+  0%, 100% {
+    box-shadow: 0 8px 24px rgba(247, 147, 26, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 32px rgba(247, 147, 26, 0.6);
+  }
+}
+
+.chord-indicator.visible {
+  animation: chord-pulse 1s ease-in-out infinite;
+}
+
+/* ========== HELP MODAL ========== */
+
+.shortcuts-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.shortcuts-modal-overlay.hiding {
+  animation: fadeOut 0.2s ease;
+}
+
+.shortcuts-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Header */
+.shortcuts-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.shortcuts-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.shortcuts-modal-close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: color 0.2s;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.shortcuts-modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-dark);
+}
+
+.shortcuts-modal-close:focus-visible {
+  outline: 2px solid var(--bitcoin-orange);
+  outline-offset: 2px;
+}
+
+/* Modal Body */
+.shortcuts-modal-body {
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+  flex: 1;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+  border-radius: 4px;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.shortcuts-modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Shortcut Groups */
+.shortcuts-group {
+  margin-bottom: 2rem;
+}
+
+.shortcuts-group:last-child {
+  margin-bottom: 0;
+}
+
+.shortcuts-group-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bitcoin-orange);
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shortcuts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Shortcut Item */
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.shortcut-item:hover {
+  background: var(--bg-surface);
+  border-color: var(--bitcoin-orange);
+}
+
+.shortcut-keys {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  min-width: 140px;
+}
+
+.shortcut-keys kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 28px;
+  padding: 0 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--border-color);
+  border-radius: 4px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.shortcuts-then {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-style: italic;
+}
+
+.shortcut-description {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  text-align: right;
+}
+
+/* Modal Footer */
+.shortcuts-modal-footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-dark);
+  border-radius: 0 0 12px 12px;
+  flex-shrink: 0;
+}
+
+.shortcuts-tip {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.shortcuts-tip kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 2px;
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 767px) {
+  .shortcuts-modal {
+    max-width: 95%;
+    max-height: 90vh;
+  }
+
+  .shortcuts-modal-header,
+  .shortcuts-modal-body,
+  .shortcuts-modal-footer {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .shortcuts-modal-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .shortcut-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .shortcut-keys {
+    min-width: auto;
+  }
+
+  .shortcut-description {
+    text-align: left;
+  }
+
+  .chord-indicator {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 1.5rem;
+  }
+}
+
+/* ========== ACCESSIBILITY ========== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .shortcuts-modal {
+    border-width: 2px;
+  }
+
+  .shortcut-item {
+    border-width: 2px;
+  }
+
+  .shortcut-keys kbd {
+    border-width: 2px;
+    border-bottom-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .shortcuts-modal-overlay,
+  .shortcuts-modal,
+  .chord-indicator,
+  .shortcut-item {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .chord-indicator.visible {
+    animation: none;
+  }
+}
+
+/* Focus visible styles */
+.shortcut-item:focus-within {
+  outline: 2px solid var(--bitcoin-orange);
+  outline-offset: 2px;
+}
+
+/* ========== DARK/LIGHT THEME ========== */
+
+[data-theme="light"] .shortcuts-modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="light"] .chord-indicator {
+  border-color: var(--bitcoin-orange);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .shortcut-keys kbd {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}

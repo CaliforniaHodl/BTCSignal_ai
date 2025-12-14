@@ -1,0 +1,888 @@
+// =====================================================
+// API EXPLORER STYLES
+// Interactive API testing and documentation interface
+// =====================================================
+
+@import 'shared/variables';
+@import 'shared/mixins';
+
+// ========== MAIN CONTAINER ==========
+.api-explorer-page {
+  @include section-padding;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.api-explorer-header {
+  text-align: center;
+  margin-bottom: $spacing-2xl;
+
+  h1 {
+    font-size: $font-3xl;
+    margin-bottom: $spacing-sm;
+    @include gradient-text;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: $font-lg;
+  }
+}
+
+.api-explorer-content {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-md;
+    color: var(--text-primary);
+  }
+
+  h3 {
+    font-size: $font-lg;
+    margin: $spacing-lg 0 $spacing-sm;
+    color: var(--text-primary);
+  }
+
+  p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: $spacing-md;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: $spacing-md 0;
+
+    li {
+      padding: $spacing-xs 0;
+      color: var(--text-secondary);
+
+      &:before {
+        content: '→';
+        color: var(--bitcoin-orange);
+        margin-right: $spacing-sm;
+      }
+    }
+  }
+}
+
+// ========== EXPLORER CONTAINER ==========
+.api-explorer-container {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: $spacing-xl;
+  align-items: start;
+
+  @media (max-width: $breakpoint-lg) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ========== ENDPOINTS SIDEBAR ==========
+.endpoints-sidebar {
+  @include card;
+  padding: 0;
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 150px);
+  overflow-y: auto;
+
+  @media (max-width: $breakpoint-lg) {
+    position: static;
+    max-height: none;
+  }
+}
+
+.sidebar-header {
+  padding: $spacing-lg;
+  border-bottom: 1px solid var(--border-color);
+  @include flex-between;
+  align-items: center;
+
+  h3 {
+    font-size: $font-base;
+    font-weight: $font-semibold;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+.endpoint-count {
+  background: var(--bitcoin-orange);
+  color: #000;
+  padding: 2px $spacing-xs;
+  border-radius: $radius-full;
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  min-width: 24px;
+  text-align: center;
+}
+
+.endpoints-list {
+  padding: $spacing-sm;
+}
+
+.endpoint-category {
+  margin-bottom: $spacing-md;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.category-label {
+  font-size: $font-xs;
+  font-weight: $font-semibold;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: $spacing-xs $spacing-sm;
+  margin-bottom: $spacing-xs;
+}
+
+.category-endpoints {
+  @include flex-column;
+  gap: $spacing-xs;
+}
+
+.endpoint-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  cursor: pointer;
+  transition: all $transition-base;
+  width: 100%;
+  text-align: left;
+
+  &:hover {
+    background: var(--bg-surface);
+    border-color: var(--border-color);
+  }
+
+  &.active {
+    background: var(--bg-surface);
+    border-color: var(--bitcoin-orange);
+
+    .endpoint-name {
+      color: var(--bitcoin-orange);
+      font-weight: $font-semibold;
+    }
+  }
+}
+
+.endpoint-method {
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  padding: 2px $spacing-xs;
+  border-radius: $radius-sm;
+  min-width: 40px;
+  text-align: center;
+  text-transform: uppercase;
+
+  &.get {
+    background: rgba($green, 0.2);
+    color: var(--green);
+  }
+
+  &.post {
+    background: rgba($blue, 0.2);
+    color: var(--blue);
+  }
+}
+
+.endpoint-name {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.sidebar-footer {
+  padding: $spacing-lg;
+  border-top: 1px solid var(--border-color);
+  @include flex-column;
+  gap: $spacing-md;
+}
+
+.api-info {
+  h4 {
+    font-size: $font-xs;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+    margin-bottom: $spacing-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .info-note {
+    font-size: $font-xs;
+    color: var(--text-muted);
+  }
+}
+
+// ========== MAIN EXPLORER PANEL ==========
+.explorer-main {
+  @include flex-column;
+  gap: $spacing-xl;
+}
+
+.section-header {
+  @include flex-between;
+  align-items: center;
+  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+  gap: $spacing-md;
+
+  h2 {
+    font-size: $font-xl;
+    margin: 0;
+    color: var(--text-primary);
+  }
+}
+
+// ========== REQUEST BUILDER ==========
+.request-builder {
+  @include card;
+  padding: $spacing-xl;
+}
+
+.request-config {
+  @include flex-column;
+  gap: $spacing-lg;
+}
+
+.config-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: $spacing-md;
+  align-items: end;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.config-group {
+  @include flex-column;
+  gap: $spacing-xs;
+
+  label {
+    font-size: $font-sm;
+    font-weight: $font-medium;
+    color: var(--text-secondary);
+  }
+
+  &.url-group {
+    flex: 1;
+  }
+}
+
+.method-select {
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-size: $font-base;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+.url-input-wrapper {
+  display: flex;
+  gap: $spacing-xs;
+  align-items: center;
+}
+
+.url-input {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  font-size: $font-sm;
+
+  &:focus {
+    outline: none;
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+.btn-copy-url {
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: var(--bg-surface);
+    color: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+.btn-reset {
+  padding: $spacing-sm $spacing-md;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+  }
+
+  i {
+    margin-right: $spacing-xs;
+  }
+}
+
+// ========== QUERY PARAMETERS ==========
+.query-params-section {
+  padding-top: $spacing-lg;
+  border-top: 1px solid var(--border-color);
+
+  h4 {
+    font-size: $font-base;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+    margin-bottom: $spacing-md;
+  }
+}
+
+.params-list {
+  @include flex-column;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.param-row {
+  @include flex-column;
+  gap: $spacing-xs;
+}
+
+.param-info {
+  @include flex-column;
+  gap: 2px;
+}
+
+.param-name {
+  font-size: $font-sm;
+  font-weight: $font-medium;
+  color: var(--text-primary);
+
+  .required {
+    color: var(--red);
+    margin-left: $spacing-xs;
+  }
+
+  .optional {
+    color: var(--text-muted);
+    font-size: $font-xs;
+    font-weight: $font-normal;
+    margin-left: $spacing-xs;
+  }
+}
+
+.param-desc {
+  font-size: $font-xs;
+  color: var(--text-secondary);
+}
+
+.param-input-wrapper {
+  flex: 1;
+}
+
+.param-input {
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-size: $font-sm;
+
+  &:focus {
+    outline: none;
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+.btn-add-param {
+  padding: $spacing-sm $spacing-md;
+  background: transparent;
+  border: 1px dashed var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    border-color: var(--bitcoin-orange);
+    color: var(--bitcoin-orange);
+  }
+
+  i {
+    margin-right: $spacing-xs;
+  }
+}
+
+// ========== REQUEST BODY ==========
+.request-body-section {
+  padding-top: $spacing-lg;
+  border-top: 1px solid var(--border-color);
+
+  h4 {
+    font-size: $font-base;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+    margin-bottom: $spacing-md;
+  }
+}
+
+.request-body-input {
+  width: 100%;
+  padding: $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+  font-size: $font-sm;
+  resize: vertical;
+
+  &:focus {
+    outline: none;
+    border-color: var(--bitcoin-orange);
+  }
+}
+
+// ========== ACTION BUTTONS ==========
+.action-buttons {
+  @include flex-between;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.btn-send-request {
+  @include gradient-button;
+  padding: $spacing-md $spacing-xl;
+  font-size: $font-base;
+  font-weight: $font-semibold;
+
+  i {
+    margin-right: $spacing-sm;
+  }
+}
+
+.request-status {
+  font-size: $font-sm;
+  color: var(--text-secondary);
+
+  &.loading {
+    color: var(--blue);
+  }
+
+  &.success {
+    color: var(--green);
+  }
+
+  &.error {
+    color: var(--red);
+  }
+
+  i {
+    margin-right: $spacing-xs;
+  }
+}
+
+// ========== RESPONSE VIEWER ==========
+.response-viewer {
+  @include card;
+  padding: $spacing-xl;
+}
+
+.response-controls {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.response-time {
+  font-size: $font-sm;
+  color: var(--text-muted);
+  font-family: 'Courier New', monospace;
+}
+
+.response-status {
+  font-size: $font-xs;
+  font-weight: $font-bold;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-sm;
+  text-transform: uppercase;
+
+  &.success {
+    background: rgba($green, 0.2);
+    color: var(--green);
+  }
+
+  &.error {
+    background: rgba($red, 0.2);
+    color: var(--red);
+  }
+}
+
+.btn-copy-response {
+  padding: $spacing-sm $spacing-md;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: var(--bg-surface);
+    color: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+  }
+
+  i {
+    margin-right: $spacing-xs;
+  }
+}
+
+.response-content {
+  min-height: 300px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.response-empty {
+  @include flex-center;
+  @include flex-column;
+  min-height: 300px;
+  color: var(--text-muted);
+  gap: $spacing-md;
+
+  i {
+    font-size: $font-4xl;
+    opacity: 0.3;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.response-json {
+  margin: 0;
+  padding: $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  overflow-x: auto;
+
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: $font-sm;
+    color: var(--text-primary);
+    white-space: pre;
+  }
+}
+
+// ========== CODE EXAMPLES ==========
+.code-examples {
+  @include card;
+  padding: $spacing-xl;
+}
+
+.code-tabs {
+  display: flex;
+  gap: $spacing-xs;
+}
+
+.tab-btn {
+  padding: $spacing-sm $spacing-md;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-secondary);
+  font-size: $font-sm;
+  font-weight: $font-medium;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &.active {
+    color: var(--bitcoin-orange);
+    border-bottom-color: var(--bitcoin-orange);
+  }
+}
+
+.code-panels {
+  margin-top: $spacing-lg;
+}
+
+.code-panel {
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+.code-header {
+  @include flex-between;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-bottom: none;
+  border-radius: $radius-md $radius-md 0 0;
+}
+
+.code-lang-label {
+  font-size: $font-sm;
+  font-weight: $font-medium;
+  color: var(--text-secondary);
+}
+
+.btn-copy-code {
+  padding: $spacing-xs $spacing-sm;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: $radius-sm;
+  color: var(--text-secondary);
+  font-size: $font-xs;
+  cursor: pointer;
+  transition: all $transition-base;
+
+  &:hover {
+    background: var(--bg-card);
+    color: var(--bitcoin-orange);
+    border-color: var(--bitcoin-orange);
+  }
+
+  i {
+    margin-right: $spacing-xs;
+  }
+}
+
+.code-block {
+  margin: 0;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 $radius-md $radius-md;
+  overflow-x: auto;
+
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: $font-sm;
+    color: var(--text-primary);
+    white-space: pre;
+  }
+}
+
+// ========== ENDPOINT DOCUMENTATION ==========
+.endpoint-docs {
+  @include card;
+  padding: $spacing-xl;
+
+  h2 {
+    font-size: $font-xl;
+    margin-bottom: $spacing-lg;
+    color: var(--text-primary);
+  }
+
+  h3 {
+    font-size: $font-lg;
+    margin-bottom: $spacing-md;
+    color: var(--text-primary);
+  }
+
+  h4 {
+    font-size: $font-base;
+    font-weight: $font-semibold;
+    margin-top: $spacing-lg;
+    margin-bottom: $spacing-md;
+    color: var(--text-primary);
+  }
+}
+
+.docs-content {
+  color: var(--text-secondary);
+  line-height: 1.7;
+
+  p {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.endpoint-description {
+  font-size: $font-base;
+  color: var(--text-secondary);
+  margin-bottom: $spacing-lg;
+}
+
+.docs-section {
+  margin-bottom: $spacing-xl;
+}
+
+.endpoint-path {
+  display: inline-block;
+  padding: $spacing-sm $spacing-md;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  font-family: 'Courier New', monospace;
+  font-size: $font-sm;
+  color: var(--bitcoin-orange);
+}
+
+.params-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  overflow: hidden;
+
+  th, td {
+    padding: $spacing-md;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  thead th {
+    background: var(--bg-card);
+    font-size: $font-sm;
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  tbody tr:hover {
+    background: var(--bg-card);
+  }
+
+  code {
+    padding: 2px $spacing-xs;
+    background: var(--bg-dark);
+    border-radius: $radius-sm;
+    font-family: 'Courier New', monospace;
+    font-size: $font-xs;
+    color: var(--bitcoin-orange);
+  }
+
+  td {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+  }
+}
+
+.example-response {
+  margin: 0;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: $radius-md;
+  overflow-x: auto;
+
+  code {
+    font-family: 'Courier New', monospace;
+    font-size: $font-sm;
+    color: var(--text-primary);
+    white-space: pre;
+  }
+}
+
+// ========== RESPONSIVE ==========
+@include mobile {
+  .api-explorer-container {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+  }
+
+  .endpoints-sidebar {
+    position: static;
+    max-height: none;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    h2 {
+      width: 100%;
+    }
+  }
+
+  .config-row {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+
+    .btn-send-request {
+      width: 100%;
+    }
+  }
+
+  .response-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-sm;
+  }
+
+  .code-tabs {
+    flex-wrap: wrap;
+  }
+
+  .params-table {
+    font-size: $font-xs;
+
+    th, td {
+      padding: $spacing-sm;
+    }
+  }
+}

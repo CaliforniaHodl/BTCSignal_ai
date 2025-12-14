@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Exporter Demo - BTCSignal.ai</title>
+  <style>
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0d1117;
+      color: #d1d5db;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 { color: #f7931a; }
+    .demo-section {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .demo-section h2 {
+      margin-top: 0;
+      color: #ffffff;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #f7931a;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #e8860f;
+    }
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: #d1d5db;
+    }
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    .code-block {
+      background: rgba(0,0,0,0.3);
+      border-radius: 4px;
+      padding: 15px;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+    .code-block code {
+      color: #22c55e;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+    .feature-list li:before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #22c55e;
+      font-weight: bold;
+    }
+    #sample-data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+    }
+    #sample-data-table th,
+    #sample-data-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    #sample-data-table th {
+      background: rgba(255,255,255,0.05);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>Data Exporter Module - Demo & Usage</h1>
+
+  <div class="demo-section">
+    <h2>Features</h2>
+    <ul class="feature-list">
+      <li>CSV export with RFC 4180 compliant escaping</li>
+      <li>JSON export with metadata wrapper</li>
+      <li>PDF generation using HTML-to-canvas approach</li>
+      <li>Trade journal entries export</li>
+      <li>Alert history export</li>
+      <li>Chart data export</li>
+      <li>Signal history export</li>
+      <li>Custom date range filtering</li>
+      <li>Interactive modal UI</li>
+      <li>Support for multiple data sources (remote + localStorage)</li>
+    </ul>
+  </div>
+
+  <div class="demo-section">
+    <h2>Quick Start Examples</h2>
+
+    <h3>1. Open Export Modal</h3>
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="ExportManager.showExportModal()">
+        Open Export Modal
+      </button>
+      <button class="btn btn-secondary" onclick="ExportManager.showExportModal('trade_journal')">
+        Export Trade Journal
+      </button>
+      <button class="btn btn-secondary" onclick="ExportManager.showExportModal('alert_history')">
+        Export Alert History
+      </button>
+    </div>
+
+    <h3>2. Direct Exports (Programmatic)</h3>
+    <div class="button-group">
+      <button class="btn btn-secondary" onclick="exportSampleCSV()">
+        Export Sample CSV
+      </button>
+      <button class="btn btn-secondary" onclick="exportSampleJSON()">
+        Export Sample JSON
+      </button>
+      <button class="btn btn-secondary" onclick="exportSamplePDF()">
+        Export Sample PDF
+      </button>
+    </div>
+
+    <h3>3. Export Types</h3>
+    <div class="button-group">
+      <button class="btn btn-secondary" onclick="ExportManager.exportTradeJournal({ format: 'csv' })">
+        Trade Journal → CSV
+      </button>
+      <button class="btn btn-secondary" onclick="ExportManager.exportAlertHistory({ format: 'json' })">
+        Alert History → JSON
+      </button>
+      <button class="btn btn-secondary" onclick="ExportManager.exportSignalHistory({ format: 'csv' })">
+        Signal History → CSV
+      </button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Sample Data Table</h2>
+    <div id="sample-data-container">
+      <table id="sample-data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Type</th>
+            <th>Entry Price</th>
+            <th>Exit Price</th>
+            <th>PnL %</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2025-12-01</td>
+            <td>LONG</td>
+            <td>$95,000</td>
+            <td>$98,500</td>
+            <td>+3.68%</td>
+            <td>Closed</td>
+          </tr>
+          <tr>
+            <td>2025-12-05</td>
+            <td>SHORT</td>
+            <td>$98,000</td>
+            <td>$96,200</td>
+            <td>+1.84%</td>
+            <td>Closed</td>
+          </tr>
+          <tr>
+            <td>2025-12-10</td>
+            <td>LONG</td>
+            <td>$97,000</td>
+            <td>-</td>
+            <td>-</td>
+            <td>Open</td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-primary" onclick="exportTableData()">
+        Export This Table
+      </button>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Code Examples</h2>
+
+    <h3>Basic CSV Export</h3>
+    <div class="code-block">
+      <code>
+const data = [<br>
+&nbsp;&nbsp;{ name: 'Bitcoin', price: 100000, change: 5.2 },<br>
+&nbsp;&nbsp;{ name: 'Ethereum', price: 4000, change: 3.1 }<br>
+];<br>
+<br>
+ExportManager.exportCSV(data, 'crypto-prices');
+      </code>
+    </div>
+
+    <h3>JSON with Metadata</h3>
+    <div class="code-block">
+      <code>
+const signals = [...];<br>
+<br>
+ExportManager.exportJSON(signals, 'signals', {<br>
+&nbsp;&nbsp;includeMetadata: true,<br>
+&nbsp;&nbsp;metadata: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source: 'BTCSignal.ai',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;type: 'Signal History'<br>
+&nbsp;&nbsp;}<br>
+});
+      </code>
+    </div>
+
+    <h3>PDF from Element</h3>
+    <div class="code-block">
+      <code>
+// Export any HTML element as PDF<br>
+ExportManager.exportPDF('sample-data-container', 'report', {<br>
+&nbsp;&nbsp;title: 'Trade Report',<br>
+&nbsp;&nbsp;orientation: 'portrait',<br>
+&nbsp;&nbsp;addWatermark: true<br>
+});
+      </code>
+    </div>
+
+    <h3>Date Range Filtering</h3>
+    <div class="code-block">
+      <code>
+ExportManager.exportTradeJournal({<br>
+&nbsp;&nbsp;format: 'csv',<br>
+&nbsp;&nbsp;dateRange: {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;start: new Date('2025-01-01'),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;end: new Date('2025-12-31')<br>
+&nbsp;&nbsp;}<br>
+});
+      </code>
+    </div>
+  </div>
+
+  <div class="demo-section">
+    <h2>Public API Reference</h2>
+    <div class="code-block">
+      <code>
+// Core exports<br>
+ExportManager.exportCSV(data, filename, options)<br>
+ExportManager.exportJSON(data, filename, options)<br>
+ExportManager.exportPDF(element, filename, options)<br>
+<br>
+// Type-specific exports<br>
+ExportManager.exportTradeJournal(options)<br>
+ExportManager.exportAlertHistory(options)<br>
+ExportManager.exportChartData(chartData, options)<br>
+ExportManager.exportSignalHistory(options)<br>
+<br>
+// UI<br>
+ExportManager.showExportModal(exportType?)<br>
+<br>
+// Utilities<br>
+ExportManager.setChartData(data)<br>
+ExportManager.filterByDateRange(data, start, end, field)<br>
+<br>
+// Constants<br>
+ExportManager.EXPORT_FORMATS // { CSV, JSON, PDF }<br>
+ExportManager.EXPORT_TYPES   // { TRADE_JOURNAL, ALERT_HISTORY, ... }
+      </code>
+    </div>
+  </div>
+
+  <!-- Load the ExportManager -->
+  <script src="data-exporter.js"></script>
+
+  <!-- Demo functions -->
+  <script>
+    // Create sample data in localStorage for demo
+    function initializeSampleData() {
+      const sampleTrades = [
+        {
+          timestamp: new Date('2025-12-01').getTime(),
+          type: 'spot',
+          direction: 'long',
+          entryPrice: 95000,
+          exitPrice: 98500,
+          size: 0.1,
+          leverage: 1,
+          pnl: 350,
+          pnlPercent: 3.68,
+          status: 'closed',
+          notes: 'Strong breakout above resistance'
+        },
+        {
+          timestamp: new Date('2025-12-05').getTime(),
+          type: 'futures',
+          direction: 'short',
+          entryPrice: 98000,
+          exitPrice: 96200,
+          size: 0.2,
+          leverage: 2,
+          pnl: 360,
+          pnlPercent: 1.84,
+          status: 'closed',
+          notes: 'Overbought RSI signal'
+        },
+        {
+          timestamp: new Date('2025-12-10').getTime(),
+          type: 'spot',
+          direction: 'long',
+          entryPrice: 97000,
+          exitPrice: null,
+          size: 0.15,
+          leverage: 1,
+          pnl: 0,
+          pnlPercent: 0,
+          status: 'open',
+          notes: 'Accumulation zone'
+        }
+      ];
+
+      localStorage.setItem('btcsignal_paper_trades', JSON.stringify(sampleTrades));
+      console.log('[Demo] Sample data initialized');
+    }
+
+    function exportSampleCSV() {
+      const data = [
+        { metric: 'BTC Price', value: 100000, change24h: 5.2, category: 'Price' },
+        { metric: 'Market Cap', value: 2000000000000, change24h: 4.8, category: 'Market' },
+        { metric: 'Volume 24h', value: 50000000000, change24h: 12.3, category: 'Volume' }
+      ];
+
+      ExportManager.exportCSV(data, 'sample-metrics');
+    }
+
+    function exportSampleJSON() {
+      const data = {
+        symbol: 'BTCUSD',
+        price: 100000,
+        indicators: {
+          rsi: 65,
+          macd: 'bullish',
+          volume: 'high'
+        }
+      };
+
+      ExportManager.exportJSON(data, 'sample-analysis', {
+        metadata: {
+          type: 'Market Analysis',
+          generated: new Date().toISOString()
+        }
+      });
+    }
+
+    async function exportSamplePDF() {
+      const element = document.getElementById('sample-data-container');
+      await ExportManager.exportPDF(element, 'sample-report', {
+        title: 'Sample Trade Report',
+        addWatermark: true
+      });
+    }
+
+    function exportTableData() {
+      const data = [
+        { date: '2025-12-01', type: 'LONG', entryPrice: 95000, exitPrice: 98500, pnlPercent: 3.68, status: 'Closed' },
+        { date: '2025-12-05', type: 'SHORT', entryPrice: 98000, exitPrice: 96200, pnlPercent: 1.84, status: 'Closed' },
+        { date: '2025-12-10', type: 'LONG', entryPrice: 97000, exitPrice: null, pnlPercent: 0, status: 'Open' }
+      ];
+
+      ExportManager.exportCSV(data, 'table-export');
+    }
+
+    // Initialize sample data on load
+    initializeSampleData();
+  </script>
+</body>
+</html>

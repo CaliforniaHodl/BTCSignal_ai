@@ -1,347 +1,457 @@
-// WebSocket Manager for Real-Time Exchange Data
-// Handles connections to Binance and Bybit WebSocket streams
+// WebSocket Manager for Real-Time BTC Price Updates
+// Enhanced IIFE module with auto-reconnect, heartbeat, and fallback to REST polling
 
 (function(global) {
   'use strict';
 
-  const WebSocketManager = {
-    connections: {},
-    callbacks: {},
-    reconnectAttempts: {},
-    maxReconnectAttempts: 5,
-    reconnectDelay: 3000,
+  // Connection states
+  const ConnectionState = {
+    DISCONNECTED: 'disconnected',
+    CONNECTING: 'connecting',
+    CONNECTED: 'connected',
+    RECONNECTING: 'reconnecting',
+    FAILED: 'failed'
+  };
 
-    // WebSocket endpoints
-    endpoints: {
-      binance: 'wss://fstream.binance.us/ws',
-      bybit: 'wss://stream.bybit.com/v5/public/linear'
-    },
+  const WSManager = (function() {
+    // Private state
+    let ws = null;
+    let connectionState = ConnectionState.DISCONNECTED;
+    let subscribers = new Map();
+    let reconnectAttempts = 0;
+    let reconnectTimer = null;
+    let heartbeatTimer = null;
+    let restFallbackTimer = null;
+    let lastPriceData = null;
+    let nextSubscriberId = 0;
 
-    // Subscribe to Binance streams
-    subscribeBinance(streams, callback) {
-      const wsUrl = `${this.endpoints.binance}/${streams.join('/')}`;
-      return this.connect('binance', wsUrl, callback, (ws) => {
-        // Binance auto-subscribes via URL, no additional message needed
-      });
-    },
+    // Configuration
+    const config = {
+      wsUrl: 'wss://stream.binance.com:9443/ws/btcusdt@ticker',
+      maxReconnectAttempts: 10,
+      baseReconnectDelay: 1000, // Start with 1 second
+      maxReconnectDelay: 30000, // Max 30 seconds
+      heartbeatInterval: 30000, // 30 seconds
+      restFallbackInterval: 5000, // Poll every 5 seconds when WS fails
+      restApiUrl: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
+    };
 
-    // Subscribe to Bybit streams
-    subscribeBybit(topics, callback) {
-      return this.connect('bybit', this.endpoints.bybit, callback, (ws) => {
-        // Bybit requires subscription message
-        const subscribeMsg = {
-          op: 'subscribe',
-          args: topics
-        };
-        ws.send(JSON.stringify(subscribeMsg));
-      });
-    },
+    // Calculate exponential backoff delay
+    function getReconnectDelay() {
+      const exponentialDelay = Math.min(
+        config.baseReconnectDelay * Math.pow(2, reconnectAttempts),
+        config.maxReconnectDelay
+      );
+      // Add jitter to prevent thundering herd
+      const jitter = Math.random() * 1000;
+      return exponentialDelay + jitter;
+    }
 
-    // Generic connect function
-    connect(exchange, url, callback, onOpen) {
-      // Close existing connection if any
-      if (this.connections[exchange]) {
-        this.connections[exchange].close();
+    // Clear all timers
+    function clearTimers() {
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+        reconnectTimer = null;
       }
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+      if (restFallbackTimer) {
+        clearInterval(restFallbackTimer);
+        restFallbackTimer = null;
+      }
+    }
 
-      const ws = new WebSocket(url);
-      this.connections[exchange] = ws;
-      this.callbacks[exchange] = callback;
-      this.reconnectAttempts[exchange] = 0;
+    // Start heartbeat/ping-pong
+    function startHeartbeat() {
+      stopHeartbeat();
+      heartbeatTimer = setInterval(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          try {
+            // Binance WebSocket automatically handles ping/pong
+            // We just verify connection is alive
+            if (Date.now() - (lastPriceData?.timestamp || 0) > config.heartbeatInterval * 2) {
+              console.warn('[WSManager] No data received in 60s, reconnecting...');
+              reconnect();
+            }
+          } catch (error) {
+            console.error('[WSManager] Heartbeat check failed:', error);
+            reconnect();
+          }
+        }
+      }, config.heartbeatInterval);
+    }
 
-      ws.onopen = () => {
-        console.log(`[${exchange}] WebSocket connected`);
-        this.reconnectAttempts[exchange] = 0;
-        if (onOpen) onOpen(ws);
-      };
+    // Stop heartbeat
+    function stopHeartbeat() {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+    }
 
-      ws.onmessage = (event) => {
+    // REST API fallback
+    async function fetchPriceFromRest() {
+      try {
+        const response = await fetch(config.restApiUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+
+        // Normalize to match WebSocket format
+        const normalizedData = {
+          symbol: data.symbol,
+          price: parseFloat(data.lastPrice),
+          priceChange: parseFloat(data.priceChange),
+          priceChangePercent: parseFloat(data.priceChangePercent),
+          high24h: parseFloat(data.highPrice),
+          low24h: parseFloat(data.lowPrice),
+          volume24h: parseFloat(data.volume),
+          quoteVolume24h: parseFloat(data.quoteVolume),
+          timestamp: Date.now(),
+          source: 'rest'
+        };
+
+        lastPriceData = normalizedData;
+        notifySubscribers(normalizedData);
+
+      } catch (error) {
+        console.error('[WSManager] REST fallback failed:', error);
+      }
+    }
+
+    // Start REST polling fallback
+    function startRestFallback() {
+      stopRestFallback();
+      console.log('[WSManager] Starting REST API fallback polling');
+
+      // Fetch immediately
+      fetchPriceFromRest();
+
+      // Then poll on interval
+      restFallbackTimer = setInterval(fetchPriceFromRest, config.restFallbackInterval);
+    }
+
+    // Stop REST polling
+    function stopRestFallback() {
+      if (restFallbackTimer) {
+        clearInterval(restFallbackTimer);
+        restFallbackTimer = null;
+      }
+    }
+
+    // Update connection state
+    function setConnectionState(newState) {
+      if (connectionState !== newState) {
+        const oldState = connectionState;
+        connectionState = newState;
+        console.log(`[WSManager] State: ${oldState} -> ${newState}`);
+
+        // Notify state change to subscribers with special 'state' event
+        notifySubscribers({
+          type: 'state',
+          oldState,
+          newState,
+          timestamp: Date.now()
+        });
+      }
+    }
+
+    // Notify all subscribers
+    function notifySubscribers(data) {
+      subscribers.forEach(callback => {
         try {
-          const data = JSON.parse(event.data);
-          this.handleMessage(exchange, data);
-        } catch (e) {
-          console.error(`[${exchange}] Parse error:`, e);
-        }
-      };
-
-      ws.onerror = (error) => {
-        console.error(`[${exchange}] WebSocket error:`, error);
-      };
-
-      ws.onclose = (event) => {
-        console.log(`[${exchange}] WebSocket closed:`, event.code, event.reason);
-        this.handleReconnect(exchange, url, callback, onOpen);
-      };
-
-      return ws;
-    },
-
-    // Handle incoming messages
-    handleMessage(exchange, data) {
-      const callback = this.callbacks[exchange];
-      if (!callback) return;
-
-      // Normalize data format
-      let normalizedData;
-
-      if (exchange === 'binance') {
-        normalizedData = this.normalizeBinanceData(data);
-      } else if (exchange === 'bybit') {
-        normalizedData = this.normalizeBybitData(data);
-      } else {
-        normalizedData = data;
-      }
-
-      if (normalizedData) {
-        callback(normalizedData);
-      }
-    },
-
-    // Normalize Binance WebSocket data
-    normalizeBinanceData(data) {
-      // Mark price stream: btcusdt@markPrice
-      if (data.e === 'markPriceUpdate') {
-        return {
-          type: 'price',
-          exchange: 'binance',
-          symbol: data.s,
-          price: parseFloat(data.p),
-          indexPrice: parseFloat(data.i),
-          fundingRate: parseFloat(data.r),
-          nextFundingTime: data.T,
-          timestamp: data.E
-        };
-      }
-
-      // Aggregate trade stream: btcusdt@aggTrade
-      if (data.e === 'aggTrade') {
-        return {
-          type: 'trade',
-          exchange: 'binance',
-          symbol: data.s,
-          price: parseFloat(data.p),
-          quantity: parseFloat(data.q),
-          isBuyerMaker: data.m,
-          timestamp: data.T
-        };
-      }
-
-      // Liquidation stream: btcusdt@forceOrder
-      if (data.e === 'forceOrder') {
-        return {
-          type: 'liquidation',
-          exchange: 'binance',
-          symbol: data.o.s,
-          side: data.o.S, // SELL = long liquidated, BUY = short liquidated
-          orderType: data.o.o,
-          price: parseFloat(data.o.p),
-          quantity: parseFloat(data.o.q),
-          avgPrice: parseFloat(data.o.ap),
-          status: data.o.X,
-          timestamp: data.o.T
-        };
-      }
-
-      // Depth update: btcusdt@depth
-      if (data.e === 'depthUpdate') {
-        return {
-          type: 'orderbook',
-          exchange: 'binance',
-          symbol: data.s,
-          bids: data.b.map(([price, qty]) => ({ price: parseFloat(price), qty: parseFloat(qty) })),
-          asks: data.a.map(([price, qty]) => ({ price: parseFloat(price), qty: parseFloat(qty) })),
-          timestamp: data.E
-        };
-      }
-
-      // 24hr ticker: btcusdt@ticker
-      if (data.e === '24hrTicker') {
-        return {
-          type: 'ticker',
-          exchange: 'binance',
-          symbol: data.s,
-          price: parseFloat(data.c),
-          priceChange: parseFloat(data.p),
-          priceChangePercent: parseFloat(data.P),
-          high24h: parseFloat(data.h),
-          low24h: parseFloat(data.l),
-          volume24h: parseFloat(data.q),
-          timestamp: data.E
-        };
-      }
-
-      return null;
-    },
-
-    // Normalize Bybit WebSocket data
-    normalizeBybitData(data) {
-      if (!data.topic) return null;
-
-      const topic = data.topic;
-
-      // Ticker: tickers.BTCUSDT
-      if (topic.startsWith('tickers.')) {
-        const d = data.data;
-        return {
-          type: 'ticker',
-          exchange: 'bybit',
-          symbol: d.symbol,
-          price: parseFloat(d.lastPrice),
-          priceChange: parseFloat(d.price24hPcnt) * parseFloat(d.lastPrice),
-          priceChangePercent: parseFloat(d.price24hPcnt) * 100,
-          high24h: parseFloat(d.highPrice24h),
-          low24h: parseFloat(d.lowPrice24h),
-          volume24h: parseFloat(d.turnover24h),
-          fundingRate: parseFloat(d.fundingRate || 0),
-          nextFundingTime: d.nextFundingTime,
-          timestamp: data.ts
-        };
-      }
-
-      // Trade: publicTrade.BTCUSDT
-      if (topic.startsWith('publicTrade.')) {
-        const trades = data.data.map(d => ({
-          type: 'trade',
-          exchange: 'bybit',
-          symbol: d.s,
-          price: parseFloat(d.p),
-          quantity: parseFloat(d.v),
-          side: d.S,
-          timestamp: d.T
-        }));
-        return trades.length === 1 ? trades[0] : { type: 'trades', exchange: 'bybit', trades };
-      }
-
-      // Orderbook: orderbook.50.BTCUSDT
-      if (topic.startsWith('orderbook.')) {
-        const d = data.data;
-        return {
-          type: 'orderbook',
-          exchange: 'bybit',
-          symbol: d.s,
-          bids: d.b.map(([price, qty]) => ({ price: parseFloat(price), qty: parseFloat(qty) })),
-          asks: d.a.map(([price, qty]) => ({ price: parseFloat(price), qty: parseFloat(qty) })),
-          timestamp: data.ts
-        };
-      }
-
-      // Liquidation: liquidation.BTCUSDT
-      if (topic.startsWith('liquidation.')) {
-        const d = data.data;
-        return {
-          type: 'liquidation',
-          exchange: 'bybit',
-          symbol: d.symbol,
-          side: d.side,
-          price: parseFloat(d.price),
-          quantity: parseFloat(d.size),
-          timestamp: d.updatedTime
-        };
-      }
-
-      return null;
-    },
-
-    // Handle reconnection
-    handleReconnect(exchange, url, callback, onOpen) {
-      if (this.reconnectAttempts[exchange] >= this.maxReconnectAttempts) {
-        console.error(`[${exchange}] Max reconnect attempts reached`);
-        return;
-      }
-
-      this.reconnectAttempts[exchange]++;
-      const delay = this.reconnectDelay * this.reconnectAttempts[exchange];
-
-      console.log(`[${exchange}] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts[exchange]})`);
-
-      setTimeout(() => {
-        this.connect(exchange, url, callback, onOpen);
-      }, delay);
-    },
-
-    // Disconnect from an exchange
-    disconnect(exchange) {
-      if (this.connections[exchange]) {
-        this.connections[exchange].close();
-        delete this.connections[exchange];
-        delete this.callbacks[exchange];
-      }
-    },
-
-    // Disconnect all
-    disconnectAll() {
-      Object.keys(this.connections).forEach(exchange => {
-        this.disconnect(exchange);
-      });
-    },
-
-    // Check connection status
-    isConnected(exchange) {
-      return this.connections[exchange] && this.connections[exchange].readyState === WebSocket.OPEN;
-    },
-
-    // Subscribe to BTC liquidations from both exchanges
-    subscribeToLiquidations(callback) {
-      const aggregatedCallback = (data) => {
-        callback(data);
-      };
-
-      // Binance: subscribe to forceOrder stream
-      this.subscribeBinance(['btcusdt@forceOrder'], aggregatedCallback);
-
-      // Bybit: subscribe to liquidation topic
-      this.subscribeBybit(['liquidation.BTCUSDT'], aggregatedCallback);
-    },
-
-    // Subscribe to real-time price updates
-    subscribeToPriceUpdates(callback) {
-      // Binance mark price (includes funding rate)
-      this.subscribeBinance(['btcusdt@markPrice@1s'], callback);
-
-      // Bybit ticker
-      this.subscribeBybit(['tickers.BTCUSDT'], callback);
-    },
-
-    // Subscribe to order book updates (for liquidation level estimation)
-    subscribeToOrderBook(callback, depth = 50) {
-      // Binance depth
-      this.subscribeBinance([`btcusdt@depth${depth}@100ms`], callback);
-
-      // Bybit orderbook
-      this.subscribeBybit([`orderbook.${depth}.BTCUSDT`], callback);
-    },
-
-    // Combined subscription for liquidation map
-    subscribeForLiquidationMap(callbacks = {}) {
-      const { onPrice, onLiquidation, onOrderBook } = callbacks;
-
-      // Price + funding stream
-      this.subscribeBinance([
-        'btcusdt@markPrice@1s',
-        'btcusdt@forceOrder',
-        'btcusdt@ticker'
-      ], (data) => {
-        if (data.type === 'price' || data.type === 'ticker') {
-          onPrice && onPrice(data);
-        } else if (data.type === 'liquidation') {
-          onLiquidation && onLiquidation(data);
-        }
-      });
-
-      this.subscribeBybit([
-        'tickers.BTCUSDT',
-        'liquidation.BTCUSDT'
-      ], (data) => {
-        if (data.type === 'ticker') {
-          onPrice && onPrice(data);
-        } else if (data.type === 'liquidation') {
-          onLiquidation && onLiquidation(data);
+          callback(data);
+        } catch (error) {
+          console.error('[WSManager] Subscriber callback error:', error);
         }
       });
     }
-  };
 
-  // Export to global scope
-  global.WebSocketManager = WebSocketManager;
+    // Normalize Binance WebSocket ticker data
+    function normalizeTickerData(data) {
+      return {
+        symbol: data.s,
+        price: parseFloat(data.c),
+        priceChange: parseFloat(data.p),
+        priceChangePercent: parseFloat(data.P),
+        high24h: parseFloat(data.h),
+        low24h: parseFloat(data.l),
+        volume24h: parseFloat(data.v),
+        quoteVolume24h: parseFloat(data.q),
+        openPrice: parseFloat(data.o),
+        numberOfTrades: parseInt(data.n),
+        timestamp: data.E,
+        source: 'websocket'
+      };
+    }
+
+    // Handle WebSocket message
+    function handleMessage(event) {
+      try {
+        const data = JSON.parse(event.data);
+
+        // Binance 24hr ticker stream
+        if (data.e === '24hrTicker') {
+          const normalizedData = normalizeTickerData(data);
+          lastPriceData = normalizedData;
+          notifySubscribers(normalizedData);
+        }
+      } catch (error) {
+        console.error('[WSManager] Message parsing error:', error);
+      }
+    }
+
+    // Handle WebSocket open
+    function handleOpen() {
+      console.log('[WSManager] WebSocket connected');
+      setConnectionState(ConnectionState.CONNECTED);
+      reconnectAttempts = 0;
+
+      // Stop REST fallback if running
+      stopRestFallback();
+
+      // Start heartbeat
+      startHeartbeat();
+    }
+
+    // Handle WebSocket error
+    function handleError(error) {
+      console.error('[WSManager] WebSocket error:', error);
+    }
+
+    // Handle WebSocket close
+    function handleClose(event) {
+      console.log(`[WSManager] WebSocket closed: code=${event.code}, reason=${event.reason || 'none'}`);
+
+      stopHeartbeat();
+
+      // Clean close codes that shouldn't reconnect
+      if (event.code === 1000 || event.code === 1001) {
+        setConnectionState(ConnectionState.DISCONNECTED);
+        return;
+      }
+
+      // Attempt reconnection
+      reconnect();
+    }
+
+    // Reconnect logic
+    function reconnect() {
+      // Close existing connection if any
+      if (ws) {
+        try {
+          ws.close();
+        } catch (e) {
+          // Ignore close errors
+        }
+        ws = null;
+      }
+
+      // Check if we've exceeded max attempts
+      if (reconnectAttempts >= config.maxReconnectAttempts) {
+        console.error(`[WSManager] Max reconnect attempts (${config.maxReconnectAttempts}) reached`);
+        setConnectionState(ConnectionState.FAILED);
+
+        // Start REST fallback
+        startRestFallback();
+        return;
+      }
+
+      setConnectionState(ConnectionState.RECONNECTING);
+
+      const delay = getReconnectDelay();
+      console.log(`[WSManager] Reconnecting in ${Math.round(delay)}ms (attempt ${reconnectAttempts + 1}/${config.maxReconnectAttempts})`);
+
+      reconnectTimer = setTimeout(() => {
+        reconnectAttempts++;
+        connect();
+      }, delay);
+    }
+
+    // Establish WebSocket connection
+    function connect() {
+      // Clean up existing connection
+      if (ws) {
+        ws.onopen = null;
+        ws.onmessage = null;
+        ws.onerror = null;
+        ws.onclose = null;
+        try {
+          ws.close();
+        } catch (e) {
+          // Ignore
+        }
+      }
+
+      setConnectionState(ConnectionState.CONNECTING);
+
+      try {
+        ws = new WebSocket(config.wsUrl);
+
+        ws.onopen = handleOpen;
+        ws.onmessage = handleMessage;
+        ws.onerror = handleError;
+        ws.onclose = handleClose;
+
+      } catch (error) {
+        console.error('[WSManager] Failed to create WebSocket:', error);
+        reconnect();
+      }
+
+      return ws;
+    }
+
+    // Public API
+    return {
+      /**
+       * Connect to Binance WebSocket for BTC/USDT real-time price
+       * @returns {boolean} Success status
+       */
+      connect() {
+        if (connectionState === ConnectionState.CONNECTED ||
+            connectionState === ConnectionState.CONNECTING) {
+          console.warn('[WSManager] Already connected or connecting');
+          return false;
+        }
+
+        reconnectAttempts = 0;
+        connect();
+        return true;
+      },
+
+      /**
+       * Disconnect from WebSocket and stop all polling
+       */
+      disconnect() {
+        clearTimers();
+        stopRestFallback();
+        stopHeartbeat();
+
+        if (ws) {
+          try {
+            ws.close(1000, 'Client disconnect');
+          } catch (error) {
+            console.error('[WSManager] Error during disconnect:', error);
+          }
+          ws = null;
+        }
+
+        setConnectionState(ConnectionState.DISCONNECTED);
+        console.log('[WSManager] Disconnected');
+      },
+
+      /**
+       * Subscribe to price updates
+       * @param {Function} callback - Called with price data
+       * @returns {number} Subscriber ID for later unsubscribe
+       */
+      subscribe(callback) {
+        if (typeof callback !== 'function') {
+          throw new Error('Callback must be a function');
+        }
+
+        const id = nextSubscriberId++;
+        subscribers.set(id, callback);
+
+        console.log(`[WSManager] Subscriber ${id} added (total: ${subscribers.size})`);
+
+        // Send last known data immediately if available
+        if (lastPriceData) {
+          try {
+            callback(lastPriceData);
+          } catch (error) {
+            console.error('[WSManager] Error in immediate callback:', error);
+          }
+        }
+
+        return id;
+      },
+
+      /**
+       * Unsubscribe from price updates
+       * @param {number} subscriberId - ID returned from subscribe()
+       * @returns {boolean} Success status
+       */
+      unsubscribe(subscriberId) {
+        const deleted = subscribers.delete(subscriberId);
+        if (deleted) {
+          console.log(`[WSManager] Subscriber ${subscriberId} removed (remaining: ${subscribers.size})`);
+        }
+        return deleted;
+      },
+
+      /**
+       * Get current connection state
+       * @returns {string} One of: disconnected, connecting, connected, reconnecting, failed
+       */
+      getConnectionState() {
+        return connectionState;
+      },
+
+      /**
+       * Check if currently connected via WebSocket
+       * @returns {boolean}
+       */
+      isConnected() {
+        return connectionState === ConnectionState.CONNECTED;
+      },
+
+      /**
+       * Get last received price data
+       * @returns {Object|null} Last price data or null if none
+       */
+      getLastPrice() {
+        return lastPriceData ? { ...lastPriceData } : null;
+      },
+
+      /**
+       * Get subscriber count
+       * @returns {number}
+       */
+      getSubscriberCount() {
+        return subscribers.size;
+      },
+
+      /**
+       * Force reconnect
+       */
+      forceReconnect() {
+        console.log('[WSManager] Force reconnect requested');
+        reconnectAttempts = 0;
+        reconnect();
+      },
+
+      /**
+       * Get connection states enum
+       * @returns {Object}
+       */
+      ConnectionState
+    };
+  })();
+
+  // Expose to window
+  global.WSManager = WSManager;
+
+  // Auto-connect on page load if not in admin or special pages
+  if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Don't auto-connect on admin pages or embed pages
+      const isAdminPage = window.location.pathname.includes('/admin');
+      const isEmbedPage = window.location.pathname.includes('/embed');
+
+      if (!isAdminPage && !isEmbedPage) {
+        console.log('[WSManager] Auto-connecting...');
+        WSManager.connect();
+      }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      WSManager.disconnect();
+    });
+  }
 
 })(typeof window !== 'undefined' ? window : this);

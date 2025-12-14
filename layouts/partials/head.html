@@ -20,6 +20,18 @@
 <meta name="msapplication-TileColor" content="#f7931a">
 <meta name="theme-color" content="#0d1117">
 
+<!-- PWA Manifest -->
+<link rel="manifest" href="{{ "manifest.json" | relURL }}">
+
+<!-- iOS PWA Support -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BTC Signals">
+
+<!-- Android PWA Support -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="BTC Signals">
+
 <!-- OG Image dimensions -->
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -47,6 +59,8 @@
 
 <!-- Critical: Access manager loads sync for paywall check -->
 <script src="{{ "src/js/access-manager.js" | relURL }}"></script>
+<!-- Error tracking - loads early to catch all errors -->
+<script src="{{ "src/js/error-tracker.js" | relURL }}"></script>
 <!-- Toast can defer - only used after user interactions -->
 <script defer src="{{ "src/js/toast.js" | relURL }}"></script>
 
@@ -74,3 +88,46 @@
 
 
 <script src="https://zerotrustanalytics.netlify.app/js/analytics.js" data-site-id="site_08322ca6924fa56a"></script>
+
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/sw.js')
+        .then(function(registration) {
+          console.log('Service Worker registered successfully:', registration.scope);
+
+          // Check for updates periodically
+          setInterval(function() {
+            registration.update();
+          }, 60000); // Check every minute
+
+          // Handle service worker updates
+          registration.addEventListener('updatefound', function() {
+            const newWorker = registration.installing;
+
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // New service worker available, show update notification
+                console.log('New service worker available! Refresh to update.');
+
+                // Optional: Auto-reload on update (comment out if you want manual control)
+                if (confirm('A new version of BTC Signals is available. Reload to update?')) {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  window.location.reload();
+                }
+              }
+            });
+          });
+        })
+        .catch(function(error) {
+          console.log('Service Worker registration failed:', error);
+        });
+
+      // Handle controller change (new service worker activated)
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        window.location.reload();
+      });
+    });
+  }
+</script>

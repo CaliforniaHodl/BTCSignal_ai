@@ -60,11 +60,74 @@ main {
   .ticker-price {
     font-size: 1.25rem;
     font-weight: 700;
+    transition: color 0.3s ease;
+
+    // Price flash animation on update
+    &.price-flash {
+      animation: price-flash 0.5s ease;
+    }
   }
 
   .ticker-change {
     &.positive { color: var(--bullish); }
     &.negative { color: var(--bearish); }
+  }
+}
+
+// WebSocket connection status indicator
+.ws-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+
+  &.status-live {
+    background: rgba(63, 185, 80, 0.1);
+    color: var(--bullish);
+    border: 1px solid rgba(63, 185, 80, 0.3);
+
+    &::before {
+      content: "●";
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+
+  &.status-connecting,
+  &.status-reconnecting {
+    background: rgba(247, 147, 26, 0.1);
+    color: var(--bitcoin-orange);
+    border: 1px solid rgba(247, 147, 26, 0.3);
+  }
+
+  &.status-offline,
+  &.status-fallback {
+    background: rgba(248, 81, 73, 0.1);
+    color: var(--bearish);
+    border: 1px solid rgba(248, 81, 73, 0.3);
+  }
+}
+
+// Price flash animation
+@keyframes price-flash {
+  0%, 100% {
+    color: var(--text-primary);
+  }
+  50% {
+    color: var(--bitcoin-orange);
+    transform: scale(1.05);
+  }
+}
+
+// Pulse animation for live indicator
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
   }
 }
 

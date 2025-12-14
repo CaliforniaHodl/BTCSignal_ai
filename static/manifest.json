@@ -1,0 +1,39 @@
+{
+  "name": "BTC Signals Pro - Bitcoin On-Chain Data & Technical Analysis",
+  "short_name": "BTC Signals",
+  "description": "Bitcoin on-chain metrics, technical analysis, and market signals. Real-time BTC data including funding rates, open interest, liquidations, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#f7931a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "news"],
+  "shortcuts": [
+    {
+      "name": "Latest Signals",
+      "short_name": "Signals",
+      "description": "View latest Bitcoin trading signals",
+      "url": "/posts",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

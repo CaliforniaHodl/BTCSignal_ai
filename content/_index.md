@@ -8,6 +8,6 @@ keywords: 'Bitcoin trading signals, BTC analysis, on-chain data, funding rates, 
 priority: 1.0
 cta: false
 threejs: true
-js: ['menu.js', 'bitcoin-coin.js', 'narrative-tracker.js', 'key-level.js', 'market-sentiment.js', 'bart-detector.js', 'price-ticker.js']
+js: ['menu.js', 'bitcoin-coin.js', 'narrative-tracker.js', 'key-level.js', 'market-sentiment.js', 'bart-detector.js', 'websocket-manager.js', 'price-ticker.js']
 css: ['index.scss']
 ---

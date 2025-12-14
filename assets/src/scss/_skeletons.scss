@@ -1,0 +1,380 @@
+// =====================================================
+// SKELETON LOADING STATES
+// Pulse animation loading states for async content
+// Dark theme compatible
+// =====================================================
+
+// Base skeleton styles
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-card) 0%,
+    var(--bg-surface) 50%,
+    var(--bg-card) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: $radius-md;
+  pointer-events: none;
+  user-select: none;
+}
+
+// Pulse animation
+@keyframes skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+// Container for skeleton content
+.skeleton-container {
+  position: relative;
+  min-height: 60px;
+
+  // Hide actual content while skeleton is showing
+  &.skeleton-active > *:not(.skeleton-wrapper) {
+    visibility: hidden;
+    position: absolute;
+  }
+}
+
+// Wrapper for skeleton elements
+.skeleton-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding: inherit;
+  z-index: 1;
+}
+
+// =====================================================
+// SKELETON VARIANTS
+// =====================================================
+
+// Text skeleton - for loading text lines
+.skeleton-text {
+  height: 1em;
+  margin: $spacing-sm 0;
+
+  // Different widths for variety
+  &.skeleton-text-short {
+    width: 40%;
+  }
+
+  &.skeleton-text-medium {
+    width: 70%;
+  }
+
+  &.skeleton-text-long {
+    width: 90%;
+  }
+
+  &.skeleton-text-full {
+    width: 100%;
+  }
+}
+
+// Heading skeleton
+.skeleton-heading {
+  @extend .skeleton;
+  height: 2em;
+  width: 60%;
+  margin-bottom: $spacing-md;
+}
+
+// Card skeleton - for loading card/widget content
+.skeleton-card {
+  @extend .skeleton;
+  @include card;
+  padding: $spacing-lg;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  // Card header
+  .skeleton-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-md;
+
+    .skeleton-title {
+      @extend .skeleton-text;
+      width: 40%;
+      height: 1.5em;
+    }
+
+    .skeleton-badge {
+      @extend .skeleton;
+      width: 60px;
+      height: 24px;
+      border-radius: $radius-full;
+    }
+  }
+
+  // Card value (large number)
+  .skeleton-value {
+    @extend .skeleton;
+    width: 50%;
+    height: 3em;
+    margin: $spacing-md 0;
+  }
+
+  // Card description
+  .skeleton-description {
+    @extend .skeleton-text;
+    width: 80%;
+  }
+
+  // Card footer
+  .skeleton-footer {
+    margin-top: auto;
+    display: flex;
+    gap: $spacing-sm;
+
+    .skeleton-tag {
+      @extend .skeleton;
+      width: 60px;
+      height: 20px;
+      border-radius: $radius-sm;
+    }
+  }
+}
+
+// Chart skeleton - for loading chart areas
+.skeleton-chart {
+  @extend .skeleton;
+  width: 100%;
+  height: 300px;
+  border-radius: $radius-lg;
+  position: relative;
+  overflow: hidden;
+
+  // Chart decoration (makes it look more like a chart)
+  &::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(
+      to top,
+      rgba(var(--border-color), 0.3) 0%,
+      transparent 100%
+    );
+    opacity: 0.5;
+  }
+
+  // Small chart variant
+  &.skeleton-chart-small {
+    height: 150px;
+  }
+
+  // Large chart variant
+  &.skeleton-chart-large {
+    height: 400px;
+  }
+}
+
+// Table skeleton - for loading table data
+.skeleton-table {
+  width: 100%;
+
+  .skeleton-table-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: $spacing-sm;
+
+    .skeleton-th {
+      @extend .skeleton;
+      height: 1.2em;
+      width: 80%;
+    }
+  }
+
+  .skeleton-table-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: $spacing-md;
+    padding: $spacing-md;
+    margin-bottom: $spacing-xs;
+
+    .skeleton-td {
+      @extend .skeleton;
+      height: 1em;
+      width: 60%;
+    }
+  }
+}
+
+// Stat skeleton - for loading stat cards
+.skeleton-stat {
+  @extend .skeleton;
+  padding: $spacing-lg;
+  border-radius: $radius-lg;
+  border: 1px solid var(--border-color);
+
+  .skeleton-stat-label {
+    @extend .skeleton-text;
+    width: 50%;
+    margin-bottom: $spacing-md;
+  }
+
+  .skeleton-stat-value {
+    @extend .skeleton;
+    width: 70%;
+    height: 2.5em;
+    margin-bottom: $spacing-sm;
+  }
+
+  .skeleton-stat-change {
+    @extend .skeleton-text;
+    width: 40%;
+  }
+}
+
+// List skeleton - for loading list items
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  .skeleton-list-item {
+    display: flex;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+
+    .skeleton-avatar {
+      @extend .skeleton;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .skeleton-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      .skeleton-title {
+        @extend .skeleton-text;
+        width: 60%;
+      }
+
+      .skeleton-subtitle {
+        @extend .skeleton-text;
+        width: 40%;
+      }
+    }
+
+    .skeleton-action {
+      @extend .skeleton;
+      width: 80px;
+      height: 32px;
+      border-radius: $radius-md;
+      flex-shrink: 0;
+    }
+  }
+}
+
+// =====================================================
+// SMOOTH CONTENT TRANSITION
+// =====================================================
+
+// Fade in when content loads
+.skeleton-fade-in {
+  animation: skeleton-fade-in 0.3s ease-out;
+}
+
+@keyframes skeleton-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// =====================================================
+// RESPONSIVE ADJUSTMENTS
+// =====================================================
+
+@include mobile {
+  .skeleton-card {
+    min-height: 150px;
+  }
+
+  .skeleton-chart {
+    height: 200px;
+
+    &.skeleton-chart-large {
+      height: 300px;
+    }
+  }
+
+  .skeleton-table-header,
+  .skeleton-table-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+// =====================================================
+// ACCESSIBILITY
+// =====================================================
+
+// Screen reader text for loading states
+.skeleton-sr-only {
+  @include sr-only;
+}
+
+// Add aria-label support
+.skeleton[aria-label] {
+  position: relative;
+
+  &::after {
+    content: attr(aria-label);
+    @include sr-only;
+  }
+}
+
+// =====================================================
+// UTILITY CLASSES
+// =====================================================
+
+// Hide skeleton (for manual control)
+.skeleton-hidden {
+  display: none !important;
+}
+
+// Show skeleton (for manual control)
+.skeleton-visible {
+  display: block !important;
+}
+
+// Skeleton grid layout
+.skeleton-grid {
+  @include grid-auto-fit(280px, $spacing-lg);
+
+  .skeleton-grid-item {
+    @extend .skeleton-card;
+  }
+}
