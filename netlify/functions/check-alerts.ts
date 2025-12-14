@@ -4,7 +4,7 @@
  * Saves triggered alerts to GitHub cache
  */
 
-import { Handler, schedule } from '@netlify/functions';
+import { Handler } from '@netlify/functions';
 import { Octokit } from '@octokit/rest';
 import { AlertSystem, MarketData, TriggeredAlert } from './lib/alert-system';
 import { getEnabledAlerts } from './lib/alert-config';
