@@ -62,11 +62,11 @@
 // Pricing Grid
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: $spacing-lg;
   margin-bottom: $spacing-2xl;
 
-  @media (max-width: 1400px) {
+  @media (max-width: 1600px) {
     grid-template-columns: repeat(3, 1fr);
   }
 
@@ -104,6 +104,19 @@
 
     &:hover {
       box-shadow: 0 8px 24px rgba($green, 0.3);
+    }
+  }
+
+  &.yearly {
+    border-color: #9333ea;
+    background: linear-gradient(180deg, rgba(#9333ea, 0.15) 0%, var(--bg-card) 50%);
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(#9333ea, 0.3);
+    }
+
+    .price-amount {
+      color: #9333ea;
     }
   }
 }

@@ -6,6 +6,7 @@ import { OnChainMetrics, analyzeOnChainMetrics, calculateOnChainScore } from './
 import { ExchangeFlowData, generateExchangeFlowSignals } from './exchange-analyzer';
 import { ProfitabilityMetrics, analyzeProfitabilityMetrics, calculateProfitabilityScore } from './profitability-analyzer';
 import { CohortMetrics, analyzeCohortMetrics, calculateCohortScore } from './cohort-analyzer';
+import { PriceModels, generatePriceModelSignals } from './price-models';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -65,11 +66,22 @@ export interface Prediction {
     maxPainDeviation?: number;
     ivLevel?: string;
   };
+  // Price model factors included in signal (Phase 6)
+  priceModelFactors?: {
+    overallScore: number;
+    rating: string;
+    confidence: number;
+    topSignals: string[];
+    s2fSignal?: string;
+    nuplZone?: string;
+    thermocapMultiple?: number;
+    puellMultiple?: number;
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, profitability, and advanced derivatives
+   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, profitability, cohort, advanced derivatives, and price models
    */
   predict(
     data: OHLCV[],
@@ -80,7 +92,8 @@ export class PredictionEngine {
     exchangeFlowData?: ExchangeFlowData,
     profitabilityData?: ProfitabilityMetrics,
     cohortData?: CohortMetrics,
-    derivativesAdvancedData?: DerivativesAdvancedData
+    derivativesAdvancedData?: DerivativesAdvancedData,
+    priceModelsData?: PriceModels
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -546,6 +559,54 @@ export class PredictionEngine {
       }
     }
 
+    // ===== PRICE MODELS ANALYSIS (Phase 6) =====
+    let priceModelFactors: Prediction['priceModelFactors'] = undefined;
+
+    if (priceModelsData) {
+      const modelSignals = generatePriceModelSignals(priceModelsData);
+      const { overallValuation, stockToFlow, nupl, thermocap, puellMultiple } = priceModelsData;
+
+      // Extract top signals for reasoning
+      const topSignals = modelSignals
+        .filter(s => s.signal !== 'neutral')
+        .sort((a, b) => b.weight - a.weight)
+        .slice(0, 3);
+
+      priceModelFactors = {
+        overallScore: overallValuation.score,
+        rating: overallValuation.rating,
+        confidence: overallValuation.confidence,
+        topSignals: topSignals.map(s => s.reason),
+        s2fSignal: stockToFlow.signal,
+        nuplZone: nupl.zone,
+        thermocapMultiple: thermocap.thermocapMultiple,
+        puellMultiple: puellMultiple.value
+      };
+
+      // Add price model signals to main signals array
+      // These are macro/valuation signals - weight them appropriately
+      modelSignals.forEach(s => {
+        if (s.signal !== 'neutral' && s.weight >= 0.5) {
+          signals.push({
+            signal: s.signal,
+            weight: s.weight * 0.8, // Price models are macro indicators - slightly lower weight for short-term trading
+            reason: s.reason
+          });
+        }
+      });
+
+      // Add overall valuation score if extreme
+      if (Math.abs(overallValuation.score) > 50) {
+        const valuationSignal = overallValuation.score < 0 ? 'bullish' : 'bearish';
+        const valuationWeight = Math.min(Math.abs(overallValuation.score) / 100, 0.85);
+        signals.push({
+          signal: valuationSignal,
+          weight: valuationWeight,
+          reason: `Overall valuation: ${overallValuation.rating} (score: ${overallValuation.score})`
+        });
+      }
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -629,6 +690,7 @@ export class PredictionEngine {
       profitabilityFactors,
       cohortFactors,
       derivativesAdvancedFactors,
+      priceModelFactors,
     };
   }
 }

@@ -9,5 +9,5 @@ layout: "single"
 priority: 0.8
 css: ['dashboard.scss']
 charts: true
-js: ['bart-detector.js', 'dashboard.js', 'dashboard-widgets.js', 'dashboard-bart.js', 'onchain-advanced.js', 'exchange-flows.js', 'profitability-metrics.js', 'cohort-metrics.js', 'derivatives-advanced.js']
+js: ['bart-detector.js', 'dashboard.js', 'dashboard-widgets.js', 'dashboard-bart.js', 'onchain-advanced.js', 'exchange-flows.js', 'profitability-metrics.js', 'cohort-metrics.js', 'derivatives-advanced.js', 'price-models.js', 'alert-dashboard.js', 'market-report.js', 'signal-aggregator.js', 'watchlist.js', 'data-export.js']
 ---

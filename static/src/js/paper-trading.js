@@ -92,26 +92,37 @@
       }
     }
 
-    // 4. Check consecutive losses
-    const recentTrades = trades.slice(-settings.maxConsecutiveLosses);
-    const consecutiveLosses = recentTrades.filter(t => t.result === 'loss').length;
+    // 4. Check consecutive losses - FIX: Count actual streak from most recent trade
+    let consecutiveLosses = 0;
+    for (let i = trades.length - 1; i >= 0; i--) {
+      if (trades[i].result === 'loss') {
+        consecutiveLosses++;
+      } else {
+        break; // Stop counting when we hit a non-loss
+      }
+    }
     if (consecutiveLosses >= settings.maxConsecutiveLosses) {
       warnings.push(`${consecutiveLosses} consecutive losses - consider taking a break`);
     }
 
-    // 5. Check daily loss
+    // 5. Check daily loss - FIX: Use current equity, not starting capital
     const today = new Date().toDateString();
     const todayTrades = trades.filter(t => new Date(t.exitTime).toDateString() === today);
     const todayPnL = todayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
-    const dailyLossPercent = -todayPnL / settings.startingCapital;
+    // FIX: Calculate daily loss relative to equity at start of day (approximate with current - today's P&L)
+    const equityAtDayStart = stats.currentEquity - todayPnL;
+    const dailyLossPercent = equityAtDayStart > 0 ? -todayPnL / equityAtDayStart : 0;
 
     if (dailyLossPercent >= settings.maxDailyLoss) {
       errors.push(`Daily loss limit reached (${(dailyLossPercent * 100).toFixed(1)}%) - no more trades today`);
     }
 
-    // 6. Check max drawdown
-    if (stats.maxDrawdown >= settings.maxDrawdown) {
-      errors.push(`Max drawdown reached (${(stats.maxDrawdown * 100).toFixed(1)}%) - re-evaluate strategy`);
+    // 6. Check max drawdown - FIX: Use strict greater than at limit
+    if (stats.maxDrawdown > settings.maxDrawdown) {
+      errors.push(`Max drawdown exceeded (${(stats.maxDrawdown * 100).toFixed(1)}%) - re-evaluate strategy`);
+    } else if (stats.maxDrawdown >= settings.maxDrawdown * 0.9) {
+      // Warn when approaching limit (90% of max)
+      warnings.push(`Approaching max drawdown limit (${(stats.maxDrawdown * 100).toFixed(1)}%)`);
     }
 
     return {
@@ -339,8 +350,288 @@
     return true;
   }
 
+  // ==================== LIVE FEED INTEGRATION ====================
+
+  let liveFeedConnected = false;
+  let autoExecutionEnabled = false;
+  let unsubscribeFns = [];
+
+  /**
+   * Connect to live price feed for auto-execution
+   * Requires BTCSAILiveFeed module
+   */
+  function connectLiveFeed() {
+    if (typeof BTCSAILiveFeed === 'undefined') {
+      console.warn('[PaperTrading] Live feed module not loaded');
+      return false;
+    }
+
+    if (liveFeedConnected) {
+      console.log('[PaperTrading] Already connected to live feed');
+      return true;
+    }
+
+    // Connect to WebSocket
+    BTCSAILiveFeed.connect();
+
+    // Subscribe to trade executions (SL/TP hits)
+    const unsubTrades = BTCSAILiveFeed.subscribeToTrades((execution) => {
+      handleAutoExecution(execution);
+    });
+    unsubscribeFns.push(unsubTrades);
+
+    // Subscribe to connection status
+    const unsubStatus = BTCSAILiveFeed.subscribeToStatus((status) => {
+      liveFeedConnected = status === 'connected';
+      console.log('[PaperTrading] Live feed status:', status);
+
+      // Emit custom event for UI updates
+      window.dispatchEvent(new CustomEvent('btcsai:livefeed:status', {
+        detail: { status, connected: liveFeedConnected }
+      }));
+    });
+    unsubscribeFns.push(unsubStatus);
+
+    liveFeedConnected = true;
+    return true;
+  }
+
+  /**
+   * Disconnect from live feed
+   */
+  function disconnectLiveFeed() {
+    if (typeof BTCSAILiveFeed !== 'undefined') {
+      BTCSAILiveFeed.disconnect();
+    }
+    unsubscribeFns.forEach(fn => fn());
+    unsubscribeFns = [];
+    liveFeedConnected = false;
+  }
+
+  /**
+   * Enable auto-execution mode
+   * Open trades will be tracked and closed automatically on SL/TP
+   */
+  function enableAutoExecution() {
+    if (!liveFeedConnected) {
+      connectLiveFeed();
+    }
+
+    autoExecutionEnabled = true;
+
+    // Register all open trades with live feed
+    const trades = getTrades();
+    trades.forEach(trade => {
+      if (trade.result === 'open') {
+        registerTradeWithLiveFeed(trade);
+      }
+    });
+
+    console.log('[PaperTrading] Auto-execution enabled');
+    return true;
+  }
+
+  /**
+   * Disable auto-execution mode
+   */
+  function disableAutoExecution() {
+    autoExecutionEnabled = false;
+
+    // Remove all positions from live feed tracking
+    if (typeof BTCSAILiveFeed !== 'undefined') {
+      const openPositions = BTCSAILiveFeed.getOpenPositions();
+      openPositions.forEach(pos => {
+        BTCSAILiveFeed.closePosition(pos.id);
+      });
+    }
+
+    console.log('[PaperTrading] Auto-execution disabled');
+  }
+
+  /**
+   * Register a trade with the live feed for tracking
+   * @param {Object} trade
+   */
+  function registerTradeWithLiveFeed(trade) {
+    if (typeof BTCSAILiveFeed === 'undefined' || !autoExecutionEnabled) return;
+
+    // Convert paper trade format to live feed format
+    const position = {
+      id: trade.id,
+      entryPrice: trade.entryPrice,
+      direction: trade.direction,
+      size: trade.positionSize,
+      stopLoss: trade.stopLoss
+        ? Math.abs(trade.entryPrice - trade.stopLoss) / trade.entryPrice
+        : null,
+      takeProfit: trade.targetPrice
+        ? Math.abs(trade.targetPrice - trade.entryPrice) / trade.entryPrice
+        : null,
+      trailingStop: trade.trailingStop || null,
+      trailingActivation: trade.trailingActivation || 0.01
+    };
+
+    BTCSAILiveFeed.trackPosition(position);
+    console.log('[PaperTrading] Registered trade with live feed:', trade.id);
+  }
+
+  /**
+   * Handle auto-execution event from live feed
+   * @param {Object} execution
+   */
+  function handleAutoExecution(execution) {
+    if (!autoExecutionEnabled) return;
+
+    const { position, exitPrice, reason, pnlPercent, pnlAmount } = execution;
+
+    // Close the paper trade
+    const result = closeTrade(position.id, exitPrice, reason);
+
+    if (result.success) {
+      console.log(`[PaperTrading] Auto-closed: ${position.id} @ $${exitPrice.toFixed(2)} (${reason})`);
+
+      // Emit event for UI notification
+      window.dispatchEvent(new CustomEvent('btcsai:trade:autoclosed', {
+        detail: {
+          trade: result.trade,
+          reason,
+          pnlPercent,
+          pnlAmount
+        }
+      }));
+
+      // Play sound notification if available
+      playTradeSound(result.trade.result === 'win');
+    }
+  }
+
+  /**
+   * Play sound on trade close
+   * @param {boolean} isWin
+   */
+  function playTradeSound(isWin) {
+    try {
+      // Use Web Audio API for simple beep
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.frequency.value = isWin ? 800 : 400;
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.1;
+
+      oscillator.start();
+      oscillator.stop(audioCtx.currentTime + 0.2);
+    } catch (e) {
+      // Audio not supported, ignore
+    }
+  }
+
+  /**
+   * Add trade with auto-execution support
+   * Overrides the base addTrade to register with live feed
+   * @param {Object} trade
+   * @returns {Object}
+   */
+  const baseAddTrade = addTrade;
+  addTrade = function(trade) {
+    const result = baseAddTrade(trade);
+
+    if (result.success && autoExecutionEnabled) {
+      registerTradeWithLiveFeed(result.trade);
+    }
+
+    return result;
+  };
+
+  /**
+   * Get current live price
+   * @returns {number|null}
+   */
+  function getLivePrice() {
+    if (typeof BTCSAILiveFeed === 'undefined') return null;
+    return BTCSAILiveFeed.getCurrentPrice();
+  }
+
+  /**
+   * Check if live feed is connected
+   * @returns {boolean}
+   */
+  function isLiveFeedConnected() {
+    return liveFeedConnected;
+  }
+
+  /**
+   * Check if auto-execution is enabled
+   * @returns {boolean}
+   */
+  function isAutoExecutionEnabled() {
+    return autoExecutionEnabled;
+  }
+
+  /**
+   * Subscribe to price updates
+   * @param {Function} callback
+   * @returns {Function} Unsubscribe function
+   */
+  function subscribeToPrices(callback) {
+    if (typeof BTCSAILiveFeed === 'undefined') {
+      console.warn('[PaperTrading] Live feed not available');
+      return () => {};
+    }
+
+    if (!liveFeedConnected) {
+      connectLiveFeed();
+    }
+
+    return BTCSAILiveFeed.subscribeToPrices(callback);
+  }
+
+  /**
+   * Calculate unrealized P&L for open positions
+   * @param {number} currentPrice
+   * @returns {Object}
+   */
+  function calculateUnrealizedPnL(currentPrice) {
+    const trades = getTrades().filter(t => t.result === 'open');
+
+    let totalUnrealized = 0;
+    const positions = [];
+
+    trades.forEach(trade => {
+      let unrealizedPnL;
+      if (trade.direction === 'long') {
+        unrealizedPnL = ((currentPrice - trade.entryPrice) / trade.entryPrice) * trade.positionSize;
+      } else {
+        unrealizedPnL = ((trade.entryPrice - currentPrice) / trade.entryPrice) * trade.positionSize;
+      }
+
+      totalUnrealized += unrealizedPnL;
+      positions.push({
+        id: trade.id,
+        direction: trade.direction,
+        entryPrice: trade.entryPrice,
+        currentPrice,
+        unrealizedPnL,
+        unrealizedPercent: trade.direction === 'long'
+          ? ((currentPrice - trade.entryPrice) / trade.entryPrice) * 100
+          : ((trade.entryPrice - currentPrice) / trade.entryPrice) * 100
+      });
+    });
+
+    return {
+      totalUnrealized,
+      positions,
+      positionCount: positions.length
+    };
+  }
+
   // Public API
   window.BTCSAIPaperTrading = {
+    // Core functions
     getSettings,
     saveSettings,
     getTrades,
@@ -352,7 +643,18 @@
     exportToJSON,
     clearAllTrades,
     DEFAULT_SETTINGS,
+
+    // Live feed integration
+    connectLiveFeed,
+    disconnectLiveFeed,
+    enableAutoExecution,
+    disableAutoExecution,
+    isLiveFeedConnected,
+    isAutoExecutionEnabled,
+    getLivePrice,
+    subscribeToPrices,
+    calculateUnrealizedPnL
   };
 
-  console.log('Paper Trading Journal loaded. Use BTCSAIPaperTrading.addTrade() to log trades.');
+  console.log('Paper Trading Journal loaded with live feed support.');
 })();

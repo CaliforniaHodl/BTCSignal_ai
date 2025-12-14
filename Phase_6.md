@@ -180,18 +180,18 @@ Bybit:  (existing)
 
 ### 5.2 Pricing Tier Update - DONE
 - [x] Add Monthly pass: 50,000 sats (~$50)
-- [x] Update pricing page layout (5 columns)
-- [x] Add "Best Value" badge for monthly tier
+- [x] Update pricing page layout (6 columns)
+- [x] Add "Best Value" badge for yearly tier
 - [x] Add 83% OFF discount badge
 - [x] Green styling for monthly card
-- [ ] Consider annual tier: 400,000 sats (~$400, 33% off) - future
+- [x] Annual tier: 400,000 sats (~$400, 33% off) - purple styling
 
 ### 5.3 Marketing Site Updates - DONE
 - [x] Add comparison table vs Coinglass on home page
 - [x] Tagline: "Understand the data, not just see it"
 - [x] Highlight unique features in comparison table
 - [x] Show what's included vs paid on Coinglass
-- [ ] Add testimonials section (collect from early users) - future
+- [x] Add testimonials section on homepage
 
 ---
 

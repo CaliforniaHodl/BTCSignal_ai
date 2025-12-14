@@ -1,10 +1,16 @@
 {{ define "main" }}
-{{/* Determine if this post is in the latest 10 (paywalled) */}}
-{{ $latestPosts := first 10 (where .Site.RegularPages "Section" "posts") }}
+{{/* Paywall settings from config.toml */}}
+{{ $paywallEnabled := .Site.Params.paywallEnabled | default true }}
+{{ $freePostCount := .Site.Params.freePostCount | default 10 }}
+
+{{/* Determine if this post is in the latest X (paywalled) */}}
+{{ $latestPosts := first $freePostCount (where .Site.RegularPages "Section" "posts") }}
 {{ $isFree := true }}
-{{ range $latestPosts }}
-  {{ if eq $.Permalink .Permalink }}
-    {{ $isFree = false }}
+{{ if $paywallEnabled }}
+  {{ range $latestPosts }}
+    {{ if eq $.Permalink .Permalink }}
+      {{ $isFree = false }}
+    {{ end }}
   {{ end }}
 {{ end }}
 

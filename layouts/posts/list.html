@@ -5,6 +5,9 @@
     <p class="page-description">Data-driven Bitcoin signals & technical analysis</p>
   </header>
 
+  {{ $paywallEnabled := .Site.Params.paywallEnabled | default true }}
+  {{ $freePostCount := .Site.Params.freePostCount | default 10 }}
+
   <!-- Desktop Table View -->
   <div class="posts-table-container d-none d-md-block">
     <table class="posts-table">
@@ -22,7 +25,7 @@
       <tbody>
         {{ $pages := .Pages.ByDate.Reverse }}
         {{ range $index, $post := $pages }}
-        {{ $isLocked := lt $index 10 }}
+        {{ $isLocked := and $paywallEnabled (lt $index $freePostCount) }}
         <tr class="post-row {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}">
           <td class="col-date">{{ $post.Date.Format "Jan 02, 2006" }}</td>
           <td class="col-time">{{ $post.Date.Format "15:04" }} UTC</td>
@@ -67,7 +70,7 @@
     {{ $pages := .Pages.ByDate.Reverse }}
     {{ $totalPosts := len $pages }}
     {{ range $index, $post := $pages }}
-    {{ $isLocked := lt $index 10 }}
+    {{ $isLocked := and $paywallEnabled (lt $index $freePostCount) }}
     {{ $lazyClass := "" }}
     {{ if ge $index 8 }}{{ if lt $index 20 }}{{ $lazyClass = "lazy-post" }}{{ end }}{{ end }}
     {{ if ge $index 20 }}{{ $lazyClass = "paginated-post" }}{{ end }}

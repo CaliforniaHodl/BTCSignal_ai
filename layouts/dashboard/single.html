@@ -716,6 +716,290 @@
       </div>
     </section>
 
+    <!-- Price Valuation Models Section (Phase 6) -->
+    <section class="price-models-section" id="price-models-section">
+      <h2>Bitcoin Valuation Models</h2>
+      <p class="section-desc">Comprehensive price models competing with CryptoQuant and Glassnode. Track S2F, Thermocap, NUPL, and more.</p>
+
+      <!-- Overall Valuation Score -->
+      <div class="overall-valuation-card">
+        <div class="valuation-header">
+          <h3>Overall Valuation Score</h3>
+          <span class="last-updated" id="pm-last-updated">Loading...</span>
+        </div>
+
+        <div class="valuation-main">
+          <div class="valuation-score">
+            <div class="valuation-score-value" id="pm-overall-score">--</div>
+            <div class="valuation-score-scale">
+              <span>-100</span>
+              <span>0</span>
+              <span>+100</span>
+            </div>
+            <div class="valuation-gauge-container">
+              <div class="valuation-gauge">
+                <div class="gauge-fill" id="pm-overall-gauge" style="width: 50%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="valuation-rating-box">
+            <div class="rating-badge" id="pm-overall-rating">Loading...</div>
+            <div class="valuation-stats">
+              <div class="val-stat">
+                <span class="val-label">Confidence</span>
+                <span class="val-value" id="pm-overall-confidence">--%</span>
+              </div>
+              <div class="val-stat">
+                <span class="val-label">Model Agreement</span>
+                <span class="val-value" id="pm-model-agreement">--%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="valuation-summary" id="pm-overall-summary">Loading valuation analysis...</p>
+
+        <div class="model-agreement-section">
+          <div class="agreement-column">
+            <h4>Bullish Models (Undervalued)</h4>
+            <div class="model-list" id="pm-bullish-models">
+              <span class="model-chip">Loading...</span>
+            </div>
+          </div>
+          <div class="agreement-column">
+            <h4>Bearish Models (Overvalued)</h4>
+            <div class="model-list" id="pm-bearish-models">
+              <span class="model-chip">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Individual Model Cards Grid -->
+      <div class="price-models-grid">
+        <!-- Stock-to-Flow Model -->
+        <div class="price-model-card s2f-card">
+          <div class="model-card-header">
+            <span class="model-icon">📊</span>
+            <h3>Stock-to-Flow Model</h3>
+            {{ partial "tooltip.html" (dict "text" "Scarcity model based on supply dynamics. Compares existing stock to annual flow. Higher S2F = more scarce = theoretically higher value.") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">S2F Ratio</span>
+            <span class="model-value" id="pm-s2f-ratio">--</span>
+          </div>
+          <div class="model-prices">
+            <div class="price-row">
+              <span>Model Price:</span>
+              <span class="price-value" id="pm-s2f-model-price">$--</span>
+            </div>
+            <div class="price-row">
+              <span>Actual Price:</span>
+              <span class="price-value" id="pm-s2f-actual-price">$--</span>
+            </div>
+            <div class="price-row highlight">
+              <span>Deflection:</span>
+              <span class="price-value" id="pm-s2f-deflection">--%</span>
+            </div>
+          </div>
+          <div class="model-deflection-vis">
+            <div class="deflection-track">
+              <div class="deflection-marker" id="pm-s2f-deflection-bar"></div>
+            </div>
+            <div class="deflection-labels">
+              <span>Undervalued</span>
+              <span>Fair</span>
+              <span>Overvalued</span>
+            </div>
+          </div>
+          <div class="model-signal-badge" id="pm-s2f-signal">Loading...</div>
+          <p class="model-description" id="pm-s2f-description">Loading...</p>
+          <div class="model-meta">
+            <span>Next Halving: <strong id="pm-s2f-next-halving">--</strong></span>
+            <span>(<span id="pm-s2f-days-until">--</span>)</span>
+          </div>
+        </div>
+
+        <!-- NUPL Card -->
+        <div class="price-model-card nupl-card">
+          <div class="model-card-header">
+            <span class="model-icon">📈</span>
+            <h3>NUPL</h3>
+            {{ partial "tooltip.html" (dict "text" "Net Unrealized Profit/Loss. Shows what % of market cap is unrealized profit. Zones: Capitulation (<0), Hope (0-25%), Optimism (25-50%), Belief (50-75%), Euphoria (>75%).") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">NUPL Value</span>
+            <span class="model-value" id="pm-nupl-value">--</span>
+          </div>
+          <div class="nupl-zone-badge" id="pm-nupl-zone">Loading...</div>
+          <div class="nupl-meter-vis">
+            <div class="nupl-meter-track">
+              <div class="nupl-zone-segment capitulation"></div>
+              <div class="nupl-zone-segment hope"></div>
+              <div class="nupl-zone-segment optimism"></div>
+              <div class="nupl-zone-segment belief"></div>
+              <div class="nupl-zone-segment euphoria"></div>
+              <div class="nupl-meter-marker" id="pm-nupl-marker"></div>
+            </div>
+            <div class="nupl-zone-labels">
+              <span>Cap</span>
+              <span>Hope</span>
+              <span>Opt</span>
+              <span>Belief</span>
+              <span>Euph</span>
+            </div>
+          </div>
+          <p class="model-description" id="pm-nupl-description">Loading...</p>
+        </div>
+
+        <!-- Thermocap Multiple Card -->
+        <div class="price-model-card thermocap-card">
+          <div class="model-card-header">
+            <span class="model-icon">🔥</span>
+            <h3>Thermocap Multiple</h3>
+            {{ partial "tooltip.html" (dict "text" "Market cap divided by cumulative miner revenue. <10x = undervalued, >50x = extreme overvaluation.") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">Multiple</span>
+            <span class="model-value" id="pm-thermocap-multiple">--</span>
+          </div>
+          <div class="model-bar-container">
+            <div class="model-bar-track">
+              <div class="model-bar-fill" id="pm-thermocap-bar" style="width: 0%"></div>
+            </div>
+            <div class="model-bar-labels">
+              <span>Value</span>
+              <span>Fair</span>
+              <span>Hot</span>
+              <span>Extreme</span>
+            </div>
+          </div>
+          <div class="model-signal-badge" id="pm-thermocap-signal">Loading...</div>
+          <p class="model-description" id="pm-thermocap-description">Loading...</p>
+        </div>
+
+        <!-- Puell Multiple Card -->
+        <div class="price-model-card puell-card">
+          <div class="model-card-header">
+            <span class="model-icon">⛏️</span>
+            <h3>Puell Multiple</h3>
+            {{ partial "tooltip.html" (dict "text" "Daily miner revenue vs 365-day average. <0.5 = buy zone (miner stress), >4 = sell zone (extreme profitability).") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">Puell Value</span>
+            <span class="model-value" id="pm-puell-value">--</span>
+          </div>
+          <div class="model-gauge-vis">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="pm-puell-gauge" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>Buy</span>
+              <span>Neutral</span>
+              <span>Sell</span>
+            </div>
+          </div>
+          <div class="model-signal-badge" id="pm-puell-signal">Loading...</div>
+          <p class="model-description" id="pm-puell-description">Loading...</p>
+        </div>
+
+        <!-- MVRV Z-Score Card -->
+        <div class="price-model-card mvrv-z-card">
+          <div class="model-card-header">
+            <span class="model-icon">📉</span>
+            <h3>MVRV Z-Score</h3>
+            {{ partial "tooltip.html" (dict "text" "Deviation of MVRV from historical mean. Z > 7 = cycle top, Z < 0 = cycle bottom.") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">Z-Score</span>
+            <span class="model-value" id="pm-mvrv-z-score">--</span>
+          </div>
+          <div class="model-gauge-vis">
+            <div class="gauge-track">
+              <div class="gauge-fill" id="pm-mvrv-z-gauge" style="width: 0%"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>Bottom</span>
+              <span>Fair</span>
+              <span>Top</span>
+            </div>
+          </div>
+          <div class="model-signal-badge" id="pm-mvrv-z-signal">Loading...</div>
+          <p class="model-description" id="pm-mvrv-z-description">Loading...</p>
+        </div>
+
+        <!-- RHODL Ratio Card -->
+        <div class="price-model-card rhodl-card">
+          <div class="model-card-header">
+            <span class="model-icon">💎</span>
+            <h3>RHODL Ratio</h3>
+            {{ partial "tooltip.html" (dict "text" "Long-term vs short-term holder balance. High = accumulation, Low = distribution/speculation.") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">Ratio</span>
+            <span class="model-value" id="pm-rhodl-ratio">--</span>
+          </div>
+          <div class="model-bar-container">
+            <div class="model-bar-track">
+              <div class="model-bar-fill" id="pm-rhodl-bar" style="width: 0%"></div>
+            </div>
+            <div class="model-bar-labels">
+              <span>Distribution</span>
+              <span>Neutral</span>
+              <span>Accumulation</span>
+            </div>
+          </div>
+          <div class="model-signal-badge" id="pm-rhodl-signal">Loading...</div>
+          <p class="model-description" id="pm-rhodl-description">Loading...</p>
+        </div>
+
+        <!-- Delta Cap Card -->
+        <div class="price-model-card delta-cap-card">
+          <div class="model-card-header">
+            <span class="model-icon">🔺</span>
+            <h3>Delta Cap</h3>
+            {{ partial "tooltip.html" (dict "text" "Realized Cap vs Average Cap. Delta Price = historical baseline. Price below Delta = extreme undervaluation.") }}
+          </div>
+          <div class="model-prices">
+            <div class="price-row">
+              <span>Delta Price:</span>
+              <span class="price-value" id="pm-delta-price">$--</span>
+            </div>
+            <div class="price-row">
+              <span>Current Price:</span>
+              <span class="price-value" id="pm-delta-current-price">$--</span>
+            </div>
+            <div class="price-row highlight">
+              <span>Ratio:</span>
+              <span class="price-value" id="pm-delta-ratio">--%</span>
+            </div>
+          </div>
+          <div class="model-signal-badge" id="pm-delta-signal">Loading...</div>
+          <p class="model-description" id="pm-delta-description">Loading...</p>
+        </div>
+
+        <!-- MVRV Card (from Realized Cap) -->
+        <div class="price-model-card mvrv-card">
+          <div class="model-card-header">
+            <span class="model-icon">💰</span>
+            <h3>MVRV Ratio</h3>
+            {{ partial "tooltip.html" (dict "text" "Market Value to Realized Value. <1 = undervalued, 1-2.4 = fair, 2.4-3.5 = overvalued, >3.5 = extreme.") }}
+          </div>
+          <div class="model-main-stat">
+            <span class="model-label">MVRV</span>
+            <span class="model-value" id="pm-mvrv-ratio">--</span>
+          </div>
+          <div class="model-signal-badge" id="pm-mvrv-signal">Loading...</div>
+          <p class="model-description" id="pm-mvrv-description">Loading...</p>
+        </div>
+      </div>
+
+      <div class="metrics-data-note">
+        <strong>Data Sources:</strong> CoinGecko (price, market cap), Blockchain.info (mining data). Models updated every 4 hours. These are approximations for demonstration - production would use CoinMetrics/Glassnode APIs.
+      </div>
+    </section>
+
     <!-- Profitability Metrics Section (Phase 3: SOPR Family) -->
     <section class="profitability-section" id="profitability-metrics">
       <h2>Profitability Analysis</h2>
@@ -1281,6 +1565,244 @@
       <div class="current-price-box" role="status" aria-live="polite">
         <span class="label">Current BTC Price</span>
         <span class="price" id="current-btc-price">Loading...</span>
+      </div>
+    </section>
+
+    <!-- Signal Aggregator (Phase 7 - Prominent Position) -->
+    <section class="signal-aggregator-section">
+      <h2>🎯 Overall Market Signal</h2>
+      <p class="section-desc">AI-powered signal aggregation combining all data sources with weighted confidence scoring</p>
+
+      <div class="signal-aggregator-grid">
+        <!-- Overall Signal Display -->
+        <div class="signal-overall-card">
+          <div class="signal-overall-header">
+            <h3>Current Signal</h3>
+          </div>
+          <div class="signal-overall-value" id="overall-signal-value">LOADING</div>
+          <div class="signal-overall-label" id="overall-signal-label">Analyzing market conditions...</div>
+
+          <div class="confidence-section">
+            <h4>Signal Confidence</h4>
+            <div class="confidence-gauge">
+              <div class="confidence-gauge-track">
+                <div class="confidence-gauge-fill" id="confidence-gauge-fill"></div>
+              </div>
+            </div>
+            <div class="confidence-value" id="confidence-value">--%</div>
+            <div class="confidence-label" id="confidence-label">Calculating...</div>
+          </div>
+        </div>
+
+        <!-- Category Breakdown -->
+        <div class="signal-breakdown-card">
+          <div class="signal-breakdown-header">
+            <h3>Category Breakdown</h3>
+          </div>
+          <div id="signal-breakdown-bars">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Bullish Factors -->
+        <div class="signal-factors-card factors-bullish">
+          <div class="factors-header">
+            <span class="factors-icon">📈</span>
+            <h3>Top 5 Bullish Factors</h3>
+          </div>
+          <div class="factors-list" id="bullish-factors-list">
+            <p class="factors-loading">Loading factors...</p>
+          </div>
+        </div>
+
+        <!-- Bearish Factors -->
+        <div class="signal-factors-card factors-bearish">
+          <div class="factors-header">
+            <span class="factors-icon">📉</span>
+            <h3>Top 5 Bearish Factors</h3>
+          </div>
+          <div class="factors-list" id="bearish-factors-list">
+            <p class="factors-loading">Loading factors...</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="signal-note">
+        <strong>Methodology:</strong> Signals are weighted by category (On-Chain: 30%, Technical: 25%, Derivatives: 20%, Price Models: 15%, Sentiment: 10%). Updated every 15 minutes.
+      </div>
+    </section>
+
+    <!-- Alert System (Phase 7) -->
+    <section class="alerts-section">
+      <h2>🚨 Alert System</h2>
+      <p class="section-desc">Real-time monitoring of critical market conditions. Get notified when key thresholds are breached.</p>
+
+      <div class="alerts-grid">
+        <!-- Alert Stats -->
+        <div class="alerts-stats-row">
+          <div class="alert-stat-card">
+            <span class="alert-stat-icon">📊</span>
+            <span class="alert-stat-value" id="alert-total">0</span>
+            <span class="alert-stat-label">Total Alerts (24h)</span>
+          </div>
+          <div class="alert-stat-card critical">
+            <span class="alert-stat-icon">🔴</span>
+            <span class="alert-stat-value" id="alert-critical">0</span>
+            <span class="alert-stat-label">Critical</span>
+          </div>
+          <div class="alert-stat-card warning">
+            <span class="alert-stat-icon">⚠️</span>
+            <span class="alert-stat-value" id="alert-warning">0</span>
+            <span class="alert-stat-label">Warning</span>
+          </div>
+          <div class="alert-stat-card info">
+            <span class="alert-stat-icon">ℹ️</span>
+            <span class="alert-stat-value" id="alert-info">0</span>
+            <span class="alert-stat-label">Info</span>
+          </div>
+        </div>
+
+        <!-- Active Alerts -->
+        <div class="alerts-active-card">
+          <div class="alerts-card-header">
+            <h3>Active Alerts</h3>
+            <div class="alerts-header-actions">
+              <button class="btn-alert-refresh" id="btn-refresh-alerts" title="Refresh alerts">🔄</button>
+              <button class="btn-alert-clear" id="btn-clear-acknowledged" title="Clear acknowledged">Clear</button>
+            </div>
+          </div>
+          <div class="alerts-filters">
+            <button class="alert-filter-btn active" data-severity="all">All</button>
+            <button class="alert-filter-btn" data-severity="critical">Critical</button>
+            <button class="alert-filter-btn" data-severity="warning">Warning</button>
+            <button class="alert-filter-btn" data-severity="info">Info</button>
+          </div>
+          <div class="alerts-list" id="active-alerts-list">
+            <div class="alerts-loading">Loading alerts...</div>
+          </div>
+          <div class="alerts-last-checked" id="alerts-last-checked">Checking...</div>
+        </div>
+
+        <!-- Alert History -->
+        <div class="alerts-history-card">
+          <div class="alerts-card-header">
+            <h3>Alert History (Last 24h)</h3>
+          </div>
+          <div class="alert-history-list" id="alert-history-list">
+            <div class="alerts-loading">Loading history...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Market Report (Phase 7) -->
+    <section class="market-report-section">
+      <h2>📊 Daily Market Report</h2>
+      <p class="section-desc">Comprehensive daily analysis with market grade, key highlights, and trading recommendations</p>
+
+      <div class="market-report-grid" id="market-report-container">
+        <!-- Market Grade Card -->
+        <div class="market-grade-card">
+          <div class="market-grade-header">
+            <h3>Today's Market Grade</h3>
+            <span class="market-report-date" id="market-report-date">Loading...</span>
+          </div>
+          <div class="market-grade-display">
+            <div class="market-grade-value" id="market-grade-value">--</div>
+            <div class="market-grade-label" id="market-grade-label">Loading...</div>
+          </div>
+          <div class="market-grade-score">
+            <span class="grade-score-label">Score:</span>
+            <span class="grade-score-value" id="market-grade-score">--/100</span>
+          </div>
+          <div class="market-signal-badge" id="market-signal-badge">--</div>
+          <div class="market-confidence">
+            <span>Confidence:</span>
+            <span id="market-confidence">--%</span>
+          </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="market-summary-card">
+          <div class="market-card-header">
+            <h3>Market Summary</h3>
+          </div>
+          <p class="market-summary-text" id="market-summary-text">Loading market summary...</p>
+        </div>
+
+        <!-- Highlights -->
+        <div class="market-highlights-card">
+          <div class="market-card-header">
+            <h3>Key Highlights</h3>
+          </div>
+          <div id="market-highlights">
+            <p class="loading-text">Loading highlights...</p>
+          </div>
+        </div>
+
+        <!-- Warnings -->
+        <div class="market-warnings-card">
+          <div class="market-card-header">
+            <h3>⚠️ Active Warnings</h3>
+          </div>
+          <div id="market-warnings">
+            <p class="loading-text">Loading warnings...</p>
+          </div>
+        </div>
+
+        <!-- Signal Breakdown -->
+        <div class="market-breakdown-card">
+          <div class="market-card-header">
+            <h3>Signal Breakdown by Category</h3>
+          </div>
+          <div id="signal-breakdown">
+            <p class="loading-text">Loading breakdown...</p>
+          </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="market-recommendation-card">
+          <div class="market-card-header">
+            <h3>💡 Trading Recommendation</h3>
+          </div>
+          <div id="market-recommendation">
+            <p class="loading-text">Loading recommendation...</p>
+          </div>
+        </div>
+
+        <!-- Historical Grade Chart -->
+        <div class="market-history-card">
+          <div class="market-card-header">
+            <h3>30-Day Grade History</h3>
+          </div>
+          <div class="grade-chart-container">
+            <canvas id="grade-history-chart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="market-report-actions">
+        <button class="btn-export-report" id="btn-export-report-pdf">
+          <i class="fas fa-file-pdf"></i> Export to PDF
+        </button>
+      </div>
+    </section>
+
+    <!-- Watchlist (Phase 7) -->
+    <section class="watchlist-section">
+      <h2>⭐ My Watchlist</h2>
+      <p class="section-desc">Save and monitor your favorite metrics for quick access</p>
+
+      <div class="watchlist-container">
+        <div class="watchlist-header">
+          <button class="btn-clear-watchlist" id="btn-clear-watchlist">Clear All</button>
+        </div>
+        <div class="watchlist-items" id="watchlist-items">
+          <div class="watchlist-empty">
+            <span class="watchlist-empty-icon">📋</span>
+            <p>Your watchlist is empty</p>
+          </div>
+        </div>
       </div>
     </section>
 

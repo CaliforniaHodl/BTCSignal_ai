@@ -81,7 +81,8 @@
       hourly: 'Hour Pass',
       daily: 'Day Pass',
       weekly: 'Week Pass',
-      monthly: 'Month Pass'
+      monthly: 'Month Pass',
+      yearly: 'Year Pass'
     };
     title.textContent = 'Pay for ' + tierNames[tier];
 
@@ -246,7 +247,8 @@
       hourly: 'Hour Pass',
       daily: 'Day Pass',
       weekly: 'Week Pass',
-      monthly: 'Month Pass'
+      monthly: 'Month Pass',
+      yearly: 'Year Pass'
     };
     tierDisplay.textContent = tierNames[tier] || tier;
 

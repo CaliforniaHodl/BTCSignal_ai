@@ -5015,3 +5015,1887 @@
     }
   }
 }
+
+// =====================================================
+// PRICE MODELS SECTION (Phase 6)
+// =====================================================
+
+.price-models-section {
+  margin-top: $spacing-2xl;
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    color: var(--text-primary);
+    margin-bottom: $spacing-sm;
+  }
+
+  .section-desc {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+}
+
+// Overall Valuation Score Card
+.overall-valuation-card {
+  @include card;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(247, 147, 26, 0.05) 100%);
+
+  .valuation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      color: var(--text-primary);
+      font-size: $font-xl;
+      margin: 0;
+    }
+
+    .last-updated {
+      color: var(--text-secondary);
+      font-size: $font-sm;
+    }
+  }
+
+  .valuation-main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-xl;
+    margin-bottom: $spacing-lg;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .valuation-score {
+    text-align: center;
+
+    .valuation-score-value {
+      font-size: 4rem;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-sm;
+
+      &.extreme-undervalued {
+        color: #10b981;
+      }
+
+      &.undervalued {
+        color: #34d399;
+      }
+
+      &.slightly-undervalued {
+        color: #6ee7b7;
+      }
+
+      &.fair {
+        color: #fbbf24;
+      }
+
+      &.slightly-overvalued {
+        color: #fca5a5;
+      }
+
+      &.overvalued {
+        color: #f87171;
+      }
+
+      &.extreme-overvalued {
+        color: #ef4444;
+      }
+    }
+
+    .valuation-score-scale {
+      display: flex;
+      justify-content: space-between;
+      font-size: $font-xs;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-sm;
+    }
+
+    .valuation-gauge-container {
+      margin-top: $spacing-md;
+    }
+
+    .valuation-gauge {
+      height: 12px;
+      background: linear-gradient(to right, #10b981, #fbbf24, #ef4444);
+      border-radius: $radius-full;
+      position: relative;
+      overflow: visible;
+
+      .gauge-fill {
+        position: absolute;
+        top: -4px;
+        height: 20px;
+        width: 4px;
+        background: var(--text-primary);
+        border-radius: $radius-sm;
+        transition: left $transition-base;
+      }
+    }
+  }
+
+  .valuation-rating-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .rating-badge {
+      padding: $spacing-md $spacing-lg;
+      border-radius: $radius-lg;
+      font-size: $font-lg;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-md;
+      text-align: center;
+
+      &.extreme-undervalued {
+        background: #10b981;
+        color: white;
+      }
+
+      &.undervalued {
+        background: #34d399;
+        color: white;
+      }
+
+      &.slightly-undervalued {
+        background: #6ee7b7;
+        color: var(--bg-dark);
+      }
+
+      &.fair {
+        background: #fbbf24;
+        color: var(--bg-dark);
+      }
+
+      &.slightly-overvalued {
+        background: #fca5a5;
+        color: var(--bg-dark);
+      }
+
+      &.overvalued {
+        background: #f87171;
+        color: white;
+      }
+
+      &.extreme-overvalued {
+        background: #ef4444;
+        color: white;
+      }
+    }
+
+    .valuation-stats {
+      display: flex;
+      gap: $spacing-lg;
+
+      .val-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .val-label {
+          font-size: $font-xs;
+          color: var(--text-secondary);
+          margin-bottom: $spacing-xs;
+        }
+
+        .val-value {
+          font-size: $font-xl;
+          font-weight: $font-bold;
+          color: var(--bitcoin-orange);
+        }
+      }
+    }
+  }
+
+  .valuation-summary {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: $font-base;
+    line-height: 1.6;
+    margin-bottom: $spacing-lg;
+    padding: $spacing-md;
+    background: rgba(247, 147, 26, 0.05);
+    border-radius: $radius-md;
+  }
+
+  .model-agreement-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-lg;
+    margin-top: $spacing-lg;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+
+    .agreement-column {
+      h4 {
+        font-size: $font-sm;
+        color: var(--text-secondary);
+        margin-bottom: $spacing-sm;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .model-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: $spacing-xs;
+      }
+
+      .model-chip {
+        padding: $spacing-xs $spacing-sm;
+        border-radius: $radius-md;
+        font-size: $font-xs;
+        font-weight: $font-medium;
+
+        &.bullish {
+          background: rgba(16, 185, 129, 0.2);
+          color: #10b981;
+        }
+
+        &.bearish {
+          background: rgba(239, 68, 68, 0.2);
+          color: #ef4444;
+        }
+
+        &.neutral {
+          background: rgba(107, 114, 128, 0.2);
+          color: #9ca3af;
+        }
+      }
+    }
+  }
+}
+
+// Individual Model Cards Grid
+.price-models-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.price-model-card {
+  @include card;
+  padding: $spacing-lg;
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .model-card-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+
+    .model-icon {
+      font-size: $font-2xl;
+    }
+
+    h3 {
+      font-size: $font-lg;
+      color: var(--text-primary);
+      margin: 0;
+      flex: 1;
+    }
+  }
+
+  .model-main-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: $spacing-md;
+
+    .model-label {
+      font-size: $font-xs;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: $spacing-xs;
+    }
+
+    .model-value {
+      font-size: 2.5rem;
+      font-weight: $font-bold;
+      color: var(--bitcoin-orange);
+    }
+  }
+
+  .model-prices {
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      padding: $spacing-sm 0;
+      border-bottom: 1px solid var(--border-color);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &.highlight {
+        background: rgba(247, 147, 26, 0.05);
+        padding: $spacing-sm;
+        border-radius: $radius-sm;
+        margin-top: $spacing-xs;
+      }
+
+      span:first-child {
+        color: var(--text-secondary);
+        font-size: $font-sm;
+      }
+
+      .price-value {
+        color: var(--text-primary);
+        font-weight: $font-medium;
+      }
+    }
+  }
+
+  .model-signal-badge {
+    display: inline-block;
+    padding: $spacing-xs $spacing-md;
+    border-radius: $radius-full;
+    font-size: $font-xs;
+    font-weight: $font-bold;
+    text-transform: uppercase;
+    margin: $spacing-md 0;
+
+    &.undervalued,
+    &.buy-zone,
+    &.accumulation,
+    &.bottom-zone,
+    &.extreme-undervalued {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+
+    &.fair,
+    &.neutral {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+    }
+
+    &.overvalued,
+    &.sell-zone,
+    &.distribution,
+    &.overheated {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    &.extreme,
+    &.extreme-overvalued,
+    &.top-zone,
+    &.speculative-top {
+      background: rgba(220, 38, 38, 0.3);
+      color: #dc2626;
+      animation: pulse 2s infinite;
+    }
+  }
+
+  .model-description {
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    line-height: 1.5;
+    margin-bottom: $spacing-sm;
+  }
+
+  .model-meta {
+    font-size: $font-xs;
+    color: var(--text-secondary);
+    padding-top: $spacing-sm;
+    border-top: 1px solid var(--border-color);
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  // Deflection visualization (S2F)
+  .model-deflection-vis {
+    margin: $spacing-md 0;
+
+    .deflection-track {
+      height: 8px;
+      background: linear-gradient(to right, #10b981, #fbbf24, #ef4444);
+      border-radius: $radius-full;
+      position: relative;
+      margin-bottom: $spacing-xs;
+
+      .deflection-marker {
+        position: absolute;
+        top: -4px;
+        width: 16px;
+        height: 16px;
+        background: var(--text-primary);
+        border: 2px solid var(--bg-card);
+        border-radius: $radius-full;
+        transform: translateX(-50%);
+        transition: left $transition-base;
+      }
+    }
+
+    .deflection-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: $font-xs;
+      color: var(--text-secondary);
+    }
+  }
+
+  // NUPL meter visualization
+  .nupl-meter-vis {
+    margin: $spacing-md 0;
+
+    .nupl-meter-track {
+      height: 32px;
+      display: flex;
+      border-radius: $radius-md;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: $spacing-xs;
+
+      .nupl-zone-segment {
+        flex: 1;
+
+        &.capitulation {
+          background: #dc2626;
+        }
+
+        &.hope {
+          background: #f59e0b;
+        }
+
+        &.optimism {
+          background: #fbbf24;
+        }
+
+        &.belief {
+          background: #a3e635;
+        }
+
+        &.euphoria {
+          background: #10b981;
+        }
+      }
+
+      .nupl-meter-marker {
+        position: absolute;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        background: var(--text-primary);
+        box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+        transition: left $transition-base;
+      }
+    }
+
+    .nupl-zone-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: $font-xs;
+      color: var(--text-secondary);
+    }
+  }
+
+  .nupl-zone-badge {
+    display: inline-block;
+    padding: $spacing-sm $spacing-md;
+    border-radius: $radius-md;
+    font-weight: $font-bold;
+    margin: $spacing-sm 0;
+
+    &.capitulation {
+      background: #dc2626;
+      color: white;
+    }
+
+    &.hope {
+      background: #f59e0b;
+      color: white;
+    }
+
+    &.optimism {
+      background: #fbbf24;
+      color: var(--bg-dark);
+    }
+
+    &.belief {
+      background: #a3e635;
+      color: var(--bg-dark);
+    }
+
+    &.euphoria {
+      background: #10b981;
+      color: white;
+    }
+  }
+
+  // Bar visualization (Thermocap, RHODL)
+  .model-bar-container {
+    margin: $spacing-md 0;
+
+    .model-bar-track {
+      height: 24px;
+      background: var(--bg-dark);
+      border-radius: $radius-md;
+      overflow: hidden;
+      position: relative;
+
+      .model-bar-fill {
+        height: 100%;
+        background: linear-gradient(to right, #10b981, #fbbf24, #ef4444);
+        border-radius: $radius-md;
+        transition: width $transition-base;
+      }
+    }
+
+    .model-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: $font-xs;
+      color: var(--text-secondary);
+      margin-top: $spacing-xs;
+    }
+  }
+
+  // Gauge visualization (Puell, MVRV Z-Score)
+  .model-gauge-vis {
+    margin: $spacing-md 0;
+
+    .gauge-track {
+      height: 16px;
+      background: var(--bg-dark);
+      border-radius: $radius-full;
+      overflow: hidden;
+      position: relative;
+
+      .gauge-fill {
+        height: 100%;
+        background: linear-gradient(to right, #10b981, #fbbf24, #ef4444);
+        border-radius: $radius-full;
+        transition: width $transition-base;
+      }
+    }
+
+    .gauge-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: $font-xs;
+      color: var(--text-secondary);
+      margin-top: $spacing-xs;
+    }
+  }
+}
+
+// Pulse animation for extreme signals
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+// =====================================================
+// PREMIUM ANALYTICS STYLES (Phase 7)
+// =====================================================
+
+// Signal Aggregator Section
+.signal-aggregator-section {
+  margin-bottom: $spacing-2xl;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.05) 100%);
+  border-radius: $radius-lg;
+  border: 2px solid rgba($bitcoin-orange, 0.2);
+
+  h2 {
+    font-size: $font-2xl;
+    @include gradient-text;
+    margin-bottom: $spacing-sm;
+  }
+
+  .section-desc {
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xl;
+  }
+
+  .signal-note {
+    margin-top: $spacing-lg;
+    padding: $spacing-md;
+    background: var(--bg-dark);
+    border-radius: $radius-md;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    border-left: 3px solid var(--bitcoin-orange);
+
+    strong {
+      color: var(--text-primary);
+    }
+  }
+}
+
+.signal-aggregator-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+
+  @include tablet {
+    grid-template-columns: 1fr;
+  }
+}
+
+.signal-overall-card {
+  @include card;
+  padding: $spacing-xl;
+  grid-column: span 2;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba($bitcoin-orange, 0.08) 100%);
+  border-color: rgba($bitcoin-orange, 0.3);
+
+  @include tablet {
+    grid-column: span 1;
+  }
+}
+
+.signal-overall-value {
+  font-size: $font-4xl;
+  font-weight: $font-bold;
+  text-align: center;
+  margin: $spacing-lg 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+
+  &.signal-bullish {
+    color: var(--green);
+  }
+
+  &.signal-bearish {
+    color: var(--red);
+  }
+
+  &.signal-neutral {
+    color: var(--text-secondary);
+  }
+}
+
+.signal-overall-label {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: $font-base;
+  margin-bottom: $spacing-xl;
+}
+
+.confidence-section {
+  margin-top: $spacing-xl;
+
+  h4 {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: $font-sm;
+    margin-bottom: $spacing-md;
+  }
+}
+
+.confidence-gauge {
+  margin-bottom: $spacing-md;
+
+  .confidence-gauge-track {
+    height: 24px;
+    background: var(--bg-dark);
+    border-radius: $radius-full;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .confidence-gauge-fill {
+    height: 100%;
+    border-radius: $radius-full;
+    transition: all $transition-normal;
+    background: linear-gradient(90deg, var(--red), var(--bitcoin-orange), var(--green));
+  }
+}
+
+.confidence-value {
+  text-align: center;
+  font-size: $font-2xl;
+  font-weight: $font-bold;
+  color: var(--bitcoin-orange);
+  margin-bottom: $spacing-xs;
+}
+
+.confidence-label {
+  text-align: center;
+  font-size: $font-sm;
+  color: var(--text-secondary);
+}
+
+.signal-breakdown-card {
+  @include card;
+  padding: $spacing-lg;
+  grid-column: span 2;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+}
+
+.signal-breakdown-item {
+  margin-bottom: $spacing-lg;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.breakdown-label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-sm;
+
+  .breakdown-name {
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+  }
+
+  .breakdown-weight {
+    font-size: $font-xs;
+    color: var(--text-muted);
+  }
+}
+
+.breakdown-bar-container {
+  margin-bottom: $spacing-sm;
+}
+
+.breakdown-bar-track {
+  height: 24px;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  position: relative;
+  overflow: hidden;
+
+  .breakdown-bar-center {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    height: 100%;
+    background: var(--border-color);
+  }
+
+  .breakdown-bar-fill {
+    position: absolute;
+    height: 100%;
+    transition: all $transition-normal;
+
+    &.positive {
+      background: var(--green);
+      left: 50%;
+    }
+
+    &.negative {
+      background: var(--red);
+      right: 50%;
+    }
+  }
+}
+
+.breakdown-value {
+  text-align: right;
+  font-size: $font-sm;
+  font-weight: $font-semibold;
+
+  &.positive {
+    color: var(--green);
+  }
+
+  &.negative {
+    color: var(--red);
+  }
+}
+
+.signal-factors-card {
+  @include card;
+  padding: $spacing-lg;
+
+  .factors-header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      font-size: $font-base;
+      color: var(--text-primary);
+      margin: 0;
+    }
+  }
+
+  &.factors-bullish {
+    border-left: 4px solid var(--green);
+  }
+
+  &.factors-bearish {
+    border-left: 4px solid var(--red);
+  }
+}
+
+.factor-item {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--bg-card);
+  }
+
+  .factor-rank {
+    font-size: $font-xl;
+    font-weight: $font-bold;
+    color: var(--bitcoin-orange);
+    min-width: 30px;
+    text-align: center;
+  }
+
+  .factor-content {
+    flex: 1;
+  }
+
+  .factor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-xs;
+  }
+
+  .factor-name {
+    font-weight: $font-semibold;
+    color: var(--text-primary);
+    font-size: $font-sm;
+  }
+
+  .factor-category {
+    font-size: $font-xs;
+    color: var(--text-muted);
+    padding: 2px 8px;
+    background: var(--bg-page);
+    border-radius: $radius-sm;
+  }
+
+  .factor-explanation {
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    margin-bottom: $spacing-xs;
+    line-height: 1.4;
+  }
+
+  .factor-footer {
+    display: flex;
+    gap: $spacing-md;
+    font-size: $font-xs;
+    color: var(--text-muted);
+  }
+
+  .factor-value {
+    strong {
+      color: var(--text-primary);
+    }
+  }
+
+  .factor-weight {
+    strong {
+      color: var(--bitcoin-orange);
+    }
+  }
+}
+
+// Alerts Section
+.alerts-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-2xl;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.alerts-grid {
+  display: grid;
+  gap: $spacing-lg;
+}
+
+.alerts-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+
+  @include mobile {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.alert-stat-card {
+  @include card;
+  padding: $spacing-md;
+  text-align: center;
+  transition: all $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: var(--bitcoin-orange);
+  }
+
+  .alert-stat-icon {
+    font-size: $font-2xl;
+    display: block;
+    margin-bottom: $spacing-sm;
+  }
+
+  .alert-stat-value {
+    font-size: $font-3xl;
+    font-weight: $font-bold;
+    display: block;
+    margin-bottom: $spacing-xs;
+  }
+
+  .alert-stat-label {
+    font-size: $font-xs;
+    color: var(--text-muted);
+    display: block;
+  }
+
+  &.critical {
+    .alert-stat-value {
+      color: var(--red);
+    }
+  }
+
+  &.warning {
+    .alert-stat-value {
+      color: var(--bitcoin-orange);
+    }
+  }
+
+  &.info {
+    .alert-stat-value {
+      color: var(--blue);
+    }
+  }
+}
+
+.alerts-active-card,
+.alerts-history-card {
+  @include card;
+  padding: $spacing-lg;
+}
+
+.alerts-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+
+  h3 {
+    font-size: $font-lg;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .alerts-header-actions {
+    display: flex;
+    gap: $spacing-sm;
+
+    button {
+      padding: $spacing-xs $spacing-sm;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: $radius-sm;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: var(--bg-card);
+        color: var(--text-primary);
+      }
+    }
+  }
+}
+
+.alerts-filters {
+  display: flex;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+
+  .alert-filter-btn {
+    padding: $spacing-xs $spacing-md;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: $radius-md;
+    font-size: $font-sm;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover,
+    &.active {
+      background: var(--bitcoin-orange);
+      color: var(--bg-dark);
+      border-color: var(--bitcoin-orange);
+    }
+  }
+}
+
+.alerts-list {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.alert-item {
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  border-left: 4px solid;
+  transition: all $transition-fast;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--bg-card);
+    transform: translateX(4px);
+  }
+
+  &.alert-severity-critical {
+    border-left-color: var(--red);
+  }
+
+  &.alert-severity-warning {
+    border-left-color: var(--bitcoin-orange);
+  }
+
+  &.alert-severity-info {
+    border-left-color: var(--blue);
+  }
+
+  .alert-item-header {
+    display: flex;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+    flex-wrap: wrap;
+
+    .alert-badge {
+      padding: 2px 8px;
+      border-radius: $radius-sm;
+      font-size: $font-xs;
+      font-weight: $font-bold;
+      color: white;
+      text-transform: uppercase;
+
+      &.alert-badge-critical {
+        background: var(--red);
+      }
+
+      &.alert-badge-warning {
+        background: var(--bitcoin-orange);
+      }
+
+      &.alert-badge-info {
+        background: var(--blue);
+      }
+    }
+
+    .alert-category {
+      font-size: $font-xs;
+      color: var(--text-muted);
+      padding: 2px 8px;
+      background: var(--bg-page);
+      border-radius: $radius-sm;
+    }
+
+    .alert-time {
+      font-size: $font-xs;
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+  }
+
+  .alert-item-body {
+    .alert-name {
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+      font-size: $font-base;
+      margin-bottom: $spacing-xs;
+    }
+
+    .alert-message {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-sm;
+      line-height: 1.4;
+    }
+
+    .alert-metrics {
+      display: flex;
+      gap: $spacing-md;
+      font-size: $font-xs;
+      color: var(--text-muted);
+
+      strong {
+        color: var(--text-primary);
+      }
+    }
+  }
+
+  .alert-item-actions {
+    display: flex;
+    gap: $spacing-sm;
+    margin-top: $spacing-sm;
+
+    .btn-alert-action {
+      padding: $spacing-xs $spacing-sm;
+      background: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: $radius-sm;
+      font-size: $font-xs;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: var(--bitcoin-orange);
+        color: var(--bg-dark);
+        border-color: var(--bitcoin-orange);
+      }
+    }
+  }
+}
+
+.alert-empty {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: var(--text-muted);
+
+  .alert-empty-icon {
+    font-size: $font-4xl;
+    display: block;
+    margin-bottom: $spacing-md;
+  }
+
+  .alert-empty-sub {
+    font-size: $font-sm;
+    margin-top: $spacing-xs;
+  }
+}
+
+.alert-history-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.alert-history-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm;
+  margin-bottom: $spacing-xs;
+  background: var(--bg-dark);
+  border-radius: $radius-sm;
+  transition: all $transition-fast;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: var(--bg-card);
+  }
+
+  &.acknowledged {
+    opacity: 0.5;
+  }
+
+  .alert-history-icon {
+    font-size: $font-base;
+
+    &.alert-severity-critical {
+      color: var(--red);
+    }
+
+    &.alert-severity-warning {
+      color: var(--bitcoin-orange);
+    }
+
+    &.alert-severity-info {
+      color: var(--blue);
+    }
+  }
+
+  .alert-history-content {
+    flex: 1;
+
+    strong {
+      display: block;
+      color: var(--text-primary);
+      font-size: $font-sm;
+      margin-bottom: 2px;
+    }
+
+    .alert-history-time {
+      font-size: $font-xs;
+      color: var(--text-muted);
+    }
+  }
+
+  .alert-ack-badge {
+    color: var(--green);
+    font-size: $font-base;
+  }
+}
+
+.alerts-last-checked {
+  margin-top: $spacing-md;
+  font-size: $font-xs;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+// Market Report Section
+.market-report-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-2xl;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.market-report-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-lg;
+
+  @include tablet {
+    grid-template-columns: 1fr;
+  }
+}
+
+.market-grade-card {
+  @include card;
+  padding: $spacing-xl;
+  grid-column: span 1;
+  text-align: center;
+
+  .market-grade-header {
+    margin-bottom: $spacing-lg;
+
+    h3 {
+      font-size: $font-base;
+      color: var(--text-secondary);
+      margin-bottom: $spacing-xs;
+    }
+
+    .market-report-date {
+      font-size: $font-sm;
+      color: var(--text-muted);
+    }
+  }
+
+  .market-grade-display {
+    margin-bottom: $spacing-lg;
+  }
+
+  .market-grade-value {
+    font-size: $font-4xl;
+    font-weight: $font-bold;
+    margin-bottom: $spacing-sm;
+
+    &.grade-a {
+      color: var(--green);
+    }
+
+    &.grade-b {
+      color: var(--blue);
+    }
+
+    &.grade-c {
+      color: var(--bitcoin-orange);
+    }
+
+    &.grade-d {
+      color: var(--red);
+    }
+
+    &.grade-f {
+      color: var(--extreme-fear);
+    }
+  }
+
+  .market-grade-label {
+    font-size: $font-base;
+    color: var(--text-secondary);
+  }
+
+  .market-grade-score {
+    display: flex;
+    justify-content: center;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-md;
+    font-size: $font-sm;
+
+    .grade-score-value {
+      color: var(--bitcoin-orange);
+      font-weight: $font-bold;
+    }
+  }
+
+  .market-signal-badge {
+    display: inline-block;
+    padding: $spacing-xs $spacing-md;
+    border-radius: $radius-full;
+    font-size: $font-sm;
+    font-weight: $font-bold;
+    text-transform: uppercase;
+    margin-bottom: $spacing-sm;
+
+    &.signal-bullish {
+      background: rgba($success, 0.2);
+      color: $success;
+    }
+
+    &.signal-bearish {
+      background: rgba($danger, 0.2);
+      color: $danger;
+    }
+
+    &.signal-neutral {
+      background: rgba($warning, 0.2);
+      color: $warning;
+    }
+  }
+
+  .market-confidence {
+    font-size: $font-sm;
+    color: var(--text-muted);
+
+    span:last-child {
+      color: var(--text-primary);
+      font-weight: $font-semibold;
+    }
+  }
+}
+
+.market-summary-card,
+.market-highlights-card,
+.market-warnings-card,
+.market-breakdown-card,
+.market-recommendation-card,
+.market-history-card {
+  @include card;
+  padding: $spacing-lg;
+
+  .market-card-header {
+    margin-bottom: $spacing-md;
+
+    h3 {
+      font-size: $font-base;
+      color: var(--text-primary);
+      margin: 0;
+    }
+  }
+}
+
+.market-summary-card {
+  grid-column: span 2;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+
+  .market-summary-text {
+    font-size: $font-base;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+}
+
+.market-highlights-card {
+  grid-column: span 3;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+
+  #market-highlights {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: $spacing-lg;
+
+    @include mobile {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .highlights-section {
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      margin-bottom: $spacing-md;
+      font-size: $font-base;
+    }
+  }
+
+  .highlight-item {
+    padding: $spacing-md;
+    background: var(--bg-dark);
+    border-radius: $radius-md;
+    margin-bottom: $spacing-sm;
+    border-left: 4px solid;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &.highlight-bullish {
+      border-left-color: var(--green);
+    }
+
+    &.highlight-bearish {
+      border-left-color: var(--red);
+    }
+
+    .highlight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-xs;
+
+      strong {
+        color: var(--text-primary);
+        font-size: $font-sm;
+      }
+
+      .impact-badge {
+        padding: 2px 6px;
+        border-radius: $radius-xs;
+        font-size: $font-xs;
+        font-weight: $font-bold;
+        text-transform: uppercase;
+
+        &.impact-high {
+          background: var(--red);
+          color: white;
+        }
+
+        &.impact-medium {
+          background: var(--bitcoin-orange);
+          color: white;
+        }
+
+        &.impact-low {
+          background: var(--blue);
+          color: white;
+        }
+      }
+    }
+
+    p {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+      margin: 0;
+      line-height: 1.4;
+    }
+  }
+
+  .highlights-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: $font-sm;
+  }
+}
+
+.market-warnings-card {
+  grid-column: span 3;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+
+  .warning-item {
+    display: flex;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    background: rgba($danger, 0.1);
+    border: 1px solid rgba($danger, 0.3);
+    border-radius: $radius-md;
+    margin-bottom: $spacing-sm;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .warning-icon {
+      font-size: $font-xl;
+      flex-shrink: 0;
+    }
+
+    .warning-content {
+      flex: 1;
+
+      strong {
+        display: block;
+        color: var(--text-primary);
+        margin-bottom: $spacing-xs;
+      }
+
+      p {
+        font-size: $font-sm;
+        color: var(--text-secondary);
+        margin: 0;
+        line-height: 1.4;
+      }
+    }
+
+    .warning-impact-badge {
+      padding: $spacing-xs $spacing-sm;
+      border-radius: $radius-sm;
+      font-size: $font-xs;
+      font-weight: $font-bold;
+      background: var(--red);
+      color: white;
+      align-self: flex-start;
+    }
+  }
+
+  .warnings-empty {
+    text-align: center;
+    padding: $spacing-xl;
+
+    .warnings-empty-icon {
+      font-size: $font-3xl;
+      display: block;
+      margin-bottom: $spacing-sm;
+    }
+  }
+}
+
+.market-breakdown-card {
+  grid-column: span 2;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+
+  .breakdown-item {
+    margin-bottom: $spacing-md;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .breakdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-xs;
+
+      .breakdown-icon {
+        margin-right: $spacing-xs;
+      }
+
+      .breakdown-name {
+        flex: 1;
+        font-weight: $font-semibold;
+        color: var(--text-primary);
+      }
+
+      .breakdown-weight {
+        font-size: $font-xs;
+        color: var(--text-muted);
+      }
+    }
+
+    .breakdown-signal {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: $radius-sm;
+      font-size: $font-xs;
+      font-weight: $font-bold;
+      margin-bottom: $spacing-xs;
+
+      &.signal-bullish {
+        background: rgba($success, 0.2);
+        color: $success;
+      }
+
+      &.signal-bearish {
+        background: rgba($danger, 0.2);
+        color: $danger;
+      }
+
+      &.signal-neutral {
+        background: rgba($warning, 0.2);
+        color: $warning;
+      }
+    }
+
+    .breakdown-bar {
+      height: 8px;
+      background: var(--bg-dark);
+      border-radius: $radius-full;
+      overflow: hidden;
+      margin-bottom: $spacing-xs;
+
+      .breakdown-fill {
+        height: 100%;
+        border-radius: $radius-full;
+        transition: width $transition-normal;
+      }
+    }
+
+    .breakdown-score {
+      font-size: $font-xs;
+      color: var(--text-muted);
+      text-align: right;
+    }
+  }
+}
+
+.market-recommendation-card {
+  grid-column: span 1;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+
+  .recommendation-content {
+    display: flex;
+    gap: $spacing-md;
+
+    .recommendation-icon {
+      font-size: $font-2xl;
+      flex-shrink: 0;
+    }
+
+    p {
+      font-size: $font-sm;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin: 0;
+    }
+  }
+}
+
+.market-history-card {
+  grid-column: span 3;
+
+  @include tablet {
+    grid-column: span 1;
+  }
+
+  .grade-chart-container {
+    height: 200px;
+  }
+}
+
+.market-report-actions {
+  margin-top: $spacing-lg;
+  text-align: center;
+
+  .btn-export-report {
+    padding: $spacing-sm $spacing-lg;
+    background: var(--bitcoin-orange);
+    color: var(--bg-dark);
+    border: none;
+    border-radius: $radius-md;
+    font-weight: $font-semibold;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+      background: var(--bitcoin-orange-light);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Watchlist Section
+.watchlist-section {
+  margin-bottom: $spacing-2xl;
+
+  h2 {
+    font-size: $font-2xl;
+    margin-bottom: $spacing-sm;
+  }
+}
+
+.watchlist-container {
+  @include card;
+  padding: $spacing-lg;
+
+  .watchlist-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-md;
+
+    .btn-clear-watchlist {
+      padding: $spacing-xs $spacing-sm;
+      background: var(--bg-dark);
+      border: 1px solid var(--border-color);
+      border-radius: $radius-sm;
+      font-size: $font-sm;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: var(--red);
+        color: white;
+        border-color: var(--red);
+      }
+    }
+  }
+}
+
+.watchlist-items {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.watchlist-item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: var(--bg-dark);
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+  cursor: move;
+
+  &:hover {
+    background: var(--bg-card);
+  }
+
+  &.dragging {
+    opacity: 0.5;
+  }
+
+  .watchlist-drag-handle {
+    color: var(--text-muted);
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .watchlist-item-content {
+    flex: 1;
+
+    .watchlist-item-name {
+      display: block;
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .watchlist-item-category {
+      display: inline-block;
+      font-size: $font-xs;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      background: var(--bg-page);
+      border-radius: $radius-xs;
+      margin-right: $spacing-sm;
+    }
+
+    .watchlist-item-value {
+      display: inline-block;
+      font-size: $font-sm;
+      font-weight: $font-semibold;
+      color: var(--text-primary);
+
+      &.positive {
+        color: var(--green);
+      }
+
+      &.negative {
+        color: var(--red);
+      }
+
+      &.neutral {
+        color: var(--text-secondary);
+      }
+    }
+  }
+
+  .btn-watchlist-remove {
+    width: 24px;
+    height: 24px;
+    border-radius: $radius-full;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: $font-lg;
+    line-height: 1;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover {
+      background: var(--red);
+      color: white;
+      border-color: var(--red);
+    }
+  }
+}
+
+.watchlist-empty {
+  text-align: center;
+  padding: $spacing-2xl;
+  color: var(--text-muted);
+
+  .watchlist-empty-icon {
+    font-size: $font-4xl;
+    display: block;
+    margin-bottom: $spacing-md;
+  }
+
+  p {
+    margin: 0;
+
+    &:first-of-type {
+      font-size: $font-base;
+      margin-bottom: $spacing-xs;
+    }
+
+    &:last-of-type {
+      font-size: $font-sm;
+    }
+  }
+}

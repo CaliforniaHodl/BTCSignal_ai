@@ -137,6 +137,88 @@
       strategy.exitConditions.push({ type: 'breakout_low', period });
     }
 
+    // Parse VOLUME conditions
+    const volMatch = lowerText.match(/volume\s*(>|above|spike|high|low|<|below)\s*(?:(\d+(?:\.\d+)?)\s*x?\s*)?(?:average|avg)?/i);
+    if (volMatch) {
+      const direction = volMatch[1].toLowerCase();
+      const multiplier = volMatch[2] ? parseFloat(volMatch[2]) : 1.5;
+
+      if (direction === '>' || direction === 'above' || direction === 'spike' || direction === 'high') {
+        strategy.entryConditions.push({ type: 'volume_above', multiplier });
+        strategy.indicators.push(`Volume > ${multiplier}x Avg`);
+      } else if (direction === '<' || direction === 'below' || direction === 'low') {
+        strategy.entryConditions.push({ type: 'volume_below', multiplier: multiplier || 0.5 });
+        strategy.indicators.push(`Volume < ${multiplier || 0.5}x Avg`);
+      }
+    }
+
+    // Parse BOLLINGER BAND conditions
+    if (lowerText.includes('bollinger') || lowerText.includes('bb ') || lowerText.includes(' bb')) {
+      if (lowerText.includes('lower') || lowerText.includes('bottom')) {
+        strategy.entryConditions.push({ type: 'bb_lower_touch' });
+        strategy.indicators.push('BB Lower');
+      }
+      if (lowerText.includes('upper') || lowerText.includes('top')) {
+        strategy.exitConditions.push({ type: 'bb_upper_touch' });
+        strategy.indicators.push('BB Upper');
+      }
+      if (lowerText.includes('squeeze')) {
+        strategy.entryConditions.push({ type: 'bb_squeeze' });
+        strategy.indicators.push('BB Squeeze');
+      }
+    }
+
+    // Parse STOCHASTIC conditions
+    const stochMatch = lowerText.match(/stoch(?:astic)?\s*(?:%?k?)?\s*(<|>|crosses?\s*(above|below))\s*(\d+)/i);
+    if (stochMatch) {
+      const num = parseInt(stochMatch[3]);
+      if (stochMatch[1].includes('above') || stochMatch[1] === '>') {
+        if (num <= 30) {
+          strategy.entryConditions.push({ type: 'stoch_cross_above', value: num });
+        } else {
+          strategy.exitConditions.push({ type: 'stoch_above', value: num });
+        }
+      } else {
+        if (num >= 70) {
+          strategy.entryConditions.push({ type: 'stoch_cross_below', value: num });
+        } else {
+          strategy.exitConditions.push({ type: 'stoch_below', value: num });
+        }
+      }
+      strategy.indicators.push('Stochastic');
+    }
+
+    // Parse ATR-based stop loss
+    const atrSlMatch = lowerText.match(/(\d+(?:\.\d+)?)\s*atr\s*stop/i);
+    if (atrSlMatch) {
+      strategy.atrStopMultiplier = parseFloat(atrSlMatch[1]);
+      strategy.indicators.push(`${atrSlMatch[1]} ATR Stop`);
+    }
+
+    // Parse ADX conditions (trend strength)
+    const adxMatch = lowerText.match(/adx\s*(>|above|<|below)\s*(\d+)/i);
+    if (adxMatch) {
+      const direction = adxMatch[1].toLowerCase();
+      const value = parseInt(adxMatch[2]);
+      if (direction === '>' || direction === 'above') {
+        strategy.entryConditions.push({ type: 'adx_above', value });
+        strategy.indicators.push(`ADX > ${value}`);
+      } else {
+        strategy.entryConditions.push({ type: 'adx_below', value });
+        strategy.indicators.push(`ADX < ${value}`);
+      }
+    }
+
+    // Parse trend filter (ADX + DI)
+    if (lowerText.includes('uptrend') || lowerText.includes('bullish trend')) {
+      strategy.entryConditions.push({ type: 'uptrend_filter' });
+      strategy.indicators.push('Uptrend Filter');
+    }
+    if (lowerText.includes('downtrend') || lowerText.includes('bearish trend')) {
+      strategy.entryConditions.push({ type: 'downtrend_filter' });
+      strategy.indicators.push('Downtrend Filter');
+    }
+
     // Parse stop loss
     const slMatch = lowerText.match(/stop\s*(?:loss)?\s*(?:at|of|:)?\s*(\d+(?:\.\d+)?)\s*%/i);
     if (slMatch) {
@@ -186,7 +268,7 @@
 
   // Calculate indicators
   function calculateIndicators(data) {
-    // RSI
+    // RSI - Fixed: Use null during warmup instead of 50 to prevent false signals
     const rsiPeriod = 14;
     let gains = 0, losses = 0;
 
@@ -200,8 +282,13 @@
         if (i === rsiPeriod) {
           gains /= rsiPeriod;
           losses /= rsiPeriod;
+          // First valid RSI value
+          const rs = losses === 0 ? 100 : gains / losses;
+          data[i].rsi = 100 - (100 / (1 + rs));
+        } else {
+          // FIX: Use null during warmup instead of 50 to prevent false crossover signals
+          data[i].rsi = null;
         }
-        data[i].rsi = 50;
       } else {
         if (change > 0) {
           gains = (gains * (rsiPeriod - 1) + change) / rsiPeriod;
@@ -215,32 +302,83 @@
       }
     }
 
-    // EMAs
+    // EMAs - Fixed: Use SMA for first N periods, then switch to EMA
     const emaPeriods = [9, 21, 50, 200];
     emaPeriods.forEach(period => {
       const multiplier = 2 / (period + 1);
-      let ema = data[0].close;
 
+      // FIX: Calculate SMA for first 'period' candles
+      let sum = 0;
       for (let i = 0; i < data.length; i++) {
-        ema = (data[i].close - ema) * multiplier + ema;
-        data[i][`ema${period}`] = ema;
+        if (i < period) {
+          // Accumulate for SMA calculation
+          sum += data[i].close;
+          // FIX: Use null during warmup or partial SMA
+          data[i][`ema${period}`] = i === period - 1 ? sum / period : null;
+        } else if (i === period) {
+          // First EMA value based on SMA
+          const sma = sum / period;
+          const ema = (data[i].close - sma) * multiplier + sma;
+          data[i][`ema${period}`] = ema;
+        } else {
+          // Standard EMA calculation
+          const prevEma = data[i - 1][`ema${period}`];
+          data[i][`ema${period}`] = (data[i].close - prevEma) * multiplier + prevEma;
+        }
       }
     });
 
-    // MACD
-    let ema12 = data[0].close;
-    let ema26 = data[0].close;
-    let signal = 0;
+    // MACD - Fixed: Proper initialization with SMA base
+    // EMA12 and EMA26 need proper SMA initialization
+    let ema12Sum = 0, ema26Sum = 0;
+    let ema12 = null, ema26 = null;
+    const macdValues = []; // Store for signal line SMA
 
     for (let i = 0; i < data.length; i++) {
-      ema12 = (data[i].close - ema12) * (2/13) + ema12;
-      ema26 = (data[i].close - ema26) * (2/27) + ema26;
-      const macd = ema12 - ema26;
-      signal = (macd - signal) * (2/10) + signal;
+      // Build up SMA for EMA12
+      if (i < 12) {
+        ema12Sum += data[i].close;
+        if (i === 11) ema12 = ema12Sum / 12; // First EMA12 = SMA12
+      } else {
+        ema12 = (data[i].close - ema12) * (2/13) + ema12;
+      }
 
-      data[i].macd = macd;
-      data[i].macdSignal = signal;
-      data[i].macdHist = macd - signal;
+      // Build up SMA for EMA26
+      if (i < 26) {
+        ema26Sum += data[i].close;
+        if (i === 25) ema26 = ema26Sum / 26; // First EMA26 = SMA26
+      } else {
+        ema26 = (data[i].close - ema26) * (2/27) + ema26;
+      }
+
+      // MACD line = EMA12 - EMA26 (valid after 26 candles)
+      if (i >= 25 && ema12 !== null && ema26 !== null) {
+        const macd = ema12 - ema26;
+        data[i].macd = macd;
+        macdValues.push({ index: i, value: macd });
+
+        // Signal line = 9-period EMA of MACD (valid after 26 + 9 = 35 candles)
+        if (macdValues.length < 9) {
+          // FIX: Use null during signal warmup
+          data[i].macdSignal = null;
+          data[i].macdHist = null;
+        } else if (macdValues.length === 9) {
+          // First signal = SMA of first 9 MACD values
+          const signalSma = macdValues.reduce((sum, m) => sum + m.value, 0) / 9;
+          data[i].macdSignal = signalSma;
+          data[i].macdHist = macd - signalSma;
+        } else {
+          // Standard EMA for signal
+          const prevSignal = data[i - 1].macdSignal;
+          const signal = (macd - prevSignal) * (2/10) + prevSignal;
+          data[i].macdSignal = signal;
+          data[i].macdHist = macd - signal;
+        }
+      } else {
+        data[i].macd = null;
+        data[i].macdSignal = null;
+        data[i].macdHist = null;
+      }
     }
 
     // Highest high / lowest low for breakouts
@@ -254,6 +392,152 @@
       }
       data[i].high20 = high20;
       data[i].low10 = low10;
+    }
+
+    // VOLUME - Calculate average volume and ratio
+    const volPeriod = 20;
+    for (let i = volPeriod; i < data.length; i++) {
+      let volSum = 0;
+      for (let j = i - volPeriod; j < i; j++) {
+        volSum += data[j].volume;
+      }
+      data[i].avgVolume = volSum / volPeriod;
+      data[i].volumeRatio = data[i].volume / data[i].avgVolume;
+    }
+
+    // BOLLINGER BANDS (20-period, 2 std dev)
+    const bbPeriod = 20;
+    const bbStdDev = 2;
+    for (let i = bbPeriod - 1; i < data.length; i++) {
+      let sum = 0;
+      for (let j = i - bbPeriod + 1; j <= i; j++) {
+        sum += data[j].close;
+      }
+      const sma = sum / bbPeriod;
+
+      let sumSquares = 0;
+      for (let j = i - bbPeriod + 1; j <= i; j++) {
+        sumSquares += Math.pow(data[j].close - sma, 2);
+      }
+      const std = Math.sqrt(sumSquares / bbPeriod);
+
+      data[i].bbMiddle = sma;
+      data[i].bbUpper = sma + (bbStdDev * std);
+      data[i].bbLower = sma - (bbStdDev * std);
+      data[i].bbWidth = (data[i].bbUpper - data[i].bbLower) / sma * 100;
+    }
+
+    // STOCHASTIC (14-period %K, 3-period smoothing)
+    const stochPeriod = 14;
+    const stochSmoothing = 3;
+    for (let i = stochPeriod - 1; i < data.length; i++) {
+      let highestHigh = -Infinity;
+      let lowestLow = Infinity;
+      for (let j = i - stochPeriod + 1; j <= i; j++) {
+        if (data[j].high > highestHigh) highestHigh = data[j].high;
+        if (data[j].low < lowestLow) lowestLow = data[j].low;
+      }
+      const range = highestHigh - lowestLow;
+      data[i].stochRaw = range > 0 ? ((data[i].close - lowestLow) / range) * 100 : 50;
+    }
+    // Smooth %K
+    for (let i = stochPeriod + stochSmoothing - 2; i < data.length; i++) {
+      let sum = 0;
+      for (let j = i - stochSmoothing + 1; j <= i; j++) {
+        sum += data[j].stochRaw || 50;
+      }
+      data[i].stochK = sum / stochSmoothing;
+    }
+    // %D (3-period SMA of %K)
+    for (let i = stochPeriod + stochSmoothing + 1; i < data.length; i++) {
+      let sum = 0;
+      for (let j = i - 2; j <= i; j++) {
+        sum += data[j].stochK || 50;
+      }
+      data[i].stochD = sum / 3;
+    }
+
+    // ATR (Average True Range, 14-period)
+    const atrPeriod = 14;
+    const trueRanges = [];
+    for (let i = 1; i < data.length; i++) {
+      const tr = Math.max(
+        data[i].high - data[i].low,
+        Math.abs(data[i].high - data[i - 1].close),
+        Math.abs(data[i].low - data[i - 1].close)
+      );
+      trueRanges.push(tr);
+
+      if (i === atrPeriod) {
+        // First ATR is SMA
+        data[i].atr = trueRanges.slice(0, atrPeriod).reduce((a, b) => a + b, 0) / atrPeriod;
+      } else if (i > atrPeriod) {
+        // Wilder's smoothing
+        data[i].atr = (data[i - 1].atr * (atrPeriod - 1) + tr) / atrPeriod;
+      }
+    }
+
+    // ADX (Average Directional Index, 14-period)
+    // Measures trend strength: ADX > 25 = trending, ADX < 20 = ranging
+    const adxPeriod = 14;
+    const plusDM = [];
+    const minusDM = [];
+    const trForAdx = [];
+
+    for (let i = 1; i < data.length; i++) {
+      const high = data[i].high;
+      const low = data[i].low;
+      const prevHigh = data[i - 1].high;
+      const prevLow = data[i - 1].low;
+      const prevClose = data[i - 1].close;
+
+      // True Range
+      trForAdx.push(Math.max(
+        high - low,
+        Math.abs(high - prevClose),
+        Math.abs(low - prevClose)
+      ));
+
+      // Directional Movement
+      const upMove = high - prevHigh;
+      const downMove = prevLow - low;
+
+      plusDM.push(upMove > downMove && upMove > 0 ? upMove : 0);
+      minusDM.push(downMove > upMove && downMove > 0 ? downMove : 0);
+    }
+
+    // Smooth TR, +DM, -DM with Wilder's method
+    if (data.length > adxPeriod * 2) {
+      let smoothTR = trForAdx.slice(0, adxPeriod).reduce((a, b) => a + b, 0);
+      let smoothPlusDM = plusDM.slice(0, adxPeriod).reduce((a, b) => a + b, 0);
+      let smoothMinusDM = minusDM.slice(0, adxPeriod).reduce((a, b) => a + b, 0);
+      const dxValues = [];
+
+      for (let i = adxPeriod - 1; i < trForAdx.length; i++) {
+        if (i > adxPeriod - 1) {
+          smoothTR = smoothTR - (smoothTR / adxPeriod) + trForAdx[i];
+          smoothPlusDM = smoothPlusDM - (smoothPlusDM / adxPeriod) + plusDM[i];
+          smoothMinusDM = smoothMinusDM - (smoothMinusDM / adxPeriod) + minusDM[i];
+        }
+
+        const pdi = smoothTR > 0 ? (smoothPlusDM / smoothTR) * 100 : 0;
+        const mdi = smoothTR > 0 ? (smoothMinusDM / smoothTR) * 100 : 0;
+
+        data[i + 1].plusDI = pdi;
+        data[i + 1].minusDI = mdi;
+
+        const diSum = pdi + mdi;
+        const dx = diSum > 0 ? (Math.abs(pdi - mdi) / diSum) * 100 : 0;
+        dxValues.push({ index: i + 1, value: dx });
+
+        // ADX is smoothed DX
+        if (dxValues.length === adxPeriod) {
+          data[i + 1].adx = dxValues.reduce((sum, d) => sum + d.value, 0) / adxPeriod;
+        } else if (dxValues.length > adxPeriod) {
+          const prevAdx = data[i].adx || 0;
+          data[i + 1].adx = (prevAdx * (adxPeriod - 1) + dx) / adxPeriod;
+        }
+      }
     }
 
     return data;
@@ -271,25 +555,26 @@
     for (const cond of strategy.entryConditions) {
       switch (cond.type) {
         case 'rsi_cross_above':
-          // BUG FIX: Ensure both prev and current RSI are valid (not warmup values)
-          // RSI of exactly 50 during early candles is likely warmup
-          if (prevData.rsi === 50 && i < 20) return false;
+          // FIX: Skip if RSI is null (warmup period)
+          if (prevData.rsi === null || data[i].rsi === null) return false;
           if (!(prevData.rsi <= cond.value && data[i].rsi > cond.value)) return false;
           break;
         case 'rsi_cross_below':
-          // BUG FIX: Ensure both prev and current RSI are valid (not warmup values)
-          if (prevData.rsi === 50 && i < 20) return false;
+          // FIX: Skip if RSI is null (warmup period)
+          if (prevData.rsi === null || data[i].rsi === null) return false;
           if (!(prevData.rsi >= cond.value && data[i].rsi < cond.value)) return false;
           break;
         case 'macd_cross_above':
-          // BUG FIX: Skip if this looks like a warmup-to-real transition
-          // MACD hist near 0 during warmup, then jumps to real value
-          if (Math.abs(prevData.macdHist) < 0.01 && i < 30) return false;
+          // FIX: Skip if MACD histogram is null (warmup period)
+          if (prevData.macdHist === null || data[i].macdHist === null) return false;
           if (!(prevData.macdHist <= 0 && data[i].macdHist > 0)) return false;
           break;
         case 'ema_cross_above':
           const fastKey = `ema${cond.fast}`;
           const slowKey = `ema${cond.slow}`;
+          // FIX: Skip if EMAs are null (warmup period)
+          if (prevData[fastKey] === null || prevData[slowKey] === null ||
+              data[i][fastKey] === null || data[i][slowKey] === null) return false;
           if (!(prevData[fastKey] <= prevData[slowKey] && data[i][fastKey] > data[i][slowKey])) return false;
           break;
         case 'price_above_ma':
@@ -304,6 +589,67 @@
           isBreakoutEntry = true;
           breakoutPrice = data[i].high20 * 1.001; // Enter just above breakout level
           break;
+
+        // VOLUME CONDITIONS
+        case 'volume_above':
+          if (!data[i].volumeRatio) return false;
+          if (data[i].volumeRatio < cond.multiplier) return false;
+          break;
+        case 'volume_below':
+          if (!data[i].volumeRatio) return false;
+          if (data[i].volumeRatio > cond.multiplier) return false;
+          break;
+
+        // BOLLINGER BAND CONDITIONS
+        case 'bb_lower_touch':
+          if (!data[i].bbLower) return false;
+          if (data[i].low > data[i].bbLower) return false; // Price must touch lower band
+          break;
+        case 'bb_upper_touch':
+          if (!data[i].bbUpper) return false;
+          if (data[i].high < data[i].bbUpper) return false;
+          break;
+        case 'bb_squeeze':
+          // BB Squeeze = bandwidth is in lowest 20% of recent values
+          if (!data[i].bbWidth || i < 50) return false;
+          let bbWidths = [];
+          for (let j = i - 50; j < i; j++) {
+            if (data[j].bbWidth) bbWidths.push(data[j].bbWidth);
+          }
+          const threshold = bbWidths.sort((a, b) => a - b)[Math.floor(bbWidths.length * 0.2)];
+          if (data[i].bbWidth > threshold) return false;
+          break;
+
+        // STOCHASTIC CONDITIONS
+        case 'stoch_cross_above':
+          if (!data[i].stochK || !prevData.stochK) return false;
+          if (!(prevData.stochK <= cond.value && data[i].stochK > cond.value)) return false;
+          break;
+        case 'stoch_cross_below':
+          if (!data[i].stochK || !prevData.stochK) return false;
+          if (!(prevData.stochK >= cond.value && data[i].stochK < cond.value)) return false;
+          break;
+
+        // ADX CONDITIONS (Trend Strength)
+        case 'adx_above':
+          if (!data[i].adx) return false;
+          if (data[i].adx < cond.value) return false;
+          break;
+        case 'adx_below':
+          if (!data[i].adx) return false;
+          if (data[i].adx > cond.value) return false;
+          break;
+        case 'uptrend_filter':
+          // Uptrend = ADX > 20 AND +DI > -DI
+          if (!data[i].adx || !data[i].plusDI || !data[i].minusDI) return false;
+          if (data[i].adx < 20 || data[i].plusDI <= data[i].minusDI) return false;
+          break;
+        case 'downtrend_filter':
+          // Downtrend = ADX > 20 AND -DI > +DI
+          if (!data[i].adx || !data[i].plusDI || !data[i].minusDI) return false;
+          if (data[i].adx < 20 || data[i].minusDI <= data[i].plusDI) return false;
+          break;
+
         case 'random_entry':
           // Random entry for strategies we couldn't fully parse
           if (Math.random() > 0.05) return false;
@@ -373,17 +719,21 @@
     for (const cond of strategy.exitConditions) {
       switch (cond.type) {
         case 'rsi_above':
-          if (data[i].rsi >= cond.value) {
+          // FIX: Check for null RSI (warmup period)
+          if (data[i].rsi !== null && data[i].rsi >= cond.value) {
             return { exit: true, price: data[i].close, reason: `RSI > ${cond.value}` };
           }
           break;
         case 'rsi_below':
-          if (data[i].rsi <= cond.value) {
+          // FIX: Check for null RSI (warmup period)
+          if (data[i].rsi !== null && data[i].rsi <= cond.value) {
             return { exit: true, price: data[i].close, reason: `RSI < ${cond.value}` };
           }
           break;
         case 'macd_cross_below':
-          if (prevData.macdHist > 0 && data[i].macdHist <= 0) {
+          // FIX: Check for null MACD (warmup period)
+          if (prevData.macdHist !== null && data[i].macdHist !== null &&
+              prevData.macdHist > 0 && data[i].macdHist <= 0) {
             return { exit: true, price: data[i].close, reason: 'MACD Cross Down' };
           }
           break;
@@ -486,8 +836,6 @@
         // Check for entry
         const entryResult = checkEntry(data, i, strategy, prevCandle);
         if (entryResult) {
-          const riskAmount = equity * strategy.riskPerTrade;
-          const size = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
           const direction = strategy.direction === 'both' ? (Math.random() > 0.5 ? 'long' : 'short') : strategy.direction;
 
           // BUG FIX: Use breakout price for breakout entries instead of close
@@ -503,7 +851,22 @@
             ? baseEntryPrice + slippageAmt  // Buy higher
             : baseEntryPrice - slippageAmt; // Sell lower
 
-          // Entry fee
+          // FIX: Calculate position size AFTER accounting for round-trip fees
+          // This prevents over-sizing positions that will be eroded by fees
+          const roundTripFees = fee * 2; // Entry + exit fee rate
+          const roundTripSlippage = slippage * 2;
+          const effectiveCosts = roundTripFees + roundTripSlippage;
+
+          // Risk amount reduced by expected costs
+          const riskAmount = equity * strategy.riskPerTrade;
+          let rawSize = strategy.stopLoss ? riskAmount / strategy.stopLoss : riskAmount;
+
+          // FIX: Reduce position size to account for costs eating into profits
+          // If costs are 0.4% round trip, a 2% profit becomes 1.6%
+          const costAdjustedSize = rawSize / (1 + effectiveCosts);
+          const size = Math.min(costAdjustedSize, equity * 0.5); // Max 50% per trade
+
+          // Entry fee based on adjusted size
           const entryFee = size * fee;
           totalFees += entryFee;
           totalSlippage += size * slippage;
@@ -513,7 +876,7 @@
             entryTime: candle.time,
             entryIndex: i, // BUG FIX: Track entry candle index for same-candle check
             direction: direction,
-            size: Math.min(size, equity * 0.5), // Max 50% per trade
+            size: size,
             entryFee: entryFee
           };
 
@@ -564,7 +927,10 @@
     }
     const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
     const stdDev = Math.sqrt(returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length);
-    const sharpeRatio = stdDev > 0 ? (avgReturn / stdDev) * Math.sqrt(252) : 0;
+    // FIX: Use 365 for crypto (24/7 trading) instead of 252 (stock market days)
+    // Also adjust based on timeframe for accuracy
+    const annualizationFactor = 365; // Crypto trades every day
+    const sharpeRatio = stdDev > 0 ? (avgReturn / stdDev) * Math.sqrt(annualizationFactor) : 0;
 
     return {
       trades,
@@ -587,46 +953,85 @@
     };
   }
 
-  // Monte Carlo Simulation
+  // Monte Carlo Simulation - FIXED: True bootstrapping with multiple methods
   function runMonteCarloSimulation(data, strategy, startingCapital, slippage = 0, fee = 0) {
     const results = [];
     const drawdowns = [];
 
-    // Calculate daily returns for volatility estimation
-    const dailyReturns = [];
-    for (let i = 1; i < data.length; i++) {
-      dailyReturns.push((data[i].close - data[i - 1].close) / data[i - 1].close);
+    // First, run the original backtest to get actual trades
+    const originalResult = runBacktest(data, strategy, startingCapital, slippage, fee);
+    const originalTrades = originalResult.trades;
+
+    // If no trades, can't run meaningful MC simulation
+    if (originalTrades.length < 5) {
+      return {
+        simulations: 0,
+        median: originalResult.stats.totalReturn,
+        p5: originalResult.stats.totalReturn,
+        p25: originalResult.stats.totalReturn,
+        p75: originalResult.stats.totalReturn,
+        p95: originalResult.stats.totalReturn,
+        profitProbability: originalResult.stats.totalReturn > 0 ? 100 : 0,
+        ruinProbability: 0,
+        avgMaxDrawdown: originalResult.stats.maxDrawdown,
+        distribution: [],
+        allResults: [originalResult.stats.totalReturn],
+        warning: 'Insufficient trades for Monte Carlo analysis'
+      };
     }
-    const avgReturn = dailyReturns.reduce((a, b) => a + b, 0) / dailyReturns.length;
-    const volatility = Math.sqrt(dailyReturns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / dailyReturns.length);
 
-    for (let sim = 0; sim < MC_SIMULATIONS; sim++) {
-      // Randomize starting point (within first 25% of data)
-      const maxOffset = Math.floor(data.length * 0.25);
-      const startOffset = Math.floor(Math.random() * maxOffset);
+    // Extract trade returns for bootstrapping
+    const tradeReturns = originalTrades.map(t => t.pnlPercent);
 
-      // Create price series with randomized noise
-      const noisyData = data.slice(startOffset).map(candle => {
-        const noise = 1 + (Math.random() - 0.5) * volatility * 0.5;
-        return {
-          ...candle,
-          close: candle.close * noise,
-          high: candle.high * noise,
-          low: candle.low * noise,
-          open: candle.open * noise
-        };
-      });
+    // METHOD 1: Trade Shuffling (50% of simulations)
+    // Tests if order of trades matters - robust strategy shouldn't depend on sequence
+    const shuffleCount = Math.floor(MC_SIMULATIONS * 0.5);
+    for (let sim = 0; sim < shuffleCount; sim++) {
+      // Fisher-Yates shuffle of trade returns
+      const shuffled = [...tradeReturns];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
 
-      if (noisyData.length < 50) continue;
+      // Simulate equity curve with shuffled trades
+      const simResult = simulateTradeSequence(shuffled, startingCapital);
+      results.push(simResult.totalReturn);
+      drawdowns.push(simResult.maxDrawdown);
+    }
 
-      // Recalculate indicators for noisy data
-      const noisyDataWithIndicators = calculateIndicators(noisyData);
+    // METHOD 2: Block Bootstrap (30% of simulations)
+    // Preserves autocorrelation by sampling blocks of consecutive trades
+    const blockCount = Math.floor(MC_SIMULATIONS * 0.3);
+    const blockSize = Math.min(5, Math.floor(tradeReturns.length / 3));
+    for (let sim = 0; sim < blockCount; sim++) {
+      const bootstrapped = [];
+      while (bootstrapped.length < tradeReturns.length) {
+        // Pick random starting point for block
+        const start = Math.floor(Math.random() * (tradeReturns.length - blockSize + 1));
+        for (let i = 0; i < blockSize && bootstrapped.length < tradeReturns.length; i++) {
+          bootstrapped.push(tradeReturns[start + i]);
+        }
+      }
 
-      // Run backtest with slippage and fees
-      const simResult = runBacktest(noisyDataWithIndicators, strategy, startingCapital, slippage, fee);
+      const simResult = simulateTradeSequence(bootstrapped, startingCapital);
+      results.push(simResult.totalReturn);
+      drawdowns.push(simResult.maxDrawdown);
+    }
 
-      results.push(simResult.stats.totalReturn);
-      drawdowns.push(simResult.stats.maxDrawdown);
+    // METHOD 3: Random Subsampling (20% of simulations)
+    // Tests performance with fewer trades (what if we miss some signals?)
+    const subsampleCount = Math.floor(MC_SIMULATIONS * 0.2);
+    for (let sim = 0; sim < subsampleCount; sim++) {
+      // Randomly select 70-100% of trades
+      const sampleRate = 0.7 + Math.random() * 0.3;
+      const sampled = tradeReturns.filter(() => Math.random() < sampleRate);
+
+      if (sampled.length >= 3) {
+        const simResult = simulateTradeSequence(sampled, startingCapital);
+        results.push(simResult.totalReturn);
+        drawdowns.push(simResult.maxDrawdown);
+      }
     }
 
     // Sort for percentile calculations
@@ -634,19 +1039,20 @@
     drawdowns.sort((a, b) => a - b);
 
     // Calculate statistics
-    const median = results[Math.floor(results.length / 2)];
-    const p5 = results[Math.floor(results.length * 0.05)];
-    const p25 = results[Math.floor(results.length * 0.25)];
-    const p75 = results[Math.floor(results.length * 0.75)];
-    const p95 = results[Math.floor(results.length * 0.95)];
+    const median = results[Math.floor(results.length / 2)] || 0;
+    const p5 = results[Math.floor(results.length * 0.05)] || results[0] || 0;
+    const p25 = results[Math.floor(results.length * 0.25)] || 0;
+    const p75 = results[Math.floor(results.length * 0.75)] || 0;
+    const p95 = results[Math.floor(results.length * 0.95)] || results[results.length - 1] || 0;
 
     const profitableCount = results.filter(r => r > 0).length;
     const ruinCount = results.filter(r => r < -50).length;
-    const avgDrawdown = drawdowns.reduce((a, b) => a + b, 0) / drawdowns.length;
+    const avgDrawdown = drawdowns.length > 0 ?
+      drawdowns.reduce((a, b) => a + b, 0) / drawdowns.length : 0;
 
     // Create histogram buckets
-    const minReturn = Math.floor(Math.min(...results) / 10) * 10;
-    const maxReturn = Math.ceil(Math.max(...results) / 10) * 10;
+    const minReturn = Math.floor(Math.min(...results, 0) / 10) * 10;
+    const maxReturn = Math.ceil(Math.max(...results, 0) / 10) * 10;
     const bucketSize = 10;
     const buckets = [];
 
@@ -661,17 +1067,43 @@
     }
 
     return {
-      simulations: MC_SIMULATIONS,
+      simulations: results.length,
       median,
       p5,
       p25,
       p75,
       p95,
-      profitProbability: (profitableCount / results.length) * 100,
-      ruinProbability: (ruinCount / results.length) * 100,
+      profitProbability: results.length > 0 ? (profitableCount / results.length) * 100 : 0,
+      ruinProbability: results.length > 0 ? (ruinCount / results.length) * 100 : 0,
       avgMaxDrawdown: avgDrawdown,
       distribution: buckets,
-      allResults: results
+      allResults: results,
+      originalReturn: originalResult.stats.totalReturn,
+      tradesAnalyzed: originalTrades.length
+    };
+  }
+
+  // Helper: Simulate equity curve from trade returns
+  function simulateTradeSequence(tradeReturns, startingCapital) {
+    let equity = startingCapital;
+    let maxEquity = startingCapital;
+    let maxDrawdown = 0;
+
+    for (const ret of tradeReturns) {
+      // Fixed position sizing at 2% risk per trade
+      const positionSize = equity * 0.02;
+      const pnl = positionSize * ret;
+      equity += pnl;
+
+      if (equity > maxEquity) maxEquity = equity;
+      const drawdown = (maxEquity - equity) / maxEquity;
+      if (drawdown > maxDrawdown) maxDrawdown = drawdown;
+    }
+
+    return {
+      totalReturn: ((equity - startingCapital) / startingCapital) * 100,
+      maxDrawdown: maxDrawdown * 100,
+      finalEquity: equity
     };
   }
 

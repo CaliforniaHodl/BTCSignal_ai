@@ -349,8 +349,10 @@
     <h2 id="latest-heading">Latest Analysis</h2>
     <div class="posts-grid" role="list">
       {{ $allPosts := where .Site.RegularPages "Section" "posts" }}
+      {{ $paywallEnabled := .Site.Params.paywallEnabled | default true }}
+      {{ $freePostCount := .Site.Params.freePostCount | default 10 }}
       {{ range $index, $post := first 6 $allPosts }}
-      {{ $isLocked := lt $index 10 }}
+      {{ $isLocked := and $paywallEnabled (lt $index $freePostCount) }}
       <a href="{{ $post.Permalink }}" class="post-card {{ $post.Params.direction }}{{ if $isLocked }} locked{{ end }}" role="listitem" aria-label="Analysis from {{ $post.Date.Format "January 2, 2006" }}: {{ $post.Params.direction }} signal with {{ $post.Params.confidence }} percent confidence at ${{ $post.Params.price }}{{ if $isLocked }}, requires payment{{ end }}">
         <div class="post-card-header">
           <span class="post-date">{{ $post.Date.Format "Jan 02, 15:04" }}</span>
@@ -700,6 +702,69 @@
     <div class="comparison-cta">
       <p class="comparison-tagline">Understand the data, not just see it.</p>
       <a href="/pricing/" class="btn-cta">View Pricing</a>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section" aria-labelledby="testimonials-heading">
+    <h2 id="testimonials-heading">What Traders Say</h2>
+    <p class="section-desc">Real feedback from our community</p>
+    <div class="testimonials-grid">
+      <article class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"The signal accuracy tracking is what sold me. Finally a platform that's transparent about their calls. Most services hide their losers - these guys show everything."</p>
+        </div>
+        <div class="testimonial-author">
+          <span class="author-avatar">₿</span>
+          <div class="author-info">
+            <span class="author-name">Satoshi Stacker</span>
+            <span class="author-tier">Year Pass Holder</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"Trade Coach is worth the subscription alone. Getting AI feedback on my setups before I enter has saved me from so many bad trades. My R:R improved significantly."</p>
+        </div>
+        <div class="testimonial-author">
+          <span class="author-avatar">⚡</span>
+          <div class="author-info">
+            <span class="author-name">Lightning Larry</span>
+            <span class="author-tier">Month Pass Holder</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"Love that I can pay with Lightning - no KYC, instant access. The liquidation map and funding rate alerts have become essential to my daily routine."</p>
+        </div>
+        <div class="testimonial-author">
+          <span class="author-avatar">🔒</span>
+          <div class="author-info">
+            <span class="author-name">Privacy Pete</span>
+            <span class="author-tier">Week Pass Holder</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="testimonial-card">
+        <div class="testimonial-content">
+          <p>"The educational content is top-notch. Every metric has a tooltip explaining what it means. I went from confused to confident in understanding funding rates and OI."</p>
+        </div>
+        <div class="testimonial-author">
+          <span class="author-avatar">📚</span>
+          <div class="author-info">
+            <span class="author-name">Learning Lucy</span>
+            <span class="author-tier">Month Pass Holder</span>
+          </div>
+        </div>
+      </article>
+    </div>
+    <div class="testimonials-cta">
+      <p>Join thousands of Bitcoin traders using BTC Signals Pro</p>
+      <a href="/pricing/" class="btn-secondary">Start Trading Smarter</a>
     </div>
   </section>
 

@@ -200,7 +200,8 @@ const BTCSAIAccess = (function() {
     hourly: 60 * 60 * 1000, // 1 hour
     daily: 24 * 60 * 60 * 1000, // 24 hours
     weekly: 7 * 24 * 60 * 60 * 1000, // 7 days
-    monthly: 30 * 24 * 60 * 60 * 1000 // 30 days
+    monthly: 30 * 24 * 60 * 60 * 1000, // 30 days
+    yearly: 365 * 24 * 60 * 60 * 1000 // 365 days
   };
 
   // Tier prices in sats
@@ -209,7 +210,8 @@ const BTCSAIAccess = (function() {
     hourly: 1000,
     daily: 10000,
     weekly: 25000,
-    monthly: 50000
+    monthly: 50000,
+    yearly: 400000
   };
 
   // Store recovery code locally

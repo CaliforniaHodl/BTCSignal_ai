@@ -33,6 +33,39 @@
 {{/* Load shared utilities first (required by other scripts) */}}
 {{ if .Params.js }}
   <script defer src="{{ "src/js/shared.js" | relURL }}"></script>
+  {{/* Load new indicator and analytics modules */}}
+  <script defer src="{{ "src/js/indicators.js" | relURL }}"></script>
+
+  {{/* On-chain metrics for dashboard, backtester, and chart pages */}}
+  {{ if or (eq .Type "dashboard") (eq .Type "backtester-pro") (eq .Type "smart-chart-pro") (eq .Type "on-chain") }}
+  <script defer src="{{ "src/js/onchain-metrics.js" | relURL }}"></script>
+  {{ end }}
+
+  {{/* Live price feed for paper trading and trade coach */}}
+  {{ if or (eq .Type "paper-trading") (eq .Type "trade-coach") }}
+  <script defer src="{{ "src/js/live-price-feed.js" | relURL }}"></script>
+  {{ end }}
+
+  {{/* Drawing tools for chart pages */}}
+  {{ if or (eq .Type "smart-chart-pro") (eq .Type "smart-chart") }}
+  <script defer src="{{ "src/js/drawing-tools.js" | relURL }}"></script>
+  {{ end }}
+
+  {{/* Multi-pane charts and liquidation heatmap */}}
+  {{ if or (eq .Type "smart-chart-pro") (eq .Type "backtester-pro") (eq .Type "dashboard") }}
+  <script defer src="{{ "src/js/multi-pane-chart.js" | relURL }}"></script>
+  <script defer src="{{ "src/js/liquidation-heatmap.js" | relURL }}"></script>
+  {{ end }}
+
+  {{/* Correlation matrix for analytics pages */}}
+  {{ if or (eq .Type "dashboard") (eq .Type "on-chain") }}
+  <script defer src="{{ "src/js/correlation-matrix.js" | relURL }}"></script>
+  {{ end }}
+
+  {{/* Chart export utility for chart pages */}}
+  {{ if or (eq .Type "smart-chart-pro") (eq .Type "smart-chart") (eq .Type "backtester-pro") }}
+  <script defer src="{{ "src/js/chart-export.js" | relURL }}"></script>
+  {{ end }}
 {{ end }}
 
 {{/* Load page-specific JS from frontmatter */}}
