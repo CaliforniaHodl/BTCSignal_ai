@@ -5,7 +5,7 @@ description: "Monitor BTC dominance, whale wallet movements, exchange flows, and
 seoimage: 'og-image.png'
 image: 'og-image.png'
 keywords: 'Bitcoin whale tracking, BTC dominance, crypto market intelligence, liquidity anomalies, exchange flows'
-layout: "single"
+layout: "list"
 priority: 0.8
 css: ['premium-features.scss']
 js: ['alpha-radar.js']

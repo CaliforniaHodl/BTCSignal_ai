@@ -26,6 +26,7 @@ const BTCErrors = (function() {
   let errorLog = [];
   let errorCount = {};
   let isInitialized = false;
+  let isCapturing = false; // Prevent recursive error logging
 
   // ========== INITIALIZATION ==========
 
@@ -86,10 +87,23 @@ const BTCErrors = (function() {
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (e) {
-      // localStorage might be full or disabled
-      if (DEBUG) {
-        console.warn('[BTCErrors] Failed to save error log:', e.message);
+      // localStorage might be full - try clearing and saving again
+      if (e.name === 'QuotaExceededError' || e.message.includes('quota')) {
+        try {
+          // Clear error log and try again with minimal data
+          errorLog = errorLog.slice(-10);
+          errorCount = {};
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            errors: errorLog,
+            counts: {},
+            lastUpdated: new Date().toISOString()
+          }));
+        } catch (e2) {
+          // Give up silently - don't trigger more errors
+        }
       }
+      // Don't log anything here to avoid recursion
     }
   }
 
@@ -195,6 +209,18 @@ const BTCErrors = (function() {
    * @param {Object} errorData - Error information
    */
   function captureError(errorData) {
+    // Prevent infinite recursion
+    if (isCapturing) return;
+    isCapturing = true;
+
+    try {
+      captureErrorInternal(errorData);
+    } finally {
+      isCapturing = false;
+    }
+  }
+
+  function captureErrorInternal(errorData) {
     const error = {
       id: generateErrorId(),
       timestamp: new Date().toISOString(),

@@ -88,7 +88,22 @@
     try {
       localStorage.setItem(key, JSON.stringify(data));
     } catch (e) {
-      console.error('Error writing to localStorage:', e);
+      // Handle quota exceeded - clear old data and try again
+      if (e.name === 'QuotaExceededError' || (e.message && e.message.includes('quota'))) {
+        try {
+          // Clear all bart-related storage and retry with minimal data
+          localStorage.removeItem(STORAGE_KEYS.BART_HISTORY);
+          localStorage.removeItem(STORAGE_KEYS.RISK_HISTORY);
+          localStorage.removeItem(STORAGE_KEYS.PRICE_SNAPSHOTS);
+          // If it's price snapshots, keep only last 10
+          if (key === STORAGE_KEYS.PRICE_SNAPSHOTS && Array.isArray(data)) {
+            localStorage.setItem(key, JSON.stringify(data.slice(-10)));
+          }
+        } catch (e2) {
+          // Silently fail - don't trigger more errors
+        }
+      }
+      // Don't console.error here to avoid triggering error-tracker loop
     }
   }
 
