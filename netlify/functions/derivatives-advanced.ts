@@ -1,4 +1,4 @@
-import { Handler, HandlerEvent, HandlerContext, schedule } from '@netlify/functions';
+import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { DerivativesAdvancedAnalyzer, DerivativesAdvancedData } from './lib/derivatives-advanced';
 import axios from 'axios';
 
