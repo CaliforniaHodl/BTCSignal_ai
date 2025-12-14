@@ -18,9 +18,19 @@
         <a href="/chart-demo/" class="btn-chart-link">
           <i class="fas fa-chart-line" aria-hidden="true"></i> Open Interactive Chart
         </a>
-        <button id="btn-export-csv" class="btn-export" aria-label="Export market data as CSV">
-          <i class="fas fa-download" aria-hidden="true"></i> Export CSV
-        </button>
+        <div class="export-dropdown">
+          <button class="btn-export dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-download" aria-hidden="true"></i> Export
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><button class="dropdown-item" id="btn-export-metrics-csv"><i class="fas fa-file-csv"></i> Export CSV</button></li>
+            <li><button class="dropdown-item" id="btn-export-metrics-json"><i class="fas fa-file-code"></i> Export JSON</button></li>
+            <li><button class="dropdown-item" id="btn-export-metrics-xlsx"><i class="fas fa-file-excel"></i> Export Excel</button></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button class="dropdown-item" id="btn-export-paper-trading"><i class="fas fa-journal-whills"></i> Export Paper Trades</button></li>
+            <li><button class="dropdown-item" id="btn-bulk-export"><i class="fas fa-file-archive"></i> Export All Data</button></li>
+          </ul>
+        </div>
       </div>
       <!-- Data Cache Status Indicator -->
       <div class="cache-status" id="cache-status">

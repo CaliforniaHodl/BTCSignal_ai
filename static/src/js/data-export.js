@@ -1,16 +1,34 @@
 /**
  * Data Export Functionality
- * Export market data and reports to various formats (CSV, PDF, clipboard)
+ * Phase 18: Export market data to CSV, JSON, Excel formats
+ * Supports: metrics, alerts, signals, paper trading journal
  */
 
 (function() {
   'use strict';
+
+  // Export format types
+  const FORMATS = {
+    CSV: 'csv',
+    JSON: 'json',
+    EXCEL: 'xlsx'
+  };
+
+  // Data source URLs
+  const DATA_URLS = {
+    market: 'https://raw.githubusercontent.com/CaliforniaHodl/BTCSignal_ai/master/data/market-snapshot.json',
+    alerts: 'https://raw.githubusercontent.com/CaliforniaHodl/BTCSignal_ai/master/data/triggered-alerts.json',
+    signals: 'https://raw.githubusercontent.com/CaliforniaHodl/BTCSignal_ai/master/data/signal-history.json',
+    onchain: 'https://raw.githubusercontent.com/CaliforniaHodl/BTCSignal_ai/master/data/onchain-history.json'
+  };
 
   /**
    * Initialize export functionality
    */
   function init() {
     setupExportButtons();
+    setupFormatSelectors();
+    setupWidgetExportButtons();
   }
 
   /**
@@ -20,7 +38,19 @@
     // Export current metrics to CSV
     const exportMetricsBtn = document.getElementById('btn-export-metrics-csv');
     if (exportMetricsBtn) {
-      exportMetricsBtn.addEventListener('click', exportMetricsToCSV);
+      exportMetricsBtn.addEventListener('click', () => exportMetrics('csv'));
+    }
+
+    // Export metrics to JSON
+    const exportMetricsJsonBtn = document.getElementById('btn-export-metrics-json');
+    if (exportMetricsJsonBtn) {
+      exportMetricsJsonBtn.addEventListener('click', () => exportMetrics('json'));
+    }
+
+    // Export metrics to Excel
+    const exportMetricsExcelBtn = document.getElementById('btn-export-metrics-xlsx');
+    if (exportMetricsExcelBtn) {
+      exportMetricsExcelBtn.addEventListener('click', () => exportMetrics('xlsx'));
     }
 
     // Export historical data to CSV
@@ -41,57 +71,131 @@
       copyBtn.addEventListener('click', copyMetricsToClipboard);
     }
 
-    // Export alerts to CSV
+    // Export alerts
     const exportAlertsBtn = document.getElementById('btn-export-alerts-csv');
     if (exportAlertsBtn) {
-      exportAlertsBtn.addEventListener('click', exportAlertsToCSV);
+      exportAlertsBtn.addEventListener('click', () => exportAlerts('csv'));
+    }
+
+    // Export signals
+    const exportSignalsBtn = document.getElementById('btn-export-signals');
+    if (exportSignalsBtn) {
+      exportSignalsBtn.addEventListener('click', () => exportSignals('csv'));
+    }
+
+    // Export paper trading
+    const exportPaperBtn = document.getElementById('btn-export-paper-trading');
+    if (exportPaperBtn) {
+      exportPaperBtn.addEventListener('click', () => exportPaperTrading('csv'));
+    }
+
+    // Bulk export all
+    const bulkExportBtn = document.getElementById('btn-bulk-export');
+    if (bulkExportBtn) {
+      bulkExportBtn.addEventListener('click', bulkExportAll);
     }
   }
 
   /**
-   * Export current metrics to CSV
+   * Setup format selector dropdowns
    */
-  async function exportMetricsToCSV() {
+  function setupFormatSelectors() {
+    document.querySelectorAll('.export-format-select').forEach(select => {
+      select.addEventListener('change', function() {
+        const dataType = this.dataset.type;
+        const format = this.value;
+        triggerExport(dataType, format);
+      });
+    });
+  }
+
+  /**
+   * Setup export buttons on dashboard widgets
+   */
+  function setupWidgetExportButtons() {
+    document.querySelectorAll('[data-export-widget]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const widgetId = this.dataset.exportWidget;
+        const format = this.dataset.format || 'csv';
+        exportWidget(widgetId, format);
+      });
+    });
+  }
+
+  /**
+   * Trigger export by data type
+   */
+  function triggerExport(dataType, format) {
+    switch(dataType) {
+      case 'metrics': exportMetrics(format); break;
+      case 'alerts': exportAlerts(format); break;
+      case 'signals': exportSignals(format); break;
+      case 'paper': exportPaperTrading(format); break;
+      default: console.warn('Unknown export type:', dataType);
+    }
+  }
+
+  /**
+   * Export current metrics (supports CSV, JSON, Excel)
+   */
+  async function exportMetrics(format = 'csv') {
     try {
       showExportProgress('Preparing metrics export...');
 
       // Fetch current market data
-      const response = await fetch('https://raw.githubusercontent.com/CaliforniaHodl/BTCSignal_ai/main/data/market-snapshot.json?t=' + Date.now());
+      const response = await fetch(DATA_URLS.market + '?t=' + Date.now());
       if (!response.ok) throw new Error('Failed to fetch data');
 
       const data = await response.json();
+      const timestamp = new Date().toISOString();
 
-      // Prepare CSV data
-      const rows = [
-        ['Metric', 'Value', 'Category', 'Timestamp'],
-        ['BTC Price', formatCurrency(data.btc?.price), 'Price', new Date().toISOString()],
-        ['24h Change', formatPercent(data.btc?.change24h), 'Price', new Date().toISOString()],
-        ['7d Change', formatPercent(data.btc?.change7d), 'Price', new Date().toISOString()],
-        ['Volume 24h', formatCurrency(data.btc?.volume24h), 'Volume', new Date().toISOString()],
-        ['Market Cap', formatCurrency(data.btc?.marketCap), 'Market', new Date().toISOString()],
-        ['Dominance', formatPercent(data.btc?.dominance), 'Market', new Date().toISOString()],
-        ['Fear & Greed', data.sentiment?.fearGreed || 'N/A', 'Sentiment', new Date().toISOString()],
-        ['Funding Rate', formatPercent(data.derivatives?.fundingRate), 'Derivatives', new Date().toISOString()],
-        ['Open Interest', formatCurrency(data.derivatives?.openInterest), 'Derivatives', new Date().toISOString()],
-        ['Long/Short Ratio', data.derivatives?.longShortRatio?.toFixed(2) || 'N/A', 'Derivatives', new Date().toISOString()],
-        ['RSI', data.technical?.rsi?.toFixed(2) || 'N/A', 'Technical', new Date().toISOString()],
-        ['MVRV', data.onchain?.mvrv?.toFixed(2) || 'N/A', 'On-Chain', new Date().toISOString()],
-        ['SOPR', data.profitability?.sopr?.toFixed(3) || 'N/A', 'On-Chain', new Date().toISOString()],
-        ['NUPL', formatPercent(data.onchain?.nupl), 'On-Chain', new Date().toISOString()],
-        ['NVT', data.onchain?.nvt?.toFixed(1) || 'N/A', 'On-Chain', new Date().toISOString()],
+      // Prepare structured data
+      const metricsData = [
+        { metric: 'BTC Price', value: data.btc?.price, formatted: formatCurrency(data.btc?.price), category: 'Price', timestamp },
+        { metric: '24h Change', value: data.btc?.change24h, formatted: formatPercent(data.btc?.change24h), category: 'Price', timestamp },
+        { metric: '7d Change', value: data.btc?.change7d, formatted: formatPercent(data.btc?.change7d), category: 'Price', timestamp },
+        { metric: 'Volume 24h', value: data.btc?.volume24h, formatted: formatCurrency(data.btc?.volume24h), category: 'Volume', timestamp },
+        { metric: 'Market Cap', value: data.btc?.marketCap, formatted: formatCurrency(data.btc?.marketCap), category: 'Market', timestamp },
+        { metric: 'Dominance', value: data.btc?.dominance, formatted: formatPercent(data.btc?.dominance), category: 'Market', timestamp },
+        { metric: 'Fear & Greed', value: data.sentiment?.fearGreed, formatted: data.sentiment?.fearGreed || 'N/A', category: 'Sentiment', timestamp },
+        { metric: 'Funding Rate', value: data.derivatives?.fundingRate, formatted: formatPercent(data.derivatives?.fundingRate), category: 'Derivatives', timestamp },
+        { metric: 'Open Interest', value: data.derivatives?.openInterest, formatted: formatCurrency(data.derivatives?.openInterest), category: 'Derivatives', timestamp },
+        { metric: 'Long/Short Ratio', value: data.derivatives?.longShortRatio, formatted: data.derivatives?.longShortRatio?.toFixed(2) || 'N/A', category: 'Derivatives', timestamp },
+        { metric: 'Liquidations 24h', value: data.derivatives?.liquidations24h, formatted: formatCurrency(data.derivatives?.liquidations24h), category: 'Derivatives', timestamp },
+        { metric: 'RSI', value: data.technical?.rsi, formatted: data.technical?.rsi?.toFixed(2) || 'N/A', category: 'Technical', timestamp },
+        { metric: 'MVRV', value: data.onchain?.mvrv, formatted: data.onchain?.mvrv?.toFixed(2) || 'N/A', category: 'On-Chain', timestamp },
+        { metric: 'SOPR', value: data.profitability?.sopr, formatted: data.profitability?.sopr?.toFixed(3) || 'N/A', category: 'On-Chain', timestamp },
+        { metric: 'NUPL', value: data.onchain?.nupl, formatted: formatPercent(data.onchain?.nupl), category: 'On-Chain', timestamp },
+        { metric: 'NVT', value: data.onchain?.nvt, formatted: data.onchain?.nvt?.toFixed(1) || 'N/A', category: 'On-Chain', timestamp },
+        { metric: 'Puell Multiple', value: data.onchain?.puellMultiple, formatted: data.onchain?.puellMultiple?.toFixed(2) || 'N/A', category: 'On-Chain', timestamp },
+        { metric: 'Exchange Netflow', value: data.onchain?.exchangeNetflow24h, formatted: (data.onchain?.exchangeNetflow24h || 0).toLocaleString() + ' BTC', category: 'On-Chain', timestamp },
       ];
 
-      const csv = rows.map(row => row.join(',')).join('\n');
-      downloadCSV(csv, `btc-metrics-${getDateString()}.csv`);
+      const filename = `btc-metrics-${getDateString()}`;
+
+      switch(format) {
+        case 'json':
+          downloadJSON({ exportedAt: timestamp, metrics: metricsData, source: 'BTCSignal.ai' }, filename);
+          break;
+        case 'xlsx':
+          await downloadExcel(metricsData, filename, 'Metrics');
+          break;
+        default:
+          const csv = arrayToCSV(metricsData, ['metric', 'formatted', 'category', 'timestamp']);
+          downloadCSV(csv, filename + '.csv');
+      }
 
       hideExportProgress();
-      showToast('Metrics exported successfully', 'success');
+      showToast(`Metrics exported as ${format.toUpperCase()}`, 'success');
     } catch (error) {
       console.error('Failed to export metrics:', error);
       hideExportProgress();
       showToast('Failed to export metrics', 'error');
     }
   }
+
+  // Alias for backward compatibility
+  const exportMetricsToCSV = () => exportMetrics('csv');
 
   /**
    * Export historical data to CSV
@@ -112,13 +216,13 @@
   }
 
   /**
-   * Export alerts to CSV
+   * Export alerts (CSV, JSON, Excel)
    */
-  async function exportAlertsToCSV() {
+  async function exportAlerts(format = 'csv') {
     try {
       showExportProgress('Preparing alerts export...');
 
-      const response = await fetch('https://raw.githubusercontent.com/CaliforniaHodl/BTCSignal_ai/main/data/triggered-alerts.json?t=' + Date.now());
+      const response = await fetch(DATA_URLS.alerts + '?t=' + Date.now());
       if (!response.ok) throw new Error('Failed to fetch alerts');
 
       const data = await response.json();
@@ -129,33 +233,232 @@
         return;
       }
 
-      // Prepare CSV data
-      const rows = [
-        ['Timestamp', 'Name', 'Category', 'Severity', 'Message', 'Current Value', 'Threshold', 'Acknowledged']
-      ];
+      // Prepare structured data
+      const alertsData = data.alerts.map(alert => ({
+        timestamp: new Date(alert.timestamp).toISOString(),
+        name: alert.name,
+        category: alert.category,
+        severity: alert.severity,
+        message: alert.message,
+        currentValue: alert.currentValue,
+        threshold: alert.threshold,
+        acknowledged: alert.acknowledged ? 'Yes' : 'No'
+      }));
 
-      data.alerts.forEach(alert => {
-        rows.push([
-          new Date(alert.timestamp).toISOString(),
-          alert.name,
-          alert.category,
-          alert.severity,
-          alert.message,
-          alert.currentValue,
-          alert.threshold,
-          alert.acknowledged ? 'Yes' : 'No'
-        ]);
-      });
+      const filename = `btc-alerts-${getDateString()}`;
 
-      const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-      downloadCSV(csv, `btc-alerts-${getDateString()}.csv`);
+      switch(format) {
+        case 'json':
+          downloadJSON({ exportedAt: new Date().toISOString(), alerts: alertsData, stats: data.stats, source: 'BTCSignal.ai' }, filename);
+          break;
+        case 'xlsx':
+          await downloadExcel(alertsData, filename, 'Alerts');
+          break;
+        default:
+          const csv = arrayToCSV(alertsData);
+          downloadCSV(csv, filename + '.csv');
+      }
 
       hideExportProgress();
-      showToast('Alerts exported successfully', 'success');
+      showToast(`Alerts exported as ${format.toUpperCase()}`, 'success');
     } catch (error) {
       console.error('Failed to export alerts:', error);
       hideExportProgress();
       showToast('Failed to export alerts', 'error');
+    }
+  }
+
+  // Alias for backward compatibility
+  const exportAlertsToCSV = () => exportAlerts('csv');
+
+  /**
+   * Export signal history (CSV, JSON, Excel)
+   */
+  async function exportSignals(format = 'csv') {
+    try {
+      showExportProgress('Preparing signals export...');
+
+      // Try to fetch signal history
+      let signalsData = [];
+
+      try {
+        const response = await fetch(DATA_URLS.signals + '?t=' + Date.now());
+        if (response.ok) {
+          const data = await response.json();
+          signalsData = data.signals || [];
+        }
+      } catch (e) {
+        // Fall back to posts if no signal history file
+        console.log('Signal history not found, using local storage');
+      }
+
+      // Also check localStorage for any cached signals
+      const cachedSignals = localStorage.getItem('btcsignal_signal_history');
+      if (cachedSignals) {
+        try {
+          const cached = JSON.parse(cachedSignals);
+          signalsData = [...signalsData, ...cached];
+        } catch (e) {}
+      }
+
+      if (signalsData.length === 0) {
+        showToast('No signal history to export', 'info');
+        hideExportProgress();
+        return;
+      }
+
+      // Dedupe and sort
+      const uniqueSignals = Array.from(new Map(signalsData.map(s => [s.timestamp || s.date, s])).values())
+        .sort((a, b) => new Date(b.timestamp || b.date) - new Date(a.timestamp || a.date));
+
+      const filename = `btc-signals-${getDateString()}`;
+
+      switch(format) {
+        case 'json':
+          downloadJSON({ exportedAt: new Date().toISOString(), signals: uniqueSignals, source: 'BTCSignal.ai' }, filename);
+          break;
+        case 'xlsx':
+          await downloadExcel(uniqueSignals, filename, 'Signals');
+          break;
+        default:
+          const csv = arrayToCSV(uniqueSignals);
+          downloadCSV(csv, filename + '.csv');
+      }
+
+      hideExportProgress();
+      showToast(`Signals exported as ${format.toUpperCase()}`, 'success');
+    } catch (error) {
+      console.error('Failed to export signals:', error);
+      hideExportProgress();
+      showToast('Failed to export signals', 'error');
+    }
+  }
+
+  /**
+   * Export paper trading journal (CSV, JSON, Excel)
+   */
+  async function exportPaperTrading(format = 'csv') {
+    try {
+      showExportProgress('Preparing paper trading export...');
+
+      // Load from localStorage
+      const tradesData = localStorage.getItem('btcsignal_paper_trades');
+      const statsData = localStorage.getItem('btcsignal_paper_stats');
+
+      if (!tradesData) {
+        showToast('No paper trades to export', 'info');
+        hideExportProgress();
+        return;
+      }
+
+      const trades = JSON.parse(tradesData);
+      const stats = statsData ? JSON.parse(statsData) : {};
+
+      if (trades.length === 0) {
+        showToast('No paper trades to export', 'info');
+        hideExportProgress();
+        return;
+      }
+
+      // Prepare structured data
+      const exportData = trades.map(trade => ({
+        timestamp: new Date(trade.timestamp).toISOString(),
+        type: trade.type,
+        direction: trade.direction,
+        entryPrice: trade.entryPrice,
+        exitPrice: trade.exitPrice || '',
+        size: trade.size,
+        leverage: trade.leverage || 1,
+        stopLoss: trade.stopLoss || '',
+        takeProfit: trade.takeProfit || '',
+        pnl: trade.pnl || 0,
+        pnlPercent: trade.pnlPercent || 0,
+        status: trade.status,
+        notes: trade.notes || ''
+      }));
+
+      const filename = `paper-trading-${getDateString()}`;
+
+      switch(format) {
+        case 'json':
+          downloadJSON({
+            exportedAt: new Date().toISOString(),
+            trades: exportData,
+            summary: stats,
+            source: 'BTCSignal.ai Paper Trading'
+          }, filename);
+          break;
+        case 'xlsx':
+          await downloadExcel(exportData, filename, 'Trades');
+          break;
+        default:
+          const csv = arrayToCSV(exportData);
+          downloadCSV(csv, filename + '.csv');
+      }
+
+      hideExportProgress();
+      showToast(`Paper trades exported as ${format.toUpperCase()}`, 'success');
+    } catch (error) {
+      console.error('Failed to export paper trades:', error);
+      hideExportProgress();
+      showToast('Failed to export paper trades', 'error');
+    }
+  }
+
+  /**
+   * Bulk export all data
+   */
+  async function bulkExportAll() {
+    try {
+      showExportProgress('Preparing bulk export...');
+
+      // Export all data types sequentially
+      await exportMetrics('json');
+      await new Promise(r => setTimeout(r, 500));
+      await exportAlerts('json');
+      await new Promise(r => setTimeout(r, 500));
+      await exportSignals('json');
+      await new Promise(r => setTimeout(r, 500));
+      await exportPaperTrading('json');
+
+      hideExportProgress();
+      showToast('All data exported successfully', 'success');
+    } catch (error) {
+      console.error('Bulk export failed:', error);
+      hideExportProgress();
+      showToast('Bulk export failed', 'error');
+    }
+  }
+
+  /**
+   * Export widget-specific data
+   */
+  function exportWidget(widgetId, format = 'csv') {
+    const widget = document.getElementById(widgetId);
+    if (!widget) {
+      showToast('Widget not found', 'error');
+      return;
+    }
+
+    // Extract data from widget data attributes or content
+    const data = widget.dataset.exportData;
+    if (data) {
+      try {
+        const parsed = JSON.parse(data);
+        const filename = `widget-${widgetId}-${getDateString()}`;
+
+        if (format === 'json') {
+          downloadJSON(parsed, filename);
+        } else {
+          const csv = arrayToCSV(Array.isArray(parsed) ? parsed : [parsed]);
+          downloadCSV(csv, filename + '.csv');
+        }
+        showToast('Widget data exported', 'success');
+      } catch (e) {
+        showToast('Failed to parse widget data', 'error');
+      }
+    } else {
+      showToast('No exportable data in widget', 'info');
     }
   }
 
@@ -254,6 +557,31 @@ Technical:
   }
 
   /**
+   * Convert array of objects to CSV string
+   */
+  function arrayToCSV(data, columns = null) {
+    if (!data || data.length === 0) return '';
+
+    const headers = columns || Object.keys(data[0]);
+    const rows = [headers.join(',')];
+
+    data.forEach(item => {
+      const row = headers.map(header => {
+        const value = item[header];
+        // Escape quotes and wrap in quotes if contains comma or quote
+        const str = String(value ?? '');
+        if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+          return `"${str.replace(/"/g, '""')}"`;
+        }
+        return str;
+      });
+      rows.push(row.join(','));
+    });
+
+    return rows.join('\n');
+  }
+
+  /**
    * Download CSV file
    */
   function downloadCSV(csv, filename) {
@@ -262,12 +590,88 @@ Technical:
     const url = URL.createObjectURL(blob);
 
     link.setAttribute('href', url);
-    link.setAttribute('download', filename);
+    link.setAttribute('download', filename.endsWith('.csv') ? filename : filename + '.csv');
     link.style.visibility = 'hidden';
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Download JSON file
+   */
+  function downloadJSON(data, filename) {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename.endsWith('.json') ? filename : filename + '.json');
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Download Excel file using SheetJS (xlsx)
+   * Falls back to CSV if library not loaded
+   */
+  async function downloadExcel(data, filename, sheetName = 'Sheet1') {
+    // Check if XLSX library is available
+    if (typeof XLSX === 'undefined') {
+      // Try to load it dynamically
+      try {
+        await loadScript('https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js');
+      } catch (e) {
+        console.warn('XLSX library not available, falling back to CSV');
+        const csv = arrayToCSV(data);
+        downloadCSV(csv, filename + '.csv');
+        showToast('Excel not available, exported as CSV instead', 'info');
+        return;
+      }
+    }
+
+    try {
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(data);
+
+      // Auto-size columns
+      const colWidths = Object.keys(data[0] || {}).map(key => ({
+        wch: Math.max(key.length, ...data.map(row => String(row[key] || '').length))
+      }));
+      ws['!cols'] = colWidths;
+
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+      // Generate and download
+      XLSX.writeFile(wb, filename.endsWith('.xlsx') ? filename : filename + '.xlsx');
+    } catch (e) {
+      console.error('Excel export failed:', e);
+      // Fallback to CSV
+      const csv = arrayToCSV(data);
+      downloadCSV(csv, filename + '.csv');
+      showToast('Excel export failed, exported as CSV instead', 'info');
+    }
+  }
+
+  /**
+   * Dynamically load a script
+   */
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   }
 
   /**
