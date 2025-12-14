@@ -2133,6 +2133,387 @@ Share: API layer only
 
 ---
 
+## PREMIUM FEATURE ROADMAP: Glassnode/CryptoQuant Parity
+
+*Goal: Close the gap with $99-799/mo competitors while maintaining Bitcoin-native identity*
+*Target: Justify $49/mo tier that competes directly with CryptoQuant Professional*
+
+### Competitor Analysis
+
+| Platform | Tier | Price | Key Features We Need |
+|----------|------|-------|---------------------|
+| CryptoQuant | Professional | $99/mo | Full history, 20 alerts, API, CSV export |
+| CryptoQuant | Premium | $799/mo | 1-block resolution, enterprise API |
+| Glassnode | Advanced | $249/mo | All metrics, 1hr resolution, 100 alerts |
+| Glassnode | Professional | $799/mo | 3,500+ metrics, 10min resolution, 500 alerts |
+
+### Our Unique Advantages (KEEP)
+- Pay with Lightning (no KYC)
+- Paper Trading Journal
+- AI Trade Coach
+- Signal Transparency (public accuracy)
+- Educational tooltips
+- Affordable entry ($33/mo yearly)
+
+---
+
+### Phase 15: Advanced Alert System (PRIORITY: CRITICAL)
+*Goal: Match CryptoQuant's 20-alert Professional tier*
+*Effort: 2 sprints*
+
+**Sprint 1: Alert Infrastructure**
+- [ ] Create `netlify/functions/alerts/` module
+- [ ] Alert types:
+  - [ ] Price threshold (above/below)
+  - [ ] Percentage change (1h, 4h, 24h)
+  - [ ] Funding rate threshold (>0.05%, <-0.03%)
+  - [ ] Open Interest change (>5% in 4h)
+  - [ ] MVRV zone entry (undervalued/overvalued)
+  - [ ] Whale transaction (>500 BTC)
+  - [ ] Liquidation spike (>$50M in 1h)
+- [ ] Alert storage in Turso/GitHub
+- [ ] Alert evaluation cron (every 5 min)
+
+**Sprint 2: Alert UI & Notifications**
+- [ ] Alert management dashboard (`/alerts/`)
+- [ ] Create/edit/delete alerts
+- [ ] Alert history with trigger timestamps
+- [ ] Notification channels:
+  - [ ] Browser push notifications
+  - [ ] Email (optional, no KYC required)
+  - [ ] Telegram bot integration
+  - [ ] Discord webhook
+  - [ ] Webhook (custom URL)
+- [ ] Alert templates (Quick Alerts)
+- [ ] Alert sharing (public alert presets)
+
+**Success Criteria:**
+- [ ] 20+ alerts per user
+- [ ] 7+ alert types available
+- [ ] <1 minute alert delivery latency
+- [ ] 99% alert delivery rate
+
+---
+
+### Phase 16: Historical Data Infrastructure (PRIORITY: CRITICAL)
+*Goal: Store and serve years of historical data like Glassnode*
+*Effort: 3 sprints*
+
+**Sprint 1: Database Setup (Turso)**
+- [ ] Set up Turso SQLite database
+- [ ] Schema design:
+  ```sql
+  -- Price data (1min, 5min, 1h, 4h, 1d)
+  CREATE TABLE price_history (
+    timestamp INTEGER PRIMARY KEY,
+    resolution TEXT,
+    open REAL, high REAL, low REAL, close REAL,
+    volume REAL
+  );
+
+  -- On-chain metrics
+  CREATE TABLE onchain_metrics (
+    timestamp INTEGER,
+    metric TEXT,
+    value REAL,
+    PRIMARY KEY (timestamp, metric)
+  );
+
+  -- Derivatives data
+  CREATE TABLE derivatives_history (
+    timestamp INTEGER,
+    exchange TEXT,
+    funding_rate REAL,
+    open_interest REAL,
+    long_short_ratio REAL,
+    PRIMARY KEY (timestamp, exchange)
+  );
+  ```
+- [ ] Migration scripts for existing JSON data
+- [ ] Connection pooling for Netlify Functions
+
+**Sprint 2: Data Ingestion Pipeline**
+- [ ] Scheduled data fetchers (GitHub Actions cron):
+  - [ ] Every 5 min: Price, funding rates
+  - [ ] Every 1 hour: OI, liquidations, L/S ratio
+  - [ ] Every 4 hours: On-chain metrics (MVRV, SOPR, etc.)
+  - [ ] Daily: Whale transactions, exchange reserves
+- [ ] Data validation and deduplication
+- [ ] Backfill historical data (1 year minimum)
+- [ ] Data freshness monitoring
+
+**Sprint 3: Query API**
+- [ ] REST API endpoints:
+  - [ ] `GET /api/v1/price?resolution=1h&from=X&to=Y`
+  - [ ] `GET /api/v1/metrics/{metric}?from=X&to=Y`
+  - [ ] `GET /api/v1/derivatives?exchange=binance&from=X&to=Y`
+- [ ] Query optimization (indexes, caching)
+- [ ] Rate limiting (100 req/min free, 1000 req/min paid)
+- [ ] API key management
+
+**Success Criteria:**
+- [ ] 1+ year of historical data available
+- [ ] 5-minute minimum resolution
+- [ ] <500ms query response time
+- [ ] 99.9% data availability
+
+---
+
+### Phase 17: Public API (PRIORITY: HIGH)
+*Goal: Match CryptoQuant API offering*
+*Effort: 2 sprints*
+
+**Sprint 1: API Infrastructure**
+- [ ] API versioning (`/api/v1/`)
+- [ ] Authentication (API keys)
+- [ ] Rate limiting tiers:
+  - [ ] Free: 100 req/day
+  - [ ] Pro: 1,000 req/min
+  - [ ] Enterprise: 10,000 req/min
+- [ ] API key management UI
+- [ ] Usage dashboard (requests, quota, errors)
+
+**Sprint 2: API Documentation**
+- [ ] OpenAPI/Swagger spec
+- [ ] Interactive API docs (`/api-docs/`)
+- [ ] Code examples (Python, JavaScript, cURL)
+- [ ] SDKs (optional: npm package, pip package)
+- [ ] Webhook documentation
+- [ ] Postman collection
+
+**API Endpoints:**
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/v1/price/current` | Current BTC price |
+| `GET /api/v1/price/history` | Historical OHLCV |
+| `GET /api/v1/metrics/{metric}` | On-chain metric data |
+| `GET /api/v1/derivatives/funding` | Funding rates |
+| `GET /api/v1/derivatives/oi` | Open interest |
+| `GET /api/v1/signals/latest` | Latest signal |
+| `GET /api/v1/signals/history` | Signal history |
+| `POST /api/v1/alerts` | Create alert |
+| `GET /api/v1/alerts` | List alerts |
+
+**Success Criteria:**
+- [ ] API docs live at `/api-docs/`
+- [ ] API keys manageable in dashboard
+- [ ] <200ms average response time
+- [ ] 99.5% uptime
+
+---
+
+### Phase 18: Data Export (PRIORITY: HIGH)
+*Goal: CSV/Excel export like CryptoQuant*
+*Effort: 1 sprint*
+
+**Features:**
+- [ ] Export buttons on all data widgets
+- [ ] Export formats:
+  - [ ] CSV (default)
+  - [ ] JSON
+  - [ ] Excel (.xlsx)
+- [ ] Date range selection
+- [ ] Column selection
+- [ ] Bulk export (all metrics)
+- [ ] Export history (recent exports)
+
+**Exportable Data:**
+- [ ] Price history (all resolutions)
+- [ ] Funding rate history
+- [ ] Open interest history
+- [ ] Liquidation history
+- [ ] On-chain metrics
+- [ ] Signal history
+- [ ] Paper trading journal
+- [ ] Alert history
+
+**Success Criteria:**
+- [ ] All dashboard widgets have export button
+- [ ] Export completes in <10 seconds
+- [ ] Files properly formatted
+
+---
+
+### Phase 19: Advanced Charts (PRIORITY: MEDIUM)
+*Goal: TradingView-quality charting*
+*Effort: 2 sprints*
+
+**Sprint 1: Chart Enhancements**
+- [ ] Multiple chart layouts (1, 2, 4 panes)
+- [ ] Indicator overlay system:
+  - [ ] RSI, MACD, Bollinger Bands
+  - [ ] EMA/SMA (configurable periods)
+  - [ ] Volume profile
+  - [ ] VWAP
+- [ ] Drawing tools:
+  - [ ] Trend lines
+  - [ ] Horizontal lines
+  - [ ] Fibonacci retracements
+  - [ ] Rectangles, circles
+- [ ] Drawing persistence (localStorage → cloud)
+
+**Sprint 2: Chart Features**
+- [ ] Saved chart layouts (10 per user)
+- [ ] Chart templates (pre-configured setups)
+- [ ] Screenshot export (PNG, with watermark)
+- [ ] Chart sharing (public URLs)
+- [ ] Fullscreen mode
+- [ ] Keyboard shortcuts (zoom, pan, draw)
+
+**Success Criteria:**
+- [ ] 10+ indicators available
+- [ ] 5+ drawing tools
+- [ ] Chart layouts persist across sessions
+- [ ] Screenshot export works
+
+---
+
+### Phase 20: Expanded Metrics (PRIORITY: MEDIUM)
+*Goal: Add more on-chain metrics to compete with Glassnode's 3,500+*
+*Effort: 3 sprints (ongoing)*
+
+**Sprint 1: Core Metrics**
+- [ ] Realized Price (and bands: +1σ, -1σ)
+- [ ] HODL Waves (supply by age)
+- [ ] Coin Days Destroyed (CDD)
+- [ ] Binary CDD
+- [ ] Dormancy Flow
+- [ ] Reserve Risk
+
+**Sprint 2: Miner Metrics**
+- [ ] Hash Rate (with difficulty adjustment)
+- [ ] Miner Revenue (block reward + fees)
+- [ ] Miner Outflow (selling pressure)
+- [ ] Hash Ribbons (buy signal)
+- [ ] Difficulty Ribbon (already have partial)
+- [ ] Thermocap (already have)
+
+**Sprint 3: Supply Metrics**
+- [ ] Stablecoin Supply Ratio (SSR)
+- [ ] USDT/USDC dominance
+- [ ] Exchange Stablecoin Reserves
+- [ ] Stablecoin Exchange Netflow
+- [ ] Liquid/Illiquid Supply
+- [ ] 1+ Year HODL Wave
+
+**Sprint 4: Entity Metrics**
+- [ ] Whale holdings (>1000 BTC)
+- [ ] Retail vs Whale accumulation
+- [ ] Entity-adjusted metrics
+- [ ] Exchange entity flows
+- [ ] Long-term holder supply
+
+**Success Criteria:**
+- [ ] 100+ metrics available (vs current ~50)
+- [ ] All metrics have historical data
+- [ ] All metrics have tooltips
+
+---
+
+### Phase 21: Saved Layouts & Workspaces (PRIORITY: MEDIUM)
+*Goal: Custom dashboard like Glassnode Workbench*
+*Effort: 2 sprints*
+
+**Sprint 1: Widget System**
+- [ ] Drag-and-drop dashboard builder
+- [ ] Widget library:
+  - [ ] Price chart (configurable)
+  - [ ] Metric card (any metric)
+  - [ ] Funding rate gauge
+  - [ ] Liquidation heatmap
+  - [ ] Signal aggregator
+  - [ ] Alert feed
+- [ ] Widget resizing
+- [ ] Widget configuration (colors, thresholds)
+
+**Sprint 2: Layout Management**
+- [ ] Save layout (name, description)
+- [ ] Load saved layouts (10 max)
+- [ ] Default layout (reset option)
+- [ ] Layout sharing (public URL)
+- [ ] Layout templates (pre-built for different strategies)
+
+**Success Criteria:**
+- [ ] Users can create custom dashboards
+- [ ] 10 saved layouts per user
+- [ ] Layouts persist across sessions
+
+---
+
+### Phase 22: Team & Enterprise Features (PRIORITY: LOW)
+*Goal: Enterprise tier for institutions*
+*Effort: 2 sprints*
+
+**Sprint 1: Team Management**
+- [ ] Team/organization accounts
+- [ ] Seat management (add/remove users)
+- [ ] Role-based access (admin, analyst, viewer)
+- [ ] Shared dashboards within team
+- [ ] Team alert management
+
+**Sprint 2: Enterprise Features**
+- [ ] White-label option
+- [ ] Custom branding
+- [ ] Dedicated support channel
+- [ ] SLA guarantees
+- [ ] Invoice billing (vs Lightning)
+- [ ] Audit logs
+
+**Success Criteria:**
+- [ ] Team accounts functional
+- [ ] 5+ seats per team
+- [ ] Billing per seat
+
+---
+
+### Phase 23: Multi-Asset Support (PRIORITY: LOW)
+*Goal: Expand beyond BTC-only*
+*Effort: 3 sprints*
+
+**Sprint 1: ETH Support**
+- [ ] ETH price feed
+- [ ] ETH funding rates
+- [ ] ETH open interest
+- [ ] ETH liquidations
+- [ ] ETH on-chain basics (staking, gas)
+
+**Sprint 2: Major Alts**
+- [ ] SOL, XRP, DOGE, ADA
+- [ ] Basic metrics only (price, funding, OI)
+- [ ] Cross-asset correlation matrix
+- [ ] BTC dominance impact
+
+**Sprint 3: DeFi Metrics**
+- [ ] Total Value Locked (TVL)
+- [ ] DEX volume
+- [ ] Stablecoin flows
+- [ ] ETH gas tracker
+
+**Success Criteria:**
+- [ ] 5+ assets supported
+- [ ] Correlation matrix functional
+- [ ] Asset selector on all widgets
+
+---
+
+### Pricing Strategy After Premium Features
+
+| Tier | Price (sats/mo) | Price (USD) | Features |
+|------|-----------------|-------------|----------|
+| **Free** | 0 | $0 | Homepage widgets, 3 free posts, education |
+| **Basic** | 21,000 | ~$21 | All posts, dashboard, paper trading |
+| **Pro** | 50,000 | ~$50 | + 20 alerts, API (100 req/day), exports |
+| **Premium** | 150,000 | ~$150 | + Historical data, 100 alerts, API (1k req/min) |
+| **Enterprise** | Custom | Custom | + Team seats, white-label, SLA |
+
+**Break-even Analysis:**
+- Turso: $29/mo (Pro plan)
+- CoinGecko Pro: $129/mo (if needed)
+- Total infra: ~$158/mo
+- Break-even: 4 Premium subscribers or 10 Pro subscribers
+
+---
+
 ## Tech Stack (CURRENT)
 
 - **Frontend**: Hugo static site generator
@@ -2151,6 +2532,28 @@ Share: API layer only
 ---
 
 ## Recent Updates
+**2025-12-13**: Premium Feature Roadmap Added (Phases 15-23)
+- Added 9 new phases to compete with Glassnode/CryptoQuant paid tiers
+- Phase 15: Advanced Alert System (20+ custom alerts)
+- Phase 16: Historical Data Infrastructure (Turso database)
+- Phase 17: Public API (REST API with rate limiting)
+- Phase 18: Data Export (CSV, JSON, Excel)
+- Phase 19: Advanced Charts (TradingView-quality)
+- Phase 20: Expanded Metrics (100+ on-chain metrics)
+- Phase 21: Saved Layouts & Workspaces
+- Phase 22: Team & Enterprise Features
+- Phase 23: Multi-Asset Support (ETH, SOL, etc.)
+- New pricing tiers: Basic ($21), Pro ($50), Premium ($150), Enterprise
+- Removed old comparison files (Phase_6.md, COMPETITIVE_ROADMAP.md, etc.)
+
+**2025-12-13**: Phase 6 Complete + 110% Features
+- Annual pricing tier (400,000 sats/year, 33% off)
+- Testimonials section on homepage
+- Paywall config centralized in config.toml
+- Paper Trading Journal integrated into dashboard
+- TDD test suite (55+ Cypress tests)
+- Signal aggregator and prediction engine tests
+
 **2025-12-07**: Phase 10 Complete - Product Polish & Launch Readiness
 - Data pipeline fallbacks (CoinGecko → CoinCap → Kraken → Binance US)
 - Data freshness indicator in UI
