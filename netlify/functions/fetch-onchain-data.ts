@@ -255,7 +255,6 @@ export default async (req: Request, context: Context) => {
   console.log(`MVRV source: ${mvrvSource}, value: ${mvrvData.mvrv}`);
 
   // Build node data section (REAL data from personal Bitcoin node!)
-  const nodeData = nodeResponse.data;
   const nodeDataSection: OnChainData['nodeData'] = {
     source: nodeResponse.source,
     blockHeight: nodeData?.block_height || 0,
