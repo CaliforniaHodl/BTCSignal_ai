@@ -1,5 +1,9 @@
 {{ define "main" }}
-<div class="container dashboard-page" id="dashboard-container">
+{{/* Check if paywall is enabled from config.toml */}}
+{{ $paywallEnabled := .Site.Params.paywallEnabled | default true }}
+
+<div class="container dashboard-page" id="dashboard-container" data-paywall-enabled="{{ $paywallEnabled }}">
+  {{ if $paywallEnabled }}
   <!-- Paywall check - show content only if user has paid -->
   <div class="dashboard-locked" id="dashboard-locked">
     <div class="lock-message">
@@ -9,8 +13,9 @@
       <a href="/pricing/" class="btn-lightning">View Pricing</a>
     </div>
   </div>
+  {{ end }}
 
-  <div class="dashboard-content" id="dashboard-content" style="display: none;">
+  <div class="dashboard-content" id="dashboard-content" {{ if $paywallEnabled }}style="display: none;"{{ end }}>
     <header class="dashboard-header">
       <h1>Pro Trading Dashboard</h1>
       <p class="subtitle">Real-time market intelligence & performance analytics</p>
