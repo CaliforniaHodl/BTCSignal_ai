@@ -17,7 +17,7 @@
 {{/* Set Scratch values for foot.html to load appropriate scripts */}}
 {{ if not $isFree }}
   {{ .Scratch.Set "qrcode" true }}
-  {{ .Scratch.Set "postJs" (slice "paywall.js" "post-stats.js") }}
+  {{ .Scratch.Set "postJs" (slice "paywall.js" "post-stats.js" "premium-content-loader.js") }}
 {{ else }}
   {{ .Scratch.Set "postJs" (slice "post-stats.js") }}
 {{ end }}
@@ -56,8 +56,10 @@
 
       <h1 class="article-title">{{ .Params.symbol }} Factor Analysis</h1>
 
-      {{/* REAL STATS - Always rendered, hidden if paywalled until unlocked */}}
-      <div class="quick-stats real-content{{ if not $isFree }} hidden-until-paid{{ end }}" id="real-stats">
+      {{/* REAL STATS - Only rendered for FREE posts. Paywalled posts get empty containers. */}}
+      {{ if $isFree }}
+      {{/* FREE POST: Render actual data */}}
+      <div class="quick-stats real-content" id="real-stats">
         <div class="stat sentiment {{ .Params.sentiment }}">
           <span class="stat-label">Signal</span>
           <span class="stat-value">
@@ -92,7 +94,7 @@
       </div>
 
       {{ if or .Params.targetPrice .Params.stopLoss }}
-      <div class="targets real-content{{ if not $isFree }} hidden-until-paid{{ end }}" id="real-targets">
+      <div class="targets real-content" id="real-targets">
         {{ if .Params.targetPrice }}
         <div class="target-item target">
           <span class="target-label">Target</span>
@@ -120,6 +122,56 @@
           <span class="target-label">Sats per $1</span>
           {{ $satsPerDollar := div 100000000.0 .Params.price }}
           <span class="target-value">{{ lang.FormatNumber 0 $satsPerDollar }} sats</span>
+        </div>
+      </div>
+      {{ end }}
+      {{ else }}
+      {{/* PAYWALLED POST: Empty containers - JS will populate after auth */}}
+      <div class="quick-stats real-content hidden-until-paid" id="real-stats">
+        <div class="stat sentiment">
+          <span class="stat-label">Signal</span>
+          <span class="stat-value"></span>
+        </div>
+        <div class="stat result">
+          <span class="stat-label">Result</span>
+          <span class="stat-value result-chip"></span>
+        </div>
+        <div class="stat confidence">
+          <span class="stat-label">Confidence</span>
+          <span class="stat-value"></span>
+          <div class="confidence-bar-mini">
+            <div class="confidence-fill-mini" style="width: 0%"></div>
+          </div>
+        </div>
+        <div class="stat price">
+          <span class="stat-label">Price at Signal</span>
+          <span class="stat-value"></span>
+        </div>
+        <div class="stat change">
+          <span class="stat-label">24h Change</span>
+          <span class="stat-value"></span>
+        </div>
+      </div>
+      <div class="targets real-content hidden-until-paid" id="real-targets">
+        <div class="target-item target">
+          <span class="target-label">Target</span>
+          <span class="target-value"></span>
+        </div>
+        <div class="target-item stop-loss">
+          <span class="target-label">Stop Loss</span>
+          <span class="target-value"></span>
+        </div>
+        <div class="target-item risk-reward">
+          <span class="target-label">Risk:Reward</span>
+          <span class="target-value"></span>
+        </div>
+        <div class="target-item block-height">
+          <span class="target-label">Block Height</span>
+          <span class="target-value"></span>
+        </div>
+        <div class="target-item sats-per-dollar">
+          <span class="target-label">Sats per $1</span>
+          <span class="target-value"></span>
         </div>
       </div>
       {{ end }}
@@ -348,8 +400,9 @@
     </div>
     {{ end }}
 
-    {{/* REAL CONTENT - Always rendered, hidden if paywalled until unlocked */}}
-    <div class="article-content real-content{{ if not $isFree }} hidden-until-paid{{ end }}" id="real-article-content">
+    {{/* REAL CONTENT - Only rendered for FREE posts. Paywalled posts get empty container. */}}
+    {{ if $isFree }}
+    <div class="article-content real-content" id="real-article-content">
 
       <!-- Why This Signal Section -->
       <section class="signal-explainer">
@@ -647,6 +700,15 @@
       </section>
 
     </div>
+    {{ else }}
+    {{/* PAYWALLED POST: Empty container - JS will populate after auth */}}
+    <div class="article-content real-content hidden-until-paid" id="real-article-content">
+      <!-- Premium content loaded dynamically after authentication -->
+      <div id="premium-content-placeholder" class="loading-premium">
+        <p>Premium content will appear here after authentication.</p>
+      </div>
+    </div>
+    {{ end }}
 
     <footer class="article-footer">
       <div class="footer-disclaimer">
