@@ -238,7 +238,7 @@ const handler: Handler = async (event, context) => {
 };
 
 // Schedule to run every 15 minutes
-export { handler };
-export const config = {
-  schedule: '*/15 * * * *', // Every 15 minutes
-};
+// export { handler };
+// export const config = {
+//   schedule: '*/15 * * * *', // Every 15 minutes
+// };
