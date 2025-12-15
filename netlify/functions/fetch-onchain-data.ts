@@ -302,6 +302,6 @@ export default async (req: Request, context: Context) => {
 };
 
 // Schedule: runs every 4 hours (aligns with market data updates)
-export const config: Config = {
-  schedule: '0 */4 * * *',
-};
+// export const config: Config = {
+//   schedule: '0 */4 * * *',
+// };
