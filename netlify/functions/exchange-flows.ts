@@ -211,6 +211,6 @@ export default async (req: Request, context: Context) => {
 };
 
 // Schedule: runs every 30 minutes
-export const config: Config = {
-  schedule: '*/30 * * * *',
-};
+// export const config: Config = {
+//   schedule: '*/30 * * * *',
+// };
