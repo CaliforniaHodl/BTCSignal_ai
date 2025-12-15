@@ -745,6 +745,6 @@ export default async (req: Request, context: Context) => {
 
 // Schedule: runs 6 times daily (every 4 hours)
 // 1 AM, 5 AM, 9 AM, 1 PM, 5 PM, 9 PM UTC
-export const config: Config = {
-  schedule: '0 1,5,9,13,17,21 * * *',
-};
+// export const config: Config = {
+//   schedule: '0 1,5,9,13,17,21 * * *',
+// };
