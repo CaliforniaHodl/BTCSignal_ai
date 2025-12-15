@@ -305,6 +305,6 @@ export default async (req: Request, context: Context) => {
 };
 
 // Schedule: runs every 6 hours
-export const config: Config = {
-  schedule: '15 */6 * * *',
-};
+// export const config: Config = {
+//   schedule: '15 */6 * * *',
+// };
