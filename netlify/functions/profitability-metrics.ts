@@ -250,6 +250,6 @@ export default async (req: Request, context: Context) => {
 };
 
 // Schedule: runs every 4 hours (same as on-chain metrics)
-export const config: Config = {
-  schedule: '45 */4 * * *'
-};
+// export const config: Config = {
+//   schedule: '45 */4 * * *'
+// };
