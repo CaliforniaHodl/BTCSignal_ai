@@ -517,6 +517,6 @@ export default async (req: Request, context: Context) => {
 };
 
 // Schedule: Daily at 9am PST (5pm UTC)
-export const config: Config = {
-  schedule: '0 17 * * *',
-};
+// export const config: Config = {
+//   schedule: '0 17 * * *',
+// };
