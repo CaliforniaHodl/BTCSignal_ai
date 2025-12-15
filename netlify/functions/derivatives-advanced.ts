@@ -222,7 +222,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
 };
 
 // Schedule function to run every hour
-export { handler };
-export const config = {
-  schedule: '@hourly'
-};
+// export { handler };
+// export const config = {
+//   schedule: '@hourly'
+// };
