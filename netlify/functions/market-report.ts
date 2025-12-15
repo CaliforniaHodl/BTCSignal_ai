@@ -285,7 +285,7 @@ const handler: Handler = async (event, context) => {
 };
 
 // Schedule to run daily at 00:00 UTC
-export { handler };
-export const config = {
-  schedule: '0 0 * * *', // Daily at midnight UTC
-};
+// export { handler };
+// export const config = {
+//   schedule: '0 0 * * *', // Daily at midnight UTC
+// };
