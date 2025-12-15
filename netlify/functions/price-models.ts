@@ -320,6 +320,6 @@ export default async (req: Request, context: Context) => {
 };
 
 // Schedule to run every 4 hours
-export const config: Config = {
-  schedule: '0 */4 * * *', // Every 4 hours at minute 0
-};
+// export const config: Config = {
+//   schedule: '0 */4 * * *', // Every 4 hours at minute 0
+// };
