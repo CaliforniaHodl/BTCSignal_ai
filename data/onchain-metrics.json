@@ -1,18 +1,18 @@
 {
-  "lastUpdated": "2025-12-15T17:50:32.095Z",
+  "lastUpdated": "2025-12-16T03:48:58.797Z",
   "nvt": {
-    "ratio": 601.5,
+    "ratio": 204.4,
     "signal": "overvalued",
     "description": "High NVT suggests speculative premium. Caution advised."
   },
   "puellMultiple": {
-    "value": 0.76,
+    "value": 0.8,
     "zone": "neutral",
     "description": "Miner profitability in normal range."
   },
   "stockToFlow": {
     "ratio": 121.5,
-    "modelPrice": 993217,
+    "modelPrice": 993249,
     "deflection": -91.4,
     "signal": "undervalued"
   },
@@ -32,20 +32,20 @@
     "description": "Extreme greed. Consider taking profits."
   },
   "mvrv": {
-    "ratio": 1.56,
+    "ratio": 1.53,
     "zone": "fair",
     "description": "Market value aligned with realized value. Normal conditions.",
     "realizedCap": 0
   },
   "activeAddresses": {
-    "count24h": 429658,
-    "change7d": -2,
-    "trend": "stable",
-    "description": "Network activity stable."
+    "count24h": 507663,
+    "change7d": 6.3,
+    "trend": "increasing",
+    "description": "Network activity growing. Bullish adoption signal."
   },
   "transactionCount": {
-    "count24h": 416686,
-    "change7d": -23.3,
+    "count24h": 423355,
+    "change7d": -27,
     "description": "Transaction activity declining. Reduced on-chain demand."
   }
 }
