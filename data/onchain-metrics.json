@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2025-12-17T03:45:14.036Z",
+  "lastUpdated": "2025-12-17T05:20:48.770Z",
   "nvt": {
-    "ratio": 165.4,
+    "ratio": 164.1,
     "signal": "overvalued",
     "description": "High NVT suggests speculative premium. Caution advised."
   },
@@ -12,12 +12,12 @@
   },
   "stockToFlow": {
     "ratio": 121.5,
-    "modelPrice": 993320,
-    "deflection": -91.2,
+    "modelPrice": 993328,
+    "deflection": -91.3,
     "signal": "undervalued"
   },
   "ssr": {
-    "ratio": 6.5,
+    "ratio": 6.4,
     "trend": "neutral",
     "description": "Moderate stablecoin reserves relative to BTC."
   },
