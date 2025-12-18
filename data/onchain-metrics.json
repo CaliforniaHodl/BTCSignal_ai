@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2025-12-18T03:35:06.933Z",
+  "lastUpdated": "2025-12-18T04:29:24.357Z",
   "nvt": {
-    "ratio": 138,
+    "ratio": 138.8,
     "signal": "overvalued",
     "description": "High NVT suggests speculative premium. Caution advised."
   },
@@ -12,7 +12,7 @@
   },
   "stockToFlow": {
     "ratio": 121.5,
-    "modelPrice": 993394,
+    "modelPrice": 993395,
     "deflection": -91.3,
     "signal": "undervalued"
   },
