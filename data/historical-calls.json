@@ -158,5 +158,15 @@
     "stopLoss": 88230.53239816711,
     "actualResult": "loss",
     "pnlPercent": -0.8267704124034658
+  },
+  {
+    "date": "2025-12-18T17:01:28.322Z",
+    "direction": "up",
+    "confidence": 0.68,
+    "entryPrice": 87724.33,
+    "targetPrice": 89217.0329202822,
+    "stopLoss": 86977.9785398589,
+    "actualResult": "pending",
+    "pnlPercent": null
   }
 ]
