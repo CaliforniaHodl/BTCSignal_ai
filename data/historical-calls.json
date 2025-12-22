@@ -186,7 +186,7 @@
     "entryPrice": 88360.01,
     "targetPrice": 89091.82487404432,
     "stopLoss": 87994.10256297783,
-    "actualResult": "pending",
-    "pnlPercent": null
+    "actualResult": "loss",
+    "pnlPercent": -0.41410977321320386
   }
 ]
