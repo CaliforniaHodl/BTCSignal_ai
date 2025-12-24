@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2025-12-24T01:19:58.182Z",
+  "lastUpdated": "2025-12-24T17:28:10.302Z",
   "nvt": {
-    "ratio": 143.7,
+    "ratio": 143.1,
     "signal": "overvalued",
     "description": "High NVT suggests speculative premium. Caution advised."
   },
@@ -12,7 +12,7 @@
   },
   "stockToFlow": {
     "ratio": 121.6,
-    "modelPrice": 993806,
+    "modelPrice": 993864,
     "deflection": -91.2,
     "signal": "undervalued"
   },
@@ -32,7 +32,7 @@
     "description": "Extreme greed. Consider taking profits."
   },
   "mvrv": {
-    "ratio": 1.57,
+    "ratio": 1.55,
     "zone": "fair",
     "description": "Market value aligned with realized value. Normal conditions.",
     "realizedCap": 0
