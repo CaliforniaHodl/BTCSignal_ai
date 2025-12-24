@@ -1,15 +1,15 @@
 {
-  "lastUpdated": "2025-12-24T01:19:58.879Z",
+  "lastUpdated": "2025-12-24T17:28:15.552Z",
   "holderCohorts": {
     "lthSupply": {
-      "btc": 13976307,
+      "btc": 13976561,
       "percentage": 70,
       "change30d": 0,
       "trend": "stable",
       "description": "Moderate LTH supply"
     },
     "sthSupply": {
-      "btc": 5989846,
+      "btc": 5989955,
       "percentage": 30,
       "change30d": 0,
       "trend": "stable",
@@ -26,7 +26,7 @@
       "name": "Shrimp",
       "range": "< 1 BTC",
       "addresses": 40000000,
-      "btcHeld": 399323,
+      "btcHeld": 399330,
       "percentageOfSupply": 2,
       "change30d": 0,
       "trend": "stable"
@@ -35,7 +35,7 @@
       "name": "Crab",
       "range": "1-10 BTC",
       "addresses": 8000000,
-      "btcHeld": 998308,
+      "btcHeld": 998326,
       "percentageOfSupply": 5,
       "change30d": 0,
       "trend": "stable"
@@ -44,7 +44,7 @@
       "name": "Fish",
       "range": "10-100 BTC",
       "addresses": 1500000,
-      "btcHeld": 1996615,
+      "btcHeld": 1996652,
       "percentageOfSupply": 10,
       "change30d": 0,
       "trend": "stable"
@@ -53,7 +53,7 @@
       "name": "Shark",
       "range": "100-1K BTC",
       "addresses": 450000,
-      "btcHeld": 2994923,
+      "btcHeld": 2994977,
       "percentageOfSupply": 15,
       "change30d": 0,
       "trend": "stable"
@@ -62,7 +62,7 @@
       "name": "Whale",
       "range": "1K-10K BTC",
       "addresses": 45000,
-      "btcHeld": 4991538,
+      "btcHeld": 4991629,
       "percentageOfSupply": 25,
       "change30d": 0,
       "trend": "stable"
@@ -71,7 +71,7 @@
       "name": "Humpback",
       "range": "> 10K BTC",
       "addresses": 5000,
-      "btcHeld": 7986461,
+      "btcHeld": 7986606,
       "percentageOfSupply": 40,
       "change30d": 0,
       "trend": "stable"
@@ -81,21 +81,21 @@
   },
   "supplyLiquidity": {
     "illiquidSupply": {
-      "btc": 23060906,
+      "btc": 23061325,
       "percentage": 115.5,
       "description": "LTH + large whale holdings unlikely to move"
     },
     "liquidSupply": {
-      "btc": -4692046,
+      "btc": -4692131,
       "percentage": -23.5,
       "description": "STH + medium holders, moderately available for trading"
     },
     "highlyLiquidSupply": {
-      "btc": 1597292,
+      "btc": 1597321,
       "percentage": 8,
       "description": "Exchange holdings + active traders, immediately available"
     },
-    "liquidityScore": -15,
+    "liquidityScore": -16,
     "signal": "bullish",
     "analysis": "Very high illiquid supply. Strong holder conviction, supply shock potential."
   }
