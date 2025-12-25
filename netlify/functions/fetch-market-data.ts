@@ -1,6 +1,6 @@
 import type { Config, Context } from '@netlify/functions';
 import { saveToBlob } from './lib/shared';
-import { fetchNodeData, formatHashrate } from './lib/node-data';
+import { fetchNodeData, formatHashrate, getMempoolCongestion } from './lib/node-data';
 
 // Track which data sources succeeded/failed
 interface DataSources {
@@ -66,6 +66,17 @@ interface MarketSnapshot {
     current: number;
     unit: string;
     history: number[][]; // [timestamp, hashrate in EH/s]
+  };
+  // Data from personal Bitcoin node
+  network: {
+    blockHeight: number;
+    difficulty: number;
+    mempool: {
+      size: number;        // Number of transactions
+      bytes: number;       // Size in bytes
+      feesBTC: number;     // Total fees in BTC
+      congestion: 'low' | 'medium' | 'high' | 'extreme';
+    };
   };
   ohlc: {
     days7: number[][];  // [timestamp, open, high, low, close]
@@ -210,6 +221,11 @@ export default async (req: Request, context: Context) => {
     longShortRatio: { ratio: 1, longPercent: 50, shortPercent: 50, source: 'okx' },
     dominance: { btc: 0 },
     hashrate: { current: 0, unit: 'EH/s', history: [] },
+    network: {
+      blockHeight: 0,
+      difficulty: 0,
+      mempool: { size: 0, bytes: 0, feesBTC: 0, congestion: 'low' as const },
+    },
     ohlc: { days7: [], days30: [] },
     global: { totalMarketCap: 0, total24hVolume: 0 },
     liquidation: { levels: [], stats24h: { total: 0, long: 0, short: 0, ratio: 1 } },
@@ -435,15 +451,31 @@ export default async (req: Request, context: Context) => {
     }
     console.log('BTC Dominance:', snapshot.dominance.btc > 0 ? snapshot.dominance.btc.toFixed(1) + '%' : 'FAILED');
 
-    // Process Hashrate from personal node
+    // Process data from personal Bitcoin node
     if (nodeDataResponse.success && nodeDataResponse.data) {
-      snapshot.hashrate.current = nodeDataResponse.data.hashrate / 1e18; // Convert to EH/s
+      const nodeData = nodeDataResponse.data;
+
+      // Hashrate
+      snapshot.hashrate.current = nodeData.hashrate / 1e18; // Convert to EH/s
       snapshot.hashrate.unit = 'EH/s';
       dataSources.hashrate = 'personal-node';
-      // Note: Historical hashrate not available from node - would need separate tracking
-      console.log('Hashrate:', snapshot.hashrate.current.toFixed(1) + ' EH/s (from personal node)');
+
+      // Network stats
+      snapshot.network = {
+        blockHeight: nodeData.block_height,
+        difficulty: nodeData.difficulty,
+        mempool: {
+          size: nodeData.mempool_size,
+          bytes: nodeData.mempool_bytes,
+          feesBTC: nodeData.mempool_fees_btc,
+          congestion: getMempoolCongestion(nodeData.mempool_size),
+        },
+      };
+
+      console.log('Node data: Block', nodeData.block_height, '| Hashrate:', snapshot.hashrate.current.toFixed(1), 'EH/s');
+      console.log('Mempool:', nodeData.mempool_size, 'txs |', (nodeData.mempool_bytes / 1e6).toFixed(2), 'MB |', snapshot.network.mempool.congestion);
     } else {
-      console.log('Hashrate: Failed to fetch from personal node');
+      console.log('Node data: Failed to fetch from personal node');
     }
 
     // Process OHLC data
