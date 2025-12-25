@@ -1,5 +1,6 @@
 import type { Config, Context } from '@netlify/functions';
 import { saveToBlob } from './lib/shared';
+import { fetchNodeData, formatHashrate } from './lib/node-data';
 
 // Track which data sources succeeded/failed
 interface DataSources {
@@ -216,6 +217,9 @@ export default async (req: Request, context: Context) => {
 
   try {
     // Fetch all data in parallel
+    // Fetch hashrate from personal node (separate from parallel API calls)
+    const nodeDataResponse = await fetchNodeData();
+
     const [
       btcDataRes,
       fearGreedRes,
@@ -223,7 +227,7 @@ export default async (req: Request, context: Context) => {
       oiRes,
       longShortRes,
       globalRes,
-      hashrateRes,
+      // hashrateRes removed - now using personal node
       ohlc7Res,
       ohlc30Res,
       // Bybit API for additional derivatives data
@@ -243,7 +247,7 @@ export default async (req: Request, context: Context) => {
       fetchWithTimeout('https://www.okx.com/api/v5/public/open-interest?instType=SWAP&instId=BTC-USDT-SWAP'),
       fetchWithTimeout('https://www.okx.com/api/v5/rubik/stat/contracts/long-short-account-ratio?instId=BTC&period=5m'),
       fetchWithTimeout('https://api.coingecko.com/api/v3/global'),
-      fetchWithTimeout('https://mempool.space/api/v1/mining/hashrate/3m'),
+      // Hashrate now comes from personal node - removed mempool.space call
       fetchWithTimeout('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=7'),
       fetchWithTimeout('https://api.coingecko.com/api/v3/coins/bitcoin/ohlc?vs_currency=usd&days=30'),
       // Bybit derivatives data
@@ -431,24 +435,16 @@ export default async (req: Request, context: Context) => {
     }
     console.log('BTC Dominance:', snapshot.dominance.btc > 0 ? snapshot.dominance.btc.toFixed(1) + '%' : 'FAILED');
 
-    // Process Hashrate from mempool.space
-    if (hashrateRes.status === 'fulfilled' && hashrateRes.value.ok) {
-      const data = await hashrateRes.value.json();
-      if (data && data.currentHashrate) {
-        snapshot.hashrate.current = data.currentHashrate / 1e18; // Convert to EH/s
-        snapshot.hashrate.unit = 'EH/s';
-        dataSources.hashrate = 'mempool.space';
-
-        // Extract historical hashrate data (last 30 days)
-        if (data.hashrates && Array.isArray(data.hashrates)) {
-          snapshot.hashrate.history = data.hashrates
-            .slice(-30) // Last 30 data points
-            .map((h: any) => [h.timestamp * 1000, h.avgHashrate / 1e18]); // [timestamp ms, EH/s]
-        }
-      }
+    // Process Hashrate from personal node
+    if (nodeDataResponse.success && nodeDataResponse.data) {
+      snapshot.hashrate.current = nodeDataResponse.data.hashrate / 1e18; // Convert to EH/s
+      snapshot.hashrate.unit = 'EH/s';
+      dataSources.hashrate = 'personal-node';
+      // Note: Historical hashrate not available from node - would need separate tracking
+      console.log('Hashrate:', snapshot.hashrate.current.toFixed(1) + ' EH/s (from personal node)');
+    } else {
+      console.log('Hashrate: Failed to fetch from personal node');
     }
-    console.log('Hashrate:', snapshot.hashrate.current.toFixed(1) + ' EH/s');
-    console.log('Hashrate history:', snapshot.hashrate.history.length + ' data points');
 
     // Process OHLC data
     if (ohlc7Res.status === 'fulfilled' && ohlc7Res.value.ok) {
