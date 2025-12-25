@@ -12,7 +12,7 @@ import {
   calculateSTHRealizedPrice,
   calculateLTHRealizedPrice
 } from './lib/profitability-analyzer';
-import { saveToBlob } from './lib/blob-storage';
+import { saveToBlob } from './lib/shared';
 
 interface PricePoint {
   price: number;
@@ -203,7 +203,4 @@ export default async (req: Request, context: Context) => {
   );
 };
 
-// Schedule: runs every 4 hours (same as on-chain metrics)
-export const config: Config = {
-  schedule: '45 */4 * * *'
-};
+// Note: Schedule removed - data now saved to Blob storage on-demand

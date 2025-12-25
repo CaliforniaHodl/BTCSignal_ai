@@ -11,7 +11,7 @@ import {
   ExchangeReserveEstimate,
 } from './lib/exchange-analyzer';
 import { WhaleAlert } from './lib/tweet-generator';
-import { saveToBlob, loadFromBlob } from './lib/blob-storage';
+import { saveToBlob, loadFromBlob } from './lib/shared';
 
 interface ExchangeFlowsResult {
   lastUpdated: string;
@@ -147,7 +147,4 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Schedule: runs every 30 minutes
-export const config: Config = {
-  schedule: '*/30 * * * *',
-};
+// Note: Schedule removed - data now saved to Blob storage on-demand

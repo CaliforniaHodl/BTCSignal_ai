@@ -10,7 +10,7 @@ import {
   estimateSupplyLiquidity,
   calculateLTHSTHRatio
 } from './lib/cohort-analyzer';
-import { saveToBlob } from './lib/blob-storage';
+import { saveToBlob } from './lib/shared';
 
 // Fetch BTC price and market data from CoinGecko
 async function fetchBTCData(): Promise<{
@@ -258,7 +258,4 @@ export default async (req: Request, context: Context) => {
   );
 };
 
-// Schedule: runs every 6 hours
-export const config: Config = {
-  schedule: '15 */6 * * *',
-};
+// Note: Schedule removed - data now saved to Blob storage on-demand

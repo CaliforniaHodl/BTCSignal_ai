@@ -1,7 +1,7 @@
 // API endpoint to serve data from Netlify Blob storage
 // This replaces static JSON files that were triggering builds
 import type { Context } from '@netlify/functions';
-import { loadFromBlob, listBlobs, BlobKey } from './lib/blob-storage';
+import { loadFromBlob, listBlobs, BlobKey } from './lib/shared';
 
 const VALID_KEYS: BlobKey[] = [
   'exchange-flows',

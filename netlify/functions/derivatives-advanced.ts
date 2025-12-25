@@ -1,13 +1,7 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { DerivativesAdvancedAnalyzer, DerivativesAdvancedData } from './lib/derivatives-advanced';
 import axios from 'axios';
-import { saveToBlob } from './lib/blob-storage';
-
-// GitHub cache configuration
-const GITHUB_OWNER = 'jbarnes850';
-const GITHUB_REPO = 'BTCSignal_ai';
-const CACHE_FILE_PATH = 'data/derivatives-advanced.json';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+import { saveToBlob, loadFromBlob } from './lib/shared';
 
 /**
  * Get current BTC price from CoinGecko
@@ -34,36 +28,10 @@ async function getCurrentPrice(): Promise<{ price: number; change24h: number }> 
 }
 
 /**
- * Load previous data from GitHub cache
+ * Load previous data from Blob storage
  */
 async function loadPreviousData(): Promise<DerivativesAdvancedData | null> {
-  if (!GITHUB_TOKEN) {
-    console.log('No GitHub token, skipping cache load');
-    return null;
-  }
-
-  try {
-    const response = await axios.get(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CACHE_FILE_PATH}`,
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: 'application/vnd.github.v3+json'
-        },
-        timeout: 10000
-      }
-    );
-
-    const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
-    return JSON.parse(content);
-  } catch (error: any) {
-    if (error.response?.status === 404) {
-      console.log('Cache file not found, starting fresh');
-      return null;
-    }
-    console.error('Failed to load previous data:', error.message);
-    return null;
-  }
+  return loadFromBlob<DerivativesAdvancedData>('derivatives-advanced');
 }
 
 /**
@@ -181,8 +149,5 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
   }
 };
 
-// Schedule function to run every hour
 export { handler };
-export const config = {
-  schedule: '@hourly'
-};
+// Note: Schedule removed - run on-demand only

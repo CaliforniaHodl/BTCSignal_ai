@@ -266,7 +266,4 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Schedule: Every 30 minutes to catch new whale alerts
-export const config: Config = {
-  schedule: '*/30 * * * *',
-};
+// Note: Schedule removed - run on-demand only

@@ -1,7 +1,7 @@
 import type { Config, Context } from '@netlify/functions';
 import { TwitterApi } from 'twitter-api-v2';
 import { generateSingleWhaleAlert } from './lib/tweet-generator';
-import { saveToBlob } from './lib/blob-storage';
+import { saveToBlob } from './lib/shared';
 
 // Whale alert structure
 interface WhaleAlert {

@@ -17,7 +17,7 @@ import {
   BTC_CONSTANTS,
   type PriceModels,
 } from './lib/price-models';
-import { saveToBlob } from './lib/blob-storage';
+import { saveToBlob } from './lib/shared';
 
 // Fetch BTC price from multiple sources
 async function fetchBTCPrice(): Promise<number> {
@@ -267,7 +267,4 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Schedule to run every 4 hours
-export const config: Config = {
-  schedule: '0 */4 * * *', // Every 4 hours at minute 0
-};
+// Note: Schedule removed - data now saved to Blob storage on-demand

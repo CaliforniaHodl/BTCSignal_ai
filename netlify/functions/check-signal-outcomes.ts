@@ -322,7 +322,4 @@ export default async (req: Request, context: Context) => {
   });
 };
 
-// Schedule: Daily at 6pm UTC (after daily signal posts at 5pm UTC)
-export const config: Config = {
-  schedule: '0 18 * * *',
-};
+// Note: Schedule removed - run on-demand only

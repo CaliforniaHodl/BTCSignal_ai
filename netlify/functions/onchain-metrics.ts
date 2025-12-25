@@ -2,7 +2,7 @@
 // NVT Ratio, Puell Multiple, Stock-to-Flow, SSR, Reserve Risk, MVRV, Active Addresses
 // Updated: Now uses Netlify Blob storage instead of GitHub commits
 import type { Config, Context } from '@netlify/functions';
-import { saveToBlob } from './lib/blob-storage';
+import { saveToBlob } from './lib/shared';
 
 interface OnChainMetrics {
   lastUpdated: string;
@@ -613,7 +613,4 @@ export default async (req: Request, context: Context) => {
   );
 };
 
-// Schedule: runs every 4 hours
-export const config: Config = {
-  schedule: '30 */4 * * *',
-};
+// Note: Schedule removed - data now saved to Blob storage on-demand

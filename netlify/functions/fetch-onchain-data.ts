@@ -6,7 +6,7 @@
 import type { Config, Context } from '@netlify/functions';
 import { fetchNodeData, formatHashrate, getMempoolCongestion } from './lib/node-data';
 import { calculateRealMVRV, fetchRealizedCap } from './lib/coinmetrics';
-import { saveToBlob } from './lib/blob-storage';
+import { saveToBlob } from './lib/shared';
 
 interface OnChainData {
   lastUpdated: string;
@@ -255,7 +255,4 @@ export default async (req: Request, context: Context) => {
   });
 };
 
-// Schedule: runs every 4 hours (aligns with market data updates)
-export const config: Config = {
-  schedule: '0 */4 * * *',
-};
+// Note: Schedule removed - data now saved to Blob storage on-demand
