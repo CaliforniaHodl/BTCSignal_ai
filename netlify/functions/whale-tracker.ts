@@ -1,6 +1,7 @@
 import type { Config, Context } from '@netlify/functions';
 import { TwitterApi } from 'twitter-api-v2';
 import { generateSingleWhaleAlert } from './lib/tweet-generator';
+import { saveToBlob } from './lib/blob-storage';
 
 // Whale alert structure
 interface WhaleAlert {
@@ -313,68 +314,9 @@ async function loadExistingData(): Promise<WhaleData | null> {
   return null;
 }
 
-// Save whale data to GitHub
-async function saveToGitHub(data: WhaleData): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'static/data/whale-alerts.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    // Get current file SHA if exists
-    let sha: string | undefined;
-    const getRes = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getRes.ok) {
-      const existingData = await getRes.json();
-      sha = existingData.sha;
-    }
-
-    // Save updated file
-    const content = JSON.stringify(data, null, 2);
-    const body: any = {
-      message: `Whale tracker update: ${data.alerts.length} alerts`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master',
-    };
-
-    if (sha) {
-      body.sha = sha;
-    }
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (res.ok) {
-      console.log(`Whale alerts saved to GitHub: ${data.alerts.length} alerts`);
-      return true;
-    } else {
-      const error = await res.json();
-      console.error('GitHub API error:', error);
-      return false;
-    }
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save whale data to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: WhaleData): Promise<boolean> {
+  return saveToBlob('whale-alerts', data);
 }
 
 // Tweet a whale alert immediately
@@ -489,7 +431,7 @@ export default async (req: Request, context: Context) => {
   };
 
   // Save to GitHub
-  const saved = await saveToGitHub(whaleData);
+  const saved = await saveToBlobStorage(whaleData);
 
   return new Response(JSON.stringify({
     success: true,

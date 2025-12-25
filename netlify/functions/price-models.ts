@@ -1,6 +1,6 @@
 // Price Models Netlify Function - Phase 6
 // Calculates Bitcoin valuation models (S2F, Thermocap, NUPL, Puell, etc.)
-// Saves to GitHub cache at data/price-models.json
+// Updated: Now uses Netlify Blob storage instead of GitHub commits
 // Scheduled to run every 4 hours
 
 import type { Config, Context } from '@netlify/functions';
@@ -17,6 +17,7 @@ import {
   BTC_CONSTANTS,
   type PriceModels,
 } from './lib/price-models';
+import { saveToBlob } from './lib/blob-storage';
 
 // Fetch BTC price from multiple sources
 async function fetchBTCPrice(): Promise<number> {
@@ -151,66 +152,13 @@ async function fetchHistoricalAvgPrice(): Promise<number> {
   return currentPrice * 0.85; // Rough approximation
 }
 
-// Save data to GitHub
-async function saveToGitHub(data: PriceModels): Promise<void> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not found, skipping save');
-    return;
-  }
-
-  try {
-    const filePath = 'data/price-models.json';
-    const url = `https://api.github.com/repos/${repo}/contents/${filePath}`;
-
-    // Get current file SHA (if exists)
-    let sha: string | undefined;
-    try {
-      const getRes = await fetch(url, {
-        headers: {
-          Authorization: `token ${token}`,
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
-      if (getRes.ok) {
-        const existing = await getRes.json();
-        sha = existing.sha;
-      }
-    } catch (e) {
-      // File doesn't exist yet
-    }
-
-    // Create or update file
-    const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
-    const body: any = {
-      message: `Update price models data - ${new Date().toISOString()}`,
-      content,
-      branch: 'main',
-    };
-
-    if (sha) {
-      body.sha = sha;
-    }
-
-    const putRes = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (putRes.ok) {
-      console.log('Successfully saved price models to GitHub');
-    } else {
-      console.error('Failed to save to GitHub:', await putRes.text());
-    }
-  } catch (error) {
-    console.error('Error saving to GitHub:', error);
+// Save data to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: PriceModels): Promise<void> {
+  const saved = await saveToBlob('price-models', data);
+  if (saved) {
+    console.log('Successfully saved price models to Blob storage');
+  } else {
+    console.error('Failed to save to Blob storage');
   }
 }
 
@@ -295,7 +243,7 @@ export default async (req: Request, context: Context) => {
     console.log(`Overall valuation: ${overallValuation.rating} (score: ${overallValuation.score})`);
 
     // Save to GitHub
-    await saveToGitHub(priceModels);
+    await saveToBlobStorage(priceModels);
 
     return new Response(JSON.stringify(priceModels, null, 2), {
       status: 200,

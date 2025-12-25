@@ -1,5 +1,6 @@
 // Exchange Flows - Phase 2: Exchange Intelligence
 // Aggregates whale tracker data into exchange flow metrics
+// Updated: Now uses Netlify Blob storage instead of GitHub commits to avoid build triggers
 import type { Config, Context } from '@netlify/functions';
 import {
   analyzeExchangeFlows,
@@ -10,6 +11,7 @@ import {
   ExchangeReserveEstimate,
 } from './lib/exchange-analyzer';
 import { WhaleAlert } from './lib/tweet-generator';
+import { saveToBlob, loadFromBlob } from './lib/blob-storage';
 
 interface ExchangeFlowsResult {
   lastUpdated: string;
@@ -54,32 +56,15 @@ async function fetchWhaleData(): Promise<WhaleAlert[]> {
   return [];
 }
 
-// Fetch previous reserves from cache
+// Fetch previous reserves from Blob storage
 async function fetchPreviousReserves(): Promise<ExchangeReserveEstimate[] | undefined> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) return undefined;
-
   try {
-    const url = `https://api.github.com/repos/${repo}/contents/data/exchange-flows.json`;
-    const res = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const content = JSON.parse(Buffer.from(data.content, 'base64').toString());
-      return content.reserves;
-    }
+    const data = await loadFromBlob<ExchangeFlowsResult>('exchange-flows');
+    return data?.reserves;
   } catch (e) {
-    // File might not exist yet
+    // Data might not exist yet
+    return undefined;
   }
-
-  return undefined;
 }
 
 // Fetch total on-chain volume from blockchain.info
@@ -97,57 +82,9 @@ async function fetchOnChainVolume(): Promise<number> {
   return 0;
 }
 
-// Save results to GitHub cache
-async function saveToGitHub(data: ExchangeFlowsResult): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'data/exchange-flows.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    let sha: string | undefined;
-    const getRes = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getRes.ok) {
-      const existing = await getRes.json();
-      sha = existing.sha;
-    }
-
-    const content = JSON.stringify(data, null, 2);
-    const body: any = {
-      message: `Update exchange flows: ${data.flows.flowSignal} (${data.flows.netflow24h >= 0 ? '+' : ''}${data.flows.netflow24h.toFixed(0)} BTC)`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master',
-    };
-
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    return res.ok;
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save results to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: ExchangeFlowsResult): Promise<boolean> {
+  return saveToBlob('exchange-flows', data);
 }
 
 export default async (req: Request, context: Context) => {
@@ -185,9 +122,9 @@ export default async (req: Request, context: Context) => {
       signals,
     };
 
-    // Save to GitHub cache
-    const saved = await saveToGitHub(result);
-    console.log(`Exchange flows saved: ${saved}`);
+    // Save to Blob storage (no build trigger!)
+    const saved = await saveToBlobStorage(result);
+    console.log(`Exchange flows saved to Blob: ${saved}`);
 
     return new Response(JSON.stringify({
       success: true,

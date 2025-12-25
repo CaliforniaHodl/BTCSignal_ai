@@ -1,5 +1,6 @@
 // Cohort Metrics - Phase 4: Cohort Analysis
 // LTH/STH supply, whale tiers, illiquid supply
+// Updated: Now uses Netlify Blob storage instead of GitHub commits
 import type { Config, Context } from '@netlify/functions';
 import {
   CohortMetrics,
@@ -9,6 +10,7 @@ import {
   estimateSupplyLiquidity,
   calculateLTHSTHRatio
 } from './lib/cohort-analyzer';
+import { saveToBlob } from './lib/blob-storage';
 
 // Fetch BTC price and market data from CoinGecko
 async function fetchBTCData(): Promise<{
@@ -157,57 +159,9 @@ function calculateHolderCohorts(
   };
 }
 
-// Save to GitHub
-async function saveToGitHub(data: CohortMetrics): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'data/cohort-metrics.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    let sha: string | undefined;
-    const getRes = await fetch(url, {
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getRes.ok) {
-      const existing = await getRes.json();
-      sha = existing.sha;
-    }
-
-    const content = JSON.stringify(data, null, 2);
-    const body: any = {
-      message: `Update cohort metrics: LTH ${data.holderCohorts.lthSupply.percentage}%, Illiquid ${data.supplyLiquidity.illiquidSupply.percentage}%`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master',
-    };
-
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    return res.ok;
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: CohortMetrics): Promise<boolean> {
+  return saveToBlob('cohort-metrics', data);
 }
 
 export default async (req: Request, context: Context) => {
@@ -285,8 +239,8 @@ export default async (req: Request, context: Context) => {
   console.log(`- Illiquid Supply: ${supplyLiquidity.illiquidSupply.percentage}%`);
   console.log(`- Whale trend: ${whaleCohorts.whale.trend}`);
 
-  // Save to GitHub
-  const saved = await saveToGitHub(metrics);
+  // Save to Blob storage (no build trigger!)
+  const saved = await saveToBlobStorage(metrics);
 
   return new Response(
     JSON.stringify({

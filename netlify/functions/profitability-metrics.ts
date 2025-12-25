@@ -1,5 +1,6 @@
 // Profitability Metrics - Phase 3: SOPR Family & Realized Price
 // Calculates SOPR, aSOPR, STH-SOPR, LTH-SOPR, and Realized Prices
+// Updated: Now uses Netlify Blob storage instead of GitHub commits
 import type { Config, Context } from '@netlify/functions';
 import {
   ProfitabilityMetrics,
@@ -11,6 +12,7 @@ import {
   calculateSTHRealizedPrice,
   calculateLTHRealizedPrice
 } from './lib/profitability-analyzer';
+import { saveToBlob } from './lib/blob-storage';
 
 interface PricePoint {
   price: number;
@@ -111,57 +113,9 @@ async function fetchMVRVFromCoinMetrics(): Promise<{ mvrv: number; realizedCap: 
   return null;
 }
 
-// Save to GitHub
-async function saveToGitHub(data: ProfitabilityMetrics): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'data/profitability-metrics.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    let sha: string | undefined;
-    const getRes = await fetch(url, {
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json'
-      }
-    });
-
-    if (getRes.ok) {
-      const existing = await getRes.json();
-      sha = existing.sha;
-    }
-
-    const content = JSON.stringify(data, null, 2);
-    const body: any = {
-      message: `Update profitability metrics: SOPR ${data.sopr.value}, STH-SOPR ${data.sthSopr.value}, LTH-SOPR ${data.lthSopr.value}`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master'
-    };
-
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/vnd.github.v3+json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    return res.ok;
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: ProfitabilityMetrics): Promise<boolean> {
+  return saveToBlob('profitability-metrics', data);
 }
 
 export default async (req: Request, context: Context) => {
@@ -231,7 +185,7 @@ export default async (req: Request, context: Context) => {
   console.log(`LTH Realized Price: $${lthRealizedPrice.toLocaleString()}`);
 
   // Save to GitHub
-  const saved = await saveToGitHub(metrics);
+  const saved = await saveToBlobStorage(metrics);
 
   return new Response(
     JSON.stringify({

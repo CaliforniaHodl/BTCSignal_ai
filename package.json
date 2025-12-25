@@ -14,6 +14,7 @@
     "sass:watch": "sass assets/src/scss:static/src/css --watch"
   },
   "dependencies": {
+    "@netlify/blobs": "^8.1.0",
     "@netlify/functions": "^2.4.0",
     "@octokit/rest": "^20.0.0",
     "@sparticuz/chromium": "^143.0.0",

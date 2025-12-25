@@ -1,6 +1,7 @@
 import { Handler, HandlerEvent, HandlerContext } from '@netlify/functions';
 import { DerivativesAdvancedAnalyzer, DerivativesAdvancedData } from './lib/derivatives-advanced';
 import axios from 'axios';
+import { saveToBlob } from './lib/blob-storage';
 
 // GitHub cache configuration
 const GITHUB_OWNER = 'jbarnes850';
@@ -66,55 +67,14 @@ async function loadPreviousData(): Promise<DerivativesAdvancedData | null> {
 }
 
 /**
- * Save data to GitHub cache
+ * Save data to Netlify Blob storage (no GitHub commits = no build triggers!)
  */
-async function saveToGitHub(data: DerivativesAdvancedData): Promise<void> {
-  if (!GITHUB_TOKEN) {
-    console.log('No GitHub token, skipping cache save');
-    return;
-  }
-
-  try {
-    // Get current file SHA if it exists
-    let sha: string | undefined;
-    try {
-      const response = await axios.get(
-        `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CACHE_FILE_PATH}`,
-        {
-          headers: {
-            Authorization: `token ${GITHUB_TOKEN}`,
-            Accept: 'application/vnd.github.v3+json'
-          }
-        }
-      );
-      sha = response.data.sha;
-    } catch (error: any) {
-      if (error.response?.status !== 404) {
-        throw error;
-      }
-    }
-
-    // Save to GitHub
-    const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
-    await axios.put(
-      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CACHE_FILE_PATH}`,
-      {
-        message: `Update derivatives-advanced data - ${new Date().toISOString()}`,
-        content,
-        sha
-      },
-      {
-        headers: {
-          Authorization: `token ${GITHUB_TOKEN}`,
-          Accept: 'application/vnd.github.v3+json'
-        }
-      }
-    );
-
-    console.log('Derivatives advanced data saved to GitHub cache');
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    throw error;
+async function saveToBlobStorage(data: DerivativesAdvancedData): Promise<void> {
+  const saved = await saveToBlob('derivatives-advanced', data);
+  if (saved) {
+    console.log('Derivatives advanced data saved to Blob storage');
+  } else {
+    throw new Error('Failed to save to Blob storage');
   }
 }
 
@@ -169,7 +129,7 @@ const handler: Handler = async (event: HandlerEvent, context: HandlerContext) =>
     console.log(`Long/Short ratio: ${data.longShortRatio.weightedRatio.toFixed(2)}`);
 
     // Save to GitHub cache
-    await saveToGitHub(data);
+    await saveToBlobStorage(data);
 
     return {
       statusCode: 200,

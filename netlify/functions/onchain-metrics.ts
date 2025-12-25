@@ -1,6 +1,8 @@
 // On-Chain Metrics - Phase 1 Sprint 1 & 1.2
 // NVT Ratio, Puell Multiple, Stock-to-Flow, SSR, Reserve Risk, MVRV, Active Addresses
+// Updated: Now uses Netlify Blob storage instead of GitHub commits
 import type { Config, Context } from '@netlify/functions';
+import { saveToBlob } from './lib/blob-storage';
 
 interface OnChainMetrics {
   lastUpdated: string;
@@ -507,58 +509,9 @@ function estimateRealizedCap(marketCap: number, price: number): number {
   return marketCap * 0.55;
 }
 
-// Save to GitHub
-async function saveToGitHub(data: OnChainMetrics): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'data/onchain-metrics.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    let sha: string | undefined;
-    const getRes = await fetch(url, {
-      headers: {
-        Authorization: `token ${token}`,
-        Accept: 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getRes.ok) {
-      const existing = await getRes.json();
-      sha = existing.sha;
-    }
-
-    const content = JSON.stringify(data, null, 2);
-    const mvrvInfo = data.mvrv ? `, MVRV ${data.mvrv.ratio}` : '';
-    const body: any = {
-      message: `Update on-chain metrics: NVT ${data.nvt.ratio}, Puell ${data.puellMultiple.value}, NUPL ${data.nupl.zone}${mvrvInfo}`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master',
-    };
-
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        Authorization: `token ${token}`,
-        'Content-Type': 'application/json',
-        Accept: 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    return res.ok;
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: OnChainMetrics): Promise<boolean> {
+  return saveToBlob('onchain-metrics', data);
 }
 
 export default async (req: Request, context: Context) => {
@@ -642,7 +595,7 @@ export default async (req: Request, context: Context) => {
   if (activeAddresses) console.log(`Active Addresses=${activeAddresses.count24h} (${activeAddresses.trend})`);
 
   // Save to GitHub
-  const saved = await saveToGitHub(metrics);
+  const saved = await saveToBlobStorage(metrics);
 
   return new Response(
     JSON.stringify({

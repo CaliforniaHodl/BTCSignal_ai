@@ -2,9 +2,11 @@
 // Phase 6 Sprint 4: Exchange Reserves, MVRV, Whale Flows
 // Updated: Now uses REAL data from personal Bitcoin node (Raspberry Pi 5 + Knots)
 // + CoinMetrics Community API for real realized cap
+// Updated: Now uses Netlify Blob storage instead of GitHub commits
 import type { Config, Context } from '@netlify/functions';
 import { fetchNodeData, formatHashrate, getMempoolCongestion } from './lib/node-data';
 import { calculateRealMVRV, fetchRealizedCap } from './lib/coinmetrics';
+import { saveToBlob } from './lib/blob-storage';
 
 interface OnChainData {
   lastUpdated: string;
@@ -154,57 +156,9 @@ async function loadExistingData(): Promise<OnChainData | null> {
   return null;
 }
 
-// Save on-chain data to GitHub
-async function saveToGitHub(data: OnChainData): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'data/onchain-data.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    let sha: string | undefined;
-    const getRes = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getRes.ok) {
-      const existing = await getRes.json();
-      sha = existing.sha;
-    }
-
-    const content = JSON.stringify(data, null, 2);
-    const body: any = {
-      message: `Update on-chain data: MVRV ${data.mvrv.ratio.toFixed(2)}, Reserves ${(data.exchangeReserves.totalBTC / 1000000).toFixed(2)}M BTC`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master',
-    };
-
-    if (sha) body.sha = sha;
-
-    const res = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    return res.ok;
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(data: OnChainData): Promise<boolean> {
+  return saveToBlob('onchain-data', data);
 }
 
 export default async (req: Request, context: Context) => {
@@ -288,7 +242,7 @@ export default async (req: Request, context: Context) => {
   };
 
   // Save to GitHub
-  const saved = await saveToGitHub(onChainData);
+  const saved = await saveToBlobStorage(onChainData);
 
   return new Response(JSON.stringify({
     success: true,

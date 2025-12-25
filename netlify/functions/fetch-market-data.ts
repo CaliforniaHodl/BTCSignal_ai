@@ -1,4 +1,5 @@
 import type { Config, Context } from '@netlify/functions';
+import { saveToBlob } from './lib/blob-storage';
 
 // Track which data sources succeeded/failed
 interface DataSources {
@@ -169,68 +170,9 @@ async function fetchWithTimeout(url: string, timeout = 10000): Promise<Response>
   }
 }
 
-// Save snapshot to GitHub
-async function saveToGitHub(snapshot: MarketSnapshot): Promise<boolean> {
-  const token = process.env.GITHUB_TOKEN;
-  const repo = process.env.GITHUB_REPO;
-
-  if (!token || !repo) {
-    console.log('GitHub credentials not set, skipping save');
-    return false;
-  }
-
-  const path = 'static/data/market-snapshot.json';
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-  try {
-    // Get current file SHA if it exists
-    let sha: string | undefined;
-    const getResponse = await fetch(url, {
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github.v3+json',
-      },
-    });
-
-    if (getResponse.ok) {
-      const existingData = await getResponse.json();
-      sha = existingData.sha;
-    }
-
-    // Save updated file
-    const content = JSON.stringify(snapshot, null, 2);
-    const body: any = {
-      message: `Update market snapshot: ${snapshot.timestamp}`,
-      content: Buffer.from(content).toString('base64'),
-      branch: 'master',
-    };
-
-    if (sha) {
-      body.sha = sha;
-    }
-
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Content-Type': 'application/json',
-        'Accept': 'application/vnd.github.v3+json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (response.ok) {
-      console.log(`Market snapshot saved to GitHub: ${path}`);
-      return true;
-    } else {
-      const error = await response.json();
-      console.error('GitHub API error:', error);
-      return false;
-    }
-  } catch (error: any) {
-    console.error('Failed to save to GitHub:', error.message);
-    return false;
-  }
+// Save snapshot to Netlify Blob storage (no GitHub commits = no build triggers!)
+async function saveToBlobStorage(snapshot: MarketSnapshot): Promise<boolean> {
+  return saveToBlob('market-snapshot', snapshot);
 }
 
 export default async (req: Request, context: Context) => {
@@ -720,7 +662,7 @@ export default async (req: Request, context: Context) => {
     }
 
     // Save to GitHub (triggers rebuild)
-    const saved = await saveToGitHub(snapshot);
+    const saved = await saveToBlobStorage(snapshot);
 
     return new Response(JSON.stringify({
       success: true,
