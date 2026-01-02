@@ -63,23 +63,27 @@ ${blockHeight ? `⛏️ Block: ${blockHeight.toLocaleString()}` : ''}
 
 #BTC #Crypto`;
 
-  // Tweet 2: Technical indicators
-  const rsi = indicators.rsi[indicators.rsi.length - 1];
-  const macd = indicators.macd;
-  const macdValue = macd.macdLine[macd.macdLine.length - 1];
-  const macdSignal = macd.signalLine[macd.signalLine.length - 1];
+  // Tweet 2: Technical indicators (with defensive checks)
+  const rsiArray = Array.isArray(indicators?.rsi) ? indicators.rsi : [];
+  const rsi = rsiArray.length > 0 ? rsiArray[rsiArray.length - 1] : 50;
+  const macd = indicators?.macd || { MACD: 0, signal: 0, histogram: 0 };
+  const macdLine = Array.isArray((macd as any).macdLine) ? (macd as any).macdLine : [];
+  const signalLine = Array.isArray((macd as any).signalLine) ? (macd as any).signalLine : [];
+  const macdValue = macdLine.length > 0 ? macdLine[macdLine.length - 1] : (macd as any).MACD || 0;
+  const macdSignal = signalLine.length > 0 ? signalLine[signalLine.length - 1] : (macd as any).signal || 0;
   const macdHistogram = macdValue - macdSignal;
 
   const rsiStatus = rsi > 70 ? 'Overbought ⚠️' : rsi < 30 ? 'Oversold ⚠️' : 'Neutral ✅';
   const macdStatus = macdHistogram > 0 ? 'Bullish ✅' : 'Bearish ❌';
 
+  const safePatterns = Array.isArray(patterns) ? patterns : [];
   const tweet2 = `📊 Technical Analysis
 
 RSI(14): ${rsi.toFixed(1)} - ${rsiStatus}
 MACD: ${macdStatus}
 24h Range: ${formatPrice(low24h)} - ${formatPrice(high24h)}
 
-${patterns.length > 0 ? `📐 Patterns: ${patterns.slice(0, 2).map(p => p.name).join(', ')}` : ''}
+${safePatterns.length > 0 ? `📐 Patterns: ${safePatterns.slice(0, 2).map(p => p.name).join(', ')}` : ''}
 
 🔗 Full analysis: btctradingsignalai.netlify.app`;
 
