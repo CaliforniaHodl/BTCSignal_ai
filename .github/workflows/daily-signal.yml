@@ -1,0 +1,27 @@
+name: Daily Trading Signal
+
+on:
+  schedule:
+    # 9am PST = 5pm UTC (17:00)
+    - cron: '0 17 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  trigger-signal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger daily-signal function
+        run: |
+          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/daily-signal")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Function failed with HTTP $http_code"
+            exit 1
+          fi
+
+          echo "Successfully triggered daily signal!"
