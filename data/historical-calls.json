@@ -126,8 +126,8 @@
     "entryPrice": 89999,
     "targetPrice": 88586.98826815424,
     "stopLoss": 90705.00586592288,
-    "actualResult": "pending",
-    "pnlPercent": null
+    "actualResult": "win",
+    "pnlPercent": 1.568919356710367
   },
   {
     "date": "2025-12-13T17:00:13.157Z",
@@ -146,7 +146,7 @@
     "entryPrice": 88865.96,
     "targetPrice": 88118.18127118373,
     "stopLoss": 89239.84936440815,
-    "actualResult": "pending",
-    "pnlPercent": null
+    "actualResult": "loss",
+    "pnlPercent": -0.42073406331078844
   }
 ]
