@@ -18,3 +18,7 @@
 [functions."fetch-market-data"]
   schedule = "0 1,5,9,13,17,21 * * *"
 
+# BTCTradingBot tweets - daily at 9am PST (5pm UTC)
+[functions."btctradingbot-tweets"]
+  schedule = "0 17 * * *"
+
