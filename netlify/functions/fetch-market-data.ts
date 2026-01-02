@@ -396,10 +396,8 @@ export default async (req: Request, context: Context) => {
       const data = await fundingRes.value.json();
       if (data && data.data && data.data[0]) {
         const rate = parseFloat(data.data[0].fundingRate);
-        snapshot.funding = {
-          rate: rate,
-          ratePercent: rate * 100,
-        };
+        snapshot.funding.rate = rate;
+        snapshot.funding.ratePercent = rate * 100;
         dataSources.funding.push('okx');
       }
     }
@@ -410,10 +408,8 @@ export default async (req: Request, context: Context) => {
       const data = await oiRes.value.json();
       if (data && data.data && data.data[0]) {
         const oiBtc = parseFloat(data.data[0].oiCcy || data.data[0].oi);
-        snapshot.openInterest = {
-          btc: oiBtc,
-          usd: oiBtc * snapshot.btc.price,
-        };
+        snapshot.openInterest.btc = oiBtc;
+        snapshot.openInterest.usd = oiBtc * snapshot.btc.price;
         dataSources.openInterest.push('okx');
       }
     }
