@@ -713,4 +713,7 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Note: Schedule removed - data now saved to Blob storage on-demand
+// Scheduled function - runs hourly
+export const config = {
+  schedule: '@hourly',
+};
