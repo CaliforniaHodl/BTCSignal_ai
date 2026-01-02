@@ -434,10 +434,15 @@ export class HistoricalTracker {
    * Get calls from last 30 days
    */
   async getLast30DaysCalls(): Promise<HistoricalCall[]> {
-    const calls = await this.getHistoricalCalls();
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    return calls.filter(c => new Date(c.date) >= thirtyDaysAgo);
+    try {
+      const calls = await this.getHistoricalCalls();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return calls.filter(c => new Date(c.date) >= thirtyDaysAgo);
+    } catch (error: any) {
+      console.error('Error getting last 30 days calls:', error.message);
+      return [];
+    }
   }
 
   /**

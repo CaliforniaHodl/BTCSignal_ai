@@ -26,7 +26,7 @@ export interface WhaleAlert {
 // Generate tweets for @BTCTradingBotAI (trading signals)
 export function generateTradingBotTweets(
   analysis: AnalysisResult,
-  historicalCalls: HistoricalCall[],
+  historicalCalls: HistoricalCall[] | undefined,
   onChainData?: OnChainMetrics,
   exchangeFlowData?: ExchangeFlowData,
   profitabilityData?: ProfitabilityMetrics
@@ -46,8 +46,9 @@ export function generateTradingBotTweets(
   const confidenceEmoji = prediction.confidence >= 0.7 ? '🔥' : prediction.confidence >= 0.5 ? '📊' : '⚠️';
   const confidenceText = prediction.confidence >= 0.7 ? 'High' : prediction.confidence >= 0.5 ? 'Medium' : 'Low';
 
-  // Calculate historical accuracy
-  const completedCalls = historicalCalls.filter(c => c.actualResult !== 'pending');
+  // Calculate historical accuracy (handle undefined/empty historicalCalls)
+  const safeHistoricalCalls = historicalCalls || [];
+  const completedCalls = safeHistoricalCalls.filter(c => c.actualResult !== 'pending');
   const wins = completedCalls.filter(c => c.actualResult === 'win').length;
   const winRate = completedCalls.length > 0 ? ((wins / completedCalls.length) * 100).toFixed(1) : 'N/A';
 
