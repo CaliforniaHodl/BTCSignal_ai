@@ -25,15 +25,15 @@
     let lastPriceData = null;
     let nextSubscriberId = 0;
 
-    // Configuration
+    // Configuration - use Binance US which is less likely to block
     const config = {
-      wsUrl: 'wss://stream.binance.com:9443/ws/btcusdt@ticker',
-      maxReconnectAttempts: 10,
+      wsUrl: 'wss://stream.binance.us:9443/ws/btcusdt@ticker',
+      maxReconnectAttempts: 3, // Faster fallback to REST
       baseReconnectDelay: 1000, // Start with 1 second
-      maxReconnectDelay: 30000, // Max 30 seconds
+      maxReconnectDelay: 5000, // Max 5 seconds
       heartbeatInterval: 30000, // 30 seconds
       restFallbackInterval: 5000, // Poll every 5 seconds when WS fails
-      restApiUrl: 'https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT'
+      restApiUrl: 'https://api.binance.us/api/v3/ticker/24hr?symbol=BTCUSDT'
     };
 
     // Calculate exponential backoff delay
