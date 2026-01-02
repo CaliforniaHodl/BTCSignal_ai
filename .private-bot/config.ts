@@ -27,6 +27,15 @@ export const config = {
 
     // Cooldown between trades (prevent overtrading)
     tradeCooldownMs: 4 * 60 * 60 * 1000, // 4 hours
+
+    // NEW: Skip trades when temporal analysis says SPECULATION (confidence < 50%)
+    skipSpeculation: process.env.SKIP_SPECULATION !== 'false', // Default: true
+
+    // NEW: Require pattern confirmation for trades
+    requirePatternConfirmation: process.env.REQUIRE_PATTERN === 'true', // Default: false
+
+    // NEW: Minimum pattern confidence to act on (0.5 to 1.0)
+    minPatternConfidence: parseFloat(process.env.MIN_PATTERN_CONFIDENCE || '0.60'),
   },
 
   // Safety settings
@@ -42,6 +51,12 @@ export const config = {
 
     // Require manual confirmation for trades over this USD
     manualConfirmAboveUsd: 50,
+
+    // NEW: Reduce position size when temporal signals conflict
+    reduceOnConflict: process.env.REDUCE_ON_CONFLICT !== 'false', // Default: true
+
+    // NEW: Position size multiplier when signals conflict (0.25 to 1.0)
+    conflictPositionMultiplier: parseFloat(process.env.CONFLICT_POSITION_MULT || '0.5'),
   },
 
   // Telegram notifications (optional)
@@ -49,6 +64,21 @@ export const config = {
     enabled: !!(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID),
     botToken: process.env.TELEGRAM_BOT_TOKEN || '',
     chatId: process.env.TELEGRAM_CHAT_ID || '',
+  },
+
+  // NEW: Intelligence stack settings
+  intelligence: {
+    // Use cached hourly trend data (requires fetch-market-data running)
+    useHourlyTrends: process.env.USE_HOURLY_TRENDS !== 'false', // Default: true
+
+    // Track signal outcomes for historical learning
+    enableHistoricalLearning: process.env.ENABLE_LEARNING !== 'false', // Default: true
+
+    // Maximum age of hourly trend data to use (minutes)
+    maxTrendDataAge: parseInt(process.env.MAX_TREND_AGE || '120', 10), // 2 hours
+
+    // Log signals to Netlify Blob for learning
+    logToBlob: process.env.LOG_TO_BLOB !== 'false', // Default: true
   },
 };
 

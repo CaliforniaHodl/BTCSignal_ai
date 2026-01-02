@@ -10,6 +10,12 @@ import { TechnicalAnalyzer } from '../netlify/functions/lib/technical-analysis.j
 import { PredictionEngine, Prediction } from '../netlify/functions/lib/prediction-engine.js';
 import { DerivativesAnalyzer } from '../netlify/functions/lib/derivatives-analyzer.js';
 
+// NEW: Import intelligence stack
+import { MarketDataCache } from '../netlify/functions/lib/market-data-cache.js';
+import { PatternRecognizer, PatternMatch } from '../netlify/functions/lib/pattern-recognizer.js';
+import { HistoricalLearner } from '../netlify/functions/lib/historical-learner.js';
+import { TemporalAnalyzer } from '../netlify/functions/lib/temporal-analysis.js';
+
 interface TradeLog {
   timestamp: string;
   action: 'BUY' | 'SELL' | 'SKIP';
@@ -19,6 +25,16 @@ interface TradeLog {
     confidence: number;
     targetPrice: number | null;
     stopLoss: number | null;
+    // Extended targets
+    target24h?: number;
+    target48h?: number;
+    target72h?: number;
+    // Temporal synthesis
+    temporalAdvice?: string;
+    isSpeculation?: boolean;
+    // Patterns
+    dominantPattern?: string;
+    patternBias?: string;
   };
   trade?: {
     orderId: string;
@@ -30,6 +46,8 @@ interface TradeLog {
     usd: number;
     btc: number;
   };
+  // Historical learning reference
+  signalId?: string;
 }
 
 interface BotState {
@@ -52,6 +70,12 @@ export class TradingBot {
   private predictionEngine: PredictionEngine;
   private derivativesAnalyzer: DerivativesAnalyzer;
 
+  // NEW: Intelligence stack
+  private marketDataCache: MarketDataCache;
+  private patternRecognizer: PatternRecognizer;
+  private historicalLearner: HistoricalLearner;
+  private temporalAnalyzer: TemporalAnalyzer;
+
   private state: BotState;
   private stateFile: string;
   private logFile: string;
@@ -62,6 +86,12 @@ export class TradingBot {
     this.technicalAnalyzer = new TechnicalAnalyzer();
     this.predictionEngine = new PredictionEngine();
     this.derivativesAnalyzer = new DerivativesAnalyzer();
+
+    // NEW: Initialize intelligence stack
+    this.marketDataCache = new MarketDataCache();
+    this.patternRecognizer = new PatternRecognizer();
+    this.historicalLearner = new HistoricalLearner();
+    this.temporalAnalyzer = new TemporalAnalyzer();
 
     // State and log files in the private bot directory
     const botDir = path.dirname(new URL(import.meta.url).pathname);
@@ -114,9 +144,9 @@ export class TradingBot {
   }
 
   /**
-   * Get current signal from the analysis engine
+   * Get current signal from the analysis engine with full intelligence stack
    */
-  async getSignal(): Promise<Prediction> {
+  async getSignal(): Promise<{ prediction: Prediction; signalId?: string }> {
     console.log('Fetching market data...');
     const marketData = await this.dataProvider.fetchData('BTC-USD', '1h', 100);
 
@@ -137,15 +167,75 @@ export class TradingBot {
       console.log('Could not fetch derivatives data, continuing without it');
     }
 
-    console.log('Generating prediction...');
+    // NEW: Load cached hourly trend data (from 24x daily fetches)
+    console.log('Loading cached hourly trends...');
+    let hourlyTrendData = null;
+    try {
+      hourlyTrendData = await this.marketDataCache.getHourlyTrendFactors();
+      if (hourlyTrendData) {
+        console.log(`  Hourly data age: ${hourlyTrendData.dataAge.toFixed(0)} minutes`);
+        console.log(`  Funding trend: ${hourlyTrendData.fundingTrend}`);
+        console.log(`  OI trend: ${hourlyTrendData.oiTrend}`);
+      }
+    } catch (e) {
+      console.log('Could not load cached hourly data, continuing without it');
+    }
+
+    // NEW: Check outcomes of past signals
+    try {
+      const updated = await this.historicalLearner.checkOutcomes(currentPrice);
+      if (updated > 0) {
+        console.log(`Updated ${updated} historical signal outcomes`);
+      }
+    } catch (e) {
+      console.log('Could not check historical outcomes');
+    }
+
+    console.log('Generating prediction with full intelligence...');
     const prediction = this.predictionEngine.predict(
       marketData.data,
       indicators,
       patterns,
-      derivativesData || undefined
+      derivativesData || undefined,
+      undefined, // onChainData
+      undefined, // exchangeFlowData
+      undefined, // profitabilityData
+      undefined, // cohortData
+      undefined, // derivativesAdvancedData
+      undefined, // priceModelsData
+      hourlyTrendData || undefined
     );
 
-    return prediction;
+    // NEW: Log signal to historical learner for future accuracy tracking
+    let signalId: string | undefined;
+    try {
+      const patternMatches: PatternMatch[] = prediction.patternFactors?.patterns.map(p => ({
+        pattern: p.name,
+        bias: p.bias,
+        confidence: p.confidence,
+        timeframe: p.timeframe as '24h' | '48h' | '72h',
+        description: p.reasoning,
+        reasoning: p.reasoning,
+        historicalAccuracy: p.historicalAccuracy,
+      })) || [];
+
+      signalId = await this.historicalLearner.logSignal(
+        currentPrice,
+        prediction.direction,
+        prediction.confidence,
+        patternMatches,
+        {
+          h24: prediction.targets?.h24.price,
+          h48: prediction.targets?.h48.price,
+          h72: prediction.targets?.h72.price,
+        }
+      );
+      console.log(`Logged signal ${signalId} for historical tracking`);
+    } catch (e) {
+      console.log('Could not log signal to historical learner');
+    }
+
+    return { prediction, signalId };
   }
 
   /**
@@ -185,10 +275,15 @@ export class TradingBot {
   }
 
   /**
-   * Execute a trade based on signal
+   * Execute a trade based on signal with temporal synthesis
    */
-  async executeTrade(signal: Prediction): Promise<void> {
+  async executeTrade(signal: Prediction, signalId?: string): Promise<void> {
     const { canTrade, reason } = this.canTrade();
+
+    // NEW: Check temporal synthesis for speculation warning
+    const isSpeculation = signal.temporalSynthesis?.isSpeculation || false;
+    const temporalAdvice = signal.temporalSynthesis?.actionableAdvice || '';
+    const hasConflict = signal.temporalSynthesis?.hasConflict || false;
 
     // Check if we have an open position
     if (this.state.openPosition) {
@@ -196,10 +291,18 @@ export class TradingBot {
       console.log(`BTC: ${this.state.openPosition.btcAmount.toFixed(8)}`);
       console.log(`Entry: $${this.state.openPosition.entryPrice.toFixed(2)}`);
 
-      // Check if signal suggests closing
-      if (signal.direction === 'down' && signal.confidence >= config.trading.minConfidence) {
-        await this.closePosition('Signal turned bearish');
+      // Check if signal suggests closing (use temporal synthesis)
+      const shouldClose = (signal.direction === 'down' && signal.confidence >= config.trading.minConfidence) ||
+                          (temporalAdvice.includes('SHORT') || temporalAdvice.includes('HEDGE'));
+      if (shouldClose) {
+        await this.closePosition(temporalAdvice || 'Signal turned bearish');
         return;
+      }
+
+      // Show temporal warnings if holding
+      if (signal.temporalSynthesis?.warnings.length) {
+        console.log('\nWarnings:');
+        signal.temporalSynthesis.warnings.forEach(w => console.log(`  ${w}`));
       }
 
       console.log('Holding position...');
@@ -217,7 +320,35 @@ export class TradingBot {
           confidence: signal.confidence,
           targetPrice: signal.targetPrice,
           stopLoss: signal.stopLoss,
+          target24h: signal.targets?.h24.price,
+          target48h: signal.targets?.h48.price,
+          target72h: signal.targets?.h72.price,
+          temporalAdvice,
+          isSpeculation,
+          dominantPattern: signal.patternFactors?.dominantPattern,
+          patternBias: signal.patternFactors?.patternBias,
         },
+        signalId,
+      });
+      return;
+    }
+
+    // NEW: Skip if temporal analysis says it's speculation
+    if (isSpeculation && config.trading.skipSpeculation) {
+      console.log(`\nSkipping: Temporal analysis indicates SPECULATION (confidence < 50%)`);
+      this.logTrade({
+        timestamp: new Date().toISOString(),
+        action: 'SKIP',
+        reason: 'Temporal analysis: SPECULATION',
+        signal: {
+          direction: signal.direction,
+          confidence: signal.confidence,
+          targetPrice: signal.targetPrice,
+          stopLoss: signal.stopLoss,
+          temporalAdvice,
+          isSpeculation: true,
+        },
+        signalId,
       });
       return;
     }
@@ -234,7 +365,10 @@ export class TradingBot {
           confidence: signal.confidence,
           targetPrice: signal.targetPrice,
           stopLoss: signal.stopLoss,
+          temporalAdvice,
+          isSpeculation,
         },
+        signalId,
       });
       return;
     }
@@ -250,7 +384,10 @@ export class TradingBot {
           confidence: signal.confidence,
           targetPrice: signal.targetPrice,
           stopLoss: signal.stopLoss,
+          temporalAdvice,
+          isSpeculation,
         },
+        signalId,
       });
       return;
     }
@@ -267,7 +404,10 @@ export class TradingBot {
           confidence: signal.confidence,
           targetPrice: signal.targetPrice,
           stopLoss: signal.stopLoss,
+          temporalAdvice,
+          isSpeculation,
         },
+        signalId,
       });
       return;
     }
@@ -282,6 +422,32 @@ export class TradingBot {
     console.log(`Target: $${signal.targetPrice?.toFixed(2) || 'N/A'}`);
     console.log(`Stop Loss: $${signal.stopLoss?.toFixed(2) || 'N/A'}`);
     console.log(`USD Balance: $${usdBalance.toFixed(2)}`);
+
+    // NEW: Show extended targets
+    if (signal.targets) {
+      console.log('\n--- EXTENDED TARGETS ---');
+      console.log(`24h: $${signal.targets.h24.price.toFixed(0)} (${(signal.targets.h24.confidence * 100).toFixed(0)}%)`);
+      console.log(`48h: $${signal.targets.h48.price.toFixed(0)} (${(signal.targets.h48.confidence * 100).toFixed(0)}%)`);
+      console.log(`72h: $${signal.targets.h72.price.toFixed(0)} (${(signal.targets.h72.confidence * 100).toFixed(0)}%)`);
+    }
+
+    // NEW: Show pattern info
+    if (signal.patternFactors && signal.patternFactors.patterns.length > 0) {
+      console.log('\n--- PATTERNS DETECTED ---');
+      signal.patternFactors.patterns.slice(0, 3).forEach(p => {
+        console.log(`  ${p.bias === 'bullish' ? '🟢' : p.bias === 'bearish' ? '🔴' : '⚪'} ${p.name} (${(p.confidence * 100).toFixed(0)}%)`);
+      });
+    }
+
+    // NEW: Show temporal synthesis
+    if (signal.temporalSynthesis) {
+      console.log('\n--- TEMPORAL SYNTHESIS ---');
+      console.log(`Past: ${signal.temporalSynthesis.pastBias} | Present: ${signal.temporalSynthesis.presentBias} | Future: ${signal.temporalSynthesis.futureBias}`);
+      console.log(`Advice: ${signal.temporalSynthesis.actionableAdvice}`);
+      if (signal.temporalSynthesis.warnings.length > 0) {
+        signal.temporalSynthesis.warnings.forEach(w => console.log(`  ${w}`));
+      }
+    }
 
     // Calculate position size
     const tradeAmount = Math.min(config.trading.maxPositionUsd, usdBalance);
@@ -477,17 +643,50 @@ export class TradingBot {
     console.log('========================================\n');
 
     try {
-      const signal = await this.getSignal();
+      const { prediction: signal, signalId } = await this.getSignal();
 
       console.log('\n--- SIGNAL ---');
       console.log(`Direction: ${signal.direction.toUpperCase()}`);
       console.log(`Confidence: ${(signal.confidence * 100).toFixed(1)}%`);
       console.log(`Target: $${signal.targetPrice?.toFixed(2) || 'N/A'}`);
       console.log(`Stop Loss: $${signal.stopLoss?.toFixed(2) || 'N/A'}`);
-      console.log('\nReasoning:');
-      signal.reasoning.forEach(r => console.log(`  ${r}`));
 
-      await this.executeTrade(signal);
+      // NEW: Show temporal synthesis summary
+      if (signal.temporalSynthesis) {
+        const ts = signal.temporalSynthesis;
+        console.log(`\nTemporal: Past=${ts.pastBias} | Present=${ts.presentBias} | Future=${ts.futureBias}`);
+        if (ts.isSpeculation) {
+          console.log('⚠️  SPECULATION: Confidence below 50% - treat with caution');
+        }
+        if (ts.hasConflict) {
+          console.log(`⚠️  Conflict detected: ${ts.conflictType}`);
+        }
+      }
+
+      // NEW: Show pattern summary
+      if (signal.patternFactors && signal.patternFactors.patterns.length > 0) {
+        console.log(`\nDominant Pattern: ${signal.patternFactors.dominantPattern}`);
+        console.log(`Pattern Bias: ${signal.patternFactors.patternBias} (${(signal.patternFactors.patternConfidence * 100).toFixed(0)}%)`);
+      }
+
+      console.log('\nReasoning:');
+      signal.reasoning.slice(0, 10).forEach(r => console.log(`  ${r}`));
+
+      await this.executeTrade(signal, signalId);
+
+      // NEW: Show historical learning stats
+      try {
+        const stats = this.historicalLearner.getStats();
+        if (stats.totalSignals > 0) {
+          console.log('\n--- HISTORICAL PERFORMANCE ---');
+          console.log(`Total Signals: ${stats.totalSignals}`);
+          console.log(`24h Accuracy: ${(stats.accuracy24h * 100).toFixed(0)}%`);
+          console.log(`72h Accuracy: ${(stats.accuracy72h * 100).toFixed(0)}%`);
+          console.log(`Current Streak: ${stats.currentStreak}`);
+        }
+      } catch (e) {
+        // Ignore stats errors
+      }
     } catch (error: any) {
       console.error('\nError:', error.message);
     }
