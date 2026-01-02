@@ -7,6 +7,7 @@ import { ExchangeFlowData, generateExchangeFlowSignals } from './exchange-analyz
 import { ProfitabilityMetrics, analyzeProfitabilityMetrics, calculateProfitabilityScore } from './profitability-analyzer';
 import { CohortMetrics, analyzeCohortMetrics, calculateCohortScore } from './cohort-analyzer';
 import { PriceModels, generatePriceModelSignals } from './price-models';
+import { HourlyTrendFactors } from './market-data-cache';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -77,11 +78,23 @@ export interface Prediction {
     thermocapMultiple?: number;
     puellMultiple?: number;
   };
+  // Hourly trend factors from cached market data (24x daily updates)
+  hourlyTrendFactors?: {
+    fundingVelocity6h: number;
+    fundingVelocity24h: number;
+    fundingTrend: 'rising' | 'falling' | 'stable';
+    oiMomentum24h: number;
+    oiTrend: 'rising' | 'falling' | 'stable';
+    priceOIDivergence: 'bullish' | 'bearish' | 'none';
+    multiTimeframeBias: string;
+    multiTimeframeConfidence: number;
+    dataAge: number;
+  };
 }
 
 export class PredictionEngine {
   /**
-   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, profitability, cohort, advanced derivatives, and price models
+   * Predict next market move based on indicators, patterns, derivatives, on-chain, exchange flows, profitability, cohort, advanced derivatives, price models, and hourly trends
    */
   predict(
     data: OHLCV[],
@@ -93,7 +106,8 @@ export class PredictionEngine {
     profitabilityData?: ProfitabilityMetrics,
     cohortData?: CohortMetrics,
     derivativesAdvancedData?: DerivativesAdvancedData,
-    priceModelsData?: PriceModels
+    priceModelsData?: PriceModels,
+    hourlyTrendData?: HourlyTrendFactors
   ): Prediction {
     const currentPrice = data[data.length - 1].close;
     const signals: Array<{ signal: 'bullish' | 'bearish' | 'neutral'; weight: number; reason: string }> = [];
@@ -607,6 +621,40 @@ export class PredictionEngine {
       }
     }
 
+    // ===== HOURLY TREND ANALYSIS (from cached market data) =====
+    let hourlyTrendFactors: Prediction['hourlyTrendFactors'] = undefined;
+
+    if (hourlyTrendData && hourlyTrendData.dataAge < 120) { // Only use if data is less than 2 hours old
+      hourlyTrendFactors = {
+        fundingVelocity6h: hourlyTrendData.fundingVelocity6h,
+        fundingVelocity24h: hourlyTrendData.fundingVelocity24h,
+        fundingTrend: hourlyTrendData.fundingTrend,
+        oiMomentum24h: hourlyTrendData.oiMomentum24h,
+        oiTrend: hourlyTrendData.oiTrend,
+        priceOIDivergence: hourlyTrendData.priceOIDivergence.type,
+        multiTimeframeBias: hourlyTrendData.multiTimeframeBias,
+        multiTimeframeConfidence: hourlyTrendData.multiTimeframeConfidence,
+        dataAge: hourlyTrendData.dataAge
+      };
+
+      // Add all hourly trend signals to main signals array
+      // These signals carry high weight as they represent 24h of data analysis
+      hourlyTrendData.signals.forEach(s => {
+        signals.push({
+          signal: s.signal,
+          weight: s.weight * 0.9, // Hourly trends are highly valuable
+          reason: `[24h] ${s.reason}`
+        });
+      });
+
+      // Add data freshness indicator to reasoning
+      if (hourlyTrendData.dataAge < 60) {
+        console.log(`Hourly trend data is fresh (${hourlyTrendData.dataAge.toFixed(0)} min old)`);
+      }
+    } else if (hourlyTrendData) {
+      console.log(`Hourly trend data is stale (${hourlyTrendData.dataAge.toFixed(0)} min old), skipping`);
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -691,6 +739,7 @@ export class PredictionEngine {
       cohortFactors,
       derivativesAdvancedFactors,
       priceModelFactors,
+      hourlyTrendFactors,
     };
   }
 }

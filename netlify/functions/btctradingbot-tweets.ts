@@ -13,6 +13,7 @@ import { OnChainMetrics } from './lib/onchain-analyzer';
 import { ExchangeFlowData } from './lib/exchange-analyzer';
 import { ProfitabilityMetrics } from './lib/profitability-analyzer';
 import { CohortMetrics } from './lib/cohort-analyzer';
+import { MarketDataCache } from './lib/market-data-cache';
 
 const SYMBOL = 'BTC-USD';
 const TIMEFRAME = '1h';
@@ -392,7 +393,23 @@ export default async (req: Request, context: Context) => {
       console.error('Cohort fetch error:', e.message);
     }
 
-    // Generate prediction (now includes all on-chain, flow, profitability, and cohort data)
+    // Load hourly trend data from cache (24x daily updates)
+    console.log('Loading hourly trend data from cache...');
+    const marketCache = new MarketDataCache();
+    let hourlyTrendData = null;
+    try {
+      hourlyTrendData = await marketCache.getHourlyTrendFactors();
+      if (hourlyTrendData) {
+        console.log(`Hourly trend data loaded (${hourlyTrendData.dataAge.toFixed(0)} min old)`);
+        console.log(`  Funding velocity 6h: ${hourlyTrendData.fundingVelocity6h.toFixed(4)}%/h`);
+        console.log(`  OI change 24h: ${hourlyTrendData.oiChange24h.toFixed(2)}%`);
+        console.log(`  Multi-TF bias: ${hourlyTrendData.multiTimeframeBias}`);
+      }
+    } catch (e: any) {
+      console.error('Hourly trend cache error:', e.message);
+    }
+
+    // Generate prediction (now includes all on-chain, flow, profitability, cohort, and hourly trend data)
     const prediction = predictionEngine.predict(
       marketData.data,
       indicators,
@@ -401,7 +418,10 @@ export default async (req: Request, context: Context) => {
       onChainData || undefined,
       exchangeFlowData || undefined,
       profitabilityData || undefined,
-      cohortData || undefined
+      cohortData || undefined,
+      undefined, // derivativesAdvancedData
+      undefined, // priceModelsData
+      hourlyTrendData || undefined
     );
 
     // Fetch block height
@@ -498,6 +518,12 @@ export default async (req: Request, context: Context) => {
         profitabilityScore: prediction.profitabilityFactors?.score || 0,
         cohortBias: prediction.cohortFactors?.bias || 'unavailable',
         cohortScore: prediction.cohortFactors?.score || 0,
+        // Hourly trend data from 24x daily cache
+        hourlyTrendBias: prediction.hourlyTrendFactors?.multiTimeframeBias || 'unavailable',
+        hourlyTrendConfidence: prediction.hourlyTrendFactors?.multiTimeframeConfidence || 0,
+        fundingVelocity6h: prediction.hourlyTrendFactors?.fundingVelocity6h || 0,
+        oiMomentum24h: prediction.hourlyTrendFactors?.oiMomentum24h || 0,
+        hourlyDataAge: prediction.hourlyTrendFactors?.dataAge || -1,
       },
     }), {
       status: 200,
@@ -516,4 +542,4 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Note: Schedule removed - run on-demand only
+// Schedule: Daily at 9am PST (5pm UTC) - uses hourly cached market data for 24h trend analysis
