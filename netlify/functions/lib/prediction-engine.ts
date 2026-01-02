@@ -722,12 +722,12 @@ export class PredictionEngine {
       } : undefined,
     };
 
-    const patterns = patternRecognizer.recognizePatterns(marketContext);
+    const recognizedPatterns = patternRecognizer.recognizePatterns(marketContext);
     const patternBias = patternRecognizer.getAggregateBias(marketContext);
 
-    if (patterns.length > 0) {
+    if (recognizedPatterns.length > 0) {
       patternFactors = {
-        patterns: patterns.map(p => ({
+        patterns: recognizedPatterns.map(p => ({
           name: p.pattern,
           bias: p.bias,
           confidence: p.confidence,
@@ -735,13 +735,13 @@ export class PredictionEngine {
           reasoning: p.reasoning,
           historicalAccuracy: p.historicalAccuracy,
         })),
-        dominantPattern: patterns[0].pattern,
+        dominantPattern: recognizedPatterns[0].pattern,
         patternBias: patternBias.bias,
         patternConfidence: patternBias.confidence,
       };
 
       // Add pattern signals to main signals (high weight - patterns are powerful)
-      patterns.forEach(p => {
+      recognizedPatterns.forEach(p => {
         if (p.bias !== 'neutral') {
           signals.push({
             signal: p.bias,
@@ -760,7 +760,7 @@ export class PredictionEngine {
         });
       });
 
-      console.log(`Pattern recognized: ${patterns[0].pattern} (${patternBias.bias}, ${(patternBias.confidence * 100).toFixed(0)}% conf)`);
+      console.log(`Pattern recognized: ${recognizedPatterns[0].pattern} (${patternBias.bias}, ${(patternBias.confidence * 100).toFixed(0)}% conf)`);
     }
 
     // Calculate weighted score
@@ -865,8 +865,8 @@ export class PredictionEngine {
       };
 
       // Adjust 72h target based on dominant pattern
-      if (patternFactors && patterns.length > 0) {
-        const dominantPattern = patterns[0];
+      if (patternFactors && recognizedPatterns.length > 0) {
+        const dominantPattern = recognizedPatterns[0];
         if (dominantPattern.timeframe === '72h' && dominantPattern.bias === direction) {
           // Pattern aligns with direction - boost 72h confidence
           targets.h72.confidence = Math.min(0.85, targets.h72.confidence * 1.2);
