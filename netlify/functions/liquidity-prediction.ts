@@ -8,10 +8,10 @@ export default async (req: Request, context: Context) => {
     const priceData = await priceRes.json();
     const currentPrice = parseFloat(priceData.data.amount);
 
-    // Fetch funding rate from Binance (global, not US)
+    // Fetch funding rate from Binance US
     let fundingRate = 0;
     try {
-      const fundingRes = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
+      const fundingRes = await fetch('https://fapi.binance.us/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1');
       if (fundingRes.ok) {
         const fundingData = await fundingRes.json();
         fundingRate = parseFloat(fundingData[0]?.fundingRate || 0);
