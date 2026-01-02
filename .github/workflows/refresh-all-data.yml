@@ -1,0 +1,32 @@
+name: Refresh All Data
+
+on:
+  schedule:
+    # 6x daily: 1 AM, 5 AM, 9 AM, 1 PM, 5 PM, 9 PM UTC
+    - cron: '0 1 * * *'
+    - cron: '0 5 * * *'
+    - cron: '0 9 * * *'
+    - cron: '0 13 * * *'
+    - cron: '0 17 * * *'
+    - cron: '0 21 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger refresh-all-data function
+        run: |
+          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/refresh-all-data")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Function failed with HTTP $http_code"
+            exit 1
+          fi
+
+          echo "Successfully refreshed all data!"

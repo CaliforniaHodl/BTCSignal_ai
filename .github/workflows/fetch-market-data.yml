@@ -1,0 +1,27 @@
+name: Fetch Market Data
+
+on:
+  schedule:
+    # Every 4 hours: 0, 4, 8, 12, 16, 20 UTC
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  fetch-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger fetch-market-data function
+        run: |
+          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/fetch-market-data")
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
+          echo "Response: $body"
+          echo "HTTP Code: $http_code"
+
+          if [ "$http_code" -ne 200 ]; then
+            echo "Function failed with HTTP $http_code"
+            exit 1
+          fi
+
+          echo "Successfully fetched market data!"
