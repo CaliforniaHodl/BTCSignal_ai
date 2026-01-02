@@ -14,6 +14,7 @@ import { ExchangeFlowData } from './lib/exchange-analyzer';
 import { ProfitabilityMetrics } from './lib/profitability-analyzer';
 import { CohortMetrics } from './lib/cohort-analyzer';
 import { MarketDataCache } from './lib/market-data-cache';
+import { HistoricalLearner } from './lib/historical-learner';
 
 const SYMBOL = 'BTC-USD';
 const TIMEFRAME = '1h';
@@ -461,14 +462,43 @@ export default async (req: Request, context: Context) => {
     const threadResult = await postThread(twitterClient, tweetContent.tweets);
     console.log(`Posted thread: ${threadResult.length} tweets`);
 
-    // Phase 6 Sprint 2: Log signal for accuracy tracking
-    const signalLogged = await logSignalToHistory(
+    // Historical Learning: Log signal with patterns and check past outcomes
+    const historicalLearner = new HistoricalLearner();
+    await historicalLearner.loadData();
+
+    // Check outcomes of past signals first
+    const outcomesUpdated = await historicalLearner.checkOutcomes(currentPrice);
+    if (outcomesUpdated > 0) {
+      console.log(`Updated ${outcomesUpdated} historical signal outcomes`);
+    }
+
+    // Log the new signal with pattern information
+    const signalId = await historicalLearner.logSignal(
       currentPrice,
       prediction.direction,
       prediction.confidence,
-      prediction.targets?.primary
+      prediction.patternFactors?.patterns.map(p => ({
+        pattern: p.name,
+        confidence: p.confidence,
+        bias: p.bias,
+        timeframe: p.timeframe as '24h' | '48h' | '72h',
+        description: p.reasoning,
+        reasoning: p.reasoning,
+        historicalAccuracy: p.historicalAccuracy,
+      })) || [],
+      {
+        h24: prediction.targets?.h24.price,
+        h48: prediction.targets?.h48.price,
+        h72: prediction.targets?.h72.price,
+      }
     );
-    console.log(`Signal logged: ${signalLogged}`);
+    console.log(`Signal logged with pattern learning: ${signalId}`);
+
+    // Get learning insights
+    const learningStats = historicalLearner.getStats();
+    const insights = historicalLearner.getInsights();
+    console.log(`Historical accuracy: 24h=${(learningStats.accuracy24h * 100).toFixed(0)}%, 72h=${(learningStats.accuracy72h * 100).toFixed(0)}%`);
+    console.log(`Current streak: ${insights.streak}`);
 
     // Check for derivatives alerts
     const derivativesAlerts: string[] = [];
@@ -524,6 +554,27 @@ export default async (req: Request, context: Context) => {
         fundingVelocity6h: prediction.hourlyTrendFactors?.fundingVelocity6h || 0,
         oiMomentum24h: prediction.hourlyTrendFactors?.oiMomentum24h || 0,
         hourlyDataAge: prediction.hourlyTrendFactors?.dataAge || -1,
+        // Pattern recognition (72h predictions)
+        dominantPattern: prediction.patternFactors?.dominantPattern || 'none',
+        patternBias: prediction.patternFactors?.patternBias || 'neutral',
+        patternConfidence: prediction.patternFactors?.patternConfidence || 0,
+        patterns: prediction.patternFactors?.patterns.slice(0, 3).map(p => p.name) || [],
+        // Extended targets
+        target24h: prediction.targets?.h24.price || null,
+        target48h: prediction.targets?.h48.price || null,
+        target72h: prediction.targets?.h72.price || null,
+        confidence24h: prediction.targets?.h24.confidence || 0,
+        confidence48h: prediction.targets?.h48.confidence || 0,
+        confidence72h: prediction.targets?.h72.confidence || 0,
+      },
+      // Historical learning stats
+      learning: {
+        totalSignals: learningStats.totalSignals,
+        accuracy24h: learningStats.accuracy24h,
+        accuracy72h: learningStats.accuracy72h,
+        currentStreak: learningStats.currentStreak,
+        bestStreak: learningStats.bestStreak,
+        bestPatterns: insights.bestPatterns.slice(0, 3),
       },
     }), {
       status: 200,

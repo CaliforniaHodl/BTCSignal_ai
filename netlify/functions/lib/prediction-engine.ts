@@ -8,6 +8,7 @@ import { ProfitabilityMetrics, analyzeProfitabilityMetrics, calculateProfitabili
 import { CohortMetrics, analyzeCohortMetrics, calculateCohortScore } from './cohort-analyzer';
 import { PriceModels, generatePriceModelSignals } from './price-models';
 import { HourlyTrendFactors } from './market-data-cache';
+import { PatternRecognizer, PatternMatch, MarketContext, PricePoint } from './pattern-recognizer';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -89,6 +90,27 @@ export interface Prediction {
     multiTimeframeBias: string;
     multiTimeframeConfidence: number;
     dataAge: number;
+  };
+  // Extended prediction timeframes (pattern-based)
+  targets?: {
+    primary: number;
+    h24: { price: number; confidence: number };
+    h48: { price: number; confidence: number };
+    h72: { price: number; confidence: number };
+  };
+  // Pattern recognition results
+  patternFactors?: {
+    patterns: Array<{
+      name: string;
+      bias: 'bullish' | 'bearish' | 'neutral';
+      confidence: number;
+      timeframe: string;
+      reasoning: string;
+      historicalAccuracy?: number;
+    }>;
+    dominantPattern: string;
+    patternBias: 'bullish' | 'bearish' | 'neutral';
+    patternConfidence: number;
   };
 }
 
@@ -655,6 +677,78 @@ export class PredictionEngine {
       console.log(`Hourly trend data is stale (${hourlyTrendData.dataAge.toFixed(0)} min old), skipping`);
     }
 
+    // ===== PATTERN RECOGNITION (72h predictions) =====
+    let patternFactors: Prediction['patternFactors'] = undefined;
+    const patternRecognizer = new PatternRecognizer();
+
+    // Build market context from available data
+    const priceHistory: PricePoint[] = data.slice(-24).map((candle, i) => ({
+      timestamp: Date.now() - (24 - i) * 60 * 60 * 1000,
+      price: candle.close,
+      volume: candle.volume,
+    }));
+
+    const marketContext: MarketContext = {
+      priceHistory,
+      currentPrice,
+      funding: {
+        current: derivativesData?.fundingRate?.fundingRate || hourlyTrendData?.avgFunding6h || 0,
+        avg24h: hourlyTrendData?.avgFunding24h || 0,
+        velocity: hourlyTrendData?.fundingVelocity6h || 0,
+      },
+      oi: {
+        current: derivativesData?.openInterest?.openInterestValue || 0,
+        change24h: hourlyTrendData?.oiChange24h || 0,
+        change6h: hourlyTrendData?.oiChange6h || 0,
+      },
+      volume: indicators.volumeRatio ? {
+        current: data[data.length - 1].volume,
+        avg24h: data.slice(-24).reduce((sum, d) => sum + d.volume, 0) / 24,
+        ratio: indicators.volumeRatio,
+      } : undefined,
+    };
+
+    const patterns = patternRecognizer.recognizePatterns(marketContext);
+    const patternBias = patternRecognizer.getAggregateBias(marketContext);
+
+    if (patterns.length > 0) {
+      patternFactors = {
+        patterns: patterns.map(p => ({
+          name: p.pattern,
+          bias: p.bias,
+          confidence: p.confidence,
+          timeframe: p.timeframe,
+          reasoning: p.reasoning,
+          historicalAccuracy: p.historicalAccuracy,
+        })),
+        dominantPattern: patterns[0].pattern,
+        patternBias: patternBias.bias,
+        patternConfidence: patternBias.confidence,
+      };
+
+      // Add pattern signals to main signals (high weight - patterns are powerful)
+      patterns.forEach(p => {
+        if (p.bias !== 'neutral') {
+          signals.push({
+            signal: p.bias,
+            weight: p.confidence * (p.historicalAccuracy || 0.6) * 1.2,
+            reason: `[PATTERN] ${p.pattern}: ${p.description}`
+          });
+        }
+      });
+
+      // Add pattern reasoning
+      patternBias.reasoning.forEach(r => {
+        signals.push({
+          signal: 'neutral',
+          weight: 0,
+          reason: `[72h] ${r}`
+        });
+      });
+
+      console.log(`Pattern recognized: ${patterns[0].pattern} (${patternBias.bias}, ${(patternBias.confidence * 100).toFixed(0)}% conf)`);
+    }
+
     // Calculate weighted score
     let bullishScore = 0;
     let bearishScore = 0;
@@ -725,6 +819,48 @@ export class PredictionEngine {
       predictedPrice24h = currentPrice;
     }
 
+    // ===== EXTENDED TARGETS (24h/48h/72h) =====
+    // Use pattern confidence to scale predictions
+    const patternMultiplier = patternFactors ? patternFactors.patternConfidence : 0.5;
+    const baseMove = atr * 2; // Base expected move
+
+    let targets: Prediction['targets'] = undefined;
+
+    if (direction === 'up' || direction === 'down') {
+      const sign = direction === 'up' ? 1 : -1;
+
+      // Confidence decays over time, but pattern recognition can extend it
+      const conf24h = finalConfidence;
+      const conf48h = finalConfidence * 0.85 * (1 + patternMultiplier * 0.3);
+      const conf72h = finalConfidence * 0.7 * (1 + patternMultiplier * 0.5);
+
+      targets = {
+        primary: targetPrice || currentPrice,
+        h24: {
+          price: currentPrice + sign * baseMove * conf24h,
+          confidence: conf24h,
+        },
+        h48: {
+          price: currentPrice + sign * baseMove * 1.5 * conf48h,
+          confidence: Math.min(0.8, conf48h),
+        },
+        h72: {
+          price: currentPrice + sign * baseMove * 2 * conf72h,
+          confidence: Math.min(0.75, conf72h),
+        },
+      };
+
+      // Adjust 72h target based on dominant pattern
+      if (patternFactors && patterns.length > 0) {
+        const dominantPattern = patterns[0];
+        if (dominantPattern.timeframe === '72h' && dominantPattern.bias === direction) {
+          // Pattern aligns with direction - boost 72h confidence
+          targets.h72.confidence = Math.min(0.85, targets.h72.confidence * 1.2);
+          targets.h72.price = currentPrice + sign * baseMove * 2.5 * targets.h72.confidence;
+        }
+      }
+    }
+
     return {
       direction,
       confidence: finalConfidence,
@@ -740,6 +876,8 @@ export class PredictionEngine {
       derivativesAdvancedFactors,
       priceModelFactors,
       hourlyTrendFactors,
+      targets,
+      patternFactors,
     };
   }
 }
