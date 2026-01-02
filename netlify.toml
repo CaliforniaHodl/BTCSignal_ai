@@ -15,8 +15,9 @@
   schedule = "0 * * * *"
 
 # BTCTradingBot tweets - daily at 9am PST (5pm UTC)
-[functions."btcbot-tweets"]
-  schedule = "0 17 * * *"
+# Temporarily disabled schedule to debug
+# [functions."btcbot-tweets"]
+#   schedule = "0 17 * * *"
 
 # Refresh all data - 6x daily (every 4 hours)
 [functions."refresh-all-data"]
