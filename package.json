@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "AI-powered Bitcoin trading signals and market analysis platform",
   "scripts": {
+    "build": "hugo --gc --minify",
     "test": "cypress run",
     "test:open": "cypress open",
     "test:ci": "cypress run --browser chrome",
@@ -21,6 +22,7 @@
     "axios": "^1.13.2",
     "canvas": "^3.2.0",
     "dotenv": "^17.2.3",
+    "hugo-extended": "^0.139.3",
     "puppeteer-core": "^24.32.0",
     "socks-proxy-agent": "^8.0.5",
     "technicalindicators": "^3.1.0",

@@ -1,10 +1,7 @@
 [build]
   publish = "public"
-  command = "hugo --gc --minify"
+  command = "npm run build"
   functions = "netlify/functions"
-
-[context.production.environment]
-  HUGO_VERSION = "0.139.3"
 
 [functions]
   node_bundler = "esbuild"
