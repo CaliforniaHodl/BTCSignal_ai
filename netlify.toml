@@ -4,7 +4,7 @@
   functions = "netlify/functions"
 
 [context.production.environment]
-  HUGO_VERSION = "0.147.4"
+  HUGO_VERSION = "0.139.3"
 
 [functions]
   node_bundler = "esbuild"
