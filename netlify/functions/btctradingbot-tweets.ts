@@ -1,5 +1,7 @@
 // BTCTradingBot Twitter Posts - @BTCTradingBotAI
 // Posts daily trading signals and derivatives alerts
+// Version: 2026-01-02-v3 (added defensive checks)
+console.log('[BTCTradingBot] Module loading - v2026-01-02-v3');
 import type { Config, Context } from '@netlify/functions';
 import { TwitterApi } from 'twitter-api-v2';
 import { DataProvider } from './lib/data-provider';
