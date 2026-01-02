@@ -1,6 +1,5 @@
 // Tweet Generator - Shared logic for generating tweets for different accounts
-import { AnalysisResult } from './blog-generator';
-import { HistoricalCall } from './historical-tracker';
+import { AnalysisResult, HistoricalCall } from './blog-generator';
 import { OnChainMetrics, formatMetricsForDisplay, generateOnChainSummary } from './onchain-analyzer';
 import { ExchangeFlowData, formatExchangeFlowsForTweet, generateExchangeFlowSummary } from './exchange-analyzer';
 import { ProfitabilityMetrics, formatMetricsForDisplay as formatProfitabilityMetrics, generateProfitabilitySummary } from './profitability-analyzer';
