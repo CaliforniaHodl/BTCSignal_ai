@@ -1,12 +1,8 @@
 // BTCTradingBot - Daily trading signal tweets
+// NOTE: Schedule configured via external cron (Netlify schedules have a bug)
 console.log('[daily-signal] Loading');
 
-import type { Config, Context } from '@netlify/functions';
-
-// Schedule: 9am PST (5pm UTC) daily
-export const config: Config = {
-  schedule: "0 17 * * *"
-};
+import type { Context } from '@netlify/functions';
 import { TwitterApi } from 'twitter-api-v2';
 import { DataProvider } from './lib/data-provider';
 import { TechnicalAnalyzer } from './lib/technical-analysis';
