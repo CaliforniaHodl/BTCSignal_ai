@@ -576,6 +576,18 @@ export default async (req: Request, context: Context) => {
         bestStreak: learningStats.bestStreak,
         bestPatterns: insights.bestPatterns.slice(0, 3),
       },
+      // Temporal synthesis (PAST + PRESENT + FUTURE)
+      temporal: {
+        pastBias: prediction.temporalSynthesis?.pastBias || 'neutral',
+        presentBias: prediction.temporalSynthesis?.presentBias || 'neutral',
+        futureBias: prediction.temporalSynthesis?.futureBias || 'neutral',
+        hasConflict: prediction.temporalSynthesis?.hasConflict || false,
+        isSpeculation: prediction.temporalSynthesis?.isSpeculation || false,
+        reliableTimeframe: prediction.temporalSynthesis?.reliableTimeframe || 'short',
+        synthesis: prediction.temporalSynthesis?.synthesis || '',
+        warnings: prediction.temporalSynthesis?.warnings || [],
+        actionableAdvice: prediction.temporalSynthesis?.actionableAdvice || '',
+      },
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

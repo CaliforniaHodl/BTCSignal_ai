@@ -9,6 +9,7 @@ import { CohortMetrics, analyzeCohortMetrics, calculateCohortScore } from './coh
 import { PriceModels, generatePriceModelSignals } from './price-models';
 import { HourlyTrendFactors } from './market-data-cache';
 import { PatternRecognizer, PatternMatch, MarketContext, PricePoint } from './pattern-recognizer';
+import { TemporalAnalyzer, TemporalContext, SynthesizedPrediction } from './temporal-analysis';
 
 export interface Prediction {
   direction: 'up' | 'down' | 'sideways' | 'mixed';
@@ -111,6 +112,19 @@ export interface Prediction {
     dominantPattern: string;
     patternBias: 'bullish' | 'bearish' | 'neutral';
     patternConfidence: number;
+  };
+  // Temporal synthesis (PAST + PRESENT + FUTURE)
+  temporalSynthesis?: {
+    pastBias: 'bullish' | 'bearish' | 'neutral';
+    presentBias: 'bullish' | 'bearish' | 'neutral';
+    futureBias: 'bullish' | 'bearish' | 'neutral';
+    hasConflict: boolean;
+    conflictType?: string;
+    isSpeculation: boolean;
+    reliableTimeframe: 'short' | 'medium' | 'extended'; // How far out we can trust
+    synthesis: string;
+    warnings: string[];
+    actionableAdvice: string;
   };
 }
 
@@ -861,6 +875,136 @@ export class PredictionEngine {
       }
     }
 
+    // ===== TEMPORAL SYNTHESIS (PAST + PRESENT + FUTURE) =====
+    const temporalAnalyzer = new TemporalAnalyzer();
+
+    // PAST: What happened in the last 24-48h (from hourly trends and patterns)
+    const pastReasoning: string[] = [];
+    let pastBias: 'bullish' | 'bearish' | 'neutral' = 'neutral';
+    let pastConfidence = 0.5;
+
+    if (hourlyTrendData) {
+      // Check recent price action
+      if (hourlyTrendData.oiChange24h < -10) {
+        pastBias = 'bullish'; // Flush happened = bullish setup
+        pastConfidence = 0.65;
+        pastReasoning.push('Recent liquidation flush cleared leverage');
+      } else if (hourlyTrendData.oiChange24h > 15) {
+        pastBias = 'bearish'; // OI building = crowded
+        pastConfidence = 0.6;
+        pastReasoning.push('Leverage building up rapidly');
+      }
+
+      if (hourlyTrendData.fundingTrend === 'falling' && hourlyTrendData.avgFunding24h > 0.02) {
+        pastBias = 'bullish';
+        pastConfidence = Math.max(pastConfidence, 0.6);
+        pastReasoning.push('Funding resetting from extreme');
+      } else if (hourlyTrendData.fundingTrend === 'rising' && hourlyTrendData.avgFunding24h > 0.03) {
+        pastBias = 'bearish';
+        pastConfidence = Math.max(pastConfidence, 0.65);
+        pastReasoning.push('Funding reaching extreme levels');
+      }
+    }
+
+    // Check for V-recovery or crash in patterns
+    if (patternFactors) {
+      const recoveryPattern = patternFactors.patterns.find(p =>
+        p.name.includes('Recovery') || p.name.includes('Capitulation')
+      );
+      if (recoveryPattern) {
+        pastBias = 'bullish';
+        pastConfidence = Math.max(pastConfidence, recoveryPattern.confidence);
+        pastReasoning.push(recoveryPattern.name);
+      }
+
+      const exhaustionPattern = patternFactors.patterns.find(p =>
+        p.name.includes('Exhaustion') || p.name.includes('Distribution')
+      );
+      if (exhaustionPattern) {
+        pastBias = 'bearish';
+        pastConfidence = Math.max(pastConfidence, exhaustionPattern.confidence);
+        pastReasoning.push(exhaustionPattern.name);
+      }
+    }
+
+    // PRESENT: Current state (from indicators)
+    const presentReasoning: string[] = [];
+    let presentBias: 'bullish' | 'bearish' | 'neutral' = direction === 'up' ? 'bullish' :
+                                                          direction === 'down' ? 'bearish' : 'neutral';
+    let presentConfidence = finalConfidence;
+
+    // Add top reasons from signals
+    const topBullish = signals.filter(s => s.signal === 'bullish').sort((a, b) => b.weight - a.weight).slice(0, 2);
+    const topBearish = signals.filter(s => s.signal === 'bearish').sort((a, b) => b.weight - a.weight).slice(0, 2);
+
+    if (presentBias === 'bullish') {
+      presentReasoning.push(...topBullish.map(s => s.reason));
+    } else if (presentBias === 'bearish') {
+      presentReasoning.push(...topBearish.map(s => s.reason));
+    }
+
+    // FUTURE: 72h projection (from patterns)
+    const futureReasoning: string[] = [];
+    let futureBias: 'bullish' | 'bearish' | 'neutral' = 'neutral';
+    let futureConfidence = 0.5;
+
+    if (patternFactors && patternFactors.patterns.length > 0) {
+      const dominantPattern = patternFactors.patterns[0];
+      futureBias = dominantPattern.bias;
+      futureConfidence = Math.min(0.75, dominantPattern.confidence * (dominantPattern.historicalAccuracy || 0.6));
+      futureReasoning.push(`${dominantPattern.name}: ${dominantPattern.reasoning}`);
+
+      // Check for topping/bottoming patterns
+      const toppingPattern = patternFactors.patterns.find(p =>
+        p.name.includes('Top') || p.name.includes('Exhaustion') || p.name.includes('Dead Cat')
+      );
+      const bottomingPattern = patternFactors.patterns.find(p =>
+        p.name.includes('Bottom') || p.name.includes('Recovery') || p.name.includes('Accumulation')
+      );
+
+      if (toppingPattern && presentBias === 'bullish') {
+        futureBias = 'bearish';
+        futureConfidence = toppingPattern.confidence;
+        futureReasoning.push('Potential top forming despite current strength');
+      }
+
+      if (bottomingPattern && presentBias === 'bearish') {
+        futureBias = 'bullish';
+        futureConfidence = bottomingPattern.confidence;
+        futureReasoning.push('Potential bottom forming despite current weakness');
+      }
+    }
+
+    // Create temporal context and synthesize
+    const temporalContext: TemporalContext = {
+      past: { bias: pastBias, confidence: pastConfidence, reasoning: pastReasoning },
+      present: { bias: presentBias, confidence: presentConfidence, reasoning: presentReasoning },
+      future: { bias: futureBias, confidence: futureConfidence, reasoning: futureReasoning },
+    };
+
+    const synthesized = temporalAnalyzer.synthesize(temporalContext);
+
+    // Build temporal synthesis for output
+    const temporalSynthesis: Prediction['temporalSynthesis'] = {
+      pastBias,
+      presentBias,
+      futureBias,
+      hasConflict: synthesized.hasConflict,
+      conflictType: synthesized.conflictType,
+      isSpeculation: synthesized.isSpeculation,
+      reliableTimeframe: synthesized.timeframe,
+      synthesis: synthesized.synthesis,
+      warnings: synthesized.warnings,
+      actionableAdvice: synthesized.actionableAdvice,
+    };
+
+    // Log synthesis
+    console.log(`Temporal synthesis: Past=${pastBias} | Present=${presentBias} | Future=${futureBias}`);
+    console.log(`  → ${synthesized.actionableAdvice}`);
+    if (synthesized.warnings.length > 0) {
+      console.log(`  ⚠️ ${synthesized.warnings[0]}`);
+    }
+
     return {
       direction,
       confidence: finalConfidence,
@@ -878,6 +1022,7 @@ export class PredictionEngine {
       hourlyTrendFactors,
       targets,
       patternFactors,
+      temporalSynthesis,
     };
   }
 }
