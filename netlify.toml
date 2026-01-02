@@ -6,15 +6,6 @@
 [functions]
   node_bundler = "esbuild"
 
-# Scheduled function - runs daily at 9am PST (5pm UTC)
-[functions."analyze-and-tweet"]
-  schedule = "0 17 * * *"
-
-# Market data fetcher - runs hourly (24x daily)
-[functions."fetch-market-data"]
-  schedule = "0 * * * *"
-
-# Refresh all data - 6x daily (every 4 hours)
-[functions."refresh-all-data"]
-  schedule = "0 1,5,9,13,17,21 * * *"
+# NOTE: Schedules moved to GitHub Actions due to Netlify schedule bug
+# See .github/workflows/ for cron schedules
 
