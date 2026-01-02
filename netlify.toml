@@ -18,3 +18,7 @@
 [functions."btctradingbot-tweets"]
   schedule = "0 17 * * *"
 
+# Refresh all data - 6x daily (every 4 hours)
+[functions."refresh-all-data"]
+  schedule = "0 1,5,9,13,17,21 * * *"
+

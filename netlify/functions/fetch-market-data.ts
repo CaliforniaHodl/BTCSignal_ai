@@ -1,4 +1,4 @@
-import type { Config, Context } from '@netlify/functions';
+import type { Context } from '@netlify/functions';
 import { saveToBlob } from './lib/shared';
 import { fetchNodeData, formatHashrate, getMempoolCongestion } from './lib/node-data';
 
@@ -713,7 +713,4 @@ export default async (req: Request, context: Context) => {
   }
 };
 
-// Scheduled function - runs hourly
-export const config = {
-  schedule: '@hourly',
-};
+// Schedule is defined in netlify.toml to avoid conflicts
