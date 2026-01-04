@@ -1,15 +1,5 @@
 [
   {
-    "date": "2025-12-05T17:00:36.052Z",
-    "direction": "down",
-    "confidence": 0.63,
-    "entryPrice": 88792,
-    "targetPrice": 87046.00019122011,
-    "stopLoss": 89664.99990438994,
-    "actualResult": "loss",
-    "pnlPercent": -0.9831965767072983
-  },
-  {
     "date": "2025-12-06T17:00:19.583Z",
     "direction": "down",
     "confidence": 0.79,
@@ -118,5 +108,15 @@
     "stopLoss": 89644.14849434304,
     "actualResult": "win",
     "pnlPercent": 0.7863541537744384
+  },
+  {
+    "date": "2026-01-04T17:18:37.823Z",
+    "direction": "up",
+    "confidence": 0.65,
+    "entryPrice": 91300.02,
+    "targetPrice": 91910.88368839132,
+    "stopLoss": 90994.58815580435,
+    "actualResult": "pending",
+    "pnlPercent": null
   }
 ]
