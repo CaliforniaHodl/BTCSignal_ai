@@ -19,10 +19,10 @@ export type Tool = {
 
 export const TOOLS: Tool[] = [
   // Markets
-  { slug: "dashboard", name: "Pro Dashboard", blurb: "Every metric that moves BTC, on one customizable screen.", category: "Markets", tier: "premium", status: "rebuilding", phase: 4 },
-  { slug: "alpha-radar", name: "Alpha Radar", blurb: "Whale moves and market-structure shifts, summarized.", category: "Markets", tier: "premium", status: "rebuilding", phase: 4 },
+  { slug: "dashboard", name: "Pro Dashboard", blurb: "Every metric that moves BTC, on one customizable screen.", category: "Markets", tier: "premium", status: "live", phase: 4 },
+  { slug: "alpha-radar", name: "Alpha Radar", blurb: "What changed in the last hour and day, ranked and summarized.", category: "Markets", tier: "premium", status: "live", phase: 4 },
   { slug: "whales", name: "Whale Watch", blurb: "Large on-chain transfers as they hit the mempool.", category: "On-chain", tier: "free", status: "live", phase: 4 },
-  { slug: "alerts", name: "Alerts", blurb: "Price and on-chain alerts to Discord or Telegram.", category: "Markets", tier: "free", status: "rebuilding", phase: 4 },
+  { slug: "alerts", name: "Alerts", blurb: "Price, funding and sentiment alerts, in-app or to Discord.", category: "Markets", tier: "free", status: "live", phase: 4 },
   // Charts
   { slug: "smart-chart", name: "Smart Chart", blurb: "Candles with auto support/resistance and core indicators.", category: "Charts", tier: "free", status: "live", phase: 4 },
   { slug: "smart-chart-pro", name: "Smart Chart Pro", blurb: "12+ indicators, drawing tools, multi-pane, export.", category: "Charts", tier: "premium", status: "live", phase: 4 },

@@ -26,7 +26,7 @@ The legacy site is known-buggy. Port intent and features; fix bugs; do not copy 
    cached and give the whole site one price. Add new sources to `src/lib/market/sources.ts`
    style modules with `"use cache"` + `cacheLife(...)` + `cacheTag(...)`.
    US-reachable sources only: Coinbase, Kraken, mempool.space, alternative.me, CoinGecko,
-   OKX, Deribit, Hyperliquid. (Binance futures = 451, Bybit = 403 from US.)
+   OKX, Deribit, Hyperliquid, Coin Metrics Community (CC BY-NC — see licensing note). (Binance futures = 451, Bybit = 403 from US.)
 3. **One indicator library:** `src/lib/indicators`. Don't re-implement RSI/EMA/etc.
    Add missing indicators there, with tests.
 4. **Premium = server-enforced.** Wrap premium page bodies in `<ProGate feature="Name">`
