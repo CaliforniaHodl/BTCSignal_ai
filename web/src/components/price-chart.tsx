@@ -1,93 +1,32 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+/** Homepage chart: a fixed preset of the chart workbench (EMA 20/50 + auto S/R). */
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import clsx from "clsx";
-import {
-  CandlestickSeries,
-  ColorType,
-  createChart,
-  HistogramSeries,
-  LineSeries,
-  type IChartApi,
-  type UTCTimestamp,
-} from "lightweight-charts";
-import { ema, keyLevels, last, rsi } from "@/lib/indicators";
+import { keyLevels, last, rsi } from "@/lib/indicators";
+import { indicatorSpec } from "@/lib/chart/indicator-overlays";
 import { usd } from "@/lib/format";
 import type { Candle, Datum, Timeframe } from "@/lib/market/types";
-
-const TFS: Timeframe[] = ["15m", "1h", "4h", "1d"];
-
-type Levels = ReturnType<typeof keyLevels>;
+import { LwChart } from "./chart/lw-chart";
+import { ChartFrame, TimeframeTabs } from "./chart/controls";
+import { useJson } from "./chart/use-json";
 
 export function PriceChart() {
-  const el = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
   const [tf, setTf] = useState<Timeframe>("1h");
-  const [state, setState] = useState<"loading" | "ok" | "error">("loading");
-  const [stats, setStats] = useState<{ rsi: number | null; levels: Levels } | null>(null);
-
-  useEffect(() => {
-    if (!el.current) return;
-    const css = getComputedStyle(document.documentElement);
-    const v = (n: string) => css.getPropertyValue(n).trim();
-
-    const chart = createChart(el.current, {
-      autoSize: true,
-      layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: v("--fg-muted"), fontFamily: "var(--font-geist-mono)" },
-      grid: { vertLines: { color: v("--line") }, horzLines: { color: v("--line") } },
-      rightPriceScale: { borderColor: v("--line") },
-      timeScale: { borderColor: v("--line"), timeVisible: true },
-      crosshair: { mode: 0 },
-    });
-    chartRef.current = chart;
-
-    const candles = chart.addSeries(CandlestickSeries, {
-      upColor: v("--up"), downColor: v("--down"), wickUpColor: v("--up"), wickDownColor: v("--down"), borderVisible: false, priceFormat: { type: "price", precision: 0, minMove: 1 },
-    });
-    const vol = chart.addSeries(HistogramSeries, { priceScaleId: "vol", priceFormat: { type: "volume" }, lastValueVisible: false, priceLineVisible: false, color: "rgba(139,148,167,0.25)" });
-    chart.priceScale("vol").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-    const ema20 = chart.addSeries(LineSeries, { color: v("--accent"), lineWidth: 2, priceLineVisible: false, lastValueVisible: false });
-    const ema50 = chart.addSeries(LineSeries, { color: "#60a5fa", lineWidth: 2, priceLineVisible: false, lastValueVisible: false });
-
-    let cancelled = false;
-    setState("loading");
-    fetch(`/api/v1/candles?tf=${tf}`)
-      .then((r) => r.json() as Promise<Datum<Candle[]>>)
-      .then((d) => {
-        if (cancelled) return;
-        if (!d.ok || d.value.length === 0) return setState("error");
-        const cs = d.value;
-        const t = (x: number) => x as UTCTimestamp;
-        candles.setData(cs.map((c) => ({ time: t(c.time), open: c.open, high: c.high, low: c.low, close: c.close })));
-        vol.setData(cs.map((c) => ({ time: t(c.time), value: c.volume, color: c.close >= c.open ? "rgba(34,197,94,0.25)" : "rgba(239,68,68,0.25)" })));
-        const closes = cs.map((c) => c.close);
-        const toLine = (s: (number | null)[]) =>
-          s.flatMap((val, i) => (val == null ? [] : [{ time: t(cs[i].time), value: val }]));
-        ema20.setData(toLine(ema(closes, 20)));
-        ema50.setData(toLine(ema(closes, 50)));
-        const levels = keyLevels(cs, { lookback: 4, max: 4 });
-        for (const l of levels) {
-          candles.createPriceLine({
-            price: l.price,
-            color: l.kind === "support" ? v("--up") : v("--down"),
-            lineWidth: 1,
-            lineStyle: 2,
-            axisLabelVisible: true,
-            title: `${l.kind === "support" ? "S" : "R"} ×${l.touches}`,
-          });
-        }
-        chart.timeScale().fitContent();
-        setStats({ rsi: last(rsi(closes, 14)), levels });
-        setState("ok");
-      })
-      .catch(() => !cancelled && setState("error"));
-
-    return () => {
-      cancelled = true;
-      chart.remove();
-      chartRef.current = null;
-    };
-  }, [tf]);
+  const load = useJson<Datum<Candle[]>>(`/api/v1/candles?tf=${tf}`, 60_000, (d) => d.ok && d.value.length > 0);
+  const candles = useMemo(() => (load.state === "ok" && load.data.ok ? load.data.value : []), [load]);
+  const spec = useMemo(() => indicatorSpec(candles, ["ema20", "ema50"]), [candles]);
+  const levels = useMemo(() => keyLevels(candles, { lookback: 4, max: 4 }), [candles]);
+  const fullSpec = useMemo(
+    () => ({
+      ...spec,
+      levels: levels.map((l) => ({ price: l.price, color: l.kind === "support" ? "#22c55e" : "#ef4444", title: `${l.kind === "support" ? "S" : "R"} ×${l.touches}` })),
+    }),
+    [spec, levels]
+  );
+  const rsiNow = useMemo(() => last(rsi(candles.map((c) => c.close), 14)), [candles]);
+  const state = load.state === "ok" ? "ok" : load.state === "loading" ? "loading" : "error";
 
   return (
     <div className="card p-4 sm:p-5">
@@ -95,35 +34,21 @@ export function PriceChart() {
         <div>
           <h2 className="font-medium">BTC / USD</h2>
           <p className="text-xs text-faint">
-            Coinbase candles · <span className="text-accent">EMA 20</span> · <span className="text-[#60a5fa]">EMA 50</span> · auto S/R
+            Coinbase candles · <span className="text-accent">EMA 20</span> · <span className="text-[#60a5fa]">EMA 50</span> · auto S/R ·{" "}
+            <Link href="/smart-chart" className="hover:text-fg">open Smart Chart →</Link>
           </p>
         </div>
-        <div className="flex rounded-lg border border-line p-0.5 text-sm">
-          {TFS.map((x) => (
-            <button
-              key={x}
-              onClick={() => setTf(x)}
-              className={clsx("num rounded-md px-3 py-1 transition", x === tf ? "bg-accent text-black" : "text-muted hover:text-fg")}
-            >
-              {x}
-            </button>
-          ))}
-        </div>
+        <TimeframeTabs value={tf} onChange={setTf} />
       </div>
-      <div className="relative h-[380px] sm:h-[460px]">
-        <div ref={el} className="absolute inset-0" />
-        {state !== "ok" && (
-          <div className="absolute inset-0 grid place-items-center text-sm text-muted">
-            {state === "loading" ? "Loading candles…" : "Candles unavailable — Coinbase didn't respond."}
-          </div>
-        )}
-      </div>
-      {stats && state === "ok" && (
+      <ChartFrame state={state} height="h-[380px] sm:h-[460px]">
+        <LwChart candles={candles} spec={fullSpec} fitKey={tf} />
+      </ChartFrame>
+      {state === "ok" && (
         <div className="num mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted">
           <span>
-            RSI 14: <span className={clsx(stats.rsi != null && (stats.rsi > 70 ? "text-down" : stats.rsi < 30 ? "text-up" : "text-fg"))}>{stats.rsi?.toFixed(1) ?? "—"}</span>
+            RSI 14: <span className={clsx(rsiNow != null && (rsiNow > 70 ? "text-down" : rsiNow < 30 ? "text-up" : "text-fg"))}>{rsiNow?.toFixed(1) ?? "—"}</span>
           </span>
-          {stats.levels.map((l) => (
+          {levels.map((l) => (
             <span key={l.price}>
               {l.kind === "support" ? "Support" : "Resistance"} <span className={l.kind === "support" ? "text-up" : "text-down"}>{usd(l.price)}</span>
             </span>
