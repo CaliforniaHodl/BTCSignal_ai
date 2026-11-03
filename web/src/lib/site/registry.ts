@@ -24,11 +24,11 @@ export const TOOLS: Tool[] = [
   { slug: "whales", name: "Whale Watch", blurb: "Large on-chain transfers as they hit the mempool.", category: "On-chain", tier: "free", status: "live", phase: 4 },
   { slug: "alerts", name: "Alerts", blurb: "Price and on-chain alerts to Discord or Telegram.", category: "Markets", tier: "free", status: "rebuilding", phase: 4 },
   // Charts
-  { slug: "smart-chart", name: "Smart Chart", blurb: "Candles with auto support/resistance and core indicators.", category: "Charts", tier: "free", status: "rebuilding", phase: 4 },
-  { slug: "smart-chart-pro", name: "Smart Chart Pro", blurb: "12+ indicators, drawing tools, multi-pane, export.", category: "Charts", tier: "premium", status: "rebuilding", phase: 4 },
-  { slug: "pattern-detector", name: "Pattern Detector", blurb: "Triangles, wedges, channels, double tops/bottoms.", category: "Charts", tier: "premium", status: "rebuilding", phase: 4 },
-  { slug: "liquidation-map", name: "Liquidation Map", blurb: "Where leveraged positions get forced out.", category: "Derivatives", tier: "premium", status: "rebuilding", phase: 4 },
-  { slug: "liquidity-hunter", name: "Liquidity Hunter", blurb: "Likely sweep zones above and below price.", category: "Derivatives", tier: "premium", status: "rebuilding", phase: 4 },
+  { slug: "smart-chart", name: "Smart Chart", blurb: "Candles with auto support/resistance and core indicators.", category: "Charts", tier: "free", status: "live", phase: 4 },
+  { slug: "smart-chart-pro", name: "Smart Chart Pro", blurb: "12+ indicators, drawing tools, multi-pane, export.", category: "Charts", tier: "premium", status: "live", phase: 4 },
+  { slug: "pattern-detector", name: "Pattern Detector", blurb: "Triangles, wedges, channels, double tops/bottoms.", category: "Charts", tier: "premium", status: "live", phase: 4 },
+  { slug: "liquidation-map", name: "Liquidation Map", blurb: "Where leveraged positions get forced out.", category: "Derivatives", tier: "premium", status: "live", phase: 4 },
+  { slug: "liquidity-hunter", name: "Liquidity Hunter", blurb: "Likely sweep zones above and below price.", category: "Derivatives", tier: "premium", status: "live", phase: 4 },
   // On-chain
   { slug: "hodl-waves", name: "HODL Waves", blurb: "Supply by coin age — who's holding, who's selling.", category: "On-chain", tier: "free", status: "live", phase: 4 },
   { slug: "difficulty-ribbon", name: "Difficulty Ribbon", blurb: "Miner capitulation and recovery signals.", category: "On-chain", tier: "free", status: "live", phase: 4 },
