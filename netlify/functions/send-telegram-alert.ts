@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // Send Alert to All Telegram Subscribers
 // Phase 6 Sprint 3: Telegram Alert Integration
 import type { Config, Context } from '@netlify/functions';
@@ -71,6 +72,9 @@ async function sendTelegramMessage(chatId: number, text: string): Promise<boolea
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   // Check if Telegram bot is configured
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) {

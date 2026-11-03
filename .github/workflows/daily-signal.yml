@@ -1,9 +1,10 @@
 name: Daily Trading Signal
 
 on:
-  schedule:
+  # PAUSED (2026-11-03): schedule disabled during the Next.js rewrite.
+  # schedule:
     # 9am PST = 5pm UTC (17:00)
-    - cron: '0 17 * * *'
+  #    - cron: '0 17 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -12,7 +13,7 @@ jobs:
     steps:
       - name: Trigger daily-signal function
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/daily-signal")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://btctradingsignalai.netlify.app/.netlify/functions/daily-signal")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
 

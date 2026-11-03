@@ -1,9 +1,10 @@
 name: Analyze and Generate Blog Post
 
 on:
-  schedule:
+  # PAUSED (2026-11-03): schedule disabled during the Next.js rewrite.
+  # schedule:
     # 9am PST = 5pm UTC (17:00) - same as daily-signal
-    - cron: '0 17 * * *'
+  #    - cron: '0 17 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -12,7 +13,7 @@ jobs:
     steps:
       - name: Trigger analyze-and-tweet function
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/analyze-and-tweet")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://btctradingsignalai.netlify.app/.netlify/functions/analyze-and-tweet")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
 

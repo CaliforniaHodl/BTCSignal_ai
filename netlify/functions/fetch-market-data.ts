@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 import type { Context } from '@netlify/functions';
 import { saveToBlob } from './lib/shared';
 import { fetchNodeData, formatHashrate, getMempoolCongestion } from './lib/node-data';
@@ -188,6 +189,9 @@ async function saveToBlobStorage(snapshot: MarketSnapshot): Promise<boolean> {
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('Fetching market data snapshot...');
 
   // Track data sources for debugging and UI display

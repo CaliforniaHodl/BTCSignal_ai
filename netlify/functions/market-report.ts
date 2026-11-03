@@ -1,3 +1,4 @@
+import { requireCronEvent } from "./utils/cron-auth";
 /**
  * Market Report Scheduled Function
  * Generates comprehensive daily market report
@@ -135,6 +136,9 @@ async function saveReportHistory(
  * Main handler function
  */
 const handler: Handler = async (event, context) => {
+  const denied = requireCronEvent(event.headers);
+  if (denied) return denied;
+
   console.log('Generating daily market report...');
 
   if (!GITHUB_TOKEN) {

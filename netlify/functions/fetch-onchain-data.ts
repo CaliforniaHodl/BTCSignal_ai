@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // Fetch On-Chain Data for Dashboard
 // Phase 6 Sprint 4: Exchange Reserves, MVRV, Whale Flows
 // Updated: Now uses REAL data from personal Bitcoin node (Raspberry Pi 5 + Knots)
@@ -162,6 +163,9 @@ async function saveToBlobStorage(data: OnChainData): Promise<boolean> {
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('Fetching on-chain data (with real node data)...');
 
   // NEW: Fetch real data from personal Bitcoin node

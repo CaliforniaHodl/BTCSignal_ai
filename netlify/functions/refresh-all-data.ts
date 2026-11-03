@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // Refresh All Data - Single scheduled function that updates all Blob data
 // Runs 6x daily: 1 AM, 5 AM, 9 AM, 1 PM, 5 PM, 9 PM UTC
 // This replaces individual cron jobs to minimize build triggers
@@ -166,6 +167,9 @@ async function refreshPriceModels(): Promise<boolean> {
 
 // Main handler
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   const startTime = Date.now();
   console.log('Starting full data refresh...');
 

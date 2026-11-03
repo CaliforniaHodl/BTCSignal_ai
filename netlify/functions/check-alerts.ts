@@ -1,3 +1,4 @@
+import { requireCronEvent } from "./utils/cron-auth";
 /**
  * Check Alerts Scheduled Function
  * Runs every 15 minutes to check alert conditions
@@ -135,6 +136,9 @@ async function saveAlertsToGitHub(
  * Main handler function
  */
 const handler: Handler = async (event, context) => {
+  const denied = requireCronEvent(event.headers);
+  if (denied) return denied;
+
   console.log('Starting alert check...');
 
   if (!GITHUB_TOKEN) {

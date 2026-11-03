@@ -1,14 +1,15 @@
 name: Refresh All Data
 
 on:
-  schedule:
+  # PAUSED (2026-11-03): schedule disabled during the Next.js rewrite.
+  # schedule:
     # 6x daily: 1 AM, 5 AM, 9 AM, 1 PM, 5 PM, 9 PM UTC
-    - cron: '0 1 * * *'
-    - cron: '0 5 * * *'
-    - cron: '0 9 * * *'
-    - cron: '0 13 * * *'
-    - cron: '0 17 * * *'
-    - cron: '0 21 * * *'
+  #    - cron: '0 1 * * *'
+  #    - cron: '0 5 * * *'
+  #    - cron: '0 9 * * *'
+  #    - cron: '0 13 * * *'
+  #    - cron: '0 17 * * *'
+  #    - cron: '0 21 * * *'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
@@ -17,7 +18,7 @@ jobs:
     steps:
       - name: Trigger refresh-all-data function
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/refresh-all-data")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://btctradingsignalai.netlify.app/.netlify/functions/refresh-all-data")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
 

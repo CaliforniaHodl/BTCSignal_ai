@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Trigger fetch-market-data function
         run: |
-          response=$(curl -s -w "\n%{http_code}" "https://btctradingsignalai.netlify.app/.netlify/functions/fetch-market-data")
+          response=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" "https://btctradingsignalai.netlify.app/.netlify/functions/fetch-market-data")
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
 

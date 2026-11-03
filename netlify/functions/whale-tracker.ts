@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 import type { Config, Context } from '@netlify/functions';
 import { TwitterApi } from 'twitter-api-v2';
 import { generateSingleWhaleAlert } from './lib/tweet-generator';
@@ -361,6 +362,9 @@ async function tweetWhaleAlert(alert: WhaleAlert): Promise<{ success: boolean; t
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('🐋 Whale Tracker running...');
 
   // Fetch BTC price first

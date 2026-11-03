@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // BTCWhaleWatcher Twitter Posts - @BTCWhaleWatcher
 // Posts whale alerts and daily summaries
 import type { Config, Context } from '@netlify/functions';
@@ -151,6 +152,9 @@ async function getBTCPrice(): Promise<number> {
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('BTCWhaleWatcher: Starting tweet generation...');
 
   // Check for Twitter credentials (REQUIRES separate WHALE_TWITTER_* env vars - no fallback)

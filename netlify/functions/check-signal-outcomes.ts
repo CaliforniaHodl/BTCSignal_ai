@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // Check Signal Outcomes - Runs daily to verify signal accuracy
 // Phase 6 Sprint 2: Signal Accuracy Tracking System
 import type { Config, Context } from '@netlify/functions';
@@ -223,6 +224,9 @@ function calculateStats(signals: Signal[]): SignalHistory['stats'] {
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('Checking signal outcomes...');
 
   const currentPrice = await getBTCPrice();

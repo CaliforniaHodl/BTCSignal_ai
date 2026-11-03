@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // Analyze and Generate Blog Post
 // This function performs BTC analysis and saves a blog post to GitHub
 // Twitter posting is handled separately by btctradingbot-tweets.ts
@@ -57,6 +58,9 @@ async function savePostToGitHub(filename: string, content: string): Promise<bool
 }
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('Starting Bitcoin analysis...');
 
   try {

@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // API endpoint to serve data from Netlify Blob storage
 // This replaces static JSON files that were triggering builds
 import type { Context } from '@netlify/functions';
@@ -25,6 +26,9 @@ const CORS_HEADERS = {
 };
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: CORS_HEADERS });

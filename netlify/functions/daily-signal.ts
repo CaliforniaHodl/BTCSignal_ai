@@ -1,3 +1,4 @@
+import { requireCron } from "./utils/cron-auth";
 // BTCTradingBot - Daily trading signal tweets
 // NOTE: Schedule configured via external cron (Netlify schedules have a bug)
 console.log('[daily-signal] Loading');
@@ -17,6 +18,9 @@ const CANDLE_LIMIT = 100;
 const CANDLE_LIMIT_24H = 24;
 
 export default async (req: Request, context: Context) => {
+  const denied = requireCron(req);
+  if (denied) return denied;
+
   console.log('[daily-signal] Handler started');
 
   if (!process.env.TWITTER_API_KEY) {
