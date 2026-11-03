@@ -161,3 +161,5 @@ export const last = (s: Series): number | null => {
 function assertPeriod(p: number) {
   if (!Number.isInteger(p) || p < 1) throw new Error(`invalid period ${p}`);
 }
+
+export * from "./extended";
