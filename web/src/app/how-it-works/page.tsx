@@ -171,7 +171,7 @@ function Step({ n, title, children }: { n: number; title: string; children: Reac
   return (
     <li className="card grid gap-4 p-5 sm:grid-cols-[48px_1fr] sm:p-6">
       <div className="num flex size-10 items-center justify-center rounded-full bg-accent-soft font-semibold text-accent" aria-hidden>{n}</div>
-      <div>
+      <div className="min-w-0">
         <h2 className="text-lg font-medium">{title}</h2>
         <div className="mt-2 text-sm leading-relaxed text-fg/85">{children}</div>
       </div>

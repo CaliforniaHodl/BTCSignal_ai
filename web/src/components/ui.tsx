@@ -24,7 +24,7 @@ export function Page({ children, narrow }: { children: React.ReactNode; narrow?:
 
 export function Card({ title, action, children, className }: { title?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={clsx("card p-5", className)}>
+    <section className={clsx("card min-w-0 p-5", className)}>
       {(title || action) && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           {title && <h2 className="font-medium">{title}</h2>}
