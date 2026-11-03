@@ -58,7 +58,12 @@ is sent per invoice automatically.
    301 redirect to the new URL, removes every Netlify function, and disables every GitHub Actions
    schedule, so nothing writes to the public repo anymore.
 3. Remove `data/access-records.json` and other legacy data files from the repo (it's public).
-4. Watch Vercel logs for a day: cron runs at :05 hourly (agent) and every 5 min (alerts).
+4. Schedules: Vercel Hobby only allows daily crons, so `.github/workflows/btcsignal-cron.yml` calls
+   `/api/cron/agent` (hourly :05) and `/api/cron/alerts` (every 5 min) with the GitHub secret
+   `CRON_SECRET`, which **must equal** the Vercel production `CRON_SECRET`. GitHub only runs
+   schedules from the default branch, so they start when this lands on `master`.
+   (On Vercel Pro, move them back into `vercel.json` `crons` instead.)
+5. Watch Vercel logs for a day.
 
 ## Live trading ($100), later and separately
 Only after `npm run research` passes the out-of-sample gate **and** 30+ days of paper results line up.
