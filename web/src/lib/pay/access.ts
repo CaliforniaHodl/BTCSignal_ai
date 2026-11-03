@@ -131,3 +131,8 @@ export async function claimAnonymousPass(userId: number) {
   await d.update(schema.entitlements).set({ userId })
     .where(and(eq(schema.entitlements.accessTokenHash, hashToken(token)), isNull(schema.entitlements.userId)));
 }
+
+/** For premium API routes: `const deny = await requirePro(); if (deny) return deny;` */
+export async function requirePro(): Promise<Response | null> {
+  return (await hasPro()) ? null : Response.json({ error: "Pro pass required", upgrade: "/pricing" }, { status: 402 });
+}
