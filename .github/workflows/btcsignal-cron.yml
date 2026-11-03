@@ -1,0 +1,32 @@
+# Schedules for the new app on Vercel (Hobby plan only allows daily Vercel Cron).
+# Calls the app's cron endpoints with the shared CRON_SECRET. GitHub may delay
+# scheduled runs under load; the agent is idempotent per hour and alerts dedupe.
+name: btcsignal cron
+
+on:
+  schedule:
+    - cron: "5 * * * *"     # agent tick, hourly at :05
+    - cron: "*/5 * * * *"   # alerts, every 5 minutes
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "agent or alerts"
+        required: true
+        default: agent
+
+jobs:
+  call:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Call endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          BASE: https://btcsignal-ai.vercel.app
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then JOB="${{ inputs.job }}";
+          elif [ "${{ github.event.schedule }}" = "5 * * * *" ]; then JOB=agent; else JOB=alerts; fi
+          [ -n "$CRON_SECRET" ] || { echo "CRON_SECRET secret not set"; exit 1; }
+          code=$(curl -s -o out.json -w "%{http_code}" --max-time 300 -H "Authorization: Bearer $CRON_SECRET" "$BASE/api/cron/$JOB")
+          echo "$JOB -> HTTP $code"; head -c 400 out.json; echo
+          [ "$code" = "200" ]

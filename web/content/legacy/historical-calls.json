@@ -1,0 +1,122 @@
+[
+  {
+    "date": "2025-12-07T17:00:48.409Z",
+    "direction": "up",
+    "confidence": 0.6,
+    "entryPrice": 89886.38,
+    "targetPrice": 90954.43881025893,
+    "stopLoss": 89352.35059487054,
+    "actualResult": "loss",
+    "pnlPercent": -0.5941160441987564
+  },
+  {
+    "date": "2025-12-08T17:00:24.079Z",
+    "direction": "down",
+    "confidence": 0.85,
+    "entryPrice": 89944.02,
+    "targetPrice": 88631.65305777061,
+    "stopLoss": 90600.2034711147,
+    "actualResult": "loss",
+    "pnlPercent": -0.7295465236206863
+  },
+  {
+    "date": "2025-12-09T17:01:02.843Z",
+    "direction": "up",
+    "confidence": 0.67,
+    "entryPrice": 94331.94,
+    "targetPrice": 95820.08053040979,
+    "stopLoss": 93587.86973479511,
+    "actualResult": "loss",
+    "pnlPercent": -0.788778716100711
+  },
+  {
+    "date": "2025-12-10T17:01:06.967Z",
+    "direction": "down",
+    "confidence": 0.85,
+    "entryPrice": 92107.84,
+    "targetPrice": 91009.64382666063,
+    "stopLoss": 92656.93808666967,
+    "actualResult": "loss",
+    "pnlPercent": -0.5961469584670287
+  },
+  {
+    "date": "2025-12-11T17:01:03.711Z",
+    "direction": "down",
+    "confidence": 0.85,
+    "entryPrice": 89742.01,
+    "targetPrice": 88475.87806009082,
+    "stopLoss": 90375.07596995459,
+    "actualResult": "loss",
+    "pnlPercent": -0.7054287840829441
+  },
+  {
+    "date": "2025-12-12T17:00:15.029Z",
+    "direction": "down",
+    "confidence": 0.63,
+    "entryPrice": 89999,
+    "targetPrice": 88586.98826815424,
+    "stopLoss": 90705.00586592288,
+    "actualResult": "win",
+    "pnlPercent": 1.568919356710367
+  },
+  {
+    "date": "2025-12-13T17:00:13.157Z",
+    "direction": "down",
+    "confidence": 0.79,
+    "entryPrice": 90116,
+    "targetPrice": 89470.67125971874,
+    "stopLoss": 90438.66437014063,
+    "actualResult": "loss",
+    "pnlPercent": -0.3580544743892631
+  },
+  {
+    "date": "2025-12-14T17:00:22.086Z",
+    "direction": "down",
+    "confidence": 0.65,
+    "entryPrice": 88865.96,
+    "targetPrice": 88118.18127118373,
+    "stopLoss": 89239.84936440815,
+    "actualResult": "loss",
+    "pnlPercent": -0.42073406331078844
+  },
+  {
+    "date": "2026-01-02T21:48:45.008Z",
+    "direction": "up",
+    "confidence": 0.81,
+    "entryPrice": 89898.9,
+    "targetPrice": 91140.1883203119,
+    "stopLoss": 89278.25583984405,
+    "actualResult": "win",
+    "pnlPercent": 1.3807602988600671
+  },
+  {
+    "date": "2026-01-03T17:18:34.235Z",
+    "direction": "up",
+    "confidence": 0.65,
+    "entryPrice": 89998,
+    "targetPrice": 90705.70301131392,
+    "stopLoss": 89644.14849434304,
+    "actualResult": "win",
+    "pnlPercent": 0.7863541537744384
+  },
+  {
+    "date": "2026-01-04T17:18:37.823Z",
+    "direction": "up",
+    "confidence": 0.65,
+    "entryPrice": 91300.02,
+    "targetPrice": 91910.88368839132,
+    "stopLoss": 90994.58815580435,
+    "actualResult": "loss",
+    "pnlPercent": -0.33453644828955853
+  },
+  {
+    "date": "2026-01-05T17:24:26.636Z",
+    "direction": "up",
+    "confidence": 0.77,
+    "entryPrice": 93393.25,
+    "targetPrice": 94389.56635178566,
+    "stopLoss": 92895.09182410716,
+    "actualResult": "pending",
+    "pnlPercent": null
+  }
+]
