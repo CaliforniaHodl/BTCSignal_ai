@@ -4,7 +4,9 @@ The new app lives in `web/` on branch `rewrite`. The legacy Hugo/Netlify site ke
 until step 6. Nothing here is automatic. Each step is an explicit, owner-approved action.
 
 ## 0. Decisions needed first
-- [ ] **Production domain** (a `*.netlify.app` name can't point at Vercel).
+- [x] **Production URL: `https://btcsignal-ai.vercel.app`** (free Vercel subdomain; claimed when the
+      Vercel project is named `btcsignal-ai`). The legacy Netlify site becomes a 301 redirect to it.
+      A custom domain can be added later: set `NEXT_PUBLIC_SITE_URL` and add it to Gatekeep.
 - [ ] **Legal text reviewed**: entity name + governing law in `/terms-of-use`, refund wording,
       retention periods in `/privacy-policy`, X handle (`@BTCSignal_ai` vs `@BTCSignalAI`).
 - [ ] **Coin Metrics Community data** (CC BY-NC 4.0, non-commercial) used on `/hodl-waves`,
@@ -16,7 +18,7 @@ Create a Postgres database (Neon via the Vercel Marketplace is simplest). Copy i
 connection string. Migrations in `drizzle/` apply automatically on first connection.
 
 ## 2. Vercel project
-- Import the GitHub repo, **Root Directory = `web`**, framework Next.js.
+- Import the GitHub repo as project name **`btcsignal-ai`**, **Root Directory = `web`**, framework Next.js.
 - Region: pick a non-US region if you want Binance/Bybit later; current sources all work from US.
 - Environment variables (Production). See `.env.example` for the full list:
 
@@ -24,7 +26,7 @@ connection string. Migrations in `drizzle/` apply automatically on first connect
 |---|---|
 | `DATABASE_URL` | Postgres connection string |
 | `CRON_SECRET` | `openssl rand -hex 32` (Vercel Cron sends it automatically) |
-| `NEXT_PUBLIC_SITE_URL` | `https://<domain>` |
+| `NEXT_PUBLIC_SITE_URL` | `https://btcsignal-ai.vercel.app` |
 | `OWNER_EMAILS` | your verified Gatekeep email |
 | `GATEKEEP_ISSUER` | `https://id.gatekeepauth.com` |
 | `GATEKEEP_CLIENT_ID` | `btcsignal` |
@@ -37,10 +39,10 @@ connection string. Migrations in `drizzle/` apply automatically on first connect
 
 ## 3. Gatekeep
 On the Gatekeep box add the production callback to `[clients.btcsignal]` in `clients.toml`, then restart:
-`redirect_uris = ["https://<domain>/api/auth/callback", "http://localhost:3000/api/auth/callback"]`
+`redirect_uris = ["https://btcsignal-ai.vercel.app/api/auth/callback", "http://localhost:3000/api/auth/callback"]`
 
 ## 4. LNbits
-Confirm the node is reachable from Vercel over HTTPS. The webhook URL `https://<domain>/api/pay/webhook`
+Confirm the node is reachable from Vercel over HTTPS. The webhook URL `https://btcsignal-ai.vercel.app/api/pay/webhook`
 is sent per invoice automatically.
 
 ## 5. Verify on the Vercel preview URL
@@ -51,9 +53,10 @@ is sent per invoice automatically.
 - [ ] Premium page locked in a private window; premium API returns 402
 
 ## 6. Cutover
-1. Point the domain at Vercel.
-2. Legacy: merge PR #12 (if not already), then **disable all GitHub Actions schedules** and delete the
-   Netlify functions or the Netlify site, so nothing writes to the public repo anymore.
+1. Promote the verified deployment to production on `btcsignal-ai.vercel.app`.
+2. Legacy: merge the prepared `cutover/redirect-to-vercel` branch. It turns the Netlify site into a
+   301 redirect to the new URL, removes every Netlify function, and disables every GitHub Actions
+   schedule, so nothing writes to the public repo anymore.
 3. Remove `data/access-records.json` and other legacy data files from the repo (it's public).
 4. Watch Vercel logs for a day: cron runs at :05 hourly (agent) and every 5 min (alerts).
 

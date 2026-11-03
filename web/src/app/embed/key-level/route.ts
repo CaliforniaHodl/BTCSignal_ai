@@ -7,8 +7,9 @@
  */
 import { getKeyLevels, LEVEL_METHOD } from "@/lib/market/pro";
 import { isTimeframe } from "@/lib/market/snapshot";
+import { SITE_URL } from "@/lib/site/url";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://btctradingsignalai.netlify.app";
+const SITE = SITE_URL;
 
 const money = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const sp = (n: number) => `${n > 0 ? "+" : ""}${n.toFixed(2)}%`;

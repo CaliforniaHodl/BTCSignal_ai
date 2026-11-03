@@ -1,6 +1,7 @@
 import type { Datum } from "./types";
+import { SITE_URL } from "@/lib/site/url";
 
-const UA = "btcsignal-ai/2.0 (+https://btctradingsignalai.netlify.app)";
+const UA = `btcsignal-ai/2.0 (+${SITE_URL})`;
 
 export async function getJson<T = unknown>(
   url: string,
