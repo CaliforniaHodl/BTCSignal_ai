@@ -161,3 +161,39 @@ export const last = (s: Series): number | null => {
 function assertPeriod(p: number) {
   if (!Number.isInteger(p) || p < 1) throw new Error(`invalid period ${p}`);
 }
+
+/**
+ * Highest high of the `period` bars BEFORE bar i (bar i excluded), so
+ * `close > highestHigh(20)` is a breakout with no look-ahead. First value at index `period`.
+ */
+export function highestHigh(candles: Candle[], period: number): Series {
+  assertPeriod(period);
+  return candles.map((_, i) => {
+    if (i < period) return null;
+    let m = -Infinity;
+    for (let j = i - period; j < i; j++) m = Math.max(m, candles[j].high);
+    return m;
+  });
+}
+
+/** Lowest low of the `period` bars BEFORE bar i (bar i excluded). First value at index `period`. */
+export function lowestLow(candles: Candle[], period: number): Series {
+  assertPeriod(period);
+  return candles.map((_, i) => {
+    if (i < period) return null;
+    let m = Infinity;
+    for (let j = i - period; j < i; j++) m = Math.min(m, candles[j].low);
+    return m;
+  });
+}
+
+/** Stochastic %K (unsmoothed): where the close sits in the last `period` bars' range (bar i included), 0–100. */
+export function stochK(candles: Candle[], period = 14): Series {
+  assertPeriod(period);
+  return candles.map((c, i) => {
+    if (i < period - 1) return null;
+    let hi = -Infinity, lo = Infinity;
+    for (let j = i - period + 1; j <= i; j++) { hi = Math.max(hi, candles[j].high); lo = Math.min(lo, candles[j].low); }
+    return hi === lo ? 50 : ((c.close - lo) / (hi - lo)) * 100;
+  });
+}
