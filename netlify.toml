@@ -1,11 +1,5 @@
+# Legacy Netlify site, now a permanent redirect to the new app on Vercel.
+# No build, no functions: nothing here can write to the repo or post anywhere.
 [build]
-  publish = "public"
-  command = "npm run build"
-  functions = "netlify/functions"
-
-[functions]
-  node_bundler = "esbuild"
-
-# NOTE: Schedules moved to GitHub Actions due to Netlify schedule bug
-# See .github/workflows/ for cron schedules
-
+  publish = "netlify-redirect"
+  command = "echo 'redirect-only site'"
