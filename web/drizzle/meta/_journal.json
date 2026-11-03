@@ -15,6 +15,13 @@
       "when": 1793731008741,
       "tag": "0001_trailing_stops",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793731796689,
+      "tag": "0002_accounts_access",
+      "breakpoints": true
     }
   ]
 }

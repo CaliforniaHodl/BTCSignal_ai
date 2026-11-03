@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { HeaderAccount } from "./header-account";
 import { NAV } from "@/lib/site/registry";
 
 export function Logo() {
@@ -25,9 +27,9 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <Link href="/pricing" className="hidden rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-black transition hover:brightness-110 sm:block">
-            Go Pro
-          </Link>
+          <Suspense fallback={<span className="hidden w-16 sm:block" />}>
+            <HeaderAccount />
+          </Suspense>
           <details className="relative md:hidden">
             <summary className="cursor-pointer list-none rounded-md border border-line px-3 py-1.5 text-sm text-muted">Menu</summary>
             <nav className="card absolute right-0 mt-2 flex w-48 flex-col p-2 text-sm">

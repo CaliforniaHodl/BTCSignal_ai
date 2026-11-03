@@ -103,3 +103,66 @@ export type AgentDecision = typeof agentDecisions.$inferSelect;
 export type PaperTrade = typeof paperTrades.$inferSelect;
 export type EquitySnapshot = typeof equitySnapshots.$inferSelect;
 export type AgentAccount = typeof agentAccount.$inferSelect;
+
+// ---------------------------------------------------------------- accounts & access
+
+/** A person who signed in through Gatekeep (OIDC `sub`). Buying access does NOT require an account. */
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  sub: text("sub").notNull().unique(),
+  email: text("email"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
+});
+
+/** Server-side sessions. Only the SHA-256 of the cookie token is stored. */
+export const sessions = pgTable(
+  "sessions",
+  {
+    tokenHash: text("token_hash").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (t) => [index("sessions_user_idx").on(t.userId)]
+);
+
+/** Lightning invoices we issued. Status is only ever set from a server-side check against the node. */
+export const invoices = pgTable("invoices", {
+  paymentHash: text("payment_hash").primaryKey(),
+  bolt11: text("bolt11").notNull(),
+  tier: text("tier").notNull(),
+  amountSats: integer("amount_sats").notNull(),
+  /** "pending" | "paid" | "expired" */
+  status: text("status").notNull().default("pending"),
+  userId: integer("user_id").references(() => users.id),
+  /** Browser that requested it — only this browser may claim an anonymous pass. */
+  claimTokenHash: text("claim_token_hash").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+});
+
+/**
+ * An access pass. Owned by a user (signed in) and/or redeemable with a recovery
+ * code (anonymous). Only hashes of the recovery code and access token are stored.
+ */
+export const entitlements = pgTable(
+  "entitlements",
+  {
+    id: serial("id").primaryKey(),
+    paymentHash: text("payment_hash").notNull().unique(),
+    tier: text("tier").notNull(),
+    userId: integer("user_id").references(() => users.id),
+    recoveryCodeHash: text("recovery_code_hash").notNull().unique(),
+    /** Current browser token for anonymous holders; rotating it on recovery logs out the old browser. */
+    accessTokenHash: text("access_token_hash").unique(),
+    startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("entitlements_user_idx").on(t.userId)]
+);
+
+export type User = typeof users.$inferSelect;
+export type Entitlement = typeof entitlements.$inferSelect;
