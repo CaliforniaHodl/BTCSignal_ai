@@ -43,7 +43,7 @@ export const TOOLS: Tool[] = [
   { slug: "portfolio-simulator", name: "Portfolio Simulator", blurb: "Backtest a strategy with Monte Carlo ranges.", category: "Calculators", tier: "premium", status: "rebuilding", phase: 4 },
   { slug: "backtester-pro", name: "Backtester Pro", blurb: "Describe a strategy in plain English, backtest it.", category: "Calculators", tier: "premium", status: "rebuilding", phase: 4 },
   // Tracking
-  { slug: "agent", name: "Trading Agent", blurb: "Our paper-trading agent: every trade, every reason, public.", category: "Tracking", tier: "free", status: "rebuilding", phase: 2 },
+  { slug: "agent", name: "Trading Agent", blurb: "Our paper-trading agent: every trade, every reason, public.", category: "Tracking", tier: "free", status: "live", phase: 2 },
   { slug: "prediction-tracker", name: "Prediction Tracker", blurb: "Every call we made vs. what price actually did.", category: "Tracking", tier: "free", status: "rebuilding", phase: 2 },
   { slug: "trading-history", name: "Signal P&L", blurb: "Hypothetical P&L of following every signal.", category: "Tracking", tier: "free", status: "rebuilding", phase: 2 },
   { slug: "journal", name: "Trade Journal", blurb: "Log your own trades and review your edge.", category: "Tracking", tier: "free", status: "rebuilding", phase: 4 },
