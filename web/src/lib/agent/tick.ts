@@ -3,7 +3,7 @@ import { and, desc, eq, gte, isNotNull, isNull, lte, sql } from "drizzle-orm";
 import { db, schema } from "@/db";
 import { keyLevels } from "@/lib/indicators";
 import { getCandles, getMarketSnapshot } from "@/lib/market/snapshot";
-import { closedOnly, evaluate, type EngineSignal } from "@/lib/engine/signal";
+import { closedOnly, ENGINE_CONFIG, evaluate, levels, type EngineSignal } from "@/lib/engine/signal";
 import type { Candle } from "@/lib/market/types";
 import * as broker from "./broker";
 import { checkEntry, RISK, shouldHalt } from "./risk";
@@ -56,7 +56,7 @@ async function tick(force: boolean): Promise<TickResult> {
   // ---- 1. manage the open position first (exits are never gated by Claude) ----
   const [openTrade] = await d.select().from(schema.paperTrades).where(isNull(schema.paperTrades.closedAt)).limit(1);
   let position: broker.Position | null = openTrade
-    ? { side: openTrade.side as broker.Side, qtyBtc: openTrade.qtyBtc, entryPrice: openTrade.entryPrice, stop: openTrade.stop, target: openTrade.target, openFeeUsd: openTrade.feesUsd }
+    ? { side: openTrade.side as broker.Side, qtyBtc: openTrade.qtyBtc, entryPrice: openTrade.entryPrice, stop: openTrade.stop, target: openTrade.target, openFeeUsd: openTrade.feesUsd, best: openTrade.best ?? undefined }
     : null;
   let closedThisTick: string | null = null;
 
@@ -79,11 +79,7 @@ async function tick(force: boolean): Promise<TickResult> {
     fearGreed: snapshot.fearGreed.ok ? snapshot.fearGreed.value.value : null,
   });
   signal.price = price; // decide at the live price; factors use closed bars
-  if (signal.direction !== "flat" && signal.atr4h) {
-    const s = 1.5 * signal.atr4h, t = 2.5 * signal.atr4h;
-    signal.stop = signal.direction === "long" ? price - s : price + s;
-    signal.target = signal.direction === "long" ? price + t : price - t;
-  }
+  Object.assign(signal, levels(signal.direction, price, signal));
   const [sigRow] = await d.insert(schema.signals).values({
     engineVersion: signal.engineVersion, price, direction: signal.direction, score: signal.score, confidence: signal.confidence,
     stop: signal.stop, target: signal.target, horizonHours: signal.horizonHours,
@@ -91,6 +87,18 @@ async function tick(force: boolean): Promise<TickResult> {
   }).returning({ id: schema.signals.id });
 
   await resolveSignals(c1h.value, now);
+
+  // ---- 2b. tighten a trailing stop using closed 1h closes since entry ----
+  if (position && openTrade && position.target == null) {
+    const atrNow = ENGINE_CONFIG.stopBasis === "1d" ? signal.atr1d : signal.atr4h;
+    const since = Math.floor(openTrade.openedAt.getTime() / 1000);
+    let p = position;
+    for (const c of closedOnly(c1h.value, 3600, nowSec)) if (c.time >= since) p = broker.trail(p, c.close, atrNow, ENGINE_CONFIG.stopAtr);
+    if (p.stop !== position.stop || p.best !== position.best) {
+      await d.update(schema.paperTrades).set({ stop: p.stop, best: p.best ?? null }).where(eq(schema.paperTrades.id, openTrade.id));
+    }
+    position = p;
+  }
 
   // ---- 3. decide ----
   const decide = async (action: string, summary: string, extra: Partial<typeof schema.agentDecisions.$inferInsert> = {}) => {
@@ -112,7 +120,7 @@ async function tick(force: boolean): Promise<TickResult> {
     } else {
       const upnl = broker.equity(cash, position, price) - (cash + (position.side === "long" ? position.qtyBtc * position.entryPrice : 0));
       action = "hold";
-      summary = `Holding ${position.side} from $${Math.round(position.entryPrice).toLocaleString()} (${upnl >= 0 ? "+" : ""}$${upnl.toFixed(2)} unrealized). Stop $${Math.round(position.stop).toLocaleString()}, target $${Math.round(position.target).toLocaleString()}.`;
+      summary = `Holding ${position.side} from $${Math.round(position.entryPrice).toLocaleString()} (${upnl >= 0 ? "+" : ""}$${upnl.toFixed(2)} unrealized). Stop $${Math.round(position.stop).toLocaleString()}${position.target != null ? `, target $${Math.round(position.target).toLocaleString()}` : " (trailing)"}.`;
     }
     decisionId = await decide(action, summary);
   } else if (signal.direction === "flat") {
@@ -121,7 +129,7 @@ async function tick(force: boolean): Promise<TickResult> {
     decisionId = await decide(action, summary);
   } else {
     const state = await riskState(cash, now);
-    const proposal = { side: signal.direction, price, stop: signal.stop!, target: signal.target! };
+    const proposal = { side: signal.direction, price, stop: signal.stop!, target: signal.target };
     const pre = checkEntry(state, proposal, 1);
     if (!pre.allowed) {
       action = "blocked";
@@ -151,16 +159,16 @@ async function tick(force: boolean): Promise<TickResult> {
           const o = broker.open(cash, side, final.qtyBtc, price);
           action = side === "long" ? "open_long" : "open_short";
           const sizeNote = review.decision === "reduce" ? ` (reduced ×${review.sizeMultiplier.toFixed(2)})` : "";
-          summary = `Opened ${side} ${final.qtyBtc.toFixed(5)} BTC at $${Math.round(o.fill).toLocaleString()}${sizeNote}. Stop $${Math.round(signal.stop!).toLocaleString()}, target $${Math.round(signal.target!).toLocaleString()}, risking $${final.riskUsd.toFixed(2)}. ${review.mode === "claude" ? `Claude: ${review.reasoning}` : "Rules-only mode."}`;
+          summary = `Opened ${side} ${final.qtyBtc.toFixed(5)} BTC at $${Math.round(o.fill).toLocaleString()}${sizeNote}. Stop $${Math.round(signal.stop!).toLocaleString()}${signal.target != null ? `, target $${Math.round(signal.target).toLocaleString()}` : " (trailing)"}, risking $${final.riskUsd.toFixed(2)}. ${review.mode === "claude" ? `Claude: ${review.reasoning}` : "Rules-only mode."}`;
           decisionId = await decide(action, summary, { proposal: proposalJson(signal), risk: final, review });
           const [t] = await d.insert(schema.paperTrades).values({
-            side, qtyBtc: final.qtyBtc, entryPrice: o.fill, stop: signal.stop!, target: signal.target!, feesUsd: o.feeUsd,
+            side, qtyBtc: final.qtyBtc, entryPrice: o.fill, stop: signal.stop!, target: signal.target, feesUsd: o.feeUsd,
             openDecisionId: decisionId, signalId: sigRow.id, openedAt: new Date(now),
           }).returning({ id: schema.paperTrades.id });
           await d.update(schema.agentDecisions).set({ tradeId: t.id }).where(eq(schema.agentDecisions.id, decisionId));
           await d.update(schema.agentAccount).set({ cashUsd: o.cashUsd }).where(eq(schema.agentAccount.id, 1));
           cash = o.cashUsd;
-          position = { side, qtyBtc: final.qtyBtc, entryPrice: o.fill, stop: signal.stop!, target: signal.target!, openFeeUsd: o.feeUsd };
+          position = { side, qtyBtc: final.qtyBtc, entryPrice: o.fill, stop: signal.stop!, target: signal.target, openFeeUsd: o.feeUsd };
         }
       }
     }
@@ -190,7 +198,7 @@ async function account() {
 
 async function closeTrade(tradeId: number, pos: broker.Position, price: number, reason: string, cash: number, at: Date) {
   const d = await db();
-  const c = broker.close(cash, pos, price);
+  const c = broker.close(cash, pos, price, RISK, broker.exitLiquidity(reason));
   await d.update(schema.paperTrades).set({
     closedAt: at, exitPrice: c.fill, exitReason: reason, pnlUsd: c.pnlUsd, feesUsd: pos.openFeeUsd + c.feeUsd,
   }).where(eq(schema.paperTrades.id, tradeId));
@@ -236,7 +244,8 @@ async function resolveSignals(h1: Candle[], now: number) {
       if (now / 1000 >= end) await d.update(schema.signals).set({ resolvedAt: new Date(now), outcome: "n/a" }).where(eq(schema.signals.id, s.id));
       continue;
     }
-    const pos: broker.Position = { side: s.direction as broker.Side, qtyBtc: 1, entryPrice: s.price, stop: s.stop!, target: s.target!, openFeeUsd: 0 };
+    if (s.stop == null) continue;
+    const pos: broker.Position = { side: s.direction as broker.Side, qtyBtc: 1, entryPrice: s.price, stop: s.stop, target: s.target, openFeeUsd: 0 };
     const hit = broker.findExit(pos, window);
     const expired = now / 1000 >= end;
     if (!hit && !expired) continue;

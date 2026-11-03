@@ -1,0 +1,928 @@
+{
+  "generatedAt": "2026-11-03T18:41:36.105Z",
+  "engineVersion": "2.3.0",
+  "period": {
+    "from": "2023-11-04",
+    "to": "2026-11-03",
+    "days": 1095
+  },
+  "fees": {
+    "maker": 0.005,
+    "taker": 0.009,
+    "slippage": 0.0005
+  },
+  "liveConfig": {
+    "enterScore": 0.25,
+    "minConfidence": 0.25,
+    "stopAtr": 3,
+    "targetAtr": 0,
+    "stopBasis": "1d",
+    "exit": "trail",
+    "horizonHours": 72,
+    "weights": {
+      "trend_4h": 0.25,
+      "trend_1d": 0.2,
+      "momentum_4h": 0.15,
+      "rsi_1h": 0.15,
+      "funding": 0.15,
+      "fear_greed": 0.1,
+      "momentum_1d": 0.3
+    }
+  },
+  "baseline": {
+    "returnPct": 2.666394607415423,
+    "holdPct": 120.59402045633361,
+    "trades": 34,
+    "winRatePct": 32.35294117647059,
+    "profitFactor": 1.2521597591522629,
+    "maxDrawdownPct": 5.087945710020144,
+    "sharpe": 0.25515059297132975,
+    "exposurePct": 57.85847512466218,
+    "feesUsd": 621.8508843751399,
+    "avgTradePct": 0.07842337080633321
+  },
+  "baselineWithHalt": {
+    "returnPct": 2.666394607415423,
+    "holdPct": 120.59402045633361,
+    "trades": 34,
+    "winRatePct": 32.35294117647059,
+    "profitFactor": 1.2521597591522629,
+    "maxDrawdownPct": 5.087945710020144,
+    "sharpe": 0.25515059297132975,
+    "exposurePct": 57.85847512466218,
+    "feesUsd": 621.8508843751399,
+    "avgTradePct": 0.07842337080633321
+  },
+  "intradayV2": {
+    "returnPct": -80.96224859541638,
+    "holdPct": 120.59402045633361,
+    "trades": 240,
+    "winRatePct": 42.083333333333336,
+    "profitFactor": 0.35997872980586815,
+    "maxDrawdownPct": 81.58543396844266,
+    "sharpe": -4.30738800847468,
+    "exposurePct": 39.48840927258194,
+    "feesUsd": 9034.341507987421,
+    "avgTradePct": -0.3373427024809014
+  },
+  "technicalOnly": {
+    "returnPct": 1.8610010777492425,
+    "holdPct": 120.59402045633361,
+    "trades": 37,
+    "winRatePct": 32.432432432432435,
+    "profitFactor": 1.1555024315066522,
+    "maxDrawdownPct": 6.804249531059694,
+    "sharpe": 0.18459481185452364,
+    "exposurePct": 55.9514293327243,
+    "feesUsd": 679.99411507404,
+    "avgTradePct": 0.05029732642565454
+  },
+  "presets": [
+    {
+      "label": "intraday s2/t4",
+      "m": {
+        "returnPct": -54.09292372368802,
+        "holdPct": 120.59402045633361,
+        "trades": 150,
+        "winRatePct": 38,
+        "profitFactor": 0.5482531109211025,
+        "maxDrawdownPct": 56.41291549064466,
+        "sharpe": -2.3163997776636376,
+        "exposurePct": 48.00350196033649,
+        "feesUsd": 7199.439706805853,
+        "avgTradePct": -0.36061949149125355
+      }
+    },
+    {
+      "label": "intraday s3/t6",
+      "m": {
+        "returnPct": -22.60879527261406,
+        "holdPct": 120.59402045633361,
+        "trades": 94,
+        "winRatePct": 37.234042553191486,
+        "profitFactor": 0.7114909480374397,
+        "maxDrawdownPct": 31.3692517132387,
+        "sharpe": -1.047087509928003,
+        "exposurePct": 55.452780632636745,
+        "feesUsd": 3792.5424758042805,
+        "avgTradePct": -0.24051909864483087
+      }
+    },
+    {
+      "label": "intraday trail 3",
+      "m": {
+        "returnPct": -40.892868345649674,
+        "holdPct": 120.59402045633361,
+        "trades": 137,
+        "winRatePct": 19.708029197080293,
+        "profitFactor": 0.49237773005029106,
+        "maxDrawdownPct": 45.428389468947685,
+        "sharpe": -1.886195377393412,
+        "exposurePct": 45.88709984393438,
+        "feesUsd": 5514.39842406029,
+        "avgTradePct": -0.2984880901142305
+      }
+    },
+    {
+      "label": "intraday trail 4",
+      "m": {
+        "returnPct": -21.65125254161647,
+        "holdPct": 120.59402045633361,
+        "trades": 96,
+        "winRatePct": 26.041666666666668,
+        "profitFactor": 0.573505524226911,
+        "maxDrawdownPct": 27.67369681746289,
+        "sharpe": -1.1658112739070234,
+        "exposurePct": 49.267252864375166,
+        "feesUsd": 3144.542958217486,
+        "avgTradePct": -0.22553388064183752
+      }
+    },
+    {
+      "label": "swing_trend s2/t4",
+      "m": {
+        "returnPct": -4.295483168756091,
+        "holdPct": 120.59402045633361,
+        "trades": 44,
+        "winRatePct": 38.63636363636363,
+        "profitFactor": 0.8758371254967584,
+        "maxDrawdownPct": 12.23140393722504,
+        "sharpe": -0.24411178464438565,
+        "exposurePct": 62.91347874081688,
+        "feesUsd": 1143.9367457906244,
+        "avgTradePct": -0.09762461747173218
+      }
+    },
+    {
+      "label": "swing_trend s3/t6",
+      "m": {
+        "returnPct": 1.9122973163674215,
+        "holdPct": 120.59402045633361,
+        "trades": 26,
+        "winRatePct": 38.46153846153847,
+        "profitFactor": 1.1124497784938232,
+        "maxDrawdownPct": 6.799792346676589,
+        "sharpe": 0.18736103001336746,
+        "exposurePct": 66.44208442769593,
+        "feesUsd": 430.4846966189281,
+        "avgTradePct": 0.07354989678336077
+      }
+    },
+    {
+      "label": "swing_trend trail 3",
+      "m": {
+        "returnPct": -3.975873307517613,
+        "holdPct": 120.59402045633361,
+        "trades": 36,
+        "winRatePct": 27.77777777777778,
+        "profitFactor": 0.750493254534127,
+        "maxDrawdownPct": 8.19416164973994,
+        "sharpe": -0.3418808506772457,
+        "exposurePct": 61.69540558029767,
+        "feesUsd": 632.2728556191813,
+        "avgTradePct": -0.11044092520882162
+      }
+    },
+    {
+      "label": "swing_trend trail 4",
+      "m": {
+        "returnPct": 0.4407170021818456,
+        "holdPct": 120.59402045633361,
+        "trades": 22,
+        "winRatePct": 31.818181818181817,
+        "profitFactor": 1.0530109735970357,
+        "maxDrawdownPct": 4.679776867316694,
+        "sharpe": 0.06500357475268734,
+        "exposurePct": 65.79878953979673,
+        "feesUsd": 278.60614360691625,
+        "avgTradePct": 0.020032591008265613
+      }
+    },
+    {
+      "label": "swing_trend_funding s2/t4",
+      "m": {
+        "returnPct": -3.8248602628907427,
+        "holdPct": 120.59402045633361,
+        "trades": 41,
+        "winRatePct": 39.02439024390244,
+        "profitFactor": 0.8822327835802264,
+        "maxDrawdownPct": 11.799805585439618,
+        "sharpe": -0.21687813520321608,
+        "exposurePct": 64.4589090632256,
+        "feesUsd": 1062.873875557002,
+        "avgTradePct": -0.09328927470465392
+      }
+    },
+    {
+      "label": "swing_trend_funding s3/t6",
+      "m": {
+        "returnPct": 0.4113295235153601,
+        "holdPct": 120.59402045633361,
+        "trades": 26,
+        "winRatePct": 38.46153846153847,
+        "profitFactor": 1.0222759541756625,
+        "maxDrawdownPct": 7.224266132298542,
+        "sharpe": 0.05378066100089756,
+        "exposurePct": 67.3328004263256,
+        "feesUsd": 438.870386517229,
+        "avgTradePct": 0.015820366289053568
+      }
+    },
+    {
+      "label": "swing_trend_funding trail 3",
+      "m": {
+        "returnPct": -2.8510419122323034,
+        "holdPct": 120.59402045633361,
+        "trades": 35,
+        "winRatePct": 31.428571428571427,
+        "profitFactor": 0.8071916086619532,
+        "maxDrawdownPct": 7.27900955371915,
+        "sharpe": -0.23638742215935915,
+        "exposurePct": 64.42084427695939,
+        "feesUsd": 623.3925694831114,
+        "avgTradePct": -0.08145834034949487
+      }
+    },
+    {
+      "label": "swing_trend_funding trail 4",
+      "m": {
+        "returnPct": -0.8286742462286566,
+        "holdPct": 120.59402045633361,
+        "trades": 22,
+        "winRatePct": 31.818181818181817,
+        "profitFactor": 0.911448016080413,
+        "maxDrawdownPct": 5.673816082507981,
+        "sharpe": -0.08363736618863,
+        "exposurePct": 68.77164934718891,
+        "feesUsd": 281.1865575605758,
+        "avgTradePct": -0.03766701119221367
+      }
+    },
+    {
+      "label": "swing_all s2/t4",
+      "m": {
+        "returnPct": -0.40554100324237885,
+        "holdPct": 120.59402045633361,
+        "trades": 46,
+        "winRatePct": 36.95652173913043,
+        "profitFactor": 0.9869608017097878,
+        "maxDrawdownPct": 10.120472529652707,
+        "sharpe": 0.00010520445266594198,
+        "exposurePct": 62.4947660918884,
+        "feesUsd": 1219.580338083696,
+        "avgTradePct": -0.008816108766138201
+      }
+    },
+    {
+      "label": "swing_all s3/t6",
+      "m": {
+        "returnPct": 3.252666587312815,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 35.294117647058826,
+        "profitFactor": 1.192920727519158,
+        "maxDrawdownPct": 6.971374214614848,
+        "sharpe": 0.3008886886088543,
+        "exposurePct": 64.01355106391078,
+        "feesUsd": 573.8809270733647,
+        "avgTradePct": 0.09566666433273026
+      }
+    },
+    {
+      "label": "swing_all trail 3",
+      "m": {
+        "returnPct": 2.666394607415423,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 32.35294117647059,
+        "profitFactor": 1.2521597591522629,
+        "maxDrawdownPct": 5.087945710020144,
+        "sharpe": 0.25515059297132975,
+        "exposurePct": 57.85847512466218,
+        "feesUsd": 621.8508843751399,
+        "avgTradePct": 0.07842337080633321
+      }
+    },
+    {
+      "label": "swing_all trail 4",
+      "m": {
+        "returnPct": 2.387838232294125,
+        "holdPct": 120.59402045633361,
+        "trades": 25,
+        "winRatePct": 28.000000000000004,
+        "profitFactor": 1.3267750704816925,
+        "maxDrawdownPct": 4.76435187202175,
+        "sharpe": 0.28766035678971047,
+        "exposurePct": 61.81340641772296,
+        "feesUsd": 320.43707890825146,
+        "avgTradePct": 0.09551352929176364
+      }
+    }
+  ],
+  "feeSensitivity": [
+    {
+      "label": "no fees",
+      "m": {
+        "returnPct": 9.03292429451718,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 38.23529411764706,
+        "profitFactor": 2.2951011314250827,
+        "maxDrawdownPct": 3.408900175954461,
+        "sharpe": 0.8204189308166461,
+        "exposurePct": 57.85847512466218,
+        "feesUsd": 0,
+        "avgTradePct": 0.2656742439563894
+      }
+    },
+    {
+      "label": "0.10/0.15 ($250k+ tier)",
+      "m": {
+        "returnPct": 7.945918218104415,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 38.23529411764706,
+        "profitFactor": 2.0507099664170343,
+        "maxDrawdownPct": 3.621631206392824,
+        "sharpe": 0.7239064923224977,
+        "exposurePct": 57.85847512466218,
+        "feesUsd": 106.20293322406386,
+        "avgTradePct": 0.2337034770030713
+      }
+    },
+    {
+      "label": "0.25/0.40 (Kraken entry)",
+      "m": {
+        "returnPct": 6.1575159036340485,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 35.294117647058826,
+        "profitFactor": 1.7208123220981482,
+        "maxDrawdownPct": 3.975248771738398,
+        "sharpe": 0.5648524590367183,
+        "exposurePct": 57.85847512466218,
+        "feesUsd": 280.90741531686353,
+        "avgTradePct": 0.18110340893041138
+      }
+    },
+    {
+      "label": "0.40/0.60 (old CB entry)",
+      "m": {
+        "returnPct": 4.747490309862733,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 32.35294117647059,
+        "profitFactor": 1.5073923079175415,
+        "maxDrawdownPct": 4.257301887924098,
+        "sharpe": 0.4395043470269815,
+        "exposurePct": 57.85847512466218,
+        "feesUsd": 418.62653773518036,
+        "avgTradePct": 0.1396320679371371
+      }
+    },
+    {
+      "label": "0.50/0.90 (CB entry, Sep-26)",
+      "m": {
+        "returnPct": 2.666394607415423,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 32.35294117647059,
+        "profitFactor": 1.2521597591522629,
+        "maxDrawdownPct": 5.087945710020144,
+        "sharpe": 0.25515059297132975,
+        "exposurePct": 57.85847512466218,
+        "feesUsd": 621.8508843751399,
+        "avgTradePct": 0.07842337080633321
+      }
+    }
+  ],
+  "ablation": [
+    {
+      "label": "without trend_4h",
+      "m": {
+        "returnPct": -2.576583343210532,
+        "holdPct": 120.59402045633361,
+        "trades": 40,
+        "winRatePct": 25,
+        "profitFactor": 0.8343065026174126,
+        "maxDrawdownPct": 8.068967960921096,
+        "sharpe": -0.2117803845394195,
+        "exposurePct": 63.90696966236534,
+        "feesUsd": 711.9359073260698,
+        "avgTradePct": -0.06441458358025878
+      }
+    },
+    {
+      "label": "without trend_1d",
+      "m": {
+        "returnPct": 3.649931664265823,
+        "holdPct": 120.59402045633361,
+        "trades": 36,
+        "winRatePct": 30.555555555555557,
+        "profitFactor": 1.341592634301995,
+        "maxDrawdownPct": 5.4556320615811575,
+        "sharpe": 0.33333949544460584,
+        "exposurePct": 57.47021430474668,
+        "feesUsd": 639.695090218201,
+        "avgTradePct": 0.1013869906740508
+      }
+    },
+    {
+      "label": "without momentum_4h",
+      "m": {
+        "returnPct": 3.0949294939551693,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 32.35294117647059,
+        "profitFactor": 1.3007508050218781,
+        "maxDrawdownPct": 4.8166586408522365,
+        "sharpe": 0.28992113421751803,
+        "exposurePct": 57.95744356895436,
+        "feesUsd": 627.994674024312,
+        "avgTradePct": 0.09102733805750608
+      }
+    },
+    {
+      "label": "without rsi_1h",
+      "m": {
+        "returnPct": 0.6676372599306342,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 32.35294117647059,
+        "profitFactor": 1.0527549181471456,
+        "maxDrawdownPct": 6.314450386432951,
+        "sharpe": 0.07698655619222528,
+        "exposurePct": 57.35221346732138,
+        "feesUsd": 623.2930046026551,
+        "avgTradePct": 0.019636389997957315
+      }
+    },
+    {
+      "label": "without funding",
+      "m": {
+        "returnPct": 1.994525350107997,
+        "holdPct": 120.59402045633361,
+        "trades": 36,
+        "winRatePct": 30.555555555555557,
+        "profitFactor": 1.1707494132402492,
+        "maxDrawdownPct": 5.934964337480206,
+        "sharpe": 0.19606474048414232,
+        "exposurePct": 56.644208442769596,
+        "feesUsd": 660.9597620794675,
+        "avgTradePct": 0.055403481947442074
+      }
+    },
+    {
+      "label": "without fear_greed",
+      "m": {
+        "returnPct": 3.406713994555248,
+        "holdPct": 120.59402045633361,
+        "trades": 34,
+        "winRatePct": 35.294117647058826,
+        "profitFactor": 1.3244329288677328,
+        "maxDrawdownPct": 5.246218357515146,
+        "sharpe": 0.31993133773480026,
+        "exposurePct": 57.20376080088311,
+        "feesUsd": 628.3169769978737,
+        "avgTradePct": 0.10019747042809544
+      }
+    },
+    {
+      "label": "without momentum_1d",
+      "m": {
+        "returnPct": -3.8936231540270634,
+        "holdPct": 120.59402045633361,
+        "trades": 45,
+        "winRatePct": 26.666666666666668,
+        "profitFactor": 0.7708626253587152,
+        "maxDrawdownPct": 8.836676773721146,
+        "sharpe": -0.3410661792234091,
+        "exposurePct": 60.32126679608694,
+        "feesUsd": 763.7969913243094,
+        "avgTradePct": -0.0865249589783785
+      }
+    },
+    {
+      "label": "only trend_4h",
+      "m": {
+        "returnPct": -0.08073350071132153,
+        "holdPct": 120.59402045633361,
+        "trades": 49,
+        "winRatePct": 26.53061224489796,
+        "profitFactor": 0.9946528537091142,
+        "maxDrawdownPct": 7.614921948483845,
+        "sharpe": 0.009699506196166328,
+        "exposurePct": 54.09767424155913,
+        "feesUsd": 843.0426507545317,
+        "avgTradePct": -0.0016476224634956228
+      }
+    },
+    {
+      "label": "only trend_1d",
+      "m": {
+        "returnPct": -1.498006193429719,
+        "holdPct": 120.59402045633361,
+        "trades": 36,
+        "winRatePct": 33.33333333333333,
+        "profitFactor": 0.9152211138625922,
+        "maxDrawdownPct": 6.61554231714868,
+        "sharpe": -0.1103373825645814,
+        "exposurePct": 67.60306040881581,
+        "feesUsd": 630.943740033724,
+        "avgTradePct": -0.03531233424775224
+      }
+    },
+    {
+      "label": "only momentum_4h",
+      "m": {
+        "returnPct": -15.964248917097429,
+        "holdPct": 120.59402045633361,
+        "trades": 132,
+        "winRatePct": 28.78787878787879,
+        "profitFactor": 0.5402459652667467,
+        "maxDrawdownPct": 17.577584629338926,
+        "sharpe": -1.5855288330121358,
+        "exposurePct": 47.85885577252484,
+        "feesUsd": 2185.8397168356996,
+        "avgTradePct": -0.11995392764120234
+      }
+    },
+    {
+      "label": "only rsi_1h",
+      "m": {
+        "returnPct": -65.17338167869102,
+        "holdPct": 120.59402045633361,
+        "trades": 582,
+        "winRatePct": 17.18213058419244,
+        "profitFactor": 0.15680602499743243,
+        "maxDrawdownPct": 65.19120965002006,
+        "sharpe": -9.207662272835368,
+        "exposurePct": 50.44345476000153,
+        "feesUsd": 6632.646554595985,
+        "avgTradePct": -0.11191113631128637
+      }
+    },
+    {
+      "label": "only funding",
+      "m": {
+        "returnPct": -13.87211676970046,
+        "holdPct": 120.59402045633361,
+        "trades": 73,
+        "winRatePct": 36.986301369863014,
+        "profitFactor": 0.46225126359707935,
+        "maxDrawdownPct": 14.339517808936492,
+        "sharpe": -1.3513331983268373,
+        "exposurePct": 65.37246393361501,
+        "feesUsd": 1173.0216052528995,
+        "avgTradePct": -0.19002899684521185
+      }
+    },
+    {
+      "label": "only fear_greed",
+      "m": {
+        "returnPct": -3.80619926461457,
+        "holdPct": 120.59402045633361,
+        "trades": 30,
+        "winRatePct": 46.666666666666664,
+        "profitFactor": 0.7349072054779205,
+        "maxDrawdownPct": 8.90150247516069,
+        "sharpe": -0.44020348160731887,
+        "exposurePct": 43.98386053062312,
+        "feesUsd": 486.4469436615142,
+        "avgTradePct": -0.12536424630571727
+      }
+    },
+    {
+      "label": "only momentum_1d",
+      "m": {
+        "returnPct": -2.792720927289192,
+        "holdPct": 120.59402045633361,
+        "trades": 44,
+        "winRatePct": 27.27272727272727,
+        "profitFactor": 0.8226854231556785,
+        "maxDrawdownPct": 8.750865678300562,
+        "sharpe": -0.2194322101177013,
+        "exposurePct": 60.435461154885616,
+        "feesUsd": 769.2526170341747,
+        "avgTradePct": -0.06347093016566564
+      }
+    }
+  ],
+  "walkForward": {
+    "trainDays": 270,
+    "testDays": 90,
+    "folds": [
+      {
+        "trainFrom": "2023-11-04",
+        "testFrom": "2024-07-31",
+        "chosen": {
+          "preset": "swing_all",
+          "enterScore": 0.15,
+          "minConfidence": 0.25,
+          "stopAtr": 3,
+          "targetAtr": 6
+        },
+        "train": {
+          "returnPct": 7.177202605150196,
+          "holdPct": 89.4733790242993,
+          "trades": 11,
+          "winRatePct": 54.54545454545454,
+          "profitFactor": 2.9181276785273074,
+          "maxDrawdownPct": 2.4878446758321715,
+          "sharpe": 2.1778517809356877,
+          "exposurePct": 79.29012345679011,
+          "feesUsd": 158.90151738994044,
+          "avgTradePct": 0.571067204008724
+        },
+        "test": {
+          "returnPct": -0.09258510731528077,
+          "holdPct": 11.913636754760812,
+          "trades": 3,
+          "winRatePct": 0,
+          "profitFactor": 0,
+          "maxDrawdownPct": 2.125893273818292,
+          "sharpe": 0.28683008250342273,
+          "exposurePct": 68.19444444444444,
+          "feesUsd": 37.9863846136779,
+          "avgTradePct": -0.5888118503730834
+        }
+      },
+      {
+        "trainFrom": "2024-02-02",
+        "testFrom": "2024-10-29",
+        "chosen": {
+          "preset": "swing_all",
+          "enterScore": 0.15,
+          "minConfidence": 0.25,
+          "stopAtr": 1.5,
+          "targetAtr": 4.5
+        },
+        "train": {
+          "returnPct": 9.223167635144236,
+          "holdPct": 68.36016070953026,
+          "trades": 16,
+          "winRatePct": 43.75,
+          "profitFactor": 2.079067358456681,
+          "maxDrawdownPct": 6.722974431765949,
+          "sharpe": 1.6412879894854413,
+          "exposurePct": 71.69753086419753,
+          "feesUsd": 462.7604700989745,
+          "avgTradePct": 0.5578190979828811
+        },
+        "test": {
+          "returnPct": 0.18823146336748323,
+          "holdPct": 36.37940318525836,
+          "trades": 9,
+          "winRatePct": 33.33333333333333,
+          "profitFactor": 1.0442926471806198,
+          "maxDrawdownPct": 5.220586166793169,
+          "sharpe": 0.30210903578694265,
+          "exposurePct": 82.17592592592592,
+          "feesUsd": 295.2058886348065,
+          "avgTradePct": 0.03794020612533866
+        }
+      },
+      {
+        "trainFrom": "2024-05-02",
+        "testFrom": "2025-01-27",
+        "chosen": {
+          "preset": "swing_all",
+          "enterScore": 0.15,
+          "minConfidence": 0.25,
+          "stopAtr": 2,
+          "targetAtr": 3
+        },
+        "train": {
+          "returnPct": 3.282054765715038,
+          "holdPct": 66.98506105335255,
+          "trades": 14,
+          "winRatePct": 50,
+          "profitFactor": 1.6022009407776063,
+          "maxDrawdownPct": 3.328694619132498,
+          "sharpe": 0.8940431418444256,
+          "exposurePct": 68.6574074074074,
+          "feesUsd": 289.3137517414545,
+          "avgTradePct": 0.2428915084644578
+        },
+        "test": {
+          "returnPct": -2.3492714554073792,
+          "holdPct": -7.426126440658883,
+          "trades": 3,
+          "winRatePct": 0,
+          "profitFactor": 0,
+          "maxDrawdownPct": 3.632450699782256,
+          "sharpe": -3.5623603165804436,
+          "exposurePct": 31.62037037037037,
+          "feesUsd": 66.49764619401063,
+          "avgTradePct": -1.0795046208180221
+        }
+      },
+      {
+        "trainFrom": "2024-07-31",
+        "testFrom": "2025-04-27",
+        "chosen": {
+          "preset": "swing_all",
+          "enterScore": 0.35,
+          "minConfidence": 0.25,
+          "stopAtr": 2,
+          "targetAtr": 3
+        },
+        "train": {
+          "returnPct": 3.6208635114632126,
+          "holdPct": 44.81349038185796,
+          "trades": 10,
+          "winRatePct": 60,
+          "profitFactor": 1.519943350218307,
+          "maxDrawdownPct": 4.209345338060932,
+          "sharpe": 1.0602195091839446,
+          "exposurePct": 49.089506172839506,
+          "feesUsd": 224.85559477668374,
+          "avgTradePct": 0.2677254846470688
+        },
+        "test": {
+          "returnPct": 0.7627200081515002,
+          "holdPct": 25.653563803710426,
+          "trades": 5,
+          "winRatePct": 60,
+          "profitFactor": 1.3813848310687913,
+          "maxDrawdownPct": 3.2525058550093586,
+          "sharpe": 0.8392350737274141,
+          "exposurePct": 83.24074074074073,
+          "feesUsd": 137.39018143392607,
+          "avgTradePct": 0.20876688854839187
+        }
+      },
+      {
+        "trainFrom": "2024-10-29",
+        "testFrom": "2025-07-26",
+        "chosen": {
+          "preset": "swing_all",
+          "enterScore": 0.35,
+          "minConfidence": 0.25,
+          "stopAtr": 2,
+          "targetAtr": 4.5
+        },
+        "train": {
+          "returnPct": 5.235485939750925,
+          "holdPct": 62.53504488939251,
+          "trades": 9,
+          "winRatePct": 55.55555555555556,
+          "profitFactor": 1.9707764779161574,
+          "maxDrawdownPct": 4.071154731936137,
+          "sharpe": 1.403978100188196,
+          "exposurePct": 73.11728395061728,
+          "feesUsd": 213.474960018403,
+          "avgTradePct": 0.5609923003011542
+        },
+        "test": {
+          "returnPct": -3.697167432473216,
+          "holdPct": -6.625984881256891,
+          "trades": 5,
+          "winRatePct": 20,
+          "profitFactor": 0.3296181559278488,
+          "maxDrawdownPct": 4.595461234409374,
+          "sharpe": -2.7007101813451513,
+          "exposurePct": 54.074074074074076,
+          "feesUsd": 182.4644676525587,
+          "avgTradePct": -0.7394334864946445
+        }
+      },
+      {
+        "trainFrom": "2025-01-27",
+        "testFrom": "2025-10-24",
+        "chosen": null,
+        "train": {
+          "returnPct": -44.02354787205945,
+          "holdPct": 8.472526668007559,
+          "trades": 70,
+          "winRatePct": 34.285714285714285,
+          "profitFactor": 0.2675291880178529,
+          "maxDrawdownPct": 44.32989395264008,
+          "sharpe": -5.302169057835369,
+          "exposurePct": 54.13580246913581,
+          "feesUsd": 4226.397525251051,
+          "avgTradePct": -0.6289078267437073
+        },
+        "test": {
+          "returnPct": 0,
+          "holdPct": -19.439735867838827,
+          "trades": 0,
+          "winRatePct": 0,
+          "profitFactor": 0,
+          "maxDrawdownPct": 0,
+          "sharpe": 0,
+          "exposurePct": 0,
+          "feesUsd": 0,
+          "avgTradePct": 0
+        }
+      },
+      {
+        "trainFrom": "2025-04-27",
+        "testFrom": "2026-01-22",
+        "chosen": null,
+        "train": {
+          "returnPct": -41.3437731095113,
+          "holdPct": -4.805540619329195,
+          "trades": 67,
+          "winRatePct": 37.3134328358209,
+          "profitFactor": 0.2853171913883774,
+          "maxDrawdownPct": 42.149310569987335,
+          "sharpe": -5.0328119527021915,
+          "exposurePct": 45.80694980694981,
+          "feesUsd": 4418.405900427104,
+          "avgTradePct": -0.6170712404404661
+        },
+        "test": {
+          "returnPct": 0,
+          "holdPct": -11.55453483715029,
+          "trades": 0,
+          "winRatePct": 0,
+          "profitFactor": 0,
+          "maxDrawdownPct": 0,
+          "sharpe": 0,
+          "exposurePct": 0,
+          "feesUsd": 0,
+          "avgTradePct": 0
+        }
+      },
+      {
+        "trainFrom": "2025-07-26",
+        "testFrom": "2026-04-22",
+        "chosen": null,
+        "train": {
+          "returnPct": -34.43145373151481,
+          "holdPct": -33.12673948006587,
+          "trades": 48,
+          "winRatePct": 33.33333333333333,
+          "profitFactor": 0.2214232924791139,
+          "maxDrawdownPct": 35.104067393283124,
+          "sharpe": -4.434397552807237,
+          "exposurePct": 27.52123552123552,
+          "feesUsd": 3098.7058374050735,
+          "avgTradePct": -0.7224558005451144
+        },
+        "test": {
+          "returnPct": 0,
+          "holdPct": -15.860002866385853,
+          "trades": 0,
+          "winRatePct": 0,
+          "profitFactor": 0,
+          "maxDrawdownPct": 0,
+          "sharpe": 0,
+          "exposurePct": 0,
+          "feesUsd": 0,
+          "avgTradePct": 0
+        }
+      },
+      {
+        "trainFrom": "2025-10-24",
+        "testFrom": "2026-07-21",
+        "chosen": null,
+        "train": {
+          "returnPct": -26.50494767652584,
+          "holdPct": -40.416631508060604,
+          "trades": 31,
+          "winRatePct": 29.03225806451613,
+          "profitFactor": 0.24520682712257463,
+          "maxDrawdownPct": 27.435996972712047,
+          "sharpe": -4.2095233680251445,
+          "exposurePct": 23.740340030911902,
+          "feesUsd": 2164.8734203638346,
+          "avgTradePct": -0.8489254182012067
+        },
+        "test": {
+          "returnPct": 0,
+          "holdPct": 23.48148017362145,
+          "trades": 0,
+          "winRatePct": 0,
+          "profitFactor": 0,
+          "maxDrawdownPct": 0,
+          "sharpe": 0,
+          "exposurePct": 0,
+          "feesUsd": 0,
+          "avgTradePct": 0
+        }
+      }
+    ],
+    "oos": {
+      "returnPct": -5.151850175576419,
+      "holdPct": 25.955891713298758,
+      "trades": 25,
+      "winRatePct": 28.000000000000004,
+      "profitFactor": 0.6510174013575143,
+      "maxDrawdownPct": 10.233969418300221,
+      "sharpe": -0.5092279688467529,
+      "exposurePct": null,
+      "feesUsd": 719.5445685289798,
+      "avgTradePct": -0.29267282192706123
+    }
+  },
+  "gate": {
+    "pass": false,
+    "failures": [
+      "profit factor 0.65 < 1.2",
+      "win rate 28.00% < 35%",
+      "Sharpe -0.51 < 0.5"
+    ]
+  }
+}

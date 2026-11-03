@@ -58,7 +58,10 @@ export const paperTrades = pgTable(
     qtyBtc: doublePrecision("qty_btc").notNull(),
     entryPrice: doublePrecision("entry_price").notNull(),
     stop: doublePrecision("stop").notNull(),
-    target: doublePrecision("target").notNull(),
+    /** null = trailing-stop exit */
+    target: doublePrecision("target"),
+    /** Most favourable close since entry (trailing stops). */
+    best: doublePrecision("best"),
     exitPrice: doublePrecision("exit_price"),
     /** "stop" | "target" | "signal" | "manual" | "kill" */
     exitReason: text("exit_reason"),

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import clsx from "clsx";
 import { EquityChart } from "@/components/equity-chart";
 import { LocalTime } from "@/components/local-time";
+import { ResearchPanel } from "@/components/research-panel";
 import { getAgentView, type AgentView } from "@/lib/agent/queries";
 import { RISK } from "@/lib/agent/risk";
 import { ENGINE_CONFIG, ENGINE_VERSION } from "@/lib/engine/signal";
@@ -26,9 +27,10 @@ export default function AgentPage() {
         </div>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">The trading agent</h1>
         <p className="mt-4 text-lg text-muted">
-          Rules propose. Claude reviews. Hard limits decide. Every hour the agent reads the market, scores six
-          factors, and either sits out or proposes a trade, which Claude can approve, shrink, or veto. Nothing
-          here is hidden: every decision, every reason, every loss.
+          Rules propose. Claude reviews. Hard limits decide. Every hour the agent reads the market, scores seven
+          factors, and either sits out or proposes a swing trade with a trailing stop, which Claude can approve,
+          shrink, or veto. Nothing here is hidden: every decision, every reason, every loss, and a backtest
+          that hasn&apos;t passed its own bar yet.
         </p>
       </div>
       <Suspense fallback={<div className="card mt-10 h-96 animate-pulse" />}>
@@ -122,7 +124,7 @@ async function AgentBody() {
               <KV k="Entry" v={usd(openTrade.entryPrice)} />
               <KV k="Opened" v={<LocalTime iso={openTrade.openedAt.toISOString()} />} />
               <KV k="Stop" v={<span className="text-down">{usd(openTrade.stop)}</span>} />
-              <KV k="Target" v={<span className="text-up">{usd(openTrade.target)}</span>} />
+              <KV k="Target" v={openTrade.target != null ? <span className="text-up">{usd(openTrade.target)}</span> : <span className="text-muted">Trailing stop</span>} />
             </dl>
           ) : (
             <p className="mt-4 text-muted">Flat. Waiting for a setup that clears the rules and the review.</p>
@@ -133,7 +135,7 @@ async function AgentBody() {
             <li>Max {RISK.maxEntriesPerDay} entries/day · stop new trades at −{RISK.dailyLossStopPct}% on the day</li>
             <li>{RISK.cooldownHoursAfterClose}h cooldown after a close · reward:risk ≥ 1.5</li>
             <li>Auto-halt at {RISK.maxDrawdownHaltPct}% drawdown · {RISK.allowShort ? "long & short" : "long-only (spot)"}</li>
-            <li>Stops {ENGINE_CONFIG.stopAtr}× ATR, targets {ENGINE_CONFIG.targetAtr}× ATR · fees {(RISK.feeRate * 100).toFixed(2)}% + {(RISK.slippage * 100).toFixed(2)}% slippage per fill</li>
+            <li>Stops {ENGINE_CONFIG.stopAtr}× {ENGINE_CONFIG.stopBasis} ATR, {ENGINE_CONFIG.exit === "trail" ? "trailing, no fixed target" : `targets ${ENGINE_CONFIG.targetAtr}× ATR`} · fees {(RISK.makerFee * 100).toFixed(2)}% maker / {(RISK.takerFee * 100).toFixed(2)}% taker + {(RISK.slippage * 100).toFixed(2)}% slippage</li>
             <li>Claude can approve, shrink, or veto — never enlarge. Exits never wait on Claude.</li>
           </ul>
         </div>
@@ -147,6 +149,8 @@ async function AgentBody() {
         </div>
         <EquityChart points={v.equity} startCash={account.startingCashUsd} />
       </div>
+
+      <ResearchPanel />
 
       {/* Decision log */}
       <div className="card p-5">

@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { Candle } from "@/lib/market/types";
-import { close, equity, findExit, open, type Position } from "./broker";
+import { close, equity, findExit, open, trail, type Position } from "./broker";
 import { checkEntry, RISK, type RiskState } from "./risk";
-import { closedOnly, evaluate } from "@/lib/engine/signal";
+import { closedOnly, ENGINE_CONFIG, evaluate, INTRADAY_V2_CONFIG } from "@/lib/engine/signal";
 
-const cfg = { ...RISK, feeRate: 0.001, slippage: 0 };
+const cfg = { ...RISK, makerFee: 0.001, takerFee: 0.001, slippage: 0 };
 const base: RiskState = {
   enabled: true, equityUsd: 10_000, cashUsd: 10_000, peakEquityUsd: 10_000, hasOpenPosition: false,
   entriesToday: 0, pnlTodayPct: 0, lastCloseAt: null, now: Date.UTC(2026, 0, 1),
@@ -47,9 +47,23 @@ describe("broker", () => {
     expect(o.cashUsd).toBeCloseTo(10_000 - 5_000 - 5, 6);
     const pos: Position = { side: "long", qtyBtc: 0.05, entryPrice: o.fill, stop: 98_000, target: 104_000, openFeeUsd: o.feeUsd };
     expect(equity(o.cashUsd, pos, 102_000)).toBeCloseTo(4_995 + 5_100, 6);
-    const cl = close(o.cashUsd, pos, 104_000, cfg);
+    const cl = close(o.cashUsd, pos, 104_000, cfg, "maker");
     expect(cl.pnlUsd).toBeCloseTo(200 - 5 - 5.2, 6);
     expect(cl.cashUsd).toBeCloseTo(10_000 + cl.pnlUsd, 6);
+  });
+  it("maker fills skip slippage, taker fills pay it", () => {
+    const slip = { ...cfg, slippage: 0.001 };
+    expect(open(10_000, "long", 0.01, 100_000, slip, "taker").fill).toBeCloseTo(100_100, 6);
+    expect(open(10_000, "long", 0.01, 100_000, slip, "maker").fill).toBe(100_000);
+  });
+  it("trailing stop only tightens and never takes a target", () => {
+    let p: Position = { side: "long", qtyBtc: 1, entryPrice: 100, stop: 90, target: null, openFeeUsd: 0 };
+    p = trail(p, 120, 5, 2); // best 120 → stop 110
+    expect(p.stop).toBe(110);
+    p = trail(p, 105, 5, 2); // pullback must not loosen
+    expect(p.stop).toBe(110);
+    expect(findExit(p, [c(1, 112, 200, 111, 150)])).toBeNull(); // no target to hit
+    expect(findExit(p, [c(2, 112, 113, 109, 110)])).toMatchObject({ reason: "stop", price: 110 });
   });
   it("assumes the stop when a candle spans both levels, and fills gaps at the open", () => {
     const pos: Position = { side: "long", qtyBtc: 1, entryPrice: 100, stop: 95, target: 110, openFeeUsd: 0 };
@@ -65,13 +79,19 @@ describe("engine", () => {
 
   it("goes long in a steady uptrend and flat in a flat market", () => {
     const up = (i: number) => 50_000 * Math.pow(1.0015, i) * (1 + 0.004 * Math.sin(i));
-    const s = evaluate({ h1: series(300, 3600, up), h4: series(300, 14400, up), d1: series(300, 86400, (i) => 30_000 * Math.pow(1.004, i)) });
+    const inp = { h1: series(300, 3600, up), h4: series(300, 14400, up), d1: series(300, 86400, (i) => 30_000 * Math.pow(1.004, i)) };
+    const s = evaluate(inp, INTRADAY_V2_CONFIG);
     expect(s.direction).toBe("long");
     expect(s.stop!).toBeLessThan(s.price);
     expect(s.target!).toBeGreaterThan(s.price);
     expect(s.coverage).toBeCloseTo(0.75, 6); // funding + F&G missing
     const flat = (i: number) => 50_000 * (1 + 0.002 * Math.sin(i / 3));
-    expect(evaluate({ h1: series(300, 3600, flat), h4: series(300, 14400, flat), d1: series(300, 86400, flat) }).direction).toBe("flat");
+    expect(evaluate({ h1: series(300, 3600, flat), h4: series(300, 14400, flat), d1: series(300, 86400, flat) }, INTRADAY_V2_CONFIG).direction).toBe("flat");
+    // live swing config: daily-ATR stop, no fixed target (trailing)
+    const live = evaluate(inp, ENGINE_CONFIG);
+    expect(live.direction).toBe("long");
+    expect(live.target).toBeNull();
+    expect(live.price - live.stop!).toBeCloseTo(3 * live.atr1d!, 6);
   });
   it("closedOnly drops a forming candle", () => {
     const cs = [c(0, 1, 1, 1, 1), c(3600, 1, 1, 1, 1)];

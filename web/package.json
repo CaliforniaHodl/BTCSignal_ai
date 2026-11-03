@@ -9,8 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "backtest": "tsx scripts/backtest.ts",
-    "agent:tick": "curl -s 'http://localhost:3000/api/cron/agent?force=1'"
+    "agent:tick": "curl -s 'http://localhost:3000/api/cron/agent?force=1'",
+    "research": "tsx scripts/research/run.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
