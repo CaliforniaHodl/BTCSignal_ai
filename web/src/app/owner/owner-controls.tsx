@@ -14,6 +14,12 @@ export function OwnerControls({ enabled }: { enabled: boolean }) {
       setMsg(r.ok ? (j.summary ?? j.reason ?? "Done.") : (j.error ?? "Failed."));
       router.refresh();
     });
+  const dryRun = () =>
+    start(async () => {
+      const r = await fetch("/api/owner/live-preview", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ usd: 10 }) });
+      const j = await r.json();
+      setMsg(j.ok ? `Dry run OK (no order placed). Balances: $${j.balances.usd.toFixed(2)} / ${j.balances.btc} BTC. Coinbase preview: ${JSON.stringify(j.preview).slice(0, 400)}` : (j.error ?? "Dry run failed."));
+    });
   return (
     <div className="mt-4 space-y-3">
       <div className="flex flex-wrap gap-2">
@@ -23,8 +29,9 @@ export function OwnerControls({ enabled }: { enabled: boolean }) {
           <button disabled={pending} onClick={() => act("enable")} className="rounded-lg bg-up px-3 py-2 text-sm font-medium text-black disabled:opacity-50">Re-enable agent</button>
         )}
         <button disabled={pending} onClick={() => act("tick")} className="rounded-lg border border-line-strong px-3 py-2 text-sm disabled:opacity-50">Run a tick now</button>
+        <button disabled={pending} onClick={dryRun} className="rounded-lg border border-line-strong px-3 py-2 text-sm disabled:opacity-50">Coinbase dry run ($10 preview)</button>
       </div>
-      {msg && <p className="text-sm text-muted">{msg}</p>}
+      {msg && <p className="break-words text-sm text-muted">{msg}</p>}
     </div>
   );
 }

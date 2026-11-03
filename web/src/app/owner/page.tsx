@@ -6,6 +6,7 @@ import { db, schema } from "@/db";
 import { getSessionUser } from "@/lib/auth/session";
 import { lightning } from "@/lib/pay/lightning";
 import { OwnerControls } from "./owner-controls";
+import { LIVE_MAX_USD, liveConfigured, liveTradingEnabled } from "@/lib/agent/live/coinbase";
 
 export const metadata: Metadata = { title: "Owner", robots: { index: false } };
 
@@ -31,7 +32,8 @@ async function Body() {
     ["Lightning", ln != null && ln.name !== "mock", ln ? (ln.name === "mock" ? "DEV MOCK node" : "LNbits configured") : "set LNBITS_URL + LNBITS_INVOICE_KEY"],
     ["Cron secret", Boolean(process.env.CRON_SECRET), process.env.CRON_SECRET ? "CRON_SECRET set" : "set CRON_SECRET (required in production)"],
     ["Database", Boolean(process.env.DATABASE_URL), process.env.DATABASE_URL ? "Postgres" : "embedded PGlite (dev)"],
-    ["Live trading", false, "not built — paper only until the gate passes"],
+    ["Coinbase API key", liveConfigured(), liveConfigured() ? "configured (dry run available)" : "set COINBASE_KEY_NAME + COINBASE_PRIVATE_KEY"],
+    ["Live trading", liveTradingEnabled(), liveTradingEnabled() ? `ENABLED · cap $${LIVE_MAX_USD}` : `off · paper only until the gate passes (cap when on: $${LIVE_MAX_USD})`],
   ];
   return (
     <div className="mt-8 space-y-4">

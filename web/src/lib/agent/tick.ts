@@ -8,6 +8,7 @@ import type { Candle } from "@/lib/market/types";
 import * as broker from "./broker";
 import { checkEntry, RISK, shouldHalt } from "./risk";
 import { reviewTrade, type Review } from "./review";
+import { announce } from "@/lib/notify";
 
 const STARTING_CASH = Number(process.env.AGENT_STARTING_CASH ?? 10_000);
 const MIN_TICK_GAP_MS = 45 * 60 * 1000;
@@ -184,6 +185,9 @@ async function tick(force: boolean): Promise<TickResult> {
     ...(halt && acct.enabled ? { enabled: false, haltedReason: `Drawdown limit (${RISK.maxDrawdownHaltPct}%) hit at equity $${equityNow.toFixed(2)}` } : {}),
   }).where(eq_(1));
 
+  if (action === "open_long" || action === "open_short" || action === "close" || closedThisTick) {
+    await announce(`🤖 BTCSignal agent (paper): ${closedThisTick && action !== "close" ? `${closedThisTick} ` : ""}${action === "skip" ? "" : summary}`.slice(0, 900));
+  }
   return { ran: true, action, summary, signalId: sigRow.id, decisionId };
 }
 
